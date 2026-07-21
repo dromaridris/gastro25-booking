@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Log in · Gastro Booking{% endblock %}
+{% block content %}
+<div class="auth-card">
+  <div class="auth-logos">
+    <img src="{{ url_for('static', filename='logos/jpmc_logo1.png') }}" alt="JPGMC">
+    <img src="{{ url_for('static', filename='logos/jpmc_gastro_logo.jpeg') }}" alt="Dept. of Gastroenterology">
+  </div>
+  <h1>Gastro &amp; Endoscopy Booking</h1>
+  <p class="auth-sub">Centralized slot management for outpatient, on-call and ward bookings.</p>
+
+  <form method="POST" class="auth-form">
+    <input type="hidden" name="next" value="{{ next }}">
+    <label>Username
+      <input type="text" name="username" autocomplete="username" required autofocus>
+    </label>
+    <label>Password
+      <input type="password" name="password" autocomplete="current-password" required>
+    </label>
+    <button type="submit" class="btn btn--primary btn--full">Log in</button>
+  </form>
+  <p class="auth-footnote">No account yet? <a href="{{ url_for('register') }}">Register here</a> — new accounts require Admin/Specialist approval.</p>
+</div>
+{% endblock %}

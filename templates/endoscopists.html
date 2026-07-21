@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Endoscopists · Gastro Booking{% endblock %}
+{% block content %}
+<div class="admin-page">
+  <h1>Endoscopists</h1>
+  <p class="muted">
+    Manage the list of endoscopists available for selection on ERCP reports. Selecting an
+    endoscopist on a report automatically fills their name and credentials into the printed
+    signature block — the logged-in user is never shown on the printed report.
+  </p>
+
+  <section class="admin-section">
+    <h2>Add Endoscopist</h2>
+    <form method="POST" action="{{ url_for('add_endoscopist') }}" class="settings-form">
+      <label>Full Name &amp; Credentials
+        <input type="text" name="full_name" placeholder="e.g. Dr. Nazish Butt, FCPS" required>
+      </label>
+      <label>Title / Department Lines <span class="label-hint">(one per line)</span>
+        <textarea name="title_lines" rows="3" placeholder="Consultant Gastroenterologist&#10;Head of Department of Gastroenterology&#10;Ward 25, JPMC, Karachi" style="grid-column: 1 / -1;"></textarea>
+      </label>
+      <button class="btn btn--primary" type="submit">Add Endoscopist</button>
+    </form>
+  </section>
+
+  <section class="admin-section">
+    <h2>Endoscopists <span class="badge">{{ endoscopists|length }}</span></h2>
+    {% if endoscopists %}
+    <div class="admin-table-scroll"><table class="admin-table">
+      <thead><tr><th>Name</th><th>Title / Department</th><th>Status</th><th>Reports</th><th></th></tr></thead>
+      <tbody>
+        {% for e in endoscopists %}
+        <tr>
+          <td>{{ e.full_name }}</td>
+          <td style="white-space:pre-line;">{{ e.title_lines }}</td>
+          <td>{{ 'Active' if e.is_active else 'Inactive' }}</td>
+          <td>{{ usage_counts.get(e.id, 0) }}</td>
+          <td class="admin-actions">
+            <form method="POST" action="{{ url_for('toggle_endoscopist', endoscopist_id=e.id) }}" style="display:inline">
+              <button class="btn btn--sm btn--outline" type="submit">{{ 'Deactivate' if e.is_active else 'Reactivate' }}</button>
+            </form>
+            {% if usage_counts.get(e.id, 0) == 0 %}
+            <form method="POST" action="{{ url_for('delete_endoscopist', endoscopist_id=e.id) }}" style="display:inline"
+                  onsubmit="return confirm('Delete this endoscopist?');">
+              <button class="btn btn--sm btn--ghost" type="submit">Delete</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table></div>
+    {% else %}
+    <p class="muted">No endoscopists added yet.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

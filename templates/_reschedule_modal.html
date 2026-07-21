@@ -1,0 +1,25 @@
+<!-- Reschedule Modal (shared by dashboard.html and calendar.html) -->
+<div id="rescheduleModal" class="modal-backdrop no-print" hidden>
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Reschedule Appointment</h2>
+      <button class="modal-close" id="closeRescheduleBtn">&times;</button>
+    </div>
+    <form id="rescheduleForm" class="booking-form">
+      <input type="hidden" id="rescheduleApptId">
+      <p class="muted" id="reschedulePatientInfo"></p>
+      <div id="rescheduleError" class="form-error" hidden></div>
+
+      <label>New Appointment Date
+        <input type="date" id="rescheduleDateField" required>
+      </label>
+
+      <p class="label-hint">All other patient details (name, labs, notes, etc.) carry over automatically — no need to re-enter anything.</p>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn--ghost" id="cancelRescheduleBtn">Cancel</button>
+        <button type="submit" class="btn btn--primary">Reschedule</button>
+      </div>
+    </form>
+  </div>
+</div>

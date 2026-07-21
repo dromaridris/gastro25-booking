@@ -1,0 +1,409 @@
+{% extends "base.html" %}
+{% block title %}ERCP Report · {{ appt.patient_name }}{% endblock %}
+{% block content %}
+<div class="ercp-page" data-report-id="{{ report.id }}" data-locked="{{ is_locked|lower }}">
+  <div class="ercp-header no-print">
+    <div>
+      <h1>ERCP Report — {{ appt.patient_name }}</h1>
+      <p class="muted">MRN {{ appt.mrn or '—' }} · {{ appt.gender }} / {{ appt.age }}y · Procedure date {{ appt.appointment_date }}</p>
+    </div>
+    <div class="ercp-header-actions">
+      <span class="ercp-status-badge ercp-status-{{ report.status }}">{{ 'Finalized' if is_locked else 'Draft' }}</span>
+      <a class="btn btn--outline" href="{{ url_for('ercp_print', report_id=report.id) }}" target="_blank">🖨 Print Report</a>
+    </div>
+  </div>
+
+  {% if is_locked %}
+  <div class="holiday-banner no-print">
+    🔒 This report was finalized by {{ report.finalized_by }} on {{ report.finalized_at[:16] }} and is read-only.
+    {% if can_unlock %}
+    <form method="POST" action="{{ url_for('ercp_unlock', report_id=report.id) }}" style="display:inline"
+          onsubmit="return confirm('Unlock this finalized report for editing?');">
+      <button class="btn btn--sm btn--outline" type="submit" style="margin-left:10px;">Unlock for Editing</button>
+    </form>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div id="ercpSaveNotice" class="flash flash--success no-print" hidden>Saved.</div>
+
+  <fieldset id="ercpFieldset" {{ 'disabled' if is_locked }}>
+    <section class="admin-section">
+      <h2>Endoscopist &amp; Team</h2>
+      <div class="form-row">
+        <label>Endoscopist
+          <select id="f_endoscopist_id">
+            <option value="">— Select —</option>
+            {% for e in endoscopists %}
+            <option value="{{ e.id }}" {{ 'selected' if report.endoscopist_id == e.id }}>{{ e.full_name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>Sedation
+          <select id="f_sedation">
+            <option value="">— Select —</option>
+            {% for opt in sedation_options %}
+            <option value="{{ opt }}" {{ 'selected' if report.sedation == opt }}>{{ opt }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+      <div class="form-row">
+        <label>Anesthesiologist <span class="label-hint">(select previous or type new)</span>
+          <input type="text" id="f_anesthesiologist" list="anesthesiologistList" value="{{ report.anesthesiologist }}" placeholder="e.g. Dr. Ahmed">
+          <datalist id="anesthesiologistList">
+            {% for name in anesthesiologists %}
+            <option value="{{ name }}"></option>
+            {% endfor %}
+          </datalist>
+        </label>
+        <label>Endoscopy Technician
+          <input type="text" id="f_technician" value="{{ report.technician }}">
+        </label>
+      </div>
+      <div class="form-row">
+        <label>Endoscopy Assistants <span class="label-hint">(separate multiple names with commas)</span>
+          <input type="text" id="f_assistants" value="{{ report.assistants }}" placeholder="e.g. Nurse Sana, Nurse Bilal">
+        </label>
+      </div>
+    </section>
+
+    <section class="admin-section">
+      <h2>Procedure Information</h2>
+      <div class="form-row">
+        <label>Indication
+          <select id="f_indication">
+            <option value="">— Select —</option>
+            {% for opt in indication_options %}
+            <option value="{{ opt }}" {{ 'selected' if report.indication == opt }}>{{ opt }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>Papilla
+          <select id="f_papilla">
+            <option value="">— Select —</option>
+            {% for opt in papilla_options %}
+            <option value="{{ opt }}" {{ 'selected' if report.papilla == opt }}>{{ opt }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+      <div class="form-row">
+        <label>Cannulation
+          <select id="f_cannulation">
+            <option value="">— Select —</option>
+            {% for opt in cannulation_options %}
+            <option value="{{ opt }}" {{ 'selected' if report.cannulation == opt }}>{{ opt }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+
+      <div class="form-section-label">Cholangiogram Findings <span class="label-hint">(ESGE/ASGE-aligned — select or measure all that apply)</span></div>
+      <div class="ercp-cholangio-wrap" id="f_cholangiogram_findings">
+
+        <div class="ercp-cholangio-category">
+          <div class="ercp-cholangio-category-title">Normal</div>
+          <label class="checkbox-row ercp-cholangio-opt">
+            <input type="checkbox" id="ch_normal" {{ 'checked' if cholangio_state.get('normal') }}> Normal cholangiogram
+          </label>
+        </div>
+
+        <div class="ercp-cholangio-category">
+          <div class="ercp-cholangio-category-title">Biliary Dilatation (measurements)</div>
+          {% set dil = cholangio_state.get('dilatation', {}) %}
+          <div class="ercp-lab-grid">
+            <label>CBD diameter (mm)<input type="text" id="ch_dil_cbd" value="{{ dil.get('cbd_mm', '') }}"></label>
+            <label>Common Hepatic Duct (mm)<input type="text" id="ch_dil_chd" value="{{ dil.get('chd_mm', '') }}"></label>
+            <label>Right Hepatic Duct (mm)<input type="text" id="ch_dil_rhd" value="{{ dil.get('rhd_mm', '') }}"></label>
+            <label>Left Hepatic Duct (mm)<input type="text" id="ch_dil_lhd" value="{{ dil.get('lhd_mm', '') }}"></label>
+          </div>
+        </div>
+
+        <div class="ercp-cholangio-category">
+          <div class="ercp-cholangio-category-title">Filling Defects</div>
+          {% set fd = cholangio_state.get('filling_defects', {}) %}
+          {% set fd_checks = fd.get('checks', []) %}
+          <label class="checkbox-row ercp-cholangio-opt"><input type="checkbox" class="ch-fd-check" value="Sludge" {{ 'checked' if 'Sludge' in fd_checks }}> Sludge</label>
+          <label class="checkbox-row ercp-cholangio-opt"><input type="checkbox" class="ch-fd-check" value="Blood clot" {{ 'checked' if 'Blood clot' in fd_checks }}> Blood clot</label>
+          <label class="checkbox-row ercp-cholangio-opt"><input type="checkbox" class="ch-fd-check" value="Worm" {{ 'checked' if 'Worm' in fd_checks }}> Worm</label>
+          <label class="checkbox-row ercp-cholangio-opt"><input type="checkbox" class="ch-fd-check" value="Filling defect (unspecified)" {{ 'checked' if 'Filling defect (unspecified)' in fd_checks }}> Filling defect (unspecified)</label>
+          <div class="form-row" style="margin-top:6px;">
+            <label>Number of stones<input type="text" id="ch_fd_count" value="{{ fd.get('stone_count', '') }}"></label>
+            <label>Largest stone size (mm)<input type="text" id="ch_fd_size" value="{{ fd.get('stone_size_mm', '') }}"></label>
+          </div>
+        </div>
+
+        <div class="ercp-cholangio-category">
+          <div class="ercp-cholangio-category-title">Strictures</div>
+          {% set stx = cholangio_state.get('strictures', {}) %}
+          {% set stx_locs = stx.get('locations', []) %}
+          {% for loc in stricture_locations %}
+          <label class="checkbox-row ercp-cholangio-opt"><input type="checkbox" class="ch-stx-loc" value="{{ loc }}" {{ 'checked' if loc in stx_locs }}> {{ loc }}</label>
+          {% endfor %}
+          <div class="form-row" style="margin-top:6px;">
+            <label>Character
+              <select id="ch_stx_character">
+                <option value="">— Select —</option>
+                {% for opt in stricture_character_options %}
+                <option value="{{ opt }}" {{ 'selected' if stx.get('character') == opt }}>{{ opt }}</option>
+                {% endfor %}
+              </select>
+            </label>
+            <label>Length (mm)<input type="text" id="ch_stx_length" value="{{ stx.get('length_mm', '') }}"></label>
+          </div>
+        </div>
+
+        <div class="ercp-cholangio-category">
+          <div class="ercp-cholangio-category-title">Tumours</div>
+          {% set tumours_sel = cholangio_state.get('tumours', []) %}
+          {% for opt in tumour_options %}
+          <label class="checkbox-row ercp-cholangio-opt"><input type="checkbox" class="ch-tumour" value="{{ opt }}" {{ 'checked' if opt in tumours_sel }}> {{ opt }}</label>
+          {% endfor %}
+        </div>
+
+        <div class="ercp-cholangio-category">
+          <div class="ercp-cholangio-category-title">Sclerosing Cholangitis</div>
+          {% set scl = cholangio_state.get('sclerosing', {}) %}
+          <label>Subtype
+            <select id="ch_scl_subtype">
+              <option value="">— Not present —</option>
+              {% for opt in sclerosing_subtypes %}
+              <option value="{{ opt }}" {{ 'selected' if scl.get('subtype') == opt }}>{{ opt }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          {% set scl_feat = scl.get('features', []) %}
+          {% for opt in sclerosing_features %}
+          <label class="checkbox-row ercp-cholangio-opt"><input type="checkbox" class="ch-scl-feat" value="{{ opt }}" {{ 'checked' if opt in scl_feat }}> {{ opt }}</label>
+          {% endfor %}
+        </div>
+
+        {% set simple_state = cholangio_state.get('simple', {}) %}
+        {% for category, options in cholangiogram_simple_categories %}
+        <div class="ercp-cholangio-category">
+          <div class="ercp-cholangio-category-title">{{ category }}</div>
+          {% for opt in options %}
+          <label class="checkbox-row ercp-cholangio-opt"><input type="checkbox" class="ch-simple" data-category="{{ category }}" value="{{ opt }}" {{ 'checked' if opt in simple_state.get(category, []) }}> {{ opt }}</label>
+          {% endfor %}
+        </div>
+        {% endfor %}
+
+      </div>
+
+      <div class="form-section-label">Therapeutic Procedures</div>
+      <div class="ercp-checkbox-grid" id="f_therapeutic_procedures">
+        {% for opt in therapeutic_options %}
+        <label class="checkbox-row"><input type="checkbox" value="{{ opt }}" {{ 'checked' if opt in (report.therapeutic_procedures or '').split(', ') }}> {{ opt }}</label>
+        {% endfor %}
+      </div>
+
+      <div class="form-section-label">Biliary Stent Placement</div>
+      <label>Stent inserted
+        <select id="stent_inserted">
+          <option value="no" {{ 'selected' if not stent_state.get('inserted') }}>No</option>
+          <option value="yes" {{ 'selected' if stent_state.get('inserted') }}>Yes</option>
+        </select>
+      </label>
+
+      <div id="stentDetailFields" {{ 'hidden' if not stent_state.get('inserted') }}>
+        <div class="form-row">
+          <label>Stent Type
+            <select id="stent_type">
+              <option value="">— Select —</option>
+              {% for opt in stent_type_options %}
+              <option value="{{ opt }}" {{ 'selected' if stent_state.get('stent_type') == opt }}>{{ opt }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>Diameter
+            <select id="stent_diameter">
+              <option value="">— Select —</option>
+              {% for opt in stent_diameter_options %}
+              <option value="{{ opt }}" {{ 'selected' if stent_state.get('diameter') == opt }}>{{ opt }}</option>
+              {% endfor %}
+            </select>
+          </label>
+        </div>
+        <div class="form-row">
+          <label>Length
+            <select id="stent_length">
+              <option value="">— Select —</option>
+              {% for opt in stent_length_options %}
+              <option value="{{ opt }}" {{ 'selected' if stent_state.get('length') == opt }}>{{ opt }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>Number of stents
+            <input type="text" id="stent_count" value="{{ stent_state.get('count', '') }}">
+          </label>
+        </div>
+        <div class="form-row">
+          <label>Deployment
+            <select id="stent_deployment">
+              <option value="">— Select —</option>
+              {% for opt in stent_deployment_options %}
+              <option value="{{ opt }}" {{ 'selected' if stent_state.get('deployment') == opt }}>{{ opt }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>Position
+            <select id="stent_position">
+              <option value="">— Select —</option>
+              {% for opt in stent_position_options %}
+              <option value="{{ opt }}" {{ 'selected' if stent_state.get('position') == opt }}>{{ opt }}</option>
+              {% endfor %}
+            </select>
+          </label>
+        </div>
+        <label>Immediate Drainage
+          <select id="stent_drainage">
+            <option value="">— Select —</option>
+            {% for opt in stent_drainage_options %}
+            <option value="{{ opt }}" {{ 'selected' if stent_state.get('drainage') == opt }}>{{ opt }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+
+      <label>Biopsy
+        <select id="f_biopsy">
+          <option value="">— Select —</option>
+          {% for opt in biopsy_options %}
+          <option value="{{ opt }}" {{ 'selected' if report.biopsy == opt }}>{{ opt }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <div class="form-section-label">Complications</div>
+      <div class="ercp-checkbox-grid" id="f_complications">
+        {% for opt in complication_options %}
+        <label class="checkbox-row"><input type="checkbox" value="{{ opt }}" {{ 'checked' if opt in (report.complications or '').split(', ') }}> {{ opt }}</label>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="admin-section">
+      <h2>Procedure Note</h2>
+      <p class="muted" style="margin-bottom:8px;">Auto-drafted from the fields above — always review and edit before finalizing.</p>
+      <button type="button" class="btn btn--sm btn--outline no-print" id="generateNoteBtn" style="margin-bottom:10px;">🔄 Generate / Regenerate Note</button>
+      <textarea id="f_procedure_note" rows="6" style="width:100%;">{{ report.procedure_note }}</textarea>
+    </section>
+
+    <section class="admin-section">
+      <h2>Impression</h2>
+      <textarea id="f_impression" rows="3" style="width:100%;">{{ report.impression }}</textarea>
+    </section>
+
+    <section class="admin-section">
+      <h2>Recommendations</h2>
+      <textarea id="f_recommendations" rows="5" style="width:100%;">{{ report.recommendations }}</textarea>
+    </section>
+
+    <section class="admin-section">
+      <h2>Laboratory <span class="label-hint">(ERCP only — optional)</span></h2>
+      <div class="ercp-lab-grid">
+        <label>Total Bilirubin<input type="text" id="f_lab_total_bilirubin" value="{{ report.lab_total_bilirubin }}"></label>
+        <label>Direct Bilirubin<input type="text" id="f_lab_direct_bilirubin" value="{{ report.lab_direct_bilirubin }}"></label>
+        <label>ALT<input type="text" id="f_lab_alt" value="{{ report.lab_alt }}"></label>
+        <label>AST<input type="text" id="f_lab_ast" value="{{ report.lab_ast }}"></label>
+        <label>ALP<input type="text" id="f_lab_alp" value="{{ report.lab_alp }}"></label>
+        <label>GGT<input type="text" id="f_lab_ggt" value="{{ report.lab_ggt }}"></label>
+        <label>Albumin<input type="text" id="f_lab_albumin" value="{{ report.lab_albumin }}"></label>
+        <label>Hemoglobin<input type="text" id="f_lab_hb" value="{{ report.lab_hb }}"></label>
+        <label>WBC<input type="text" id="f_lab_wbc" value="{{ report.lab_wbc }}"></label>
+        <label>Platelets<input type="text" id="f_lab_platelets" value="{{ report.lab_platelets }}"></label>
+        <label>PT<input type="text" id="f_lab_pt" value="{{ report.lab_pt }}"></label>
+        <label>INR<input type="text" id="f_lab_inr" value="{{ report.lab_inr }}"></label>
+        <label>Creatinine<input type="text" id="f_lab_creatinine" value="{{ report.lab_creatinine }}"></label>
+      </div>
+    </section>
+
+    <section class="admin-section">
+      <h2>Imaging <span class="label-hint">(ERCP only — optional, never printed)</span></h2>
+      <label>Ultrasound Findings<textarea id="f_imaging_us" rows="2" style="width:100%;">{{ report.imaging_us }}</textarea></label>
+      <label>CT Findings<textarea id="f_imaging_ct" rows="2" style="width:100%;">{{ report.imaging_ct }}</textarea></label>
+      <label>MRCP Findings<textarea id="f_imaging_mrcp" rows="2" style="width:100%;">{{ report.imaging_mrcp }}</textarea></label>
+    </section>
+
+    <section class="admin-section">
+      <h2>Research Data <span class="label-hint">(never shown on the printed report — stays editable even after finalizing)</span></h2>
+      <div class="form-row">
+        <label>Fluoroscopy Time (sec)<input type="text" id="r_fluoro_time_sec" value="{{ research.fluoro_time_sec }}"></label>
+        <label>Contrast Volume (mL)<input type="text" id="r_contrast_volume_ml" value="{{ research.contrast_volume_ml }}"></label>
+      </div>
+      <div class="form-row">
+        <label>CBD Diameter (mm)<input type="text" id="r_cbd_diameter_mm" value="{{ research.cbd_diameter_mm }}"></label>
+        <label>Stone Size (mm)<input type="text" id="r_stone_size_mm" value="{{ research.stone_size_mm }}"></label>
+      </div>
+      <div class="form-row">
+        <label>Stone Count<input type="text" id="r_stone_count" value="{{ research.stone_count }}"></label>
+        <label>Stone Clearance
+          <select id="r_stone_clearance">
+            <option value="">— Select —</option>
+            <option value="Complete" {{ 'selected' if research.stone_clearance == 'Complete' }}>Complete</option>
+            <option value="Incomplete" {{ 'selected' if research.stone_clearance == 'Incomplete' }}>Incomplete</option>
+          </select>
+        </label>
+      </div>
+      <div class="form-row">
+        <label>Pancreatic Duct Findings<input type="text" id="r_pd_findings" value="{{ research.pd_findings }}"></label>
+        <label>Pancreatic Duct Intervention<input type="text" id="r_pd_intervention" value="{{ research.pd_intervention }}"></label>
+      </div>
+      <div class="form-row">
+        <label>Device Details<input type="text" id="r_device_details" value="{{ research.device_details }}"></label>
+        <label>Procedure Duration (min)<input type="text" id="r_procedure_duration_min" value="{{ research.procedure_duration_min }}"></label>
+      </div>
+      <div class="form-row">
+        <label>ASA Class<input type="text" id="r_asa_class" value="{{ research.asa_class }}" placeholder="e.g. II"></label>
+        <label>Complication Severity<input type="text" id="r_complication_severity" value="{{ research.complication_severity }}" placeholder="e.g. Mild"></label>
+      </div>
+      <div class="form-row">
+        <label>Disposition<input type="text" id="r_disposition" value="{{ research.disposition }}" placeholder="e.g. Discharged same day"></label>
+        <label>Follow-up Plan<input type="text" id="r_followup_plan" value="{{ research.followup_plan }}"></label>
+      </div>
+    </section>
+  </fieldset>
+
+  <section class="admin-section">
+    <h2>Images <span class="label-hint">(6 slots — always shown on page 2 of the printed report)</span></h2>
+    <div class="ercp-image-grid">
+      {% for slot in image_slots %}
+      <div class="ercp-image-slot">
+        <div class="ercp-image-preview" id="imgPreview{{ slot }}">
+          {% if image_by_slot.get(slot) %}
+          <img src="{{ url_for('ercp_view_image', report_id=report.id, slot=slot) }}?t={{ image_by_slot[slot].uploaded_at }}" alt="Image {{ slot }}">
+          {% else %}
+          <span class="ercp-image-empty">Slot {{ slot }}</span>
+          {% endif %}
+        </div>
+        {% if not is_locked %}
+        <input type="file" accept="image/*" class="ercp-image-input no-print" data-slot="{{ slot }}" hidden>
+        <div class="ercp-image-actions no-print">
+          <button type="button" class="btn btn--sm btn--outline" onclick="document.querySelector('.ercp-image-input[data-slot=\'{{ slot }}\']').click()">Upload</button>
+          {% if image_by_slot.get(slot) %}
+          <button type="button" class="btn btn--sm btn--ghost" onclick="ercpDeleteImage({{ slot }})">Remove</button>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <div class="ercp-footer-actions no-print">
+    {% if not is_locked %}
+    <button type="button" class="btn btn--outline" id="saveReportBtn">Save Draft</button>
+    <button type="button" class="btn btn--primary" id="finalizeReportBtn">Finalize Report</button>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script>
+  initErcpReport();
+</script>
+{% endblock %}

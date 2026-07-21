@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Admin · Gastro Booking{% endblock %}
+{% block content %}
+<div class="admin-page">
+  <h1>Administration</h1>
+
+  <section class="admin-section">
+    <h2>Pending Account Approvals <span class="badge">{{ pending|length }}</span></h2>
+    {% if pending %}
+    <div class="admin-table-scroll"><table class="admin-table">
+      <thead><tr><th>Full Name</th><th>Username</th><th>Requested Role</th><th>Requested On</th><th></th></tr></thead>
+      <tbody>
+        {% for u in pending %}
+        <tr>
+          <td>{{ u.full_name }}</td>
+          <td>{{ u.username }}</td>
+          <td>{{ user_role_label(u.role) }}</td>
+          <td>{{ u.created_at[:16].replace('T', ' ') }}</td>
+          <td class="admin-actions">
+            <form method="POST" action="{{ url_for('approve_user', user_id=u.id) }}" style="display:inline">
+              <button class="btn btn--sm btn--primary" type="submit">Approve</button>
+            </form>
+            <form method="POST" action="{{ url_for('reject_user', user_id=u.id) }}" style="display:inline"
+                  onsubmit="return confirm('Reject and delete this registration request?');">
+              <button class="btn btn--sm btn--ghost" type="submit">Reject</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table></div>
+    {% else %}
+    <p class="muted">No pending accounts.</p>
+    {% endif %}
+  </section>
+
+  <section class="admin-section">
+    <h2>Approved Accounts <span class="badge">{{ approved|length }}</span></h2>
+    <div class="admin-table-scroll"><table class="admin-table">
+      <thead><tr><th>Full Name</th><th>Username</th><th>Role</th>{% if current_user.role in ['admin','specialist'] %}<th></th>{% endif %}</tr></thead>
+      <tbody>
+        {% for u in approved %}
+        <tr>
+          <td>{{ u.full_name }}</td>
+          <td>{{ u.username }}</td>
+          <td>{{ user_role_label(u.role) }}</td>
+          {% if current_user.role in ['admin','specialist'] %}
+          <td class="admin-actions">
+            <form method="POST" action="{{ url_for('delete_user', user_id=u.id) }}" style="display:inline"
+                  onsubmit="return confirm('Permanently delete the account \'{{ u.username }}\'? This cannot be undone.');">
+              <button class="btn btn--sm btn--ghost" type="submit">Delete</button>
+            </form>
+          </td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="admin-section">
+    <h2>Export Bookings to Excel</h2>
+    <p class="muted">Download all bookings within a date range as an .xlsx file.</p>
+    <form method="GET" action="{{ url_for('export_appointments') }}" class="settings-form">
+      <label>Start Date
+        <input type="date" name="start" required>
+      </label>
+      <label>End Date
+        <input type="date" name="end" required>
+      </label>
+      <button class="btn btn--primary" type="submit">Download .xlsx</button>
+    </form>
+  </section>
+
+  {% if current_user.role == 'admin' %}
+  <section class="admin-section">
+    <h2>System Caps</h2>
+    <form method="POST" action="{{ url_for('update_settings') }}" class="settings-form">
+      <label>Global Upper GI cap / day
+        <input type="number" name="global_upper_gi_cap" value="{{ settings.global_upper_gi_cap }}" min="1" required>
+      </label>
+      <label>Global Colonoscopy cap / day
+        <input type="number" name="global_colono_cap" value="{{ settings.global_colono_cap }}" min="1" required>
+      </label>
+      <label>Global PEG Tube cap / day
+        <input type="number" name="global_peg_cap" value="{{ settings.global_peg_cap }}" min="0" required>
+      </label>
+      <label>Scheduler/Endoscopy Staff Upper GI quota / day
+        <input type="number" name="scheduler_upper_gi_cap" value="{{ settings.scheduler_upper_gi_cap }}" min="0" required>
+      </label>
+      <label>Scheduler/Endoscopy Staff Colonoscopy quota / day
+        <input type="number" name="scheduler_colono_cap" value="{{ settings.scheduler_colono_cap }}" min="0" required>
+      </label>
+      <label>Warning threshold (regular case count)
+        <input type="number" name="warning_threshold" value="{{ settings.warning_threshold }}" min="1" required>
+      </label>
+      <button class="btn btn--primary" type="submit">Save Caps</button>
+    </form>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

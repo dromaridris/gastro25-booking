@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{ report_number }} — {{ appt.patient_name }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="print-body">
+  <div class="print-toolbar no-print">
+    <button onclick="window.print()">🖨 Print</button>
+    <button onclick="window.close()">Close</button>
+  </div>
+
+  <div class="print-sheet ercp-print-sheet">
+
+    <!-- ============ PAGE 1 : REPORT ============ -->
+    <div class="ercp-print-header">
+      <img src="{{ url_for('static', filename='logos/jpmc_logo1.png') }}" alt="JPGMC" class="print-logo">
+      <div class="print-header-text">
+        <p class="print-dept-name">Gastroenterology Ward 25 · Endoscopy Unit</p>
+        <h1>ERCP Procedure Report</h1>
+        <p>Jinnah Postgraduate Medical Center, Karachi</p>
+      </div>
+      <img src="{{ url_for('static', filename='logos/jpmc_gastro_logo.jpeg') }}" alt="Dept. of Gastroenterology" class="print-logo">
+    </div>
+
+    <p class="ercp-report-number">Report No: {{ report_number }}</p>
+
+    <table class="ercp-print-table">
+      <tr><th colspan="4" class="ercp-section-th">Patient Information</th></tr>
+      <tr>
+        <td class="ercp-label">Patient Name</td><td>{{ appt.patient_name }}</td>
+        <td class="ercp-label">MR Number</td><td>{{ appt.mrn or '—' }}</td>
+      </tr>
+      <tr>
+        <td class="ercp-label">Age / Gender</td><td>{{ appt.age }} / {{ appt.gender }}</td>
+        <td class="ercp-label">Procedure Date</td><td>{{ appt.appointment_date }}</td>
+      </tr>
+      <tr>
+        <td class="ercp-label">Referral Source</td><td colspan="3">{{ appt.referral or '—' }}</td>
+      </tr>
+    </table>
+
+    {% if procedure_fields %}
+    <table class="ercp-print-table">
+      <tr><th colspan="2" class="ercp-section-th">Procedure Information</th></tr>
+      {% for label, value in procedure_fields %}
+      <tr><td class="ercp-label">{{ label }}</td><td>{{ value }}</td></tr>
+      {% endfor %}
+    </table>
+    {% endif %}
+
+    {% if report.procedure_note %}
+    <div class="ercp-print-block">
+      <h3>Procedure Note</h3>
+      <p>{{ report.procedure_note }}</p>
+    </div>
+    {% endif %}
+
+    {% if report.impression %}
+    <div class="ercp-print-block">
+      <h3>Impression</h3>
+      <p>{{ report.impression }}</p>
+    </div>
+    {% endif %}
+
+    {% if report.recommendations %}
+    <div class="ercp-print-block">
+      <h3>Recommendations</h3>
+      <p>{{ report.recommendations }}</p>
+    </div>
+    {% endif %}
+
+    <table class="ercp-print-table">
+      <tr><th colspan="2" class="ercp-section-th">Procedural Team</th></tr>
+      <tr>
+        <td class="ercp-label">Anesthesiologist</td>
+        <td>{{ ('Dr. ' + report.anesthesiologist) if report.anesthesiologist else '—' }}</td>
+      </tr>
+      <tr>
+        <td class="ercp-label">Endoscopy Assistants</td>
+        <td>
+          {% if assistants_lines %}
+            {% for line in assistants_lines %}{{ line }}{% if not loop.last %}<br>{% endif %}{% endfor %}
+          {% else %}—{% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td class="ercp-label">Endoscopy Technician</td>
+        <td>{{ report.technician or '—' }}</td>
+      </tr>
+    </table>
+
+    <div class="ercp-signature-row">
+      <div class="print-signature print-signature--ercp">
+        <div class="signature-line"></div>
+        {% if endoscopist %}
+        <p class="signature-name">{{ endoscopist.full_name }}</p>
+        {% for line in endoscopist.title_lines.split('\n') %}
+        <p class="signature-detail">{{ line }}</p>
+        {% endfor %}
+        {% else %}
+        <p class="signature-detail">&nbsp;</p>
+        {% endif %}
+      </div>
+      {% if qr_data_uri %}
+      <div class="ercp-qr-box">
+        <img src="{{ qr_data_uri }}" alt="QR code" class="ercp-qr-img">
+        <p class="ercp-qr-caption">Scan to view in system</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- ============ PAGE 2 : IMAGES ============ -->
+    <div class="ercp-print-page2">
+      <div class="ercp-print-header">
+        <img src="{{ url_for('static', filename='logos/jpmc_logo1.png') }}" alt="JPGMC" class="print-logo">
+        <div class="print-header-text">
+          <p class="print-dept-name">Gastroenterology Ward 25 · Endoscopy Unit</p>
+          <h1>ERCP Images</h1>
+          <p>Report No: {{ report_number }} — {{ appt.patient_name }}</p>
+        </div>
+        <img src="{{ url_for('static', filename='logos/jpmc_gastro_logo.jpeg') }}" alt="Dept. of Gastroenterology" class="print-logo">
+      </div>
+
+      <div class="ercp-print-image-grid">
+        {% for slot in range(1, 7) %}
+          {% set img = images | selectattr('slot', 'equalto', slot) | first %}
+          <div class="ercp-print-image-cell">
+            {% if img %}
+            <img src="{{ url_for('ercp_view_image', report_id=report.id, slot=slot) }}" alt="ERCP image {{ slot }}">
+            {% else %}
+            <div class="ercp-print-image-blank">Image {{ slot }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="print-signature print-signature--ercp">
+        <div class="signature-line"></div>
+        {% if endoscopist %}
+        <p class="signature-name">{{ endoscopist.full_name }}</p>
+        {% for line in endoscopist.title_lines.split('\n') %}
+        <p class="signature-detail">{{ line }}</p>
+        {% endfor %}
+        {% else %}
+        <p class="signature-detail">&nbsp;</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block title %}Statistics · Gastro Booking{% endblock %}
+{% block content %}
+<div class="stats-page">
+  <h1>Medical Statistics</h1>
+  <p class="muted">Aggregate statistics for all bookings within a date range — useful for periodic reports to hospital management.</p>
+
+  <form method="GET" class="settings-form stats-form">
+    <label>Start Date
+      <input type="date" name="start" value="{{ start }}" required>
+    </label>
+    <label>End Date
+      <input type="date" name="end" value="{{ end }}" required>
+    </label>
+    <button class="btn btn--primary" type="submit">Run Analysis</button>
+  </form>
+
+  {% if error %}
+  <div class="flash flash--error" style="margin-top:16px;">{{ error }}</div>
+  {% endif %}
+
+  {% if stats %}
+  <div class="stats-summary-grid">
+    <div class="stat-card">
+      <div class="stat-value">{{ stats.total }}</div>
+      <div class="stat-label">Total Bookings</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ stats.avg_bookings_per_day if stats.avg_bookings_per_day is not none else '—' }}</div>
+      <div class="stat-label">Avg Bookings / Day</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ stats.genders.get('Male', 0) }} / {{ stats.genders.get('Female', 0) }}</div>
+      <div class="stat-label">Male / Female</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ stats.avg_age if stats.avg_age is not none else '—' }}</div>
+      <div class="stat-label">Average Age</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ stats.avg_utilization_pct ~ '%' if stats.avg_utilization_pct is not none else '—' }}</div>
+      <div class="stat-label">Avg Daily Cap Usage</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ stats.avg_lead_time_days if stats.avg_lead_time_days is not none else '—' }}</div>
+      <div class="stat-label">Avg Booking Lead Time (days)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ stats.bleeding_count }}</div>
+      <div class="stat-label">Bleeding Cases</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ stats.override_count }}</div>
+      <div class="stat-label">Cap Overrides Used</div>
+    </div>
+  </div>
+
+  <div class="stats-tables">
+    <section class="admin-section">
+      <h2>Bookings Over Time</h2>
+      <p class="muted" style="margin-bottom:10px;">
+        Grouped by {{ 'day' if stats.bucket_unit == 'day' else ('week' if stats.bucket_unit == 'week' else 'month') }}
+        based on the length of the selected range.
+      </p>
+      <canvas id="timelineChart" height="90"></canvas>
+    </section>
+
+    <section class="admin-section">
+      <h2>Procedure Mix</h2>
+      <div class="chart-donut-wrap">
+        <canvas id="procedureChart" height="220"></canvas>
+      </div>
+    </section>
+
+    <section class="admin-section">
+      <h2>Bookings by Procedure</h2>
+      <div class="admin-table-scroll"><table class="admin-table">
+        <thead><tr><th>Procedure</th><th>Count</th></tr></thead>
+        <tbody>
+          {% for key, label in PROCEDURE_LABELS.items() %}
+          <tr><td>{{ label }}</td><td>{{ stats.by_procedure.get(key, 0) }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="admin-section">
+      <h2>Pre-procedure Labs — Averages</h2>
+      <p class="muted" style="margin-bottom:10px;">Calculated only from bookings where each value was entered (labs are optional, so "n" shows how many records had that value).</p>
+      <div class="admin-table-scroll"><table class="admin-table">
+        <thead><tr><th>Lab</th><th>Average</th><th>Based on (n)</th></tr></thead>
+        <tbody>
+          <tr><td>Hb (on admission)</td><td>{{ stats.avg_hb if stats.avg_hb is not none else '—' }}</td><td>{{ stats.hb_n }}</td></tr>
+          <tr><td>Platelet</td><td>{{ stats.avg_platelet if stats.avg_platelet is not none else '—' }}</td><td>{{ stats.platelet_n }}</td></tr>
+          <tr><td>INR</td><td>{{ stats.avg_inr if stats.avg_inr is not none else '—' }}</td><td>{{ stats.inr_n }}</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="admin-section">
+      <h2>Bookings by Account Type</h2>
+      <div class="admin-table-scroll"><table class="admin-table">
+        <thead><tr><th>Role</th><th>Bookings Made</th></tr></thead>
+        <tbody>
+          {% for role, count in stats.booked_by_role.items() %}
+          <tr><td>{{ role }}</td><td>{{ count }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table></div>
+    </section>
+
+    {% if current_user.role in ['admin', 'specialist'] %}
+    <section class="admin-section">
+      <h2>Export Raw Data</h2>
+      <p class="muted">Download the underlying bookings for this same date range as an .xlsx file.</p>
+      <a class="btn btn--outline" href="{{ url_for('export_appointments', start=start, end=end) }}">Download .xlsx</a>
+    </section>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if stats %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+  (function(){
+    var timeline = {{ stats.timeline | tojson }};
+    var labels = timeline.map(function(t){ return t.label; });
+
+    new Chart(document.getElementById('timelineChart'), {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          { label: 'Upper GI', data: timeline.map(function(t){return t.upper_gi;}), backgroundColor: '#2F7D5E' },
+          { label: 'Colonoscopy', data: timeline.map(function(t){return t.colonoscopy;}), backgroundColor: '#2B6CB0' },
+          { label: 'PEG Tube', data: timeline.map(function(t){return t.peg_tube;}), backgroundColor: '#0F8A8A' },
+          { label: 'ERCP', data: timeline.map(function(t){return t.ercp;}), backgroundColor: '#6B4FA0' },
+          { label: 'Special', data: timeline.map(function(t){return t.special;}), backgroundColor: '#B4711F' }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } },
+        scales: {
+          x: { stacked: true, ticks: { font: { size: 10 } } },
+          y: { stacked: true, beginAtZero: true, ticks: { precision: 0, font: { size: 10 } } }
+        }
+      }
+    });
+
+    var procData = {{ stats.by_procedure | tojson }};
+    var procLabels = {{ PROCEDURE_LABELS | tojson }};
+    var keys = Object.keys(procData);
+    new Chart(document.getElementById('procedureChart'), {
+      type: 'doughnut',
+      data: {
+        labels: keys.map(function(k){ return procLabels[k]; }),
+        datasets: [{
+          data: keys.map(function(k){ return procData[k]; }),
+          backgroundColor: ['#2F7D5E', '#2B6CB0', '#0F8A8A', '#6B4FA0', '#B4711F', '#C23B3B']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } }
+      }
+    });
+  })();
+</script>
+{% endif %}
+{% endblock %}
