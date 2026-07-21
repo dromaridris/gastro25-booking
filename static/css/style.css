@@ -381,6 +381,16 @@ input:focus, select:focus, textarea:focus{ outline: 2px solid var(--crimson); ou
 .ercp-cholangio-opt{ font-size: 12.5px !important; padding: 1px 0; }
 .ercp-lab-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 12px; }
 .ercp-lab-grid label{ font-size: 12px; font-weight: 700; display:flex; flex-direction: column; gap: 4px; }
+
+/* Compact inline layout for Biliary Dilatation measurements (CBD/CHD/RHD/LHD) —
+   scoped only to this field group so the rest of the ERCP form is unaffected. */
+.ercp-dilatation-inline{ display:flex; flex-wrap:wrap; align-items:flex-end; gap: 10px 18px; margin-top: 4px; }
+.ercp-inline-field{ display:flex; flex-direction:column; gap: 4px; font-size: 11.5px; font-weight: 700; flex: 0 0 auto; }
+.ercp-inline-field input{ width: 84px; padding: 6px 8px; }
+@media (max-width: 480px){
+  .ercp-inline-field{ flex: 1 1 45%; }
+  .ercp-inline-field input{ width: 100%; }
+}
 .ercp-image-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 14px; }
 .ercp-image-slot{ text-align:center; }
 .ercp-image-preview{

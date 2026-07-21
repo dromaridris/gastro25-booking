@@ -79,16 +79,42 @@
             {% endfor %}
           </select>
         </label>
-        <label>Papilla
-          <select id="f_papilla">
+        <label>Duodenoscope Advancement
+          <select id="f_duodenoscope_advancement">
             <option value="">— Select —</option>
-            {% for opt in papilla_options %}
-            <option value="{{ opt }}" {{ 'selected' if report.papilla == opt }}>{{ opt }}</option>
+            {% for opt in duodenoscope_advancement_options %}
+            <option value="{{ opt }}" {{ 'selected' if report.duodenoscope_advancement == opt }}>{{ opt }}</option>
             {% endfor %}
           </select>
         </label>
       </div>
       <div class="form-row">
+        <label>Endoscopic Papillary Shape (Haraldsson Classification)
+          <select id="f_papilla">
+            <option value="">— Select —</option>
+            {% for opt in papilla_shape_options %}
+            <option value="{{ opt }}" {{ 'selected' if report.papilla == opt }}>{{ opt }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>Papillary Location <span class="label-hint">(if not standard)</span>
+          <select id="f_papilla_location">
+            <option value="">— Standard location —</option>
+            {% for opt in papilla_location_options %}
+            <option value="{{ opt }}" {{ 'selected' if report.papilla_location == opt }}>{{ opt }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+      <div class="form-row">
+        <label>Papillary Access
+          <select id="f_papilla_access">
+            <option value="">— Select —</option>
+            {% for opt in papilla_access_options %}
+            <option value="{{ opt }}" {{ 'selected' if report.papilla_access == opt }}>{{ opt }}</option>
+            {% endfor %}
+          </select>
+        </label>
         <label>Cannulation
           <select id="f_cannulation">
             <option value="">— Select —</option>
@@ -99,96 +125,44 @@
         </label>
       </div>
 
-      <div class="form-section-label">Cholangiogram Findings <span class="label-hint">(ESGE/ASGE-aligned — select or measure all that apply)</span></div>
+      <div class="form-section-label">Cholangiogram Findings <span class="label-hint">(select all that apply)</span></div>
       <div class="ercp-cholangio-wrap" id="f_cholangiogram_findings">
-
-        <div class="ercp-cholangio-category">
-          <div class="ercp-cholangio-category-title">Normal</div>
-          <label class="checkbox-row ercp-cholangio-opt">
-            <input type="checkbox" id="ch_normal" {{ 'checked' if cholangio_state.get('normal') }}> Normal cholangiogram
-          </label>
-        </div>
-
-        <div class="ercp-cholangio-category">
-          <div class="ercp-cholangio-category-title">Biliary Dilatation (measurements)</div>
-          {% set dil = cholangio_state.get('dilatation', {}) %}
-          <div class="ercp-lab-grid">
-            <label>CBD diameter (mm)<input type="text" id="ch_dil_cbd" value="{{ dil.get('cbd_mm', '') }}"></label>
-            <label>Common Hepatic Duct (mm)<input type="text" id="ch_dil_chd" value="{{ dil.get('chd_mm', '') }}"></label>
-            <label>Right Hepatic Duct (mm)<input type="text" id="ch_dil_rhd" value="{{ dil.get('rhd_mm', '') }}"></label>
-            <label>Left Hepatic Duct (mm)<input type="text" id="ch_dil_lhd" value="{{ dil.get('lhd_mm', '') }}"></label>
-          </div>
-        </div>
-
-        <div class="ercp-cholangio-category">
-          <div class="ercp-cholangio-category-title">Filling Defects</div>
-          {% set fd = cholangio_state.get('filling_defects', {}) %}
-          {% set fd_checks = fd.get('checks', []) %}
-          <label class="checkbox-row ercp-cholangio-opt"><input type="checkbox" class="ch-fd-check" value="Sludge" {{ 'checked' if 'Sludge' in fd_checks }}> Sludge</label>
-          <label class="checkbox-row ercp-cholangio-opt"><input type="checkbox" class="ch-fd-check" value="Blood clot" {{ 'checked' if 'Blood clot' in fd_checks }}> Blood clot</label>
-          <label class="checkbox-row ercp-cholangio-opt"><input type="checkbox" class="ch-fd-check" value="Worm" {{ 'checked' if 'Worm' in fd_checks }}> Worm</label>
-          <label class="checkbox-row ercp-cholangio-opt"><input type="checkbox" class="ch-fd-check" value="Filling defect (unspecified)" {{ 'checked' if 'Filling defect (unspecified)' in fd_checks }}> Filling defect (unspecified)</label>
-          <div class="form-row" style="margin-top:6px;">
-            <label>Number of stones<input type="text" id="ch_fd_count" value="{{ fd.get('stone_count', '') }}"></label>
-            <label>Largest stone size (mm)<input type="text" id="ch_fd_size" value="{{ fd.get('stone_size_mm', '') }}"></label>
-          </div>
-        </div>
-
-        <div class="ercp-cholangio-category">
-          <div class="ercp-cholangio-category-title">Strictures</div>
-          {% set stx = cholangio_state.get('strictures', {}) %}
-          {% set stx_locs = stx.get('locations', []) %}
-          {% for loc in stricture_locations %}
-          <label class="checkbox-row ercp-cholangio-opt"><input type="checkbox" class="ch-stx-loc" value="{{ loc }}" {{ 'checked' if loc in stx_locs }}> {{ loc }}</label>
-          {% endfor %}
-          <div class="form-row" style="margin-top:6px;">
-            <label>Character
-              <select id="ch_stx_character">
-                <option value="">— Select —</option>
-                {% for opt in stricture_character_options %}
-                <option value="{{ opt }}" {{ 'selected' if stx.get('character') == opt }}>{{ opt }}</option>
-                {% endfor %}
-              </select>
-            </label>
-            <label>Length (mm)<input type="text" id="ch_stx_length" value="{{ stx.get('length_mm', '') }}"></label>
-          </div>
-        </div>
-
-        <div class="ercp-cholangio-category">
-          <div class="ercp-cholangio-category-title">Tumours</div>
-          {% set tumours_sel = cholangio_state.get('tumours', []) %}
-          {% for opt in tumour_options %}
-          <label class="checkbox-row ercp-cholangio-opt"><input type="checkbox" class="ch-tumour" value="{{ opt }}" {{ 'checked' if opt in tumours_sel }}> {{ opt }}</label>
-          {% endfor %}
-        </div>
-
-        <div class="ercp-cholangio-category">
-          <div class="ercp-cholangio-category-title">Sclerosing Cholangitis</div>
-          {% set scl = cholangio_state.get('sclerosing', {}) %}
-          <label>Subtype
-            <select id="ch_scl_subtype">
-              <option value="">— Not present —</option>
-              {% for opt in sclerosing_subtypes %}
-              <option value="{{ opt }}" {{ 'selected' if scl.get('subtype') == opt }}>{{ opt }}</option>
-              {% endfor %}
-            </select>
-          </label>
-          {% set scl_feat = scl.get('features', []) %}
-          {% for opt in sclerosing_features %}
-          <label class="checkbox-row ercp-cholangio-opt"><input type="checkbox" class="ch-scl-feat" value="{{ opt }}" {{ 'checked' if opt in scl_feat }}> {{ opt }}</label>
-          {% endfor %}
-        </div>
-
-        {% set simple_state = cholangio_state.get('simple', {}) %}
-        {% for category, options in cholangiogram_simple_categories %}
+        {% set selected_findings = (report.cholangiogram_findings or '').split(', ') %}
+        {% for category, options in cholangiogram_categories %}
         <div class="ercp-cholangio-category">
           <div class="ercp-cholangio-category-title">{{ category }}</div>
+
+          {% if category == 'Biliary Dilatation' %}
+          <div class="ercp-dilatation-inline">
+            <label class="ercp-inline-field">CBD (mm)<input type="number" step="0.1" min="0" id="f_cholangio_cbd_mm" value="{{ report.cholangio_cbd_mm }}"></label>
+            <label class="ercp-inline-field">CHD (mm)<input type="number" step="0.1" min="0" id="f_cholangio_chd_mm" value="{{ report.cholangio_chd_mm }}"></label>
+            <label class="ercp-inline-field">RHD (mm)<input type="number" step="0.1" min="0" id="f_cholangio_rhd_mm" value="{{ report.cholangio_rhd_mm }}"></label>
+            <label class="ercp-inline-field">LHD (mm)<input type="number" step="0.1" min="0" id="f_cholangio_lhd_mm" value="{{ report.cholangio_lhd_mm }}"></label>
+          </div>
+          <p class="label-hint" style="margin-top:6px;">
+            Severity: <strong id="dilatationClassBadge">—</strong>
+            <span class="label-hint">(auto-calculated from the largest measurement — No dilatation ≤6mm, Mild 7–9mm, Moderate 10–14mm, Marked ≥15mm; always reviewable before finalizing)</span>
+          </p>
+          {% else %}
           {% for opt in options %}
-          <label class="checkbox-row ercp-cholangio-opt"><input type="checkbox" class="ch-simple" data-category="{{ category }}" value="{{ opt }}" {{ 'checked' if opt in simple_state.get(category, []) }}> {{ opt }}</label>
+          <label class="checkbox-row ercp-cholangio-opt"><input type="checkbox" value="{{ opt }}" {{ 'checked' if opt in selected_findings }}> {{ opt }}</label>
           {% endfor %}
+
+          {% if category == 'Filling Defects' %}
+          <div class="ercp-lab-grid" style="margin-top:8px;">
+            <label>Largest stone size (mm)<input type="number" step="0.1" min="0" id="f_cholangio_largest_stone_mm" value="{{ report.cholangio_largest_stone_mm }}"></label>
+            <label>Number of stones<input type="number" step="1" min="0" id="f_cholangio_stone_count" value="{{ report.cholangio_stone_count }}"></label>
+          </div>
+          {% endif %}
+
+          {% if category == 'Strictures' %}
+          <div class="ercp-lab-grid" style="margin-top:8px;">
+            <label>Stricture length (mm)<input type="number" step="0.1" min="0" id="f_cholangio_stricture_length_mm" value="{{ report.cholangio_stricture_length_mm }}"></label>
+          </div>
+          {% endif %}
+          {% endif %}
         </div>
         {% endfor %}
-
       </div>
 
       <div class="form-section-label">Therapeutic Procedures</div>
@@ -198,72 +172,82 @@
         {% endfor %}
       </div>
 
+      {% if report.stent_details and not report.stent_placed %}
+      <p class="muted" style="margin-bottom:8px;"><strong>Legacy stent note (pre-structured format, preserved as originally recorded):</strong> {{ report.stent_details }}</p>
+      {% endif %}
+
       <div class="form-section-label">Biliary Stent Placement</div>
-      <label>Stent inserted
-        <select id="stent_inserted">
-          <option value="no" {{ 'selected' if not stent_state.get('inserted') }}>No</option>
-          <option value="yes" {{ 'selected' if stent_state.get('inserted') }}>Yes</option>
+      <label>Stent placed
+        <select id="f_stent_placed">
+          <option value="">— Select —</option>
+          <option value="No" {{ 'selected' if report.stent_placed == 'No' }}>No</option>
+          <option value="Yes" {{ 'selected' if report.stent_placed == 'Yes' }}>Yes</option>
         </select>
       </label>
 
-      <div id="stentDetailFields" {{ 'hidden' if not stent_state.get('inserted') }}>
+      <div id="stentDetailsFields" {{ 'hidden' if report.stent_placed != 'Yes' }}>
         <div class="form-row">
-          <label>Stent Type
-            <select id="stent_type">
+          <label>Stent type
+            <select id="f_stent_type">
               <option value="">— Select —</option>
               {% for opt in stent_type_options %}
-              <option value="{{ opt }}" {{ 'selected' if stent_state.get('stent_type') == opt }}>{{ opt }}</option>
+              <option value="{{ opt }}" {{ 'selected' if report.stent_type == opt }}>{{ opt }}</option>
               {% endfor %}
             </select>
           </label>
+          <label>Manufacturer <span class="label-hint">(optional)</span>
+            <input type="text" id="f_stent_manufacturer" value="{{ report.stent_manufacturer }}">
+          </label>
+        </div>
+        <div class="form-row">
           <label>Diameter
-            <select id="stent_diameter">
+            <select id="f_stent_diameter">
               <option value="">— Select —</option>
               {% for opt in stent_diameter_options %}
-              <option value="{{ opt }}" {{ 'selected' if stent_state.get('diameter') == opt }}>{{ opt }}</option>
+              <option value="{{ opt }}" {{ 'selected' if report.stent_diameter == opt }}>{{ opt }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>Length
+            <select id="f_stent_length">
+              <option value="">— Select —</option>
+              {% for opt in stent_length_options %}
+              <option value="{{ opt }}" {{ 'selected' if report.stent_length == opt }}>{{ opt }}</option>
               {% endfor %}
             </select>
           </label>
         </div>
         <div class="form-row">
-          <label>Length
-            <select id="stent_length">
+          <label>Number of stents
+            <input type="number" min="1" step="1" id="f_stent_count" value="{{ report.stent_count }}">
+          </label>
+          <label>Location
+            <select id="f_stent_location">
               <option value="">— Select —</option>
-              {% for opt in stent_length_options %}
-              <option value="{{ opt }}" {{ 'selected' if stent_state.get('length') == opt }}>{{ opt }}</option>
+              {% for opt in stent_location_options %}
+              <option value="{{ opt }}" {{ 'selected' if report.stent_location == opt }}>{{ opt }}</option>
               {% endfor %}
             </select>
-          </label>
-          <label>Number of stents
-            <input type="text" id="stent_count" value="{{ stent_state.get('count', '') }}">
           </label>
         </div>
         <div class="form-row">
           <label>Deployment
-            <select id="stent_deployment">
+            <select id="f_stent_deployment">
               <option value="">— Select —</option>
               {% for opt in stent_deployment_options %}
-              <option value="{{ opt }}" {{ 'selected' if stent_state.get('deployment') == opt }}>{{ opt }}</option>
+              <option value="{{ opt }}" {{ 'selected' if report.stent_deployment == opt }}>{{ opt }}</option>
               {% endfor %}
             </select>
           </label>
-          <label>Position
-            <select id="stent_position">
+          <label>Immediate drainage
+            <select id="f_stent_drainage">
               <option value="">— Select —</option>
-              {% for opt in stent_position_options %}
-              <option value="{{ opt }}" {{ 'selected' if stent_state.get('position') == opt }}>{{ opt }}</option>
+              {% for opt in stent_drainage_options %}
+              <option value="{{ opt }}" {{ 'selected' if report.stent_drainage == opt }}>{{ opt }}</option>
               {% endfor %}
             </select>
           </label>
         </div>
-        <label>Immediate Drainage
-          <select id="stent_drainage">
-            <option value="">— Select —</option>
-            {% for opt in stent_drainage_options %}
-            <option value="{{ opt }}" {{ 'selected' if stent_state.get('drainage') == opt }}>{{ opt }}</option>
-            {% endfor %}
-          </select>
-        </label>
       </div>
 
       <label>Biopsy

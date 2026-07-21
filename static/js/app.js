@@ -619,97 +619,6 @@ function initErcpReport() {
     return Array.from(document.querySelectorAll(`#${containerId} input[type="checkbox"]:checked`)).map(el => el.value);
   }
 
-  // ---- Cholangiogram Findings: structured payload + "Normal" exclusivity ----
-  function gatherCholangioPayload() {
-    const simple = {};
-    document.querySelectorAll('.ch-simple:checked').forEach(el => {
-      const cat = el.dataset.category;
-      if (!simple[cat]) simple[cat] = [];
-      simple[cat].push(el.value);
-    });
-    return {
-      normal: document.getElementById('ch_normal').checked,
-      dilatation: {
-        cbd_mm: document.getElementById('ch_dil_cbd').value,
-        chd_mm: document.getElementById('ch_dil_chd').value,
-        rhd_mm: document.getElementById('ch_dil_rhd').value,
-        lhd_mm: document.getElementById('ch_dil_lhd').value,
-      },
-      filling_defects: {
-        checks: Array.from(document.querySelectorAll('.ch-fd-check:checked')).map(el => el.value),
-        stone_count: document.getElementById('ch_fd_count').value,
-        stone_size_mm: document.getElementById('ch_fd_size').value,
-      },
-      strictures: {
-        locations: Array.from(document.querySelectorAll('.ch-stx-loc:checked')).map(el => el.value),
-        character: document.getElementById('ch_stx_character').value,
-        length_mm: document.getElementById('ch_stx_length').value,
-      },
-      tumours: Array.from(document.querySelectorAll('.ch-tumour:checked')).map(el => el.value),
-      sclerosing: {
-        subtype: document.getElementById('ch_scl_subtype').value,
-        features: Array.from(document.querySelectorAll('.ch-scl-feat:checked')).map(el => el.value),
-      },
-      simple: simple,
-    };
-  }
-
-  function initCholangioNormalExclusivity() {
-    const chNormal = document.getElementById('ch_normal');
-    if (!chNormal) return;
-    const abnormalCheckboxes = document.querySelectorAll('.ch-fd-check, .ch-stx-loc, .ch-tumour, .ch-scl-feat, .ch-simple');
-    const abnormalFieldIds = ['ch_dil_cbd', 'ch_dil_chd', 'ch_dil_rhd', 'ch_dil_lhd', 'ch_fd_count', 'ch_fd_size', 'ch_stx_length'];
-    const abnormalSelectIds = ['ch_stx_character', 'ch_scl_subtype'];
-
-    chNormal.addEventListener('change', () => {
-      if (!chNormal.checked) return;
-      abnormalCheckboxes.forEach(el => { el.checked = false; });
-      abnormalFieldIds.concat(abnormalSelectIds).forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-      });
-    });
-    abnormalCheckboxes.forEach(el => {
-      el.addEventListener('change', () => {
-        // "No X" negative findings (e.g. "No obstruction") aren't abnormal on their own
-        if (el.checked && !el.value.startsWith('No ')) chNormal.checked = false;
-      });
-    });
-    abnormalFieldIds.concat(abnormalSelectIds).forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const handler = () => { if (el.value) chNormal.checked = false; };
-      el.addEventListener('input', handler);
-      el.addEventListener('change', handler);
-    });
-  }
-
-  // ---- Biliary Stent Placement: structured payload + inserted-toggle ----
-  function gatherStentPayload() {
-    return {
-      inserted: document.getElementById('stent_inserted').value === 'yes',
-      stent_type: document.getElementById('stent_type').value,
-      diameter: document.getElementById('stent_diameter').value,
-      length: document.getElementById('stent_length').value,
-      count: document.getElementById('stent_count').value,
-      deployment: document.getElementById('stent_deployment').value,
-      position: document.getElementById('stent_position').value,
-      drainage: document.getElementById('stent_drainage').value,
-    };
-  }
-
-  function initStentInsertedToggle() {
-    const sel = document.getElementById('stent_inserted');
-    const fields = document.getElementById('stentDetailFields');
-    if (!sel || !fields) return;
-    sel.addEventListener('change', () => {
-      fields.hidden = sel.value !== 'yes';
-    });
-  }
-
-  initCholangioNormalExclusivity();
-  initStentInsertedToggle();
-
   function gatherPayload() {
     return {
       endoscopist_id: document.getElementById('f_endoscopist_id').value || null,
@@ -718,11 +627,29 @@ function initErcpReport() {
       assistants: document.getElementById('f_assistants').value,
       technician: document.getElementById('f_technician').value,
       indication: document.getElementById('f_indication').value,
+      duodenoscope_advancement: document.getElementById('f_duodenoscope_advancement').value,
       papilla: document.getElementById('f_papilla').value,
+      papilla_location: document.getElementById('f_papilla_location').value,
+      papilla_access: document.getElementById('f_papilla_access').value,
       cannulation: document.getElementById('f_cannulation').value,
-      cholangio: gatherCholangioPayload(),
+      cholangiogram_findings: checkedValues('f_cholangiogram_findings'),
+      cholangio_cbd_mm: document.getElementById('f_cholangio_cbd_mm').value,
+      cholangio_chd_mm: document.getElementById('f_cholangio_chd_mm').value,
+      cholangio_rhd_mm: document.getElementById('f_cholangio_rhd_mm').value,
+      cholangio_lhd_mm: document.getElementById('f_cholangio_lhd_mm').value,
+      cholangio_largest_stone_mm: document.getElementById('f_cholangio_largest_stone_mm').value,
+      cholangio_stone_count: document.getElementById('f_cholangio_stone_count').value,
+      cholangio_stricture_length_mm: document.getElementById('f_cholangio_stricture_length_mm').value,
       therapeutic_procedures: checkedValues('f_therapeutic_procedures'),
-      stent: gatherStentPayload(),
+      stent_placed: document.getElementById('f_stent_placed').value,
+      stent_type: document.getElementById('f_stent_type').value,
+      stent_manufacturer: document.getElementById('f_stent_manufacturer').value,
+      stent_diameter: document.getElementById('f_stent_diameter').value,
+      stent_length: document.getElementById('f_stent_length').value,
+      stent_count: document.getElementById('f_stent_count').value,
+      stent_location: document.getElementById('f_stent_location').value,
+      stent_deployment: document.getElementById('f_stent_deployment').value,
+      stent_drainage: document.getElementById('f_stent_drainage').value,
       biopsy: document.getElementById('f_biopsy').value,
       complications: checkedValues('f_complications'),
       procedure_note: document.getElementById('f_procedure_note').value,
@@ -761,6 +688,72 @@ function initErcpReport() {
         followup_plan: document.getElementById('r_followup_plan').value,
       },
     };
+  }
+
+  // ---- Biliary Dilatation: live severity badge (documentation aid only —
+  // the authoritative classification is computed server-side from the same
+  // thresholds whenever the note is generated or the report is printed) ----
+  function updateDilatationBadge() {
+    const badge = document.getElementById('dilatationClassBadge');
+    if (!badge) return;
+    const ids = ['f_cholangio_cbd_mm', 'f_cholangio_chd_mm', 'f_cholangio_rhd_mm', 'f_cholangio_lhd_mm'];
+    const values = ids
+      .map(id => document.getElementById(id))
+      .filter(Boolean)
+      .map(el => parseFloat(el.value))
+      .filter(v => !isNaN(v));
+    if (!values.length) { badge.textContent = '—'; return; }
+    const maxVal = Math.max(...values);
+    let cls;
+    if (maxVal >= 15) cls = 'Marked';
+    else if (maxVal >= 10) cls = 'Moderate';
+    else if (maxVal >= 7) cls = 'Mild';
+    else cls = 'No dilatation';
+    badge.textContent = `${cls} (max ${maxVal} mm)`;
+  }
+
+  // ---- Normal Cholangiogram auto-deselects itself if any abnormal finding
+  // (checkbox or measurement) is entered, and clears abnormal findings if
+  // re-checked ----
+  function setupNormalCholangiogramToggle() {
+    const wrap = document.getElementById('f_cholangiogram_findings');
+    if (!wrap) return;
+    const normalCheckbox = wrap.querySelector('input[type="checkbox"][value="Normal cholangiogram"]');
+    if (!normalCheckbox) return;
+    const abnormalCheckboxes = Array.from(wrap.querySelectorAll('input[type="checkbox"]')).filter(cb => cb !== normalCheckbox);
+    const numericFieldIds = [
+      'f_cholangio_cbd_mm', 'f_cholangio_chd_mm', 'f_cholangio_rhd_mm', 'f_cholangio_lhd_mm',
+      'f_cholangio_largest_stone_mm', 'f_cholangio_stone_count', 'f_cholangio_stricture_length_mm',
+    ];
+    const numericFields = numericFieldIds.map(id => document.getElementById(id)).filter(Boolean);
+
+    abnormalCheckboxes.forEach(cb => cb.addEventListener('change', () => {
+      if (cb.checked) normalCheckbox.checked = false;
+    }));
+    numericFields.forEach(f => f.addEventListener('input', () => {
+      if (f.value.trim() !== '') normalCheckbox.checked = false;
+      updateDilatationBadge();
+    }));
+    normalCheckbox.addEventListener('change', () => {
+      if (normalCheckbox.checked) {
+        abnormalCheckboxes.forEach(cb => { cb.checked = false; });
+        numericFields.forEach(f => { f.value = ''; });
+        updateDilatationBadge();
+      }
+    });
+  }
+
+  // ---- Biliary Stent Placement: show the structured detail fields only
+  // when "Stent placed" is Yes ----
+  function setupStentFieldsToggle() {
+    const stentPlacedSelect = document.getElementById('f_stent_placed');
+    const stentDetailsFields = document.getElementById('stentDetailsFields');
+    if (!stentPlacedSelect || !stentDetailsFields) return;
+    function sync() {
+      stentDetailsFields.hidden = stentPlacedSelect.value !== 'Yes';
+    }
+    stentPlacedSelect.addEventListener('change', sync);
+    sync();
   }
 
   async function saveReport(silent) {
@@ -838,7 +831,10 @@ function initErcpReport() {
         }
       });
     });
+    setupNormalCholangiogramToggle();
+    setupStentFieldsToggle();
   }
+  updateDilatationBadge();
 }
 
 async function ercpDeleteImage(slot) {

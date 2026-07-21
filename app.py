@@ -19,7 +19,6 @@ Deploy on PythonAnywhere: see DEPLOY_PYTHONANYWHERE.md
 
 import os
 import re
-import json
 import sqlite3
 from datetime import datetime, date, timedelta
 from zoneinfo import ZoneInfo
@@ -91,24 +90,52 @@ INDICATION_OPTIONS = [
     'Acute/chronic pancreatitis', 'Cholangitis', 'Post-cholecystectomy bile leak',
     'Ampullary lesion', 'Other',
 ]
-PAPILLA_OPTIONS = [
-    'Normal', 'Periampullary diverticulum', 'Periampullary mass',
-    'Previous sphincterotomy', 'Surgically altered anatomy', 'Other',
+DUODENOSCOPE_ADVANCEMENT_OPTIONS = ['Easy', 'Mild difficulty', 'Moderate difficulty', 'Difficult', 'Very difficult']
+
+# Papillary morphology is documented using the internationally recognized
+# Haraldsson Endoscopic Papillary Classification (Types 1-4) — this
+# replaces the old free-form list of descriptive appearance checkboxes.
+# Location/context (e.g. periampullary diverticulum) and access difficulty
+# are captured as separate fields, since they are not part of the
+# Haraldsson classification itself.
+PAPILLA_SHAPE_OPTIONS = [
+    'Type 1 – Regular papilla',
+    'Type 2 – Small / Flat papilla',
+    'Type 3 – Protruding / Pendulous papilla',
+    'Type 4 – Creased / Ridged papilla',
 ]
+PAPILLA_LOCATION_OPTIONS = [
+    'Periampullary diverticulum', 'Previous sphincterotomy',
+    'Surgically altered anatomy', 'Periampullary mass', 'Other',
+]
+PAPILLA_ACCESS_OPTIONS = ['Without difficulty', 'Mild difficulty', 'Technically difficult']
 CANNULATION_OPTIONS = [
     'Selective biliary cannulation', 'Difficult cannulation (needle-knife)',
     'Precut sphincterotomy', 'Pancreatic duct cannulation', 'Failed cannulation', 'Other',
 ]
-# Cholangiogram categories that remain simple multi-select checkbox groups —
-# rendered via the generic loop in ercp_report.html. Findings that needed
-# ESGE/ASGE-aligned restructuring (Normal, Biliary Dilatation, Filling
-# Defects, Strictures, Tumours, Sclerosing Cholangitis) are handled as
-# bespoke sections instead (see CHOLANGIOGRAM_* option lists below) and are
-# NOT part of this list.
-CHOLANGIOGRAM_SIMPLE_CATEGORIES = [
+CHOLANGIOGRAM_CATEGORIES = [
+    ('Normal', ['Normal cholangiogram']),
+    # Biliary Dilatation now uses numeric mm measurements (CBD/CHD/RHD/LHD)
+    # instead of checkboxes — severity is classified automatically from the
+    # entered values. Handled as a special case in ercp_report.html; this
+    # empty option list is kept so the category still appears in the loop.
+    ('Biliary Dilatation', []),
+    ('Filling Defects', [
+        'No filling defect', 'Single CBD stone', 'Multiple CBD stones',
+        'Sludge', 'Blood clot', 'Worm', 'Filling defect (unspecified)',
+    ]),
+    ('Strictures', [
+        'No stricture', 'Distal CBD stricture', 'Mid CBD stricture', 'Proximal CBD stricture',
+        'Common hepatic duct stricture', 'Right hepatic duct stricture', 'Left hepatic duct stricture',
+        'Hilar stricture', 'Bifurcation stricture', 'Benign stricture', 'Malignant stricture',
+        'Indeterminate stricture', 'Multifocal strictures',
+    ]),
     ('Obstruction', [
         'No obstruction', 'Partial biliary obstruction', 'Complete biliary obstruction',
         'Distal biliary obstruction', 'Hilar obstruction',
+    ]),
+    ('Tumours', [
+        'Periampullary tumour', 'Ampullary tumour', 'Pancreatic head tumour', 'Cholangiocarcinoma',
     ]),
     ('Bile Leak', [
         'No bile leak', 'CBD leak', 'Common hepatic duct leak', 'Cystic duct leak',
@@ -130,6 +157,10 @@ CHOLANGIOGRAM_SIMPLE_CATEGORIES = [
         'Choledochal cyst', 'Mirizzi syndrome', 'Aberrant biliary anatomy', 'Biliary diverticulum',
         'Low cystic duct insertion', 'Variant biliary anatomy',
     ]),
+    ('Sclerosing Cholangitis', [
+        'Primary sclerosing cholangitis', 'Secondary sclerosing cholangitis',
+        'Beading', 'Multifocal strictures', 'Irregular ducts',
+    ]),
     ('Pancreatic Duct (if opacified)', [
         'Not opacified', 'Normal pancreatic duct', 'Pancreatic duct dilatation',
         'Pancreatic duct stricture', 'Pancreatic duct stone', 'Pancreatic duct leak',
@@ -142,69 +173,77 @@ CHOLANGIOGRAM_SIMPLE_CATEGORIES = [
     ]),
 ]
 
-# Strictures — locations are multi-select; character (benign/malignant/
-# indeterminate) and length in mm are captured as discrete measurements
-# rather than free-text "long/short segment" categories (ESGE/ASGE style).
-CHOLANGIOGRAM_STRICTURE_LOCATIONS = [
-    'Distal CBD', 'Mid CBD', 'Proximal CBD', 'Common Hepatic Duct',
-    'Right Hepatic Duct', 'Left Hepatic Duct', 'Hilar', 'Bifurcation',
-]
-CHOLANGIOGRAM_STRICTURE_CHARACTER_OPTIONS = ['Benign', 'Malignant', 'Indeterminate']
-
-CHOLANGIOGRAM_TUMOUR_OPTIONS = [
-    'Periampullary tumour', 'Ampullary tumour', 'Pancreatic head tumour', 'Cholangiocarcinoma',
-]
-
-CHOLANGIOGRAM_SCLEROSING_SUBTYPES = ['Primary', 'Secondary']
-CHOLANGIOGRAM_SCLEROSING_FEATURES = ['Beading', 'Multifocal strictures', 'Irregular ducts']
-
-# ---- Biliary Stent Placement (structured, replaces the old free-text field) ----
+# ---- Structured Biliary Stent Placement (replaces the old free-text field) ----
 STENT_TYPE_OPTIONS = [
-    'Plastic', 'Fully Covered SEMS (FCSEMS)', 'Partially Covered SEMS (PCSEMS)', 'Uncovered SEMS (USEMS)',
+    'Plastic',
+    'Fully Covered Self-Expandable Metal Stent (FCSEMS)',
+    'Partially Covered Self-Expandable Metal Stent (PCSEMS)',
+    'Uncovered Self-Expandable Metal Stent (USEMS)',
 ]
 STENT_DIAMETER_OPTIONS = ['5 Fr', '7 Fr', '8.5 Fr', '10 Fr', '11.5 Fr']
 STENT_LENGTH_OPTIONS = ['5 cm', '7 cm', '9 cm', '10 cm', '12 cm', '15 cm']
-STENT_DEPLOYMENT_OPTIONS = ['Successful', 'Difficult', 'Failed']
-STENT_POSITION_OPTIONS = [
-    'Distal CBD', 'Mid CBD', 'Proximal CBD', 'Common Hepatic Duct',
-    'Right Hepatic Duct', 'Left Hepatic Duct', 'Across Hilar Stricture', 'Hepaticojejunostomy', 'Other',
+STENT_LOCATION_OPTIONS = [
+    'CBD', 'Common Hepatic Duct', 'Right Hepatic Duct', 'Left Hepatic Duct',
+    'Across Hilar Stricture', 'Hepaticojejunostomy', 'Other',
 ]
+STENT_DEPLOYMENT_OPTIONS = ['Successful', 'Difficult', 'Failed']
 STENT_DRAINAGE_OPTIONS = ['Good', 'Partial', 'None']
-
-# Natural-language phrase mappings used when composing the auto-drafted
-# procedure note from structured stent fields.
-STENT_POSITION_PHRASES = {
-    'Distal CBD': 'the distal common bile duct',
-    'Mid CBD': 'the mid common bile duct',
-    'Proximal CBD': 'the proximal common bile duct',
-    'Common Hepatic Duct': 'the common hepatic duct',
-    'Right Hepatic Duct': 'the right hepatic duct',
-    'Left Hepatic Duct': 'the left hepatic duct',
-    'Across Hilar Stricture': 'the hilar stricture',
-    'Hepaticojejunostomy': 'the hepaticojejunostomy',
-    'Other': 'the biliary tree',
-}
-STENT_DEPLOYMENT_PHRASES_SINGULAR = {
-    'successful': 'was successfully deployed',
-    'difficult': 'was deployed with difficulty',
-    'failed': 'deployment was attempted but unsuccessful',
-}
-STENT_DEPLOYMENT_PHRASES_PLURAL = {
-    'successful': 'were successfully deployed',
-    'difficult': 'were deployed with difficulty',
-    'failed': 'deployment was attempted but unsuccessful',
-}
-STENT_DRAINAGE_PHRASES = {
-    'good': 'good biliary drainage',
-    'partial': 'partial biliary drainage',
-    'none': 'no immediate drainage',
-}
 THERAPEUTIC_OPTIONS = [
     'Biliary sphincterotomy', 'Pancreatic sphincterotomy', 'Balloon dilation',
     'Stone extraction (balloon)', 'Stone extraction (basket)', 'Mechanical lithotripsy',
     'Plastic stent insertion', 'Metal stent insertion', 'Nasobiliary drain placement',
     'Needle-knife precut',
 ]
+
+# ---- Procedure Note generator: natural-language phrase mappings ----
+# These translate structured selections into flowing clinical sentences
+# instead of a raw list of the options that were checked. (The
+# cholangiogram/stent narrative builders — build_cholangiogram_sentence() /
+# describe_stent_placement() — are untouched; these only cover the
+# duodenoscope, papilla, cannulation, and therapeutic-steps narrative.)
+DUODENOSCOPE_ADVANCEMENT_PHRASES = {
+    'Easy': ('negotiated', 'without difficulty'),
+    'Mild difficulty': ('negotiated', 'with mild difficulty'),
+    'Moderate difficulty': ('advanced', 'with moderate difficulty'),
+    'Difficult': ('advanced', 'with difficulty'),
+    'Very difficult': ('advanced', 'with significant difficulty'),
+}
+HARALDSSON_SENTENCE = {
+    'Type 1 – Regular papilla': 'The major papilla demonstrated a Haraldsson Type 1 (regular) morphology.',
+    'Type 2 – Small / Flat papilla': 'The major papilla demonstrated a Haraldsson Type 2 (small/flat) morphology.',
+    'Type 3 – Protruding / Pendulous papilla': 'The major papilla demonstrated a Haraldsson Type 3 (protruding/pendulous) morphology.',
+    'Type 4 – Creased / Ridged papilla': 'The major papilla demonstrated a Haraldsson Type 4 (creased/ridged) morphology.',
+}
+PAPILLA_LOCATION_PHRASES = {
+    'Periampullary diverticulum': 'within a periampullary diverticulum',
+    'Previous sphincterotomy': 'in the setting of a previous sphincterotomy',
+    'Surgically altered anatomy': 'in the setting of surgically altered anatomy',
+    'Periampullary mass': 'in proximity to a periampullary mass',
+    'Other': '',
+}
+CANNULATION_PHRASES = {
+    'Selective biliary cannulation': 'Selective biliary cannulation was achieved using a standard sphincterotome.',
+    'Difficult cannulation (needle-knife)': 'Selective biliary cannulation was difficult and required needle-knife precut.',
+    'Precut sphincterotomy': 'Selective biliary cannulation was achieved following precut sphincterotomy.',
+    'Pancreatic duct cannulation': 'Selective biliary cannulation was achieved following transpancreatic sphincterotomy.',
+    'Failed cannulation': 'Selective biliary cannulation could not be achieved despite repeated attempts.',
+}
+THERAPEUTIC_PHRASES = {
+    'Biliary sphincterotomy': 'a standard biliary sphincterotomy was performed',
+    'Pancreatic sphincterotomy': 'a pancreatic sphincterotomy was performed',
+    'Balloon dilation': 'balloon sphincteroplasty was performed',
+    'Stone extraction (balloon)': 'stone extraction was completed using an extraction balloon',
+    'Stone extraction (basket)': 'stone extraction was completed using a Dormia basket',
+    'Mechanical lithotripsy': 'mechanical lithotripsy was required to fragment the stone(s) prior to extraction',
+    'Nasobiliary drain placement': 'a nasobiliary drain was placed',
+    # Stent insertion is already described by the dedicated Biliary Stent
+    # Placement section (describe_stent_placement), and precut is already
+    # folded into the cannulation narrative when it was actually required —
+    # so neither is repeated here.
+    'Plastic stent insertion': None,
+    'Metal stent insertion': None,
+    'Needle-knife precut': None,
+}
 BIOPSY_OPTIONS = [
     'Not taken', 'Brush cytology', 'Forceps biopsy', 'Brush cytology + forceps biopsy',
 ]
@@ -367,13 +406,30 @@ def init_db():
             sedation TEXT NOT NULL DEFAULT '',
             anesthesiologist TEXT NOT NULL DEFAULT '',
             indication TEXT NOT NULL DEFAULT '',
+            duodenoscope_advancement TEXT NOT NULL DEFAULT '',
             papilla TEXT NOT NULL DEFAULT '',
+            papilla_location TEXT NOT NULL DEFAULT '',
+            papilla_access TEXT NOT NULL DEFAULT '',
             cannulation TEXT NOT NULL DEFAULT '',
             cholangiogram_findings TEXT NOT NULL DEFAULT '',
-            cholangiogram_data TEXT NOT NULL DEFAULT '',
+            cholangio_cbd_mm TEXT NOT NULL DEFAULT '',
+            cholangio_chd_mm TEXT NOT NULL DEFAULT '',
+            cholangio_rhd_mm TEXT NOT NULL DEFAULT '',
+            cholangio_lhd_mm TEXT NOT NULL DEFAULT '',
+            cholangio_largest_stone_mm TEXT NOT NULL DEFAULT '',
+            cholangio_stone_count TEXT NOT NULL DEFAULT '',
+            cholangio_stricture_length_mm TEXT NOT NULL DEFAULT '',
             therapeutic_procedures TEXT NOT NULL DEFAULT '',
             stent_details TEXT NOT NULL DEFAULT '',
-            stent_data TEXT NOT NULL DEFAULT '',
+            stent_placed TEXT NOT NULL DEFAULT '',
+            stent_type TEXT NOT NULL DEFAULT '',
+            stent_manufacturer TEXT NOT NULL DEFAULT '',
+            stent_diameter TEXT NOT NULL DEFAULT '',
+            stent_length TEXT NOT NULL DEFAULT '',
+            stent_count TEXT NOT NULL DEFAULT '',
+            stent_location TEXT NOT NULL DEFAULT '',
+            stent_deployment TEXT NOT NULL DEFAULT '',
+            stent_drainage TEXT NOT NULL DEFAULT '',
             biopsy TEXT NOT NULL DEFAULT '',
             complications TEXT NOT NULL DEFAULT '',
             procedure_note TEXT NOT NULL DEFAULT '',
@@ -464,12 +520,17 @@ def init_db():
         dbconn.execute("ALTER TABLE appointment ADD COLUMN no_show INTEGER NOT NULL DEFAULT 0")
 
     existing_ercp_cols = {row['name'] for row in dbconn.execute('PRAGMA table_info(ercp_report)').fetchall()}
-    if 'anesthesiologist' not in existing_ercp_cols:
-        dbconn.execute("ALTER TABLE ercp_report ADD COLUMN anesthesiologist TEXT NOT NULL DEFAULT ''")
-    if 'cholangiogram_data' not in existing_ercp_cols:
-        dbconn.execute("ALTER TABLE ercp_report ADD COLUMN cholangiogram_data TEXT NOT NULL DEFAULT ''")
-    if 'stent_data' not in existing_ercp_cols:
-        dbconn.execute("ALTER TABLE ercp_report ADD COLUMN stent_data TEXT NOT NULL DEFAULT ''")
+    new_ercp_columns = [
+        'anesthesiologist',
+        'cholangio_cbd_mm', 'cholangio_chd_mm', 'cholangio_rhd_mm', 'cholangio_lhd_mm',
+        'cholangio_largest_stone_mm', 'cholangio_stone_count', 'cholangio_stricture_length_mm',
+        'stent_placed', 'stent_type', 'stent_manufacturer', 'stent_diameter', 'stent_length',
+        'stent_count', 'stent_location', 'stent_deployment', 'stent_drainage',
+        'duodenoscope_advancement', 'papilla_location', 'papilla_access',
+    ]
+    for col in new_ercp_columns:
+        if col not in existing_ercp_cols:
+            dbconn.execute(f"ALTER TABLE ercp_report ADD COLUMN {col} TEXT NOT NULL DEFAULT ''")
 
     dbconn.execute('INSERT OR IGNORE INTO settings (id) VALUES (1)')
 
@@ -902,181 +963,389 @@ def bucket_timeline(start_d, end_d, daily, bucket_unit):
 
 # ===================== ERCP Reporting Module — helpers =====================
 
-def build_cholangio_narrative(cholangio):
-    """Compose a natural-language, ESGE/ASGE-style cholangiogram findings
-    description from the structured `cholangio` dict submitted by the ERCP
-    report form. Returns 'Normal cholangiogram.' if marked normal, or '' if
-    nothing was entered at all. This same string is stored in the
-    `cholangiogram_findings` column (used verbatim on the printed report)."""
-    if not cholangio:
+# ---- Cholangiogram structured-finding lookup tables (used to turn checkbox
+# selections + numeric measurements into a natural-language sentence, and to
+# keep those items out of the generic "leftover findings" list so nothing is
+# described twice in the auto-generated note). ----
+STRICTURE_LOCATION_TEXT = {
+    'Distal CBD stricture': 'distal common bile duct',
+    'Mid CBD stricture': 'mid common bile duct',
+    'Proximal CBD stricture': 'proximal common bile duct',
+    'Common hepatic duct stricture': 'common hepatic duct',
+    'Right hepatic duct stricture': 'right hepatic duct',
+    'Left hepatic duct stricture': 'left hepatic duct',
+    'Hilar stricture': 'hilar',
+    'Bifurcation stricture': 'biliary bifurcation',
+    'Multifocal strictures': 'multifocal',
+}
+STRICTURE_NATURE_TEXT = {
+    'Benign stricture': 'benign',
+    'Malignant stricture': 'malignant',
+    'Indeterminate stricture': 'indeterminate',
+}
+FILLING_DEFECT_TEXT = {
+    'Single CBD stone': 'a single CBD stone',
+    'Multiple CBD stones': 'multiple CBD stones',
+    'Sludge': 'biliary sludge',
+    'Blood clot': 'a blood clot',
+    'Worm': 'a biliary worm',
+    'Filling defect (unspecified)': 'an unspecified filling defect',
+}
+
+# ---- Structured Biliary Stent Placement lookup tables ----
+STENT_TYPE_SHORT_TEXT = {
+    'Plastic': 'plastic',
+    'Fully Covered Self-Expandable Metal Stent (FCSEMS)': 'fully covered self-expandable metal',
+    'Partially Covered Self-Expandable Metal Stent (PCSEMS)': 'partially covered self-expandable metal',
+    'Uncovered Self-Expandable Metal Stent (USEMS)': 'uncovered self-expandable metal',
+}
+STENT_DEPLOYMENT_TEXT = {
+    'Successful': 'successfully deployed',
+    'Difficult': 'deployed with technical difficulty',
+    'Failed': 'unsuccessfully attempted',
+}
+STENT_LOCATION_TEXT = {
+    'CBD': 'in the common bile duct',
+    'Common Hepatic Duct': 'in the common hepatic duct',
+    'Right Hepatic Duct': 'in the right hepatic duct',
+    'Left Hepatic Duct': 'in the left hepatic duct',
+    'Across Hilar Stricture': 'across the hilar stricture',
+    'Hepaticojejunostomy': 'at the hepaticojejunostomy',
+    'Other': '',
+}
+STENT_DRAINAGE_TEXT = {
+    'Good': 'with good bile drainage',
+    'Partial': 'with partial bile drainage',
+    'None': 'with no bile drainage observed',
+}
+
+
+def classify_dilatation_mm(mm):
+    """Automatic severity classification for a biliary duct measurement, in
+    millimetres. Documentation aid only — always reviewable/editable by the
+    endoscopist, same as the rest of the auto-generated note."""
+    if mm is None:
+        return None
+    if mm >= 15:
+        return 'Marked'
+    if mm >= 10:
+        return 'Moderate'
+    if mm >= 7:
+        return 'Mild'
+    return 'No dilatation'
+
+
+def describe_biliary_dilatation(fields):
+    """Natural-language fragment for the most dilated of the four measured
+    ducts (CBD / CHD / right & left hepatic ducts), or '' if none entered."""
+    ducts = [
+        ('common bile duct', fields.get('cholangio_cbd_mm')),
+        ('common hepatic duct', fields.get('cholangio_chd_mm')),
+        ('right hepatic duct', fields.get('cholangio_rhd_mm')),
+        ('left hepatic duct', fields.get('cholangio_lhd_mm')),
+    ]
+    measured = [(label, parse_numeric(raw)) for label, raw in ducts]
+    measured = [(label, mm) for label, mm in measured if mm is not None]
+    if not measured:
         return ''
-    if cholangio.get('normal'):
-        return 'Normal cholangiogram.'
+    label, mm = max(measured, key=lambda pair: pair[1])
+    mm_str = f'{mm:g}'
+    if classify_dilatation_mm(mm) == 'No dilatation':
+        return f'a {label} measuring {mm_str} mm with no significant dilatation'
+    return f'a dilated {label} measuring {mm_str} mm'
+
+
+def describe_stricture(selected_findings, length_mm_raw):
+    """Natural-language fragment combining stricture nature + location +
+    (optional) length, built from the checked Strictures-category findings."""
+    natures = [STRICTURE_NATURE_TEXT[v] for v in selected_findings if v in STRICTURE_NATURE_TEXT]
+    locations = [STRICTURE_LOCATION_TEXT[v] for v in selected_findings if v in STRICTURE_LOCATION_TEXT]
+    if not natures and not locations:
+        return ''
+    bits = []
+    if natures:
+        bits.append('/'.join(natures))
+    if locations:
+        bits.append('/'.join(locations))
+    descriptor = ' '.join(bits)
+    length_mm = parse_numeric(length_mm_raw)
+    length_text = f' measuring approximately {length_mm:g} mm in length' if length_mm is not None else ''
+    return f'a {descriptor} stricture{length_text}'
+
+
+def describe_filling_defects(selected_findings, largest_mm_raw, count_raw):
+    """Natural-language fragment for filling defects, preferring the numeric
+    count/size if entered, falling back to the checked defect types."""
+    items = [FILLING_DEFECT_TEXT[v] for v in selected_findings if v in FILLING_DEFECT_TEXT]
+    if not items:
+        return ''
+    count = parse_numeric(count_raw)
+    largest = parse_numeric(largest_mm_raw)
+    if count is not None and count >= 1:
+        count_int = int(count)
+        base = f"{count_int} filling defect{'s' if count_int != 1 else ''}"
+    elif len(items) == 1:
+        base = items[0]
+    else:
+        base = ', '.join(items[:-1]) + f', and {items[-1]}'
+    if largest is not None:
+        base += f', the largest measuring {largest:g} mm'
+    return base
+
+
+def build_cholangiogram_sentence(fields):
+    """Compose a natural-language cholangiogram description from the
+    structured dilatation/stricture/filling-defect fields plus any other
+    checked findings, without repeating information across sentences.
+    Accepts a plain dict (used both for the live 'Generate Note' payload and,
+    via dict(report), for the printed-report summary)."""
+    raw = fields.get('cholangiogram_findings') or ''
+    selected = [v.strip() for v in raw.split(',') if v.strip()]
+
+    has_measurement = any(
+        parse_numeric(fields.get(k)) is not None for k in (
+            'cholangio_cbd_mm', 'cholangio_chd_mm', 'cholangio_rhd_mm', 'cholangio_lhd_mm',
+            'cholangio_largest_stone_mm', 'cholangio_stone_count', 'cholangio_stricture_length_mm',
+        )
+    )
+    if selected == ['Normal cholangiogram'] and not has_measurement:
+        return 'Cholangiogram was normal.'
+
+    dilation_frag = describe_biliary_dilatation(fields)
+    stricture_frag = describe_stricture(selected, fields.get('cholangio_stricture_length_mm'))
+    filling_frag = describe_filling_defects(
+        selected, fields.get('cholangio_largest_stone_mm'), fields.get('cholangio_stone_count')
+    )
+    structured_bits = [b for b in (dilation_frag, stricture_frag, filling_frag) if b]
+
+    leftover = [
+        v for v in selected
+        if v not in STRICTURE_LOCATION_TEXT and v not in STRICTURE_NATURE_TEXT
+        and v not in FILLING_DEFECT_TEXT
+        and v not in ('Normal cholangiogram', 'No stricture', 'No filling defect')
+    ]
+
+    sentences = []
+    if structured_bits:
+        if len(structured_bits) == 1:
+            joined = structured_bits[0]
+        elif len(structured_bits) == 2:
+            joined = f'{structured_bits[0]} with {structured_bits[1]}'
+        else:
+            joined = f'{structured_bits[0]}, with {structured_bits[1]}, and {structured_bits[2]}'
+        sentences.append(f'Cholangiography demonstrated {joined}.')
+    if leftover:
+        prefix = 'Cholangiogram also demonstrated' if sentences else 'Cholangiogram demonstrated'
+        sentences.append(f'{prefix}: {", ".join(leftover)}.')
+    return ' '.join(sentences)
+
+
+def describe_stent_placement(fields):
+    """Natural-language biliary stent sentence built from the structured
+    Biliary Stent Placement fields. Falls back to the legacy free-text
+    'stent_details' value for reports created before this section existed
+    (that column is preserved untouched — never overwritten by the new form).
+    Accepts a plain dict (payload dict for live note generation, or
+    dict(report) for the printed-report summary)."""
+    placed = (fields.get('stent_placed') or '').strip()
+    if not placed:
+        return (fields.get('stent_details') or '').strip()
+    if placed == 'No':
+        return 'No biliary stent was placed.'
+
+    stype = (fields.get('stent_type') or '').strip()
+    manufacturer = (fields.get('stent_manufacturer') or '').strip()
+    diameter = (fields.get('stent_diameter') or '').strip()
+    length = (fields.get('stent_length') or '').strip()
+    location = (fields.get('stent_location') or '').strip()
+    deployment = (fields.get('stent_deployment') or '').strip()
+    drainage = (fields.get('stent_drainage') or '').strip()
+
+    count_n = parse_numeric(fields.get('stent_count'))
+    count_n = int(count_n) if count_n and count_n >= 1 else 1
+    plural = count_n > 1
+
+    type_adj = STENT_TYPE_SHORT_TEXT.get(stype, stype.lower())
+    size_bit = ' × '.join(x for x in (diameter, length) if x)
+    noun = 'biliary stents' if plural else 'biliary stent'
+    descriptor = ' '.join(x for x in (size_bit, type_adj) if x)
+
+    subject = f'{count_n} {descriptor} {noun}' if plural else f'A {descriptor} {noun}'
+    subject = ' '.join(subject.split())
+    if subject and subject[0].islower():
+        subject = subject[0].upper() + subject[1:]
+
+    verb = 'were' if plural else 'was'
+    deployment_phrase = STENT_DEPLOYMENT_TEXT.get(deployment, 'deployed')
+    sentence = f'{subject} {verb} {deployment_phrase}'
+
+    location_phrase = STENT_LOCATION_TEXT.get(location, '')
+    if location_phrase:
+        sentence += f' {location_phrase}'
+
+    if drainage and deployment != 'Failed':
+        drainage_phrase = STENT_DRAINAGE_TEXT.get(drainage, '')
+        if drainage_phrase:
+            sentence += f', {drainage_phrase}'
+
+    sentence += '.'
+    if manufacturer:
+        sentence += f' Manufacturer: {manufacturer}.'
+    return sentence
+
+
+def describe_papilla_summary(fields):
+    """Compact 'Shape; Location; Access' summary for the printed report's
+    Papilla row (kept separate from build_papilla_sentences, which produces
+    the full narrative sentences used in the procedure note)."""
+    bits = [
+        (fields.get('papilla') or '').strip(),
+        (fields.get('papilla_location') or '').strip(),
+        (fields.get('papilla_access') or '').strip(),
+    ]
+    return '; '.join(b for b in bits if b)
+
+
+def build_duodenoscope_sentence(advancement):
+    """Describe duodenoscope advancement to D2 in the wording of an
+    experienced endoscopist rather than a flat, always-identical sentence."""
+    advancement = (advancement or '').strip()
+    if not advancement:
+        return ''
+    verb, phrase = DUODENOSCOPE_ADVANCEMENT_PHRASES.get(advancement, ('advanced', ''))
+    if phrase:
+        return f'The duodenoscope was {verb} to the second part of the duodenum {phrase}.'
+    return f'The duodenoscope was {verb} to the second part of the duodenum.'
+
+
+def build_papilla_sentences(papilla_shape, papilla_location, papilla_access):
+    """Describe papillary access/location, then morphology (Haraldsson
+    classification), as two natural sentences. Returns [] if nothing about
+    the papilla was documented."""
+    papilla_shape = (papilla_shape or '').strip()
+    papilla_location = (papilla_location or '').strip()
+    papilla_access = (papilla_access or '').strip()
+    if not (papilla_shape or papilla_location or papilla_access):
+        return []
+
+    sentences = []
+    loc_phrase = PAPILLA_LOCATION_PHRASES.get(papilla_location, '')
+    if papilla_access == 'Technically difficult':
+        sentence = 'Access to the papilla was technically difficult'
+        if loc_phrase:
+            sentence += f', the papilla being located {loc_phrase}'
+        sentences.append(sentence + '.')
+    else:
+        bits = []
+        if loc_phrase:
+            bits.append(loc_phrase)
+        if papilla_access == 'Mild difficulty':
+            bits.append('with mild difficulty')
+        if not bits:
+            bits.append('without difficulty')
+        sentences.append(f'The major papilla was identified {", ".join(bits)}.')
+
+    if papilla_shape:
+        sentences.append(HARALDSSON_SENTENCE.get(
+            papilla_shape, f'The major papilla demonstrated a {papilla_shape} morphology.'
+        ))
+
+    return sentences
+
+
+def build_cannulation_sentence(cannulation):
+    """Describe how biliary access was obtained, reflecting what was
+    actually performed rather than a single generic sentence."""
+    cannulation = (cannulation or '').strip()
+    if not cannulation:
+        return ''
+    return CANNULATION_PHRASES.get(cannulation, f'{cannulation} was achieved.')
+
+
+def build_therapeutic_paragraph(therapeutic_str):
+    """Turn the selected therapeutic-step checkboxes into a procedural
+    paragraph describing the sequence of interventions, rather than a raw
+    comma-separated list."""
+    items = [t.strip() for t in (therapeutic_str or '').split(',') if t.strip()]
+    if not items:
+        return ''
 
     fragments = []
-
-    dil = cholangio.get('dilatation') or {}
-    duct_labels = [
-        ('cbd_mm', 'common bile duct'), ('chd_mm', 'common hepatic duct'),
-        ('rhd_mm', 'right hepatic duct'), ('lhd_mm', 'left hepatic duct'),
-    ]
-    dil_bits = [f"{label} ~{dil[key]} mm" for key, label in duct_labels if (dil.get(key) or '').strip()]
-    if dil_bits:
-        fragments.append('Dilated ' + ', '.join(dil_bits))
-
-    fd = cholangio.get('filling_defects') or {}
-    stone_count = (fd.get('stone_count') or '').strip()
-    stone_size = (fd.get('stone_size_mm') or '').strip()
-    if stone_count or stone_size:
-        bit = f"{stone_count} filling defect{'s' if stone_count and stone_count != '1' else ''}" if stone_count else 'Filling defect'
-        if stone_size:
-            bit += f" (largest ~{stone_size} mm)"
-        fragments.append(bit)
-    for c in (fd.get('checks') or []):
-        fragments.append(c)
-
-    stx = cholangio.get('strictures') or {}
-    locs = stx.get('locations') or []
-    if locs:
-        char = (stx.get('character') or '').strip()
-        length = (stx.get('length_mm') or '').strip()
-        bit = '/'.join(locs) + ' stricture'
-        if char:
-            bit += f" ({char.lower()})"
-        if length:
-            bit += f", ~{length} mm in length"
-        fragments.append(bit)
-
-    for t in (cholangio.get('tumours') or []):
-        fragments.append(t)
-
-    scl = cholangio.get('sclerosing') or {}
-    scl_features = scl.get('features') or []
-    scl_subtype = (scl.get('subtype') or '').strip()
-    if scl_features or scl_subtype:
-        bit = f"{scl_subtype + ' ' if scl_subtype else ''}sclerosing cholangitis"
-        if scl_features:
-            bit += f" ({', '.join(f.lower() for f in scl_features)})"
-        fragments.append(bit)
-
-    simple = cholangio.get('simple') or {}
-    for values in simple.values():
-        for v in values:
-            if v.lower().startswith('no '):
-                continue  # skip negative findings in the narrative — kept only in the raw checkbox state
-            fragments.append(v)
+    extraction_used = False
+    for item in items:
+        phrase = THERAPEUTIC_PHRASES.get(item)
+        if not phrase:
+            continue
+        fragments.append(phrase)
+        if item.startswith('Stone extraction'):
+            extraction_used = True
 
     if not fragments:
         return ''
-    return '; '.join(fragments) + '.'
+    if extraction_used:
+        fragments[-1] += ', achieving satisfactory ductal clearance'
 
-
-def build_stent_narrative(stent):
-    """Compose a natural-language description of a biliary stent placement
-    from the structured `stent` dict. Returns '' if no stent was inserted.
-    This same string is stored in the `stent_details` column (used verbatim
-    on the printed report)."""
-    if not stent or not stent.get('inserted'):
-        return ''
-
-    stent_type = (stent.get('stent_type') or '').strip()
-    diameter = (stent.get('diameter') or '').strip()
-    length = (stent.get('length') or '').strip()
-    count_raw = (stent.get('count') or '').strip()
-    deployment = (stent.get('deployment') or '').strip().lower()
-    position = (stent.get('position') or '').strip()
-    drainage = (stent.get('drainage') or '').strip().lower()
-
-    try:
-        count_n = int(count_raw)
-    except (ValueError, TypeError):
-        count_n = 1
-    multiple = count_n and count_n > 1
-
-    size_bit = ' × '.join(b for b in (diameter, length) if b)
-    lead = f"{count_n} " if multiple else 'A '
-    stent_label = f"{stent_type.lower()} biliary stent" if stent_type else 'biliary stent'
-    stent_label += 's' if multiple else ''
-    desc = f"{lead}{size_bit + ' ' if size_bit else ''}{stent_label}"
-
-    deployment_map = STENT_DEPLOYMENT_PHRASES_PLURAL if multiple else STENT_DEPLOYMENT_PHRASES_SINGULAR
-    verb = deployment_map.get(deployment, 'were deployed' if multiple else 'was deployed')
-    desc += f" {verb}"
-
-    if position:
-        desc += f" across {STENT_POSITION_PHRASES.get(position, position.lower())}"
-    if drainage:
-        desc += f" with {STENT_DRAINAGE_PHRASES.get(drainage, drainage)}"
-
-    desc = desc.strip()
-    return desc[0].upper() + desc[1:] + '.'
+    sentence = fragments[0]
+    for frag in fragments[1:]:
+        sentence += f'; {frag}'
+    return sentence[0].upper() + sentence[1:] + '.'
 
 
 def generate_procedure_note(fields):
-    """Build a professional draft procedure-note paragraph from structured
-    ERCP fields. Returned text is always meant to be reviewed/edited by the
-    endoscopist before finalizing — this is a starting draft, not a final
-    dictation."""
-    sedation = fields.get('sedation') or ''
-    papilla = fields.get('papilla') or ''
+    """Build a draft procedure-note narrative from structured ERCP fields,
+    written the way an experienced therapeutic endoscopist would dictate it
+    — flowing clinical sentences grouped by theme, not a checklist read-out.
+    Administrative details already captured elsewhere in the report
+    (sedation, indication, anesthesiologist/assistants/technician) are
+    intentionally NOT restated here. Always meant to be reviewed/edited
+    before finalizing.
+
+    The cholangiogram narrative (build_cholangiogram_sentence) and the
+    biliary stent narrative (describe_stent_placement) are unchanged —
+    this function only restructures the surrounding sections."""
+    duodenoscope_advancement = fields.get('duodenoscope_advancement') or ''
+    papilla_shape = fields.get('papilla') or ''
+    papilla_location = fields.get('papilla_location') or ''
+    papilla_access = fields.get('papilla_access') or ''
     cannulation = fields.get('cannulation') or ''
     therapeutic = fields.get('therapeutic_procedures') or ''
     biopsy = fields.get('biopsy') or ''
     complications = fields.get('complications') or ''
-    indication = fields.get('indication') or ''
-    cholangio = fields.get('cholangio') or {}
-    stent = fields.get('stent') or {}
 
     parts = []
-    if sedation and sedation.lower() == 'none':
-        parts.append(
-            'The patient was placed in the appropriate position and the procedure was performed '
-            'without sedation.'
-        )
-    elif sedation:
-        parts.append(
-            'The patient was placed in the appropriate position and the procedure was performed '
-            f'under {sedation.lower()}.'
-        )
-    else:
-        parts.append(
-            'The patient was placed in the appropriate position and the procedure was performed.'
-        )
-    if indication:
-        parts.append(f'The indication for the procedure was {indication.lower()}.')
-    if papilla:
-        parts.append(f'The duodenoscope was advanced to the second part of the duodenum; the papilla was {papilla.lower()}.')
-    if cannulation:
-        parts.append(f'{cannulation} was achieved.')
 
-    cholangio_narrative = build_cholangio_narrative(cholangio)
-    if cholangio_narrative:
-        text = cholangio_narrative.rstrip('.')
-        if text.lower().startswith('normal'):
-            parts.append(
-                'Cholangiography demonstrated a normal-appearing biliary tree with free flow of '
-                'contrast into the duodenum.'
-            )
-        else:
-            parts.append(f'Cholangiography demonstrated {text[0].lower() + text[1:]}.')
+    duodenoscope_sentence = build_duodenoscope_sentence(duodenoscope_advancement)
+    if duodenoscope_sentence:
+        parts.append(duodenoscope_sentence)
 
-    if therapeutic:
-        items = [t.strip() for t in therapeutic.split(',') if t.strip()]
-        if items:
-            parts.append('The following therapeutic steps were performed: ' + ', '.join(items) + '.')
+    parts.extend(build_papilla_sentences(papilla_shape, papilla_location, papilla_access))
 
-    stent_narrative = build_stent_narrative(stent)
-    if stent_narrative:
-        parts.append(stent_narrative)
+    cannulation_sentence = build_cannulation_sentence(cannulation)
+    if cannulation_sentence:
+        parts.append(cannulation_sentence)
+
+    cholangio_sentence = build_cholangiogram_sentence(fields)
+    if cholangio_sentence:
+        parts.append(cholangio_sentence)
+
+    therapeutic_paragraph = build_therapeutic_paragraph(therapeutic)
+    if therapeutic_paragraph:
+        parts.append(therapeutic_paragraph)
+
+    stent_sentence = describe_stent_placement(fields)
+    if stent_sentence:
+        parts.append(stent_sentence)
 
     if biopsy and biopsy.lower() != 'not taken':
         parts.append(f'{biopsy} was obtained and sent for histopathology.')
+
     if complications and complications.lower() != 'none':
-        parts.append(f'The following complication(s) were noted during/after the procedure: {complications}.')
+        parts.append(f'The following complication(s) were noted during the procedure: {complications}.')
     else:
-        parts.append('The procedure was completed without immediate complications.')
+        parts.append('The patient tolerated the procedure well, and no immediate procedure-related complications were observed.')
 
     return ' '.join(parts)
+
 
 
 def compress_ercp_image(file_storage, dest_path):
@@ -1906,35 +2175,22 @@ def ercp_report_view(appointment_id):
         ).fetchall()
     ]
 
-    try:
-        cholangio_state = json.loads(report['cholangiogram_data']) if report['cholangiogram_data'] else {}
-    except (ValueError, TypeError):
-        cholangio_state = {}
-    try:
-        stent_state = json.loads(report['stent_data']) if report['stent_data'] else {}
-    except (ValueError, TypeError):
-        stent_state = {}
-
     return render_template(
         'ercp_report.html',
         appt=appt, report=report, research=research,
         image_by_slot=image_by_slot, image_slots=range(1, ERCP_IMAGE_SLOTS + 1),
         endoscopists=endoscopists, anesthesiologists=anesthesiologists,
         sedation_options=SEDATION_OPTIONS, indication_options=INDICATION_OPTIONS,
-        papilla_options=PAPILLA_OPTIONS, cannulation_options=CANNULATION_OPTIONS,
-        cholangiogram_simple_categories=CHOLANGIOGRAM_SIMPLE_CATEGORIES,
-        stricture_locations=CHOLANGIOGRAM_STRICTURE_LOCATIONS,
-        stricture_character_options=CHOLANGIOGRAM_STRICTURE_CHARACTER_OPTIONS,
-        tumour_options=CHOLANGIOGRAM_TUMOUR_OPTIONS,
-        sclerosing_subtypes=CHOLANGIOGRAM_SCLEROSING_SUBTYPES,
-        sclerosing_features=CHOLANGIOGRAM_SCLEROSING_FEATURES,
-        cholangio_state=cholangio_state,
-        stent_type_options=STENT_TYPE_OPTIONS, stent_diameter_options=STENT_DIAMETER_OPTIONS,
-        stent_length_options=STENT_LENGTH_OPTIONS, stent_deployment_options=STENT_DEPLOYMENT_OPTIONS,
-        stent_position_options=STENT_POSITION_OPTIONS, stent_drainage_options=STENT_DRAINAGE_OPTIONS,
-        stent_state=stent_state,
-        therapeutic_options=THERAPEUTIC_OPTIONS,
+        duodenoscope_advancement_options=DUODENOSCOPE_ADVANCEMENT_OPTIONS,
+        papilla_shape_options=PAPILLA_SHAPE_OPTIONS,
+        papilla_location_options=PAPILLA_LOCATION_OPTIONS,
+        papilla_access_options=PAPILLA_ACCESS_OPTIONS,
+        cannulation_options=CANNULATION_OPTIONS,
+        cholangiogram_categories=CHOLANGIOGRAM_CATEGORIES, therapeutic_options=THERAPEUTIC_OPTIONS,
         biopsy_options=BIOPSY_OPTIONS, complication_options=COMPLICATION_OPTIONS,
+        stent_type_options=STENT_TYPE_OPTIONS, stent_diameter_options=STENT_DIAMETER_OPTIONS,
+        stent_length_options=STENT_LENGTH_OPTIONS, stent_location_options=STENT_LOCATION_OPTIONS,
+        stent_deployment_options=STENT_DEPLOYMENT_OPTIONS, stent_drainage_options=STENT_DRAINAGE_OPTIONS,
         is_locked=(report['status'] == 'finalized'),
         can_unlock=(user['role'] == ROLE_ADMIN),
     )
@@ -1958,9 +2214,6 @@ def ercp_report_save(report_id):
             vals = [vals]
         return ', '.join(v.strip() for v in vals if v and v.strip())
 
-    cholangio_payload = payload.get('cholangio') or {}
-    stent_payload = payload.get('stent') or {}
-
     fields = {
         'endoscopist_id': payload.get('endoscopist_id') or None,
         'assistants': (payload.get('assistants') or '').strip(),
@@ -1968,13 +2221,29 @@ def ercp_report_save(report_id):
         'sedation': payload.get('sedation') or '',
         'anesthesiologist': (payload.get('anesthesiologist') or '').strip(),
         'indication': payload.get('indication') or '',
+        'duodenoscope_advancement': payload.get('duodenoscope_advancement') or '',
         'papilla': payload.get('papilla') or '',
+        'papilla_location': payload.get('papilla_location') or '',
+        'papilla_access': payload.get('papilla_access') or '',
         'cannulation': payload.get('cannulation') or '',
-        'cholangiogram_findings': build_cholangio_narrative(cholangio_payload),
-        'cholangiogram_data': json.dumps(cholangio_payload),
+        'cholangiogram_findings': multi('cholangiogram_findings'),
+        'cholangio_cbd_mm': (payload.get('cholangio_cbd_mm') or '').strip(),
+        'cholangio_chd_mm': (payload.get('cholangio_chd_mm') or '').strip(),
+        'cholangio_rhd_mm': (payload.get('cholangio_rhd_mm') or '').strip(),
+        'cholangio_lhd_mm': (payload.get('cholangio_lhd_mm') or '').strip(),
+        'cholangio_largest_stone_mm': (payload.get('cholangio_largest_stone_mm') or '').strip(),
+        'cholangio_stone_count': (payload.get('cholangio_stone_count') or '').strip(),
+        'cholangio_stricture_length_mm': (payload.get('cholangio_stricture_length_mm') or '').strip(),
         'therapeutic_procedures': multi('therapeutic_procedures'),
-        'stent_details': build_stent_narrative(stent_payload),
-        'stent_data': json.dumps(stent_payload),
+        'stent_placed': payload.get('stent_placed') or '',
+        'stent_type': payload.get('stent_type') or '',
+        'stent_manufacturer': (payload.get('stent_manufacturer') or '').strip(),
+        'stent_diameter': payload.get('stent_diameter') or '',
+        'stent_length': payload.get('stent_length') or '',
+        'stent_count': (payload.get('stent_count') or '').strip(),
+        'stent_location': payload.get('stent_location') or '',
+        'stent_deployment': payload.get('stent_deployment') or '',
+        'stent_drainage': payload.get('stent_drainage') or '',
         'biopsy': payload.get('biopsy') or '',
         'complications': multi('complications'),
         'procedure_note': payload.get('procedure_note') or '',
@@ -2043,11 +2312,29 @@ def ercp_generate_note(report_id):
     note = generate_procedure_note({
         'sedation': payload.get('sedation') or '',
         'indication': payload.get('indication') or '',
+        'duodenoscope_advancement': payload.get('duodenoscope_advancement') or '',
         'papilla': payload.get('papilla') or '',
+        'papilla_location': payload.get('papilla_location') or '',
+        'papilla_access': payload.get('papilla_access') or '',
         'cannulation': payload.get('cannulation') or '',
-        'cholangio': payload.get('cholangio') or {},
+        'cholangiogram_findings': multi('cholangiogram_findings'),
+        'cholangio_cbd_mm': payload.get('cholangio_cbd_mm') or '',
+        'cholangio_chd_mm': payload.get('cholangio_chd_mm') or '',
+        'cholangio_rhd_mm': payload.get('cholangio_rhd_mm') or '',
+        'cholangio_lhd_mm': payload.get('cholangio_lhd_mm') or '',
+        'cholangio_largest_stone_mm': payload.get('cholangio_largest_stone_mm') or '',
+        'cholangio_stone_count': payload.get('cholangio_stone_count') or '',
+        'cholangio_stricture_length_mm': payload.get('cholangio_stricture_length_mm') or '',
         'therapeutic_procedures': multi('therapeutic_procedures'),
-        'stent': payload.get('stent') or {},
+        'stent_placed': payload.get('stent_placed') or '',
+        'stent_type': payload.get('stent_type') or '',
+        'stent_manufacturer': payload.get('stent_manufacturer') or '',
+        'stent_diameter': payload.get('stent_diameter') or '',
+        'stent_length': payload.get('stent_length') or '',
+        'stent_count': payload.get('stent_count') or '',
+        'stent_location': payload.get('stent_location') or '',
+        'stent_deployment': payload.get('stent_deployment') or '',
+        'stent_drainage': payload.get('stent_drainage') or '',
         'biopsy': payload.get('biopsy') or '',
         'complications': multi('complications'),
     })
@@ -2194,15 +2481,20 @@ def ercp_print(report_id):
 
     assistants_lines = [a.strip() for a in (report['assistants'] or '').split(',') if a.strip()]
 
+    report_dict = dict(report)
+    cholangiogram_summary = build_cholangiogram_sentence(report_dict)
+    stent_summary = describe_stent_placement(report_dict)
+    papilla_summary = describe_papilla_summary(report_dict)
+
     procedure_fields = [
         ('Procedure', 'ERCP'),
         ('Indication', report['indication']),
         ('Sedation', report['sedation']),
-        ('Papilla', report['papilla']),
+        ('Papilla', papilla_summary),
         ('Cannulation', report['cannulation']),
-        ('Cholangiogram Findings', report['cholangiogram_findings']),
+        ('Cholangiogram Findings', cholangiogram_summary),
         ('Therapeutic Procedures', report['therapeutic_procedures']),
-        ('Stent Details', report['stent_details']),
+        ('Biliary Stent', stent_summary),
         ('Biopsy', report['biopsy']),
         ('Complications', report['complications']),
     ]
