@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Audit projects{% endblock %}
+{% block content %}
+<div class="page-compact">
+<p><a href="{{ url_for('gi_governance_dashboard') }}">← Governance</a></p>
+<h1>Clinical audit projects</h1>
+{% include "_module_intro.html" %}
+<section class="admin-section compact-section">
+<form method="POST" class="settings-form">
+  <label>Title<input name="title" required></label>
+  <label>Objective<textarea name="objective" rows="3" required></textarea></label>
+  <label>Methodology<textarea name="methodology" rows="2"></textarea></label>
+  <button class="btn btn--primary" type="submit">Create audit</button>
+</form>
+</section>
+<div class="admin-table-scroll">
+<table class="admin-table compact-table"><thead><tr><th>Title</th><th>Status</th><th>Investigator</th></tr></thead>
+<tbody>{% for a in audits %}<tr><td>{{ a.title }}</td><td>{{ a.status }}</td><td>{{ a.investigator_name or '—' }}</td></tr>
+{% else %}<tr><td colspan="3" class="muted">No audits.</td></tr>{% endfor %}</tbody></table>
+</div>
+</div>
+{% endblock %}

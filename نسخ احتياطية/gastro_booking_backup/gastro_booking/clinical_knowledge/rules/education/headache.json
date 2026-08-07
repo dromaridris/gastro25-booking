@@ -1,0 +1,25 @@
+{
+  "complaint_code": "CC_headache",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Headache history — structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Headache is the symptom. Migraine/SAH/meningitis are differentials — never the complaint picker label.",
+        "Screen Bates headache warning signs early."
+      ],
+      "linked_questions": [
+        "Q000040",
+        "Q000175"
+      ]
+    }
+  ],
+  "question_coaching": {},
+  "answer_triggers": []
+}

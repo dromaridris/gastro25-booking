@@ -1,0 +1,12 @@
+[
+  {"id": "ps-cholecystectomy", "code": "PS_cholecystectomy", "label": "Cholecystectomy", "entity_type": "past_surgical_history", "specialty_tags": ["surgery", "gastroenterology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "ps-appendectomy", "code": "PS_appendectomy", "label": "Appendectomy", "entity_type": "past_surgical_history", "specialty_tags": ["surgery"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "ps-hernia-repair", "code": "PS_hernia_repair", "label": "Hernia repair", "entity_type": "past_surgical_history", "specialty_tags": ["surgery"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "ps-bowel-resection", "code": "PS_bowel_resection", "label": "Bowel resection", "entity_type": "past_surgical_history", "specialty_tags": ["surgery", "gastroenterology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "ps-gastrectomy", "code": "PS_gastrectomy", "label": "Gastrectomy / gastric surgery", "entity_type": "past_surgical_history", "specialty_tags": ["surgery", "gastroenterology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "ps-cesarean", "code": "PS_cesarean_section", "label": "Cesarean section", "entity_type": "past_surgical_history", "specialty_tags": ["obstetrics"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "ps-cabg", "code": "PS_cabg", "label": "CABG", "entity_type": "past_surgical_history", "specialty_tags": ["cardiology", "cardiac_surgery"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "ps-pci", "code": "PS_pci_stent", "label": "PCI / coronary stent", "entity_type": "past_surgical_history", "specialty_tags": ["cardiology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "ps-transplant", "code": "PS_organ_transplant", "label": "Organ transplant", "entity_type": "past_surgical_history", "specialty_tags": ["transplant", "general"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "ps-endoscopy", "code": "PS_prior_endoscopy", "label": "Prior endoscopy / colonoscopy", "entity_type": "past_surgical_history", "specialty_tags": ["gastroenterology"], "schema_version": 1, "revision": 1, "status": "active", "notes": "Procedural history; may later move to procedures"}
+]

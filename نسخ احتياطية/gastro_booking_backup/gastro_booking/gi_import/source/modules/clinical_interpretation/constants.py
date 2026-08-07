@@ -1,0 +1,38 @@
+"""Clinical Interpretation constants."""
+
+from __future__ import annotations
+
+SOURCE_LABORATORY = "laboratory"
+SOURCE_IMAGING = "imaging"
+SOURCE_PROCEDURE_REPORT = "procedure_report"
+
+ALL_SOURCE_TYPES = (SOURCE_LABORATORY, SOURCE_IMAGING, SOURCE_PROCEDURE_REPORT)
+
+RUN_STATUS_GENERATED = "generated"
+RUN_STATUS_REVIEWED = "reviewed"
+RUN_STATUS_FINALIZED = "finalized"
+
+FINDING_STATUS_SUGGESTED = "suggested"
+
+UPDATE_MORE_LIKELY = "more_likely"
+UPDATE_LESS_LIKELY = "less_likely"
+UPDATE_UNCHANGED = "unchanged"
+UPDATE_NEW_CONSIDERATION = "new_consideration"
+
+ALL_UPDATE_DIRECTIONS = (
+    UPDATE_MORE_LIKELY,
+    UPDATE_LESS_LIKELY,
+    UPDATE_UNCHANGED,
+    UPDATE_NEW_CONSIDERATION,
+)
+
+DECISION_ACCEPTED = "accepted"
+DECISION_REJECTED = "rejected"
+DECISION_MODIFIED = "modified"
+DECISION_MANUAL = "manual"
+
+CONFIDENCE_HIGH = "high"
+CONFIDENCE_MEDIUM = "medium"
+CONFIDENCE_LOW = "low"
+
+AUDIT_PREFIX = "clinical_interpretation"

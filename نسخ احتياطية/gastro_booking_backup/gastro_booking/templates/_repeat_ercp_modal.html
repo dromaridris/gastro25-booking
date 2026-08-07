@@ -1,0 +1,29 @@
+<!-- Schedule Repeat ERCP Modal (shared by ercp_report.html and patient_ercp_overview.html) -->
+<div id="repeatErcpModal" class="modal-backdrop no-print" hidden>
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Schedule Repeat ERCP</h2>
+      <button class="modal-close" id="closeRepeatErcpBtn">&times;</button>
+    </div>
+    <form id="repeatErcpForm" class="booking-form">
+      <input type="hidden" id="repeatSourceApptId">
+      <p class="muted" id="repeatErcpPatientInfo"></p>
+      <div id="repeatErcpError" class="form-error" hidden></div>
+
+      <label>New Appointment Date <span class="label-hint">(Tuesdays or Saturdays only)</span>
+        <input type="date" id="repeatErcpDateField" required>
+      </label>
+
+      <p class="label-hint">
+        Patient demographic details (name, gender, age, phone, MRN, referral) carry over automatically.
+        Clinical notes and labs are left blank for fresh entry against the new procedure.
+        A brand-new ERCP report will be created — the previous report is never modified.
+      </p>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn--ghost" id="cancelRepeatErcpBtn">Cancel</button>
+        <button type="submit" class="btn btn--primary">Schedule Repeat ERCP</button>
+      </div>
+    </form>
+  </div>
+</div>

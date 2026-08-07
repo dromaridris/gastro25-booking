@@ -1,0 +1,20 @@
+<footer class="gi-footer mt-auto" role="contentinfo">
+    <div class="container gi-footer-inner">
+        <div class="gi-footer-meta{% if not gi_footer_show_platform %} gi-footer-meta--clinical{% endif %}">
+            <div class="gi-footer-hospital">&copy; {{ copyright_year }} {{ branding.hospital_name or branding.display_title }}</div>
+            {% if gi_footer_show_platform %}
+            <div class="gi-footer-brand">
+                <span class="gi-footer-powered">Powered by {{ platform.name }}</span>
+                <a href="{{ url_for('branding.about') }}" class="gi-footer-platform-link" title="About {{ platform.name }}">
+                    <img src="{{ platform_logo_url }}" alt="{{ platform.name }}" class="gi-platform-logo">
+                </a>
+            </div>
+            <div class="text-md-end">
+                <a href="mailto:{{ platform.support_email }}" class="gi-footer-link">{{ platform.support_email }}</a>
+                <span class="text-muted mx-1">·</span>
+                <span class="gi-footer-version text-muted">v{{ platform.version }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</footer>

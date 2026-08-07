@@ -1,0 +1,13 @@
+{# Standard flash messages with semantic styling #}
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="gi-flash-messages mb-4" role="region" aria-label="Notifications">
+            {% for category, message in messages %}
+                <div class="alert gi-alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Dismiss"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}

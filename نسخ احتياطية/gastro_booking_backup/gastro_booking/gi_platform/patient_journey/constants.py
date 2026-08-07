@@ -1,0 +1,15 @@
+"""Patient Journey AI constants — Gastro25."""
+
+FOLLOWUP_STATUS_PLANNED = 'planned'
+FOLLOWUP_STATUS_ACTIVE = 'active'
+FOLLOWUP_STATUS_COMPLETED = 'completed'
+FOLLOWUP_STATUS_CANCELLED = 'cancelled'
+FOLLOWUP_STATUS_MISSED = 'missed'
+
+SUMMARY_STATUS_DRAFT = 'draft'
+SUMMARY_STATUS_APPROVED = 'approved'
+SUMMARY_STATUS_REJECTED = 'rejected'
+
+AUDIT_PREFIX = 'patient_journey'
+CONFIDENCE_HIGH = 'high'
+CONFIDENCE_MEDIUM = 'medium'

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% from 'clinical_intelligence/_nav.html' import ci_nav %}
+{% block title %}Exam · encounter {{ enc.id }}{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>Physical Examination</h1>
+    <p class="muted">#{{ enc.id }} · {{ enc.complaint_code }}</p>
+  </div>
+  {{ ci_nav(enc, ci_tabs, 'exam') }}
+</section>
+
+{% if not plan.available %}
+<section class="admin-section">
+  <p class="muted">{{ plan.message }}</p>
+</section>
+{% else %}
+{% if plan.priority_findings %}
+<div class="compact-card" style="margin-bottom:14px;">
+  <strong>Priority findings:</strong>
+  {% for p in plan.priority_findings %}{{ p.label }}{% if not loop.last %}, {% endif %}{% endfor %}
+</div>
+{% endif %}
+<form method="POST">
+{% for sys in plan.systems %}
+<section class="admin-section">
+  <h2>{{ sys.title }}</h2>
+  {% if sys.checklist %}
+  <ul class="muted" style="font-size:13px;">{% for item in sys.checklist %}<li>{{ item }}</li>{% endfor %}</ul>
+  {% endif %}
+  {% for f in sys.findings %}
+  {% set cur = by_code.get(f.code) %}
+  <div class="compact-card" style="margin-bottom:8px;">
+    <strong>{{ f.label }}</strong> <span class="muted">{{ f.code }}</span>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;align-items:center;">
+      <select name="status_{{ f.code }}">
+        <option value="not_examined" {% if not cur or cur.status == 'not_examined' %}selected{% endif %}>Not examined</option>
+        <option value="present" {% if cur and cur.status == 'present' %}selected{% endif %}>Present</option>
+        <option value="absent" {% if cur and cur.status == 'absent' %}selected{% endif %}>Absent</option>
+      </select>
+      <input name="note_{{ f.code }}" placeholder="Note" value="{{ cur.note if cur and cur.note else '' }}" style="min-width:180px;">
+    </div>
+  </div>
+  {% endfor %}
+</section>
+{% endfor %}
+<button class="btn btn--primary" type="submit">Save examination</button>
+</form>
+{% endif %}
+{% endblock %}

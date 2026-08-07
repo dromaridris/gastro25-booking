@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% from "ui/macros.html" import page_header, search_panel, data_table_wrapper, table_empty_row, status_badge, back_link %}
+
+{% block title %}Knowledge Objects — {{ branding.display_title }}{% endblock %}
+
+{% block content %}
+{% set header_actions %}
+{% if can_edit or can_suggest %}
+<a href="{{ url_for('knowledge_library.create_object') }}" class="btn gi-btn-primary btn-sm">+ New</a>
+{% endif %}
+{% endset %}
+
+{{ page_header("Knowledge Objects", subtitle="Official clinical knowledge registry.", breadcrumbs=[("Knowledge", url_for('knowledge_library.index')), ("Objects", none)], actions=header_actions if (can_edit or can_suggest) else none) }}
+
+<form method="POST" class="gi-card p-3 mb-4">
+    {{ filter_form.hidden_tag() }}
+    <div class="row g-2 align-items-end">
+        <div class="col-md-4">{{ filter_form.object_type(class="form-select") }}</div>
+        <div class="col-md-4 form-check pt-4">{{ filter_form.include_archived(class="form-check-input") }} {{ filter_form.include_archived.label(class="form-check-label") }}</div>
+        <div class="col-md-4">{{ filter_form.submit(class="btn btn-outline-secondary") }}</div>
+    </div>
+</form>
+
+{% call data_table_wrapper('table-sm table-striped') %}
+    <thead>
+        <tr>
+            <th scope="col">Title</th>
+            <th scope="col">Type</th>
+            <th scope="col">Stable ID</th>
+            <th scope="col">Version</th>
+            <th scope="col">Status</th>
+            <th scope="col">Modified</th>
+            <th scope="col"><span class="visually-hidden">Actions</span></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for r in records %}
+        <tr>
+            <td><a href="{{ url_for('knowledge_library.view_object', record_id=r.id) }}">{{ r.title }}</a></td>
+            <td><code>{{ r.object_type }}</code></td>
+            <td><code>{{ r.stable_id }}</code></td>
+            <td>{{ r.version_label }} (#{{ r.version_sequence }})</td>
+            <td>
+                {% if r.is_archived %}{{ status_badge("Archived", "gi-badge-muted") }}
+                {% elif r.status == 'published' %}{{ status_badge("Published", "gi-badge-success") }}
+                {% elif r.status == 'draft' %}{{ status_badge("Draft", "gi-badge-warning") }}
+                {% else %}{{ status_badge(r.status, "gi-badge-muted") }}{% endif %}
+            </td>
+            <td class="small text-muted">{{ r.updated_at.strftime('%Y-%m-%d') if r.updated_at else '—' }}</td>
+            <td><a href="{{ url_for('knowledge_library.view_object', record_id=r.id) }}" class="btn btn-outline-primary btn-sm">View</a></td>
+        </tr>
+        {% else %}
+        {{ table_empty_row(7, "No knowledge objects", "Create a new knowledge object or change filters.") }}
+        {% endfor %}
+    </tbody>
+{% endcall %}
+
+{{ back_link(url_for('knowledge_library.index'), "Knowledge Library home") }}
+{% endblock %}

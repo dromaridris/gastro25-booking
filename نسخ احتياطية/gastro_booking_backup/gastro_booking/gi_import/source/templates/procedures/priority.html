@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Change Priority — Procedure #{{ target.id }}{% endblock %}
+{% block content %}
+<h2>Change Priority <small class="text-muted">Procedure #{{ target.id }}</small></h2>
+<form method="POST" class="col-md-6">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        {{ form.priority.label(class="form-label") }}
+        {{ form.priority(class="form-select") }}
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+</form>
+{% endblock %}

@@ -1,0 +1,776 @@
+{
+  "schema_version": "1",
+  "template_key": "capsule",
+  "label": "Capsule Endoscopy — Structured Clinical Report",
+  "sections": [
+    {
+      "id": "context",
+      "label": "Clinical Context",
+      "workflow_phase": "WF_CONTEXT",
+      "fields": [
+        {
+          "id": "capsule.context.indication_category",
+          "label": "Indication category",
+          "type": "multi_select",
+          "required": true,
+          "default": [],
+          "vocabulary_source": "capsule_indication_category",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ],
+          "research_flag": true
+        },
+        {
+          "id": "capsule.context.indication_detail",
+          "label": "Indication detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ]
+        },
+        {
+          "id": "capsule.context.urgency",
+          "label": "Urgency",
+          "type": "dropdown",
+          "required": true,
+          "default": "",
+          "vocabulary_source": "procedure_urgency",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ]
+        },
+        {
+          "id": "capsule.context.consent_obtained",
+          "label": "Consent obtained",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ]
+        },
+        {
+          "id": "capsule.context.prior_gi_surgery",
+          "label": "Prior GI surgery",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ]
+        },
+        {
+          "id": "capsule.context.pacemaker_implant",
+          "label": "Pacemaker / implantable device",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ]
+        },
+        {
+          "id": "capsule.context.swallowing_difficulty",
+          "label": "Swallowing difficulty",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "acquisition",
+      "label": "Preparation & Acquisition",
+      "workflow_phase": "WF_ACCESS",
+      "fields": [
+        {
+          "id": "capsule.acquisition.prep_regimen",
+          "label": "Bowel preparation regimen",
+          "type": "dropdown",
+          "default": "",
+          "vocabulary_source": "bowel_prep_regimen",
+          "workflow_phases": [
+            "WF_ACCESS"
+          ]
+        },
+        {
+          "id": "capsule.acquisition.prokinetic_given",
+          "label": "Prokinetic given",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_ACCESS"
+          ]
+        },
+        {
+          "id": "capsule.acquisition.patency_result",
+          "label": "Patency capsule result",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_ACCESS"
+          ]
+        },
+        {
+          "id": "capsule.acquisition.capsule_type",
+          "label": "Capsule type",
+          "type": "dropdown",
+          "required": true,
+          "default": "",
+          "vocabulary_source": "capsule_type",
+          "workflow_phases": [
+            "WF_ACCESS"
+          ]
+        },
+        {
+          "id": "capsule.acquisition.completion_status",
+          "label": "Study completion",
+          "type": "dropdown",
+          "required": true,
+          "default": "",
+          "vocabulary_source": "capsule_completion_status",
+          "workflow_phases": [
+            "WF_ACCESS"
+          ],
+          "qi_flag": true,
+          "qi_mapping": {
+            "metric_key": "capsule_completion",
+            "operator": "equals",
+            "value": "complete"
+          }
+        },
+        {
+          "id": "capsule.acquisition.gastric_transit_hours",
+          "label": "Gastric transit (hours)",
+          "type": "text",
+          "default": "",
+          "workflow_phases": [
+            "WF_ACCESS"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "findings",
+      "label": "Findings",
+      "workflow_phase": "WF_IMAGING",
+      "fields": [
+        {
+          "id": "capsule.findings.oesophagus_normal",
+          "label": "Oesophagus — normal",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ]
+        },
+        {
+          "id": "capsule.findings.oesophagus_findings",
+          "label": "Oesophagus — findings",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "capsule_finding_type",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "capsule.findings.oesophagus_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "capsule.findings.oesophagus_detail",
+          "label": "Oesophagus — detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "capsule.findings.oesophagus_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "capsule.findings.duodenum_normal",
+          "label": "Duodenum — normal",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ]
+        },
+        {
+          "id": "capsule.findings.duodenum_findings",
+          "label": "Duodenum — findings",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "capsule_finding_type",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "capsule.findings.duodenum_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "capsule.findings.duodenum_detail",
+          "label": "Duodenum — detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "capsule.findings.duodenum_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "capsule.findings.jejunum_normal",
+          "label": "Jejunum — normal",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ]
+        },
+        {
+          "id": "capsule.findings.jejunum_findings",
+          "label": "Jejunum — findings",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "capsule_finding_type",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "capsule.findings.jejunum_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "capsule.findings.jejunum_detail",
+          "label": "Jejunum — detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "capsule.findings.jejunum_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "capsule.findings.ileum_normal",
+          "label": "Ileum — normal",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ]
+        },
+        {
+          "id": "capsule.findings.ileum_findings",
+          "label": "Ileum — findings",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "capsule_finding_type",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "capsule.findings.ileum_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "capsule.findings.ileum_detail",
+          "label": "Ileum — detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "capsule.findings.ileum_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "capsule.findings.colon_normal",
+          "label": "Colon — normal",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ]
+        },
+        {
+          "id": "capsule.findings.colon_findings",
+          "label": "Colon — findings",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "capsule_finding_type",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "capsule.findings.colon_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "capsule.findings.colon_detail",
+          "label": "Colon — detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "capsule.findings.colon_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        }
+      ]
+    },
+    {
+      "id": "supplementary",
+      "label": "Supplementary",
+      "workflow_phase": "WF_THERAPY",
+      "fields": [
+        {
+          "id": "capsule.supplementary.notes",
+          "label": "Supplementary notes",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_THERAPY"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "closure",
+      "label": "Closure",
+      "workflow_phase": "WF_CLOSURE",
+      "fields": [
+        {
+          "id": "capsule.closure.procedure_completed",
+          "label": "Procedure completed as planned",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ],
+          "qi_flag": true,
+          "qi_mapping": {
+            "metric_key": "procedure_completed",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "capsule.closure.immediate_complication",
+          "label": "Immediate complication",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ],
+          "qi_flag": true,
+          "qi_mapping": {
+            "metric_key": "immediate_complication",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "capsule.closure.complication_types",
+          "label": "Complication type(s)",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "standard_complication_type",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "capsule.closure.immediate_complication",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "capsule.closure.complication_detail",
+          "label": "Complication detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "capsule.closure.immediate_complication",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "capsule.closure.specimens_sent",
+          "label": "Specimens sent",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ]
+        },
+        {
+          "id": "capsule.closure.specimen_details",
+          "label": "Specimen details",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "capsule.closure.specimens_sent",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "capsule.closure.retention_risk",
+          "label": "Capsule retention risk",
+          "type": "dropdown",
+          "default": "",
+          "vocabulary_source": "capsule_retention_risk",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ],
+          "qi_flag": true,
+          "qi_mapping": {
+            "metric_key": "retention_risk",
+            "operator": "not_empty",
+            "value": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "synthesis",
+      "label": "Synthesis",
+      "workflow_phase": "WF_SYNTHESIS",
+      "fields": [
+        {
+          "id": "capsule.synthesis.impression_primary",
+          "label": "Primary impression",
+          "type": "long_text",
+          "required": true,
+          "default": "",
+          "workflow_phases": [
+            "WF_SYNTHESIS"
+          ]
+        },
+        {
+          "id": "capsule.synthesis.clinical_plan",
+          "label": "Recommendations / clinical plan",
+          "type": "long_text",
+          "required": true,
+          "default": "",
+          "workflow_phases": [
+            "WF_SYNTHESIS"
+          ]
+        },
+        {
+          "id": "capsule.synthesis.addendum_text",
+          "label": "Addendum",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_SYNTHESIS"
+          ]
+        }
+      ]
+    }
+  ],
+  "components": {
+    "timeline": [
+      {
+        "key": "capsule_swallowed",
+        "label": "Capsule swallowed"
+      },
+      {
+        "key": "capsule_excreted",
+        "label": "Capsule excreted"
+      }
+    ]
+  },
+  "section_narratives": [
+    {
+      "section": "clinical_indication",
+      "intro": "Clinical indication:",
+      "bindings": [
+        {
+          "mode": "literal",
+          "field_id": "capsule.context.indication_category",
+          "label": "Category"
+        },
+        {
+          "mode": "literal",
+          "field_id": "capsule.context.indication_detail",
+          "label": "Detail"
+        },
+        {
+          "mode": "sentence",
+          "field_id": "capsule.context.urgency",
+          "template": "Urgency: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "capsule.context.consent_obtained",
+          "template": "Consent obtained: {value}."
+        }
+      ]
+    },
+    {
+      "section": "impression",
+      "bindings": [
+        {
+          "mode": "sentence",
+          "field_id": "capsule.synthesis.impression_primary",
+          "template": "Impression:\n{value}"
+        }
+      ]
+    },
+    {
+      "section": "recommendations",
+      "intro": "Recommendations / plan:",
+      "bindings": [
+        {
+          "mode": "literal",
+          "field_id": "capsule.synthesis.clinical_plan",
+          "label": ""
+        },
+        {
+          "mode": "sentence",
+          "field_id": "capsule.synthesis.addendum_text",
+          "template": "Addendum:\n{value}"
+        }
+      ]
+    },
+    {
+      "section": "complications",
+      "intro": "Complications and closure:",
+      "bindings": [
+        {
+          "mode": "sentence",
+          "field_id": "capsule.closure.procedure_completed",
+          "template": "Procedure completed as planned: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "capsule.closure.immediate_complication",
+          "template": "Immediate complication: {value}."
+        },
+        {
+          "mode": "literal",
+          "field_id": "capsule.closure.complication_types",
+          "label": "Complication type(s)"
+        },
+        {
+          "mode": "sentence",
+          "field_id": "capsule.closure.complication_detail",
+          "template": "Complication detail: {value}."
+        }
+      ]
+    }
+  ],
+  "workflow": {
+    "states": [
+      "WF_CONTEXT",
+      "WF_ACCESS",
+      "WF_IMAGING",
+      "WF_THERAPY",
+      "WF_CLOSURE",
+      "WF_SYNTHESIS",
+      "WF_REVIEW",
+      "WF_FINALIZE"
+    ],
+    "transitions": {
+      "WF_CONTEXT": [
+        "WF_ACCESS"
+      ],
+      "WF_ACCESS": [
+        "WF_CONTEXT",
+        "WF_IMAGING"
+      ],
+      "WF_IMAGING": [
+        "WF_ACCESS",
+        "WF_THERAPY"
+      ],
+      "WF_THERAPY": [
+        "WF_IMAGING",
+        "WF_CLOSURE"
+      ],
+      "WF_CLOSURE": [
+        "WF_THERAPY",
+        "WF_SYNTHESIS"
+      ],
+      "WF_SYNTHESIS": [
+        "WF_CLOSURE",
+        "WF_REVIEW"
+      ],
+      "WF_REVIEW": [
+        "WF_SYNTHESIS",
+        "WF_FINALIZE"
+      ],
+      "WF_FINALIZE": [
+        "WF_REVIEW"
+      ]
+    }
+  },
+  "validation": [
+    {
+      "id": "V_CAPSULE_INDICATION",
+      "severity": "error",
+      "message": "Indication category is required before finalize.",
+      "rule": {
+        "type": "field_present",
+        "field_id": "capsule.context.indication_category"
+      }
+    },
+    {
+      "id": "V_CAPSULE_URGENCY",
+      "severity": "error",
+      "message": "Urgency is required before finalize.",
+      "rule": {
+        "type": "field_present",
+        "field_id": "capsule.context.urgency"
+      }
+    },
+    {
+      "id": "V_CAPSULE_CONSENT",
+      "severity": "error",
+      "message": "Consent outcome must be documented before finalize.",
+      "rule": {
+        "type": "field_in",
+        "field_id": "capsule.context.consent_obtained",
+        "values": [
+          "Yes",
+          "No"
+        ]
+      }
+    },
+    {
+      "id": "V_CAPSULE_PROC",
+      "severity": "error",
+      "message": "Study completion status must be documented before finalize.",
+      "rule": {
+        "type": "field_present",
+        "field_id": "capsule.acquisition.completion_status"
+      }
+    },
+    {
+      "id": "V_CAPSULE_COMPLETED",
+      "severity": "error",
+      "message": "Procedure completion status is required before finalize.",
+      "rule": {
+        "type": "field_present",
+        "field_id": "capsule.closure.procedure_completed"
+      }
+    },
+    {
+      "id": "V_CAPSULE_COMPLICATION",
+      "severity": "error",
+      "message": "Immediate complication outcome must be documented before finalize.",
+      "rule": {
+        "type": "field_present",
+        "field_id": "capsule.closure.immediate_complication"
+      }
+    },
+    {
+      "id": "V_CAPSULE_IMPRESSION",
+      "severity": "error",
+      "message": "Primary impression is required before finalize.",
+      "rule": {
+        "type": "field_nonempty",
+        "field_id": "capsule.synthesis.impression_primary"
+      }
+    },
+    {
+      "id": "V_CAPSULE_PLAN",
+      "severity": "error",
+      "message": "Clinical plan / recommendations are required before finalize.",
+      "rule": {
+        "type": "field_nonempty",
+        "field_id": "capsule.synthesis.clinical_plan"
+      }
+    }
+  ],
+  "quick_fill": {
+    "normal_diagnostic": {
+      "label": "Normal capsule study",
+      "values": {
+        "capsule.context.indication_category": [
+          "obscure_bleeding"
+        ],
+        "capsule.context.urgency": "elective",
+        "capsule.context.consent_obtained": "Yes",
+        "capsule.acquisition.capsule_type": "standard",
+        "capsule.acquisition.completion_status": "complete",
+        "capsule.findings.oesophagus_normal": "Yes",
+        "capsule.findings.duodenum_normal": "Yes",
+        "capsule.findings.jejunum_normal": "Yes",
+        "capsule.findings.ileum_normal": "Yes",
+        "capsule.findings.colon_normal": "Yes",
+        "capsule.closure.procedure_completed": "Yes",
+        "capsule.closure.immediate_complication": "No",
+        "capsule.closure.retention_risk": "low",
+        "capsule.synthesis.impression_primary": "Normal capsule endoscopy.",
+        "capsule.synthesis.clinical_plan": "Routine clinical follow-up as indicated."
+      }
+    }
+  },
+  "qi": [
+    {
+      "metric_key": "capsule_completion",
+      "label": "Complete capsule study"
+    },
+    {
+      "metric_key": "retention_risk",
+      "label": "Retention risk documented"
+    },
+    {
+      "metric_key": "immediate_complication",
+      "label": "Immediate complication"
+    }
+  ]
+}

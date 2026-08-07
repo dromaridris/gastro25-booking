@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Announcements{% endblock %}
+{% block content %}
+<h1>Department Announcements</h1>
+{% if can('dept_ops:announce') %}
+<form method="POST" action="{{ url_for('dept_ops.publish_announcement') }}" class="mb-4">
+    <div class="mb-2"><input name="title" class="form-control" placeholder="Title" required></div>
+    <div class="mb-2"><textarea name="body" class="form-control" placeholder="Announcement body" required></textarea></div>
+    <div class="mb-2">
+        <select name="category" class="form-select w-auto d-inline">
+            <option value="notice">Notice</option>
+            <option value="department">Department</option>
+            <option value="holiday">Holiday</option>
+            <option value="equipment">Equipment</option>
+            <option value="academic">Academic</option>
+        </select>
+        <select name="priority" class="form-select w-auto d-inline">
+            <option value="normal">Normal</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm">Publish</button>
+</form>
+{% endif %}
+<ul class="list-group">
+{% for a in announcements %}
+    <li class="list-group-item"><strong>{{ a.title }}</strong> <span class="badge bg-secondary">{{ a.category }}</span><br><small>{{ a.body[:200] }}</small></li>
+{% else %}
+    <li class="list-group-item text-muted">No announcements.</li>
+{% endfor %}
+</ul>
+{% endblock %}

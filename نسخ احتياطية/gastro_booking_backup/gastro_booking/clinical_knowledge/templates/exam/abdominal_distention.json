@@ -1,0 +1,99 @@
+{
+  "id": "ET_abdominal_distention",
+  "complaint_code": "CC_abdominal_distention",
+  "name": "Abdominal distention — physical exam",
+  "source": {
+    "work": "Bates' Guide to Physical Examination and History Taking",
+    "note": "Exam organization only; findings recorded against dictionary sign codes."
+  },
+  "systems": [
+    {
+      "key": "general",
+      "title": "General appearance & vitals",
+      "finding_ids": [
+        "SG_tachycardia",
+        "SG_hypotension",
+        "SG_fever",
+        "SG_jaundice",
+        "SG_icteric_sclera",
+        "SG_pallor"
+      ],
+      "checklist": [
+        "General distress",
+        "Vital signs",
+        "Jaundice / pallor"
+      ]
+    },
+    {
+      "key": "abdomen_inspection",
+      "title": "Abdomen — inspection",
+      "finding_ids": [
+        "SG_ascites",
+        "SG_caput_medusae",
+        "SG_visible_peristalsis",
+        "SG_hernia",
+        "SG_abdominal_mass"
+      ],
+      "checklist": [
+        "Contour / symmetry of distention",
+        "Flank fullness",
+        "Scars / stomas",
+        "Visible peristalsis",
+        "Hernial orifices"
+      ]
+    },
+    {
+      "key": "abdomen_percussion_fluid",
+      "title": "Abdomen — percussion (gas vs fluid vs mass)",
+      "finding_ids": [
+        "SG_ascites",
+        "SG_hepatomegaly",
+        "SG_abdominal_mass"
+      ],
+      "checklist": [
+        "Tympany vs dullness",
+        "Shifting dullness / fluid wave if ascites suspected",
+        "Liver / spleen span",
+        "Dull mass vs resonant gas"
+      ]
+    },
+    {
+      "key": "abdomen_palpation",
+      "title": "Abdomen — palpation",
+      "finding_ids": [
+        "SG_guarding",
+        "SG_rigidity",
+        "SG_hepatomegaly",
+        "SG_splenomegaly",
+        "SG_abdominal_mass",
+        "SG_hernia"
+      ],
+      "checklist": [
+        "Tenderness / guarding",
+        "Organomegaly",
+        "Masses",
+        "Hernias"
+      ]
+    },
+    {
+      "key": "extremities_neuro",
+      "title": "Extremities & neuro screen",
+      "finding_ids": [
+        "SG_peripheral_edema"
+      ],
+      "checklist": [
+        "Pitting oedema",
+        "Asterixis / mental status if liver disease suspected"
+      ]
+    }
+  ],
+  "priority_findings": [
+    "SG_ascites",
+    "SG_abdominal_mass",
+    "SG_visible_peristalsis",
+    "SG_rigidity"
+  ],
+  "schema_version": 1,
+  "revision": 1,
+  "status": "active"
+}

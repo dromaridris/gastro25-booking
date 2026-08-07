@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% from 'clinical_intelligence/_nav.html' import ci_nav %}
+{% block title %}Teach · encounter {{ enc.id }}{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>Education / teach mode</h1>
+    <p class="muted">#{{ enc.id }} · linked to findings &amp; patterns</p>
+  </div>
+  {{ ci_nav(enc, ci_tabs, 'teach') }}
+</section>
+
+{% if scoring.available %}
+<div class="compact-card" style="margin-bottom:14px;">
+  Pattern score {{ scoring.total_score }}{% if scoring.band %} — {{ scoring.band.label }}{% endif %}
+</div>
+{% endif %}
+
+{% if not education.available %}
+<p class="muted">{{ education.message or 'No education pack.' }}</p>
+{% elif not education.modules %}
+<p class="muted">No teaching modules triggered yet — add history/exam findings.</p>
+{% else %}
+{% for m in education.modules %}
+<section class="admin-section">
+  <h2>{{ m.title }}</h2>
+  <ul>{% for p in m.points %}<li>{{ p }}</li>{% endfor %}</ul>
+  {% if m.linked_diagnoses %}<p class="muted" style="font-size:12px;">Diagnoses: {{ m.linked_diagnoses|join(', ') }}</p>{% endif %}
+  {% if m.linked_questions %}<p class="muted" style="font-size:12px;">Questions: {{ m.linked_questions|join(', ') }}</p>{% endif %}
+</section>
+{% endfor %}
+{% endif %}
+<p class="muted" style="font-size:12px;">{{ education.disclaimer }}</p>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}CDS · session {{ session_id }}{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>Clinical Decision Support</h1>
+    <p class="muted">Advisory only — not orders. Every item includes support / contradiction / confidence.</p>
+  </div>
+  <div>
+    <form method="POST" action="{{ url_for('ckp_cds_refresh', session_id=session_id) }}" style="display:inline;">
+      <button class="btn btn--primary" type="submit">Refresh from EBS + KG</button>
+    </form>
+    <a class="btn" href="{{ url_for('ckp_encounter_workspace', session_id=session_id, channel='plan') }}">Encounter</a>
+  </div>
+</section>
+{% for a in alerts %}
+<section class="admin-section">
+  <h2><span class="badge">{{ a.severity }}</span> {{ a.title }}</h2>
+  <p class="muted">{{ a.alert_kind }} · confidence {{ a.confidence }}
+    {% if a.guideline_source %} · guideline {{ a.guideline_source }}{% endif %}</p>
+  <p>{{ a.explanation }}</p>
+  <p><strong>Supporting:</strong> <code>{{ a.supporting }}</code></p>
+  <p><strong>Contradictory:</strong> <code>{{ a.contradictory }}</code></p>
+</section>
+{% else %}
+<section class="admin-section"><p class="muted">No active advisories — refresh after intake.</p></section>
+{% endfor %}
+{% endblock %}

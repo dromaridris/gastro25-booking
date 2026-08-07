@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}M&M Case{% endblock %}
+{% block content %}
+<h1>M&M Case</h1>
+<p>{{ case.case_summary }}</p>
+{% if can('governance:mm_participate') %}
+<form method="POST">
+    <div class="mb-2"><label>Discussion</label><textarea name="discussion_notes" class="form-control">{{ case.discussion_notes or '' }}</textarea></div>
+    <div class="mb-2"><label>Lessons learned</label><textarea name="lessons_learned" class="form-control">{{ case.lessons_learned or '' }}</textarea></div>
+    <div class="mb-2"><label>Recommendations</label><textarea name="recommendations" class="form-control">{{ case.recommendations or '' }}</textarea></div>
+    <div class="mb-2"><label>Follow-up</label><textarea name="follow_up_actions" class="form-control">{{ case.follow_up_actions or '' }}</textarea></div>
+    <select name="status" class="form-select w-auto d-inline"><option value="presented">Presented</option><option value="closed">Closed</option></select>
+    <button class="btn btn-primary btn-sm">Save</button>
+</form>
+{% endif %}
+{% endblock %}

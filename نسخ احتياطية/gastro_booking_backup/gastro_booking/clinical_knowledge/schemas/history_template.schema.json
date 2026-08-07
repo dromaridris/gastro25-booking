@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://clinical-intelligence.local/schemas/history_template.schema.json",
+  "title": "HistoryTemplate",
+  "type": "object",
+  "required": ["id", "complaint_code", "name", "sections", "schema_version"],
+  "properties": {
+    "id": { "type": "string" },
+    "complaint_code": { "type": "string" },
+    "name": { "type": "string" },
+    "synonyms": { "type": "array", "items": { "type": "string" } },
+    "body_system": { "type": "string" },
+    "source": {
+      "type": "object",
+      "properties": {
+        "work": { "type": "string" },
+        "note": { "type": "string" }
+      }
+    },
+    "red_flag_question_ids": { "type": "array", "items": { "type": "string", "pattern": "^Q[0-9]{6}$" } },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["key", "title", "question_ids"],
+        "properties": {
+          "key": { "type": "string" },
+          "title": { "type": "string" },
+          "question_ids": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^Q[0-9]{6}$" }
+          }
+        }
+      }
+    },
+    "associated_complaint_codes": { "type": "array", "items": { "type": "string" } },
+    "schema_version": { "type": "integer" },
+    "revision": { "type": "integer" },
+    "status": { "type": "string", "enum": ["draft", "active", "deprecated"] }
+  },
+  "additionalProperties": false
+}

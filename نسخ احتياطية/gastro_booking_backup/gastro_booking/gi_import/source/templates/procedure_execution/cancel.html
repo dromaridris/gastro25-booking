@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Cancel Session #{{ session.id }}{% endblock %}
+{% block content %}
+<h2>Cancel Procedure Execution — Session #{{ session.id }}</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">{{ form.reason.label(class="form-label") }}{{ form.reason(class="form-control", rows=4) }}</div>
+    {{ form.submit(class="btn btn-danger") }}
+    <a href="{{ url_for('procedure_execution.view_session', session_id=session.id) }}" class="btn btn-link">Back</a>
+</form>
+{% endblock %}

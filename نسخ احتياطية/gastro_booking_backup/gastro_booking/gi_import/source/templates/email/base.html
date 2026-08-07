@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ subject | default(branding.display_title) }}</title>
+</head>
+<body style="margin:0;padding:0;background:#f7f9fb;font-family:Segoe UI,Arial,sans-serif;color:#1a2332;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f7f9fb;padding:24px 12px;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border:1px solid #d5dee8;border-radius:8px;">
+                    <tr>
+                        <td style="padding:24px 28px;border-bottom:3px solid {{ branding.primary_color }};">
+                            {% if branding.hospital_logo_url %}
+                            <img src="{{ branding.hospital_logo_url }}" alt="{{ branding.hospital_name }}" height="48" style="max-height:48px;margin-right:12px;vertical-align:middle;">
+                            {% endif %}
+                            <span style="font-size:18px;font-weight:700;color:{{ branding.primary_color }};vertical-align:middle;">{{ branding.hospital_name }}</span>
+                            <div style="font-size:13px;color:{{ branding.secondary_color }};margin-top:4px;">{{ branding.department_name }}</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:28px;">
+                            {% block email_body %}{% endblock %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:16px 28px;border-top:1px solid #d5dee8;font-size:11px;color:#5c6b7a;text-align:center;">
+                            Powered by {{ platform.name }} · {{ platform.support_email }} · v{{ platform.version }}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

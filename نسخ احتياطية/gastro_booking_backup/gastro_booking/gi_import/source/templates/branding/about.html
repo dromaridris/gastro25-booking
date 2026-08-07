@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}About — {{ branding.display_title }}{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-xl-8 col-lg-9">
+        <div class="card gi-card shadow-sm overflow-hidden">
+            <div class="gi-about-hero text-center py-4 px-3">
+                <div class="d-flex justify-content-center align-items-center gap-3 flex-wrap mb-2">
+                    {% include "branding/_logo_header.html" %}
+                </div>
+                {% if branding.slogan %}
+                    <p class="mb-0 opacity-75">{{ branding.slogan }}</p>
+                {% endif %}
+            </div>
+            <div class="card-body p-4 p-md-5">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <h2 class="h5 gi-section-title">Hospital Information</h2>
+                        <dl class="row mb-0">
+                            <dt class="col-sm-4">Hospital</dt>
+                            <dd class="col-sm-8">{{ branding.hospital_name or '—' }}</dd>
+                            <dt class="col-sm-4">Department</dt>
+                            <dd class="col-sm-8">{{ branding.department_name or '—' }}</dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <h2 class="h5 gi-section-title">Software</h2>
+                        <dl class="row mb-0">
+                            <dt class="col-sm-4">Name</dt>
+                            <dd class="col-sm-8">{{ platform.name }}</dd>
+                            <dt class="col-sm-4">Version</dt>
+                            <dd class="col-sm-8">{{ platform.version }}</dd>
+                            <dt class="col-sm-4">Support</dt>
+                            <dd class="col-sm-8"><a href="mailto:{{ platform.support_email }}">{{ platform.support_email }}</a></dd>
+                        </dl>
+                    </div>
+                </div>
+                <hr class="my-4">
+                <div class="text-center py-3">
+                    <p class="small text-muted mb-2">Powered by {{ platform.name }}</p>
+                    <a href="{{ url_for('branding.about') }}" class="d-inline-block">
+                        <img src="{{ platform_logo_url }}" alt="{{ platform.name }}" class="gi-platform-logo" height="24">
+                    </a>
+                    <p class="small text-muted mt-3 mb-0">&copy; {{ copyright_year }} {{ branding.hospital_name }}. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

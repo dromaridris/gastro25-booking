@@ -1,0 +1,33 @@
+{% extends "base_login.html" %}
+{% block title %}Log In — {{ branding.display_title }}{% endblock %}
+{% block content %}
+<div class="gi-login-card p-4 p-md-5 text-center">
+    <div class="mb-3 d-flex justify-content-center align-items-center gap-2 flex-wrap">
+        {% if branding.hospital_logo_url %}
+            <img src="{{ branding.hospital_logo_url }}" alt="{{ branding.hospital_name }}" class="gi-login-logo">
+        {% endif %}
+        {% if branding.department_logo_url %}
+            <img src="{{ branding.department_logo_url }}" alt="{{ branding.department_name }}" class="gi-login-logo">
+        {% endif %}
+        {% if branding.logo_layout == 'text' %}
+            <span class="h5 mb-0">{{ branding.display_title }}</span>
+        {% endif %}
+    </div>
+    {% if branding.slogan %}
+        <p class="text-muted small mb-4">{{ branding.slogan }}</p>
+    {% endif %}
+    <h1 class="h4 mb-4">Log In</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="mb-3 text-start">
+            {{ form.email.label(class="form-label") }}
+            {{ form.email(class="form-control form-control-lg") }}
+        </div>
+        <div class="mb-3 text-start">
+            {{ form.password.label(class="form-label") }}
+            {{ form.password(class="form-control form-control-lg") }}
+        </div>
+        {{ form.submit(class="btn gi-btn-primary w-100 btn-lg") }}
+    </form>
+</div>
+{% endblock %}

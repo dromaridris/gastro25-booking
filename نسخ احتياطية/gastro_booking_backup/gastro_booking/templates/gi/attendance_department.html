@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Department attendance{% endblock %}
+{% block content %}
+<div class="page-compact">
+<h1>Department attendance — {{ year }}-{{ '%02d'|format(month) }}</h1>
+{% include "_module_intro.html" %}
+<p><a href="{{ url_for('gi_governance_dashboard') }}">← Governance</a></p>
+<form method="POST" action="{{ url_for('gi_attendance_generate') }}" class="btn-row">
+  <input type="hidden" name="year" value="{{ year }}"><input type="hidden" name="month" value="{{ month }}">
+  <button class="btn btn--primary btn--sm" type="submit">Generate / refresh month</button>
+  <a class="btn btn--outline btn--sm" href="{{ url_for('gi_attendance_export', year=year, month=month) }}">Export Excel</a>
+</form>
+<div class="admin-table-scroll">
+<table class="admin-table compact-table"><thead><tr><th>Name</th><th>Role</th><th>Present</th><th>Absent</th><th>Leave</th><th>Active days</th></tr></thead>
+<tbody>{% for s in summary %}
+<tr><td>{{ s.full_name }}</td><td>{{ s.role|replace('_',' ') }}</td><td>{{ s.present_days }}</td><td>{{ s.absent_days }}</td><td>{{ s.leave_days }}</td><td>{{ s.active_days }}</td></tr>
+{% else %}<tr><td colspan="6" class="muted">Click Generate to compute attendance.</td></tr>{% endfor %}</tbody></table>
+</div>
+
+<section class="admin-section compact-section section-gap">
+  <h2>Manual adjustment (leave / teaching)</h2>
+  <form method="POST" action="{{ url_for('gi_attendance_adjust') }}" class="settings-form">
+    <label>Staff<select name="user_id" required>{% for s in summary %}<option value="{{ s.user_id }}">{{ s.full_name }}</option>{% endfor %}</select></label>
+    <label>Date<input type="date" name="adjustment_date" required></label>
+    <label>Type<select name="adjustment_type"><option value="leave">Leave</option><option value="teaching">Teaching</option><option value="conference">Conference</option><option value="meeting">Meeting</option></select></label>
+    <label>Note<input name="notes"></label>
+    <button class="btn btn--outline" type="submit">Save adjustment</button>
+  </form>
+</section>
+</div>
+{% endblock %}

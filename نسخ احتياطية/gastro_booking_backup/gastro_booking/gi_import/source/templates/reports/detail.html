@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Report {{ report.report_number }}{% endblock %}
+{% block content %}
+<h2>Report <small class="text-muted">{{ report.report_number }}</small></h2>
+<span class="badge bg-secondary mb-3">{{ report.status.title() }}</span>
+{% if report.is_archived %}<span class="badge bg-dark mb-3">Archived</span>{% endif %}
+
+<h4>Report Header</h4>
+<dl class="row">
+    <dt class="col-sm-3">Patient</dt>
+    <dd class="col-sm-9">{{ header.patient_name }} ({{ header.patient_mrn }})</dd>
+    <dt class="col-sm-3">Procedure Type</dt>
+    <dd class="col-sm-9">{{ header.procedure_type }}</dd>
+    <dt class="col-sm-3">Procedure Date</dt>
+    <dd class="col-sm-9">{{ header.procedure_date.strftime("%Y-%m-%d %H:%M") if header.procedure_date else "—" }}</dd>
+    <dt class="col-sm-3">Room</dt>
+    <dd class="col-sm-9">{{ header.room }}</dd>
+    <dt class="col-sm-3">Endoscopist</dt>
+    <dd class="col-sm-9">{{ header.endoscopist }}</dd>
+    <dt class="col-sm-3">Team</dt>
+    <dd class="col-sm-9">{{ header.team_summary }}</dd>
+    <dt class="col-sm-3">Sedation</dt>
+    <dd class="col-sm-9">{{ header.sedation_category }}</dd>
+    <dt class="col-sm-3">Report Author</dt>
+    <dd class="col-sm-9">{{ header.author }}</dd>
+    <dt class="col-sm-3">Supervising Consultant</dt>
+    <dd class="col-sm-9">{{ header.supervising_consultant }}</dd>
+</dl>
+
+{% if report.finalized_at %}
+<p class="text-muted small">Finalized {{ report.finalized_at.strftime("%Y-%m-%d %H:%M") }}
+    {% if report.finalized_by %}by {{ report.finalized_by.full_name }}{% endif %}</p>
+{% endif %}
+{% if report.locked_at %}
+<p class="text-muted small">Locked {{ report.locked_at.strftime("%Y-%m-%d %H:%M") }}
+    {% if report.locked_by %}by {{ report.locked_by.full_name }}{% endif %}</p>
+{% endif %}
+
+<h4>Sections</h4>
+<div class="list-group mb-4">
+    {% for key, label in section_labels.items() %}
+    {% set section = sections.get(key) %}
+    <div class="list-group-item">
+        <div class="d-flex justify-content-between align-items-start">
+            <div class="me-3 flex-grow-1">
+                <strong>{{ label }}</strong>
+                <pre class="mb-0 mt-2 text-wrap" style="white-space: pre-wrap; font-family: inherit;">{{ section.content if section and section.content else "—" }}</pre>
+            </div>
+            {% if report.is_editable and can('report:draft') %}
+            <a href="{{ url_for('reports.edit_section', report_id=report.id, section_key=key) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="d-flex gap-2 flex-wrap mb-3">
+    <a href="{{ url_for('reports.print_report', report_id=report.id) }}" class="btn btn-outline-primary btn-sm" target="_blank">Print</a>
+    {% if report.is_editable and can('report:draft') %}
+        <a href="{{ url_for('reports.edit_supervising_consultant', report_id=report.id) }}" class="btn btn-outline-secondary btn-sm">Edit Supervising Consultant</a>
+    {% endif %}
+    {% if report.status == 'draft' and can('report:sign') %}
+        <form method="POST" action="{{ url_for('reports.finalize_report', report_id=report.id) }}">
+            <button type="submit" class="btn btn-success btn-sm">Finalize</button>
+        </form>
+    {% endif %}
+    {% if report.status == 'finalized' and can('report:sign') %}
+        <form method="POST" action="{{ url_for('reports.lock_report', report_id=report.id) }}">
+            <button type="submit" class="btn btn-warning btn-sm">Lock</button>
+        </form>
+    {% endif %}
+    {% if report.status == 'locked' and can('report:sign') %}
+        <form method="POST" action="{{ url_for('reports.unlock_report', report_id=report.id) }}">
+            <button type="submit" class="btn btn-outline-danger btn-sm">Unlock</button>
+        </form>
+    {% endif %}
+    {% if can('report:sign') and not report.is_archived %}
+        <a href="{{ url_for('reports.archive_report', report_id=report.id) }}" class="btn btn-outline-dark btn-sm">Archive</a>
+    {% endif %}
+</div>
+
+<p class="text-muted small">
+    Session: <a href="{{ url_for('procedure_execution.view_session', session_id=report.procedure_session_id) }}">#{{ report.procedure_session_id }}</a>
+</p>
+{% endblock %}

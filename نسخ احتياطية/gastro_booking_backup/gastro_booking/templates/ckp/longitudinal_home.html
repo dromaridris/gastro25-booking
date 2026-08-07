@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Longitudinal{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>Longitudinal Clinical Memory</h1>
+    <p class="muted">Multi-encounter timelines, delta, recurrence, risk evolution</p>
+  </div>
+  <a class="btn" href="{{ url_for('ckp_encounter_home') }}">Encounters</a>
+</section>
+<section class="admin-section">
+  <ul>
+    {% for m in memories %}
+    <li><a href="{{ url_for('ckp_longitudinal_patient', patient_key=m.patient_key) }}">{{ m.patient_key }}</a>
+      <span class="muted">{{ m.updated_at }}</span></li>
+    {% else %}
+    <li class="muted">Empty — ingest from an encounter Summary channel.</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}

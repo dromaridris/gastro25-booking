@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Scope {{ scope.scope_code }}{% endblock %}
+{% block content %}
+<h1>Scope {{ scope.scope_code }}</h1>
+{% include "gi/dept_ops/_nav.html" %}
+<p class="muted">{{ scope.scope_type }} · {{ scope.model or '—' }} · Status: <strong>{{ scope.status }}</strong></p>
+
+<section class="admin-section compact-section">
+  <h2>Reprocessing history</h2>
+  <table class="admin-table compact-table">
+    <thead><tr><th>Started</th><th>Completed</th><th>Step</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for h in history %}
+      <tr>
+        <td>{{ h.started_at }}</td>
+        <td>{{ h.completed_at or '—' }}</td>
+        <td>{{ h.current_step }}</td>
+        <td>{{ h.status }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="muted">No cycles yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+<p><a href="{{ url_for('dept_ops_scopes') }}">← All scopes</a></p>
+{% endblock %}

@@ -1,0 +1,86 @@
+{
+  "id": "ET_fever",
+  "complaint_code": "CC_fever",
+  "name": "Fever physical examination",
+  "source": {
+    "work": "Bates' Guide to Physical Examination and History Taking",
+    "note": "Exam organization only; findings recorded against dictionary sign codes."
+  },
+  "systems": [
+    {
+      "key": "general",
+      "title": "General appearance & vitals",
+      "finding_ids": [
+        "SG_tachycardia",
+        "SG_hypotension",
+        "SG_fever",
+        "SG_pallor",
+        "SG_dehydration"
+      ],
+      "checklist": [
+        "General distress / toxic appearance",
+        "Vital signs (HR, BP, RR, SpO2, temperature)",
+        "Hydration / mucous membranes",
+        "Pallor / colour"
+      ]
+    },
+    {
+      "key": "lymph_and_skin",
+      "title": "Lymph nodes & skin",
+      "finding_ids": [
+        "SG_lymphadenopathy"
+      ],
+      "checklist": [
+        "Rash / petechiae",
+        "Lymphadenopathy (cervical, axillary, inguinal)"
+      ]
+    },
+    {
+      "key": "cardiorespiratory",
+      "title": "Cardiorespiratory screen",
+      "finding_ids": [
+        "SG_cardiac_murmur",
+        "SG_crackles",
+        "SG_tachypnea"
+      ],
+      "checklist": [
+        "Heart sounds / new murmur (endocarditis screen)",
+        "Breath sounds"
+      ]
+    },
+    {
+      "key": "abdomen",
+      "title": "Abdomen",
+      "finding_ids": [
+        "SG_hepatomegaly",
+        "SG_splenomegaly",
+        "SG_guarding",
+        "SG_rebound_tenderness"
+      ],
+      "checklist": [
+        "Tenderness by quadrant",
+        "Hepatosplenomegaly",
+        "Peritonism"
+      ]
+    },
+    {
+      "key": "source_hunt",
+      "title": "Focal source examination",
+      "finding_ids": [],
+      "checklist": [
+        "Wound / line / catheter sites",
+        "Joints for septic arthritis",
+        "Ears/throat/sinuses",
+        "Costovertebral angle tenderness"
+      ]
+    }
+  ],
+  "priority_findings": [
+    "SG_hypotension",
+    "SG_tachycardia",
+    "SG_rebound_tenderness"
+  ],
+  "schema_version": 1,
+  "revision": 1,
+  "status": "active"
+}

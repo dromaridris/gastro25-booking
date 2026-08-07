@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Confirm Diagnosis{% endblock %}
+{% block content %}
+<h2>Confirm Working Diagnosis</h2>
+<p class="text-muted">The physician confirms the diagnosis. The system provides management support only.</p>
+
+{% if differential %}
+<h5>Engine considerations (for reference)</h5>
+<ul>
+    {% for d in differential %}
+    <li>{{ d.name }} ({{ d.consideration_level.replace('_', ' ') }})</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<form method="POST" class="col-md-6">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        {{ form.diagnosis_code.label(class="form-label") }}
+        {{ form.diagnosis_code(class="form-select") }}
+    </div>
+    {{ form.submit(class="btn btn-success") }}
+</form>
+<div class="d-flex flex-wrap gap-2 mt-3">
+    <a href="{{ url_for('clinical_history.view_session', session_id=session.id) }}" class="btn btn-outline-secondary btn-sm">Back to history session</a>
+    {% if encounter.patient %}
+    <a href="{{ url_for('patients.view_patient', patient_id=encounter.patient_id) }}" class="btn btn-outline-primary btn-sm">Back to patient</a>
+    {% endif %}
+</div>
+{% endblock %}

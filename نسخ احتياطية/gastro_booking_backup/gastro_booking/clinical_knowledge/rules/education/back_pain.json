@@ -1,0 +1,26 @@
+{
+  "complaint_code": "CC_back_pain",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Back pain history — structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Back/neck pain are symptoms. In GI clinic, still ask about abdominal/flank radiation and red flags.",
+        "Do not use 'disc disease' or 'musculoskeletal strain' as the complaint code."
+      ],
+      "linked_questions": [
+        "Q000178",
+        "Q000042",
+        "Q000164"
+      ]
+    }
+  ],
+  "question_coaching": {},
+  "answer_triggers": []
+}

@@ -1,0 +1,27 @@
+{
+  "complaint_code": "CC_hematuria",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Blood in urine (hematuria) history — structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Hematuria is blood in urine — analogous to melena/hematochezia principle: symptom first, disease later.",
+        "Do not label the visit 'bladder cancer' or 'UTI' as the complaint.",
+        "Distinguish true hematuria from other causes of red urine when possible."
+      ],
+      "linked_questions": [
+        "Q000162",
+        "Q000158",
+        "Q000164"
+      ]
+    }
+  ],
+  "question_coaching": {},
+  "answer_triggers": []
+}

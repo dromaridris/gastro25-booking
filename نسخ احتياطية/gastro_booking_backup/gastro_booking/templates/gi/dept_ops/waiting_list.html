@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Waiting list{% endblock %}
+{% block content %}
+<h1>Endoscopy waiting list</h1>
+{% include "gi/dept_ops/_nav.html" %}
+<p>Active: {{ summary.active_count }} · Urgent: {{ summary.urgent_count }} · Delayed: {{ summary.delayed_count }}</p>
+
+<section class="admin-section compact-section">
+  <h2>Add patient</h2>
+  <form method="POST" class="form-grid">
+    <input type="hidden" name="action" value="add">
+    <label>Patient name <input name="patient_name" required></label>
+    <label>MRN <input name="mrn"></label>
+    <label>Procedure <input name="procedure_type" required placeholder="e.g. Colonoscopy"></label>
+    <label>Priority <select name="priority">{% for p in priorities %}<option value="{{ p }}">{{ p }}</option>{% endfor %}</select></label>
+    <label>Consultant <input name="consultant_name"></label>
+    <label>Scheduled date <input name="scheduled_date" type="date"></label>
+    <button class="btn btn--primary" type="submit">Add to list</button>
+  </form>
+</section>
+
+<section class="admin-section compact-section">
+  <table class="admin-table compact-table">
+    <thead><tr><th>Patient</th><th>MRN</th><th>Procedure</th><th>Priority</th><th>Days</th><th>Status</th><th>Schedule</th></tr></thead>
+    <tbody>
+      {% for e in entries %}
+      <tr>
+        <td>{{ e.patient_name }}</td>
+        <td>{{ e.mrn or '—' }}</td>
+        <td>{{ e.procedure_type }}</td>
+        <td>{{ e.priority }}</td>
+        <td>{{ e.days_waiting }}</td>
+        <td>{{ e.status }}</td>
+        <td>
+          {% if e.status == 'active' %}
+          <form method="POST" style="display:inline-flex;gap:0.25rem;">
+            <input type="hidden" name="action" value="schedule">
+            <input type="hidden" name="entry_id" value="{{ e.id }}">
+            <input name="scheduled_date" type="date" required>
+            <button class="btn btn--sm btn--outline" type="submit">Set date</button>
+          </form>
+          {% else %}
+          {{ e.scheduled_date or '—' }}
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

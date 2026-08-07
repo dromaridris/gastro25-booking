@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}Dilatation Registry · Gastro & Hepatology{% endblock %}
+{% block content %}
+<div class="admin-page">
+  <h1>Endoscopic Dilatation Research Registry</h1>
+  <p class="muted">
+    One row per Dilatation session. Independent from the ERCP module — built on the same reusable
+    Registry Service (filtering, search, pagination, Excel export) introduced in earlier phases.
+  </p>
+
+  <section class="admin-section">
+    <h2>Filters</h2>
+    <form method="GET" class="settings-form">
+      <label>Start Date
+        <input type="date" name="start" value="{{ filters.start }}">
+      </label>
+      <label>End Date
+        <input type="date" name="end" value="{{ filters.end }}">
+      </label>
+      <label>Patient <span class="label-hint">(name or MRN)</span>
+        <input type="text" name="patient" value="{{ filters.patient }}" placeholder="e.g. Ahmed or MRN-1023">
+      </label>
+      <label>Procedure Site
+        <select name="site">
+          <option value="">— All —</option>
+          {% for opt in site_options %}
+          <option value="{{ opt }}" {{ 'selected' if filters.site == opt }}>{{ opt }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Technique
+        <select name="technique">
+          <option value="">— All —</option>
+          {% for opt in technique_options %}
+          <option value="{{ opt }}" {{ 'selected' if filters.technique == opt }}>{{ opt }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Endoscopist
+        <select name="endoscopist_id">
+          <option value="">— All —</option>
+          {% for e in endoscopists %}
+          <option value="{{ e.id }}" {{ 'selected' if filters.endoscopist_id == e.id|string }}>{{ e.full_name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Immediate Success
+        <select name="success">
+          <option value="">— All —</option>
+          {% for opt in success_options %}
+          <option value="{{ opt }}" {{ 'selected' if filters.success == opt }}>{{ opt }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Complication <span class="label-hint">(matches any session with this complication)</span>
+        <select name="complication">
+          <option value="">— Any —</option>
+          {% for opt in complication_options if opt != 'None' %}
+          <option value="{{ opt }}" {{ 'selected' if filters.complication == opt }}>{{ opt }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button class="btn btn--primary" type="submit">Apply Filters</button>
+    </form>
+  </section>
+
+  <div class="stats-summary-grid">
+    <div class="stat-card">
+      <div class="stat-value">{{ total }}</div>
+      <div class="stat-label">Matching Sessions</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ multi_session_count }}</div>
+      <div class="stat-label">Patients with Multiple Sessions</div>
+    </div>
+  </div>
+
+  <section class="admin-section">
+    <div class="admin-actions" style="margin-bottom:10px;">
+      <a class="btn btn--outline"
+         href="{{ url_for('dilatation_registry_export', **dict(request.args)) }}">⬇ Export to Excel</a>
+    </div>
+
+    {% if rows %}
+    <div class="admin-table-scroll"><table class="admin-table">
+      <thead>
+        <tr>
+          <th>Patient</th><th>MRN</th><th>Date</th><th>Session</th><th>Site</th><th>Technique</th>
+          <th>Guidewire</th><th>Fluoroscopy</th><th>Diameter / Size</th><th>Resistance</th>
+          <th>Mucosal Tear</th><th>Success</th><th>Complications</th><th>Endoscopist</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td>{{ r.patient_name }}</td>
+          <td>{{ r.mrn or '—' }}</td>
+          <td>{{ r.appointment_date }}</td>
+          <td>
+            Session {{ r.session_number }}
+            {% if r.sessions_total > 1 %}<span class="followup-tag">of {{ r.sessions_total }}</span>{% endif %}
+          </td>
+          <td>{{ r.procedure_site or '—' }}</td>
+          <td>{{ r.dilatation_technique or '—' }}</td>
+          <td>{{ r.guidewire_used or '—' }}</td>
+          <td>{{ r.fluoroscopy_used or '—' }}</td>
+          <td>
+            {% if r.dilatation_technique == 'Balloon Dilatation' %}
+              {{ r.balloon_starting_diameter_mm or '—' }} → {{ r.balloon_final_diameter_mm or '—' }} mm
+            {% elif r.dilatation_technique == 'Savary-Gilliard Dilatation' %}
+              {{ r.savary_starting_size_fr or '—' }} → {{ r.savary_final_size_fr or '—' }} Fr
+            {% else %}—{% endif %}
+          </td>
+          <td>{{ (r.balloon_resistance or r.savary_resistance) or '—' }}</td>
+          <td>{{ (r.balloon_mucosal_tear or r.savary_mucosal_tear) or '—' }}</td>
+          <td>{{ r.immediate_technical_success or '—' }}</td>
+          <td>{{ r.complications or '—' }}</td>
+          <td>{{ r.endoscopist_name or '—' }}</td>
+          <td>
+            {% if r.report_id %}
+            <a class="btn btn--sm btn--outline" href="{{ url_for('dilatation_report_view', appointment_id=r.appointment_id) }}">Open</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table></div>
+
+    {% if total_pages > 1 %}
+    <div class="modal-actions" style="justify-content:flex-start; margin-top:14px;">
+      {% if page > 1 %}
+      <a class="btn btn--sm btn--outline" href="{{ url_for('dilatation_registry', **dict(request.args, page=page-1)) }}">‹ Prev</a>
+      {% endif %}
+      <span class="muted" style="align-self:center;">Page {{ page }} of {{ total_pages }}</span>
+      {% if page < total_pages %}
+      <a class="btn btn--sm btn--outline" href="{{ url_for('dilatation_registry', **dict(request.args, page=page+1)) }}">Next ›</a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <p class="muted">No Dilatation sessions match the current filters.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

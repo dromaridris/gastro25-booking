@@ -1,0 +1,21 @@
+{% if form is defined and form.errors %}
+<div class="alert alert-danger" role="alert">
+    <strong>Please fix the following:</strong>
+    <ul class="mb-0 mt-2">
+        {% for field_name, errors in form.errors.items() %}
+            {% for error in errors %}
+            <li>
+                {% set field = form[field_name] if field_name in form else none %}
+                {% if field_name == 'csrf_token' %}
+                    Session expired or security check failed — refresh the page and try again.
+                {% elif field %}
+                    {{ field.label.text }}: {{ error }}
+                {% else %}
+                    {{ field_name }}: {{ error }}
+                {% endif %}
+            </li>
+            {% endfor %}
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}

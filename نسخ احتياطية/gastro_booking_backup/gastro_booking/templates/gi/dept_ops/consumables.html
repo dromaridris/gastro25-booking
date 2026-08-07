@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Consumables{% endblock %}
+{% block content %}
+<h1>Consumables inventory</h1>
+{% include "gi/dept_ops/_nav.html" %}
+
+{% if low_stock %}
+<section class="admin-section compact-section">
+  <h2>Low stock alerts</h2>
+  <ul>{% for i in low_stock %}<li>{{ i.name }} — {{ i.current_stock }}/min {{ i.minimum_stock }}</li>{% endfor %}</ul>
+</section>
+{% endif %}
+
+{% if can_manage %}
+<section class="admin-section compact-section">
+  <h2>Add item</h2>
+  <form method="POST" class="form-grid">
+    <input type="hidden" name="action" value="create">
+    <label>Name <input name="name" required></label>
+    <label>Category <select name="category">{% for c in categories %}<option value="{{ c }}">{{ c }}</option>{% endfor %}</select></label>
+    <label>Stock <input name="current_stock" type="number" min="0" value="0"></label>
+    <label>Minimum <input name="minimum_stock" type="number" min="0" value="5"></label>
+    <label>Unit <input name="unit" value="each"></label>
+    <button class="btn btn--primary" type="submit">Add</button>
+  </form>
+</section>
+{% endif %}
+
+<section class="admin-section compact-section">
+  <table class="admin-table compact-table">
+    <thead><tr><th>Item</th><th>Category</th><th>Stock</th><th>Min</th>{% if can_manage %}<th>Movement</th>{% endif %}</tr></thead>
+    <tbody>
+      {% for i in items %}
+      <tr>
+        <td>{{ i.name }}</td>
+        <td>{{ i.category }}</td>
+        <td>{{ i.current_stock }} {{ i.unit }}</td>
+        <td>{{ i.minimum_stock }}</td>
+        {% if can_manage %}
+        <td>
+          <form method="POST" style="display:flex;gap:0.25rem;flex-wrap:wrap;">
+            <input type="hidden" name="action" value="movement">
+            <input type="hidden" name="consumable_id" value="{{ i.id }}">
+            <select name="movement_type">{% for m in movement_types %}<option value="{{ m }}">{{ m }}</option>{% endfor %}</select>
+            <input name="quantity" type="number" min="1" value="1" style="width:4rem;">
+            <input name="notes" placeholder="Notes" size="8">
+            <button class="btn btn--sm btn--outline" type="submit">Record</button>
+          </form>
+        </td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

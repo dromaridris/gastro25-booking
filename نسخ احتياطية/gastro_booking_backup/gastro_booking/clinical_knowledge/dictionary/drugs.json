@@ -1,0 +1,14 @@
+[
+  {"id": "dr-nsaid", "code": "DR_nsaid", "label": "NSAID", "entity_type": "drug", "category": "analgesic", "specialty_tags": ["general", "gastroenterology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "dr-aspirin", "code": "DR_aspirin", "label": "Aspirin", "entity_type": "drug", "category": "antiplatelet", "specialty_tags": ["cardiology", "general"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "dr-warfarin", "code": "DR_warfarin", "label": "Warfarin", "entity_type": "drug", "category": "anticoagulant", "specialty_tags": ["cardiology", "hematology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "dr-doac", "code": "DR_doac", "label": "DOAC", "synonyms": ["Apixaban", "Rivaroxaban", "Dabigatran"], "entity_type": "drug", "category": "anticoagulant", "specialty_tags": ["cardiology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "dr-ppi", "code": "DR_ppi", "label": "Proton pump inhibitor", "entity_type": "drug", "category": "gi", "specialty_tags": ["gastroenterology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "dr-h2blocker", "code": "DR_h2_blocker", "label": "H2 receptor antagonist", "entity_type": "drug", "category": "gi", "specialty_tags": ["gastroenterology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "dr-opioid", "code": "DR_opioid", "label": "Opioid analgesic", "entity_type": "drug", "category": "analgesic", "specialty_tags": ["general", "pain"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "dr-steroid", "code": "DR_systemic_corticosteroid", "label": "Systemic corticosteroid", "entity_type": "drug", "category": "immunosuppressant", "specialty_tags": ["general"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "dr-antibiotic", "code": "DR_antibiotic", "label": "Antibiotic (current/recent)", "entity_type": "drug", "category": "antimicrobial", "specialty_tags": ["infectious_disease", "general"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "dr-insulin", "code": "DR_insulin", "label": "Insulin", "entity_type": "drug", "category": "endocrine", "specialty_tags": ["endocrinology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "dr-metformin", "code": "DR_metformin", "label": "Metformin", "entity_type": "drug", "category": "endocrine", "specialty_tags": ["endocrinology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "dr-antihypertensive", "code": "DR_antihypertensive", "label": "Antihypertensive", "entity_type": "drug", "category": "cardiovascular", "specialty_tags": ["cardiology", "general"], "schema_version": 1, "revision": 1, "status": "active"}
+]

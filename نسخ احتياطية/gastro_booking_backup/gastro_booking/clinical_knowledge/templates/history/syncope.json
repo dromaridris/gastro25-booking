@@ -1,0 +1,100 @@
+{
+  "id": "HT_syncope",
+  "complaint_code": "CC_syncope",
+  "name": "Fainting / loss of consciousness history",
+  "synonyms": [
+    "Syncope",
+    "Fainting",
+    "Blackout",
+    "Loss of consciousness",
+    "Collapse"
+  ],
+  "body_system": "cardiovascular",
+  "source": {
+    "work": "Bates' Guide to Physical Examination and History Taking",
+    "note": "Structure for history-taking only; not for disease extraction."
+  },
+  "red_flag_question_ids": [
+    "Q000153",
+    "Q000036",
+    "Q000033",
+    "Q000034"
+  ],
+  "sections": [
+    {
+      "key": "hpi_core",
+      "title": "HPI — core characteristics",
+      "question_ids": [
+        "Q000001",
+        "Q000002",
+        "Q000003",
+        "Q000004",
+        "Q000005",
+        "Q000006",
+        "Q000007",
+        "Q000008",
+        "Q000009",
+        "Q000010",
+        "Q000153",
+        "Q000038"
+      ]
+    },
+    {
+      "key": "associated",
+      "title": "Associated symptoms",
+      "question_ids": [
+        "Q000036",
+        "Q000037",
+        "Q000152",
+        "Q000154",
+        "Q000033",
+        "Q000034",
+        "Q000157"
+      ]
+    },
+    {
+      "key": "red_flags",
+      "title": "Alarm / red flags",
+      "question_ids": [
+        "Q000153",
+        "Q000069",
+        "Q000033",
+        "Q000034",
+        "Q000035"
+      ]
+    },
+    {
+      "key": "risk_context",
+      "title": "Risk factors & exposures",
+      "question_ids": []
+    },
+    {
+      "key": "background",
+      "title": "PMH / PSH / meds / allergies / FH / SH",
+      "question_ids": [
+        "Q000078",
+        "Q000079",
+        "Q000080",
+        "Q000081",
+        "Q000082",
+        "Q000083",
+        "Q000084",
+        "Q000085",
+        "Q000086",
+        "Q000087",
+        "Q000088",
+        "Q000089",
+        "Q000090"
+      ]
+    }
+  ],
+  "associated_complaint_codes": [
+    "CC_dizziness",
+    "CC_chest_pain",
+    "CC_palpitations",
+    "CC_hematemesis"
+  ],
+  "schema_version": 1,
+  "revision": 2,
+  "status": "active"
+}

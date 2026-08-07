@@ -1,0 +1,69 @@
+{
+  "complaint_code": "CC_heartburn",
+  "schema_version": 1,
+  "revision": 2,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Heartburn / reflux history structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Heartburn is a symptom (rising retrosternal burning). GERD is a diagnosis you may reach later — not the complaint code.",
+        "Ask about regurgitation, dysphagia, odynophagia, vomiting, bleeding, weight loss (Bates alarm features).",
+        "Exertional 'indigestion' still needs a cardiac screen."
+      ],
+      "linked_questions": [
+        "Q000059",
+        "Q000061",
+        "Q000031"
+      ]
+    },
+    {
+      "id": "EDU_alarm",
+      "title": "Reflux alarm features",
+      "trigger": {
+        "any_sign_present": [
+          "SG_dehydration",
+          "SG_pallor"
+        ]
+      },
+      "points": [
+        "New dysphagia, odynophagia, weight loss, or GI bleeding with reflux symptoms are alarm features that warrant endoscopy rather than empirical therapy alone."
+      ]
+    }
+  ],
+  "question_coaching": {
+    "Q000059": {
+      "why_ask": "Postprandial and lying-flat timing is the classic reflux pattern.",
+      "listen_for": [
+        "After meals",
+        "on lying down/bending"
+      ],
+      "think": "Typical timing supports reflux but does not itself exclude alarm features."
+    },
+    "Q000061": {
+      "why_ask": "A clear symptomatic response to antacids/PPIs supports an acid-related mechanism.",
+      "listen_for": [
+        "Partial vs complete relief"
+      ],
+      "think": "Poor or no response should prompt reconsideration of the diagnosis rather than simply escalating dose."
+    }
+  },
+  "answer_triggers": [
+    {
+      "id": "AT_dysphagia_with_heartburn",
+      "question_id": "Q000031",
+      "title": "Unlocked: alarm — dysphagia with reflux",
+      "points": [
+        "New dysphagia alongside reflux symptoms is an alarm feature.",
+        "This should prompt endoscopy rather than continued empirical treatment."
+      ],
+      "answer_in": [
+        "yes"
+      ]
+    }
+  ]
+}

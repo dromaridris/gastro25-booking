@@ -1,0 +1,27 @@
+{
+  "complaint_code": "CC_anorexia",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Loss of appetite / early satiety history — structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Loss of appetite and early satiety are symptoms (Bates), not diagnoses like 'gastroparesis' or 'cancer'.",
+        "Ask about food fear, pain with eating, vomiting, and weight change — these branch the pathways.",
+        "Early satiety with progressive weight loss raises alarm but still belongs in symptom history first."
+      ],
+      "linked_questions": [
+        "Q000020",
+        "Q000124",
+        "Q000019"
+      ]
+    }
+  ],
+  "question_coaching": {},
+  "answer_triggers": []
+}

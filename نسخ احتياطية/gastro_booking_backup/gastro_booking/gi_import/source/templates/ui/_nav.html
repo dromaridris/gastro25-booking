@@ -1,0 +1,35 @@
+{# Grouped main navigation — Sprint 8C #}
+<ul class="navbar-nav ms-auto gi-main-nav align-items-lg-center">
+    {% for group in gi_nav_groups %}
+    <li class="nav-item dropdown gi-nav-group">
+        <a class="nav-link dropdown-toggle gi-nav-link" href="#" role="button"
+           data-bs-toggle="dropdown" aria-expanded="false" id="nav-{{ group.id }}">
+            {{ group.label }}
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end gi-nav-dropdown" aria-labelledby="nav-{{ group.id }}">
+            {% for item in group['items'] %}
+            <li>
+                <a class="dropdown-item{% if gi_nav_active(item.endpoint) %} active{% endif %}"
+                   href="{{ url_for(item.endpoint) }}"
+                   {% if gi_nav_active(item.endpoint) %}aria-current="page"{% endif %}>
+                    {{ item.label }}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </li>
+    {% endfor %}
+    <li class="nav-item gi-nav-user ms-lg-3">
+        <div class="gi-nav-user-block">
+            <span class="gi-user-avatar" aria-hidden="true">{{ current_user.full_name[:1] | upper }}</span>
+            <span class="gi-nav-user-name">
+                {{ current_user.full_name }}
+                <span class="gi-nav-user-role d-none d-xl-block">{{ current_user.role.name if current_user.role else "" }}</span>
+            </span>
+            {% if current_user.is_superuser %}<span class="badge gi-badge-warning ms-1">Admin</span>{% endif %}
+        </div>
+    </li>
+    <li class="nav-item ms-lg-2 d-flex align-items-center">
+        <a class="btn gi-btn-outline btn-sm gi-nav-logout" href="{{ url_for('auth.logout') }}">Log out</a>
+    </li>
+</ul>

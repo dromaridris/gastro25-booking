@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}History builder{% endblock %}
+{% block content %}
+{% from 'gi/_back.html' import back_link %}
+{{ back_link(back_url) }}
+
+<section class="admin-section">
+  <h2>Start new session</h2>
+  <form method="POST" action="{{ url_for('gi_clinical_new_session', ward_patient_id=ward_patient_id) }}" class="settings-form">
+    <label>Chief complaint
+      <select name="complaint_code" required>
+        <option value="">— Select complaint —</option>
+        {% for c in complaints %}
+        <option value="{{ c.code }}">{{ c.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <input type="hidden" name="complaint_name" id="complaintName">
+    <label>MRN<input name="mrn"></label>
+    <button class="btn btn--primary" type="submit">Start adaptive history</button>
+  </form>
+</section>
+
+<section class="admin-section">
+  <h2>Sessions</h2>
+  {% for s in sessions %}
+  <p><a href="{{ url_for('gi_clinical_session', session_id=s.id) }}">Session {{ s.id }}</a>
+    — {{ s.chief_complaint or s.complaint_code or 'No complaint' }} ({{ s.created_at }})</p>
+  {% else %}
+  <p class="muted">No sessions yet. PG Trainee / House Officer: start above.</p>
+  {% endfor %}
+</section>
+{% endblock %}

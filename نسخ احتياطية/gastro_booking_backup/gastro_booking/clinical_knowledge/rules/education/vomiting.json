@@ -1,0 +1,92 @@
+{
+  "complaint_code": "CC_vomiting",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Vomiting / nausea history structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Establish timing relative to meals, content (bilious, feculent, blood-stained), and associated abdominal pain — these localise the likely mechanism.",
+        "If the patient reports blood in the vomitus, prefer the dedicated CC_hematemesis pack — and first ask whether blood was coughed (hemoptysis) or vomited. Do not label the visit 'UGIB'.",
+        "Always screen for obstruction (inability to pass stool/gas, distention) and dehydration.",
+        "In women of reproductive age, pregnancy is a mandatory consideration."
+      ],
+      "linked_questions": [
+        "Q000033",
+        "Q000045",
+        "Q000076"
+      ]
+    },
+    {
+      "id": "EDU_obstruction",
+      "title": "Obstruction pattern",
+      "trigger": {
+        "any_sign_present": [
+          "SG_visible_peristalsis",
+          "SG_rigidity",
+          "SG_rebound_tenderness"
+        ]
+      },
+      "points": [
+        "Bilious/feculent vomiting with distension and inability to pass stool or gas suggests bowel obstruction.",
+        "Peritonism alongside vomiting raises concern for a surgical abdomen — do not manage with antiemetics alone."
+      ]
+    }
+  ],
+  "question_coaching": {
+    "Q000033": {
+      "why_ask": "Haematemesis/coffee-ground vomiting is a must-not-miss red flag in any vomiting history.",
+      "listen_for": [
+        "Fresh blood",
+        "coffee-ground material"
+      ],
+      "think": "Any blood-stained vomiting should trigger haemodynamic assessment before proceeding further."
+    },
+    "Q000045": {
+      "why_ask": "Inability to pass stool or gas alongside vomiting is a core obstruction question.",
+      "listen_for": [
+        "Complete obstipation vs reduced but present output"
+      ],
+      "think": "Complete obstipation with vomiting strongly suggests mechanical obstruction."
+    },
+    "Q000076": {
+      "why_ask": "Pregnancy must be excluded early in any woman of reproductive age presenting with vomiting.",
+      "listen_for": [
+        "Last menstrual period",
+        "possibility of pregnancy"
+      ],
+      "think": "This changes both the differential and safe medication choices."
+    }
+  },
+  "answer_triggers": [
+    {
+      "id": "AT_bleed",
+      "question_id": "Q000033",
+      "title": "Unlocked: GI bleed pathway",
+      "points": [
+        "Assess haemodynamic stability before detailed chronic history.",
+        "Clarify volume and frequency of blood-stained vomiting."
+      ],
+      "answer_in": [
+        "yes"
+      ]
+    },
+    {
+      "id": "AT_obstipation",
+      "question_id": "Q000045",
+      "title": "Unlocked: obstruction pathway",
+      "points": [
+        "Consider mechanical bowel obstruction.",
+        "Correlate with distension, visible peristalsis, and prior abdominal surgery (adhesions)."
+      ],
+      "answer_in": [
+        "yes"
+      ]
+    }
+  ]
+}

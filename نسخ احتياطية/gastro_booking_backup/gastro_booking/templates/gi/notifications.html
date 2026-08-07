@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<h1>Notifications</h1>
+<p class="muted">@mentions and other alerts for your account.</p>
+<div class="admin-table-scroll" style="margin-top:16px;">
+<table class="admin-table compact-table">
+  <thead><tr><th>When</th><th>Message</th><th></th></tr></thead>
+  <tbody>
+    {% for n in notifications %}
+    <tr class="{{ '' if n.is_read else 'row-unread' }}">
+      <td>{{ n.created_at[:16].replace('T', ' ') if n.created_at else '—' }}</td>
+      <td>
+        <strong>{{ n.title }}</strong>
+        {% if n.body %}<br><span class="muted">{{ n.body }}</span>{% endif %}
+      </td>
+      <td>
+        {% if n.link_url %}<a href="{{ n.link_url }}" class="btn btn--sm btn--outline">Open</a>{% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="3" class="muted">No notifications yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+<p style="margin-top:16px;"><a href="{{ url_for('gi_workforce_board') }}">→ My Tasks</a></p>
+{% endblock %}

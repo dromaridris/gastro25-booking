@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}New Research Study{% endblock %}
+{% block content %}
+<h1>New Research Study</h1>
+<form method="POST" class="col-lg-6">
+    <div class="mb-3">
+        <label class="form-label">Study code</label>
+        <input type="text" name="study_code" class="form-control" required placeholder="STUDY-UGIB-2026">
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Title</label>
+        <input type="text" name="title" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Variable registry</label>
+        <select name="registry_code" class="form-select" required>
+            {% for reg in registries %}
+            <option value="{{ reg.code }}">{{ reg.name }} ({{ reg.code }})</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea name="description" class="form-control" rows="3"></textarea>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Ethics approval number</label>
+        <input type="text" name="ethics_approval_number" class="form-control">
+    </div>
+    <div class="form-check mb-3">
+        <input type="checkbox" name="auto_enroll_enabled" class="form-check-input" id="auto_enroll">
+        <label class="form-check-label" for="auto_enroll">Enable automatic enrolment by filters</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Create study</button>
+    <a href="{{ url_for('research.list_studies') }}" class="btn btn-outline-secondary">Cancel</a>
+</form>
+{% endblock %}

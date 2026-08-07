@@ -1,0 +1,46 @@
+{
+  "complaint_code": "CC_hematemesis",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Starter investigation framework for CC_hematemesis. Names/urgency/indications only.",
+  "bundles": [
+    {
+      "id": "IXB_hem_baseline",
+      "label": "Hematemesis baseline / resuscitation labs",
+      "urgency": "emergency",
+      "when": {
+        "always_if_complaint": true
+      },
+      "investigations": [
+        "IX_cbc",
+        "IX_coagulation_panel",
+        "IX_basic_metabolic_panel",
+        "IX_liver_panel"
+      ],
+      "referral_hint": "Urgent endoscopy pathway if unstable or large-volume bleed"
+    },
+    {
+      "id": "IXB_hem_endo",
+      "label": "Urgent upper endoscopy",
+      "urgency": "emergency",
+      "when": {
+        "any": [
+          {
+            "pattern_id": "PAT_hem_variceal_risk"
+          },
+          {
+            "pattern_id": "PAT_hem_ulcer_pud"
+          },
+          {
+            "question_id": "Q000038",
+            "op": "truthy"
+          }
+        ]
+      },
+      "investigations": [
+        "IX_upper_endoscopy"
+      ],
+      "referral_hint": "Activate GI bleed pathway"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Knowledge Library{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>Knowledge Library</h1>
+    {% include "_module_intro.html" %}
+    <p class="muted">{{ total }} objects · full GI catalogue (complaints, questions, CDS rules, diseases)</p>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <a href="{{ url_for('gi_knowledge_registry') }}" class="btn btn--outline btn--sm">Registry</a>
+    <a href="{{ url_for('gi_knowledge_review') }}" class="btn btn--outline btn--sm">Review</a>
+    <a href="{{ url_for('gi_knowledge_activation') }}" class="btn btn--outline btn--sm">Activation</a>
+    {% if nav.can_see_import_manager(current_user.role) %}
+    <a href="{{ url_for('gi_import_manager') }}" class="btn btn--outline btn--sm">Import</a>
+    {% endif %}
+    <a href="{{ url_for('gi_knowledge_new') }}" class="btn btn--primary btn--sm">New object</a>
+  </div>
+</section>
+
+{% if stats %}
+<p style="font-size:13px;" class="muted">
+  {% for s in stats %}{{ s.object_type }}: {{ s.c }}{% if not loop.last %} · {% endif %}{% endfor %}
+</p>
+{% endif %}
+
+<form method="GET" class="settings-form" style="margin-bottom:16px;">
+  <label>Search<input type="text" name="q" value="{{ q }}"></label>
+  <label>Status<select name="status"><option value="">All</option>
+    {% for s in ['draft','review','published','archived'] %}
+    <option value="{{ s }}" {% if status==s %}selected{% endif %}>{{ s }}</option>
+    {% endfor %}
+  </select></label>
+  <label>Type<select name="object_type"><option value="">All</option>
+    {% for t in ['complaint','history_question','disease','cds_rule','management','investigation','guideline','score'] %}
+    <option value="{{ t }}" {% if object_type==t %}selected{% endif %}>{{ t }}</option>
+    {% endfor %}
+  </select></label>
+  <button class="btn btn--outline" type="submit">Filter</button>
+</form>
+<div class="admin-table-scroll"><table class="admin-table">
+  <thead><tr><th>Title</th><th>Type</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+    {% for o in objects %}
+    <tr>
+      <td>{{ o.title }}</td><td>{{ o.object_type }}</td><td>{{ o.status }}</td>
+      <td><a href="{{ url_for('gi_knowledge_detail', object_id=o.id) }}">Open</a></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4" class="muted">No knowledge objects match.</td></tr>
+    {% endfor %}
+  </tbody>
+</table></div>
+{% endblock %}

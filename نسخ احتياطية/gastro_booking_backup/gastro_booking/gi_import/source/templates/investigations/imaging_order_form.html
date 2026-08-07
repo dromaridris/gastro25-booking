@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Imaging Order — Encounter #{{ encounter.id }}{% endblock %}
+{% block content %}
+<h2>Place Imaging Order</h2>
+<p class="text-muted">
+    Encounter #{{ encounter.id }} —
+    <a href="{{ url_for('patients.view_patient', patient_id=encounter.patient_id) }}">
+        {{ encounter.patient.full_name if encounter.patient else encounter.patient_id }}
+    </a>
+</p>
+
+<form method="POST" class="col-md-6">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        {{ form.catalogue_item_id.label(class="form-label") }}
+        {{ form.catalogue_item_id(class="form-select") }}
+    </div>
+    <div class="mb-3">
+        {{ form.priority.label(class="form-label") }}
+        {{ form.priority(class="form-select") }}
+    </div>
+    <div class="mb-3">
+        {{ form.clinical_indication.label(class="form-label") }}
+        {{ form.clinical_indication(class="form-control", rows=3) }}
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+    <a href="{{ url_for('encounters.view_encounter', encounter_id=encounter.id) }}" class="btn btn-outline-secondary">Cancel</a>
+</form>
+{% endblock %}

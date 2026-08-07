@@ -1,0 +1,40 @@
+{
+  "complaint_code": "CC_jaundice",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Starter investigation framework for CC_jaundice. Names/urgency/indications only.",
+  "bundles": [
+    {
+      "id": "IXB_jaundice_baseline",
+      "label": "Jaundice baseline labs + US",
+      "urgency": "urgent",
+      "when": {
+        "always_if_complaint": true
+      },
+      "investigations": [
+        "IX_liver_panel",
+        "IX_cbc",
+        "IX_coagulation_panel",
+        "IX_abdominal_ultrasound"
+      ]
+    },
+    {
+      "id": "IXB_jaundice_cholangitis",
+      "label": "Cholangitis pathway",
+      "urgency": "emergency",
+      "when": {
+        "any": [
+          {
+            "pattern_id": "PAT_jaundice_cholangitis"
+          }
+        ]
+      },
+      "investigations": [
+        "IX_cbc",
+        "IX_liver_panel",
+        "IX_abdominal_ultrasound"
+      ],
+      "referral_hint": "Urgent biliary decompression consideration"
+    }
+  ]
+}

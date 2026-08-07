@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Department Calendar{% endblock %}
+{% block content %}
+<h2>Week of {{ calendar.week_start.strftime("%d %b %Y") }}</h2>
+<div class="row g-2">
+{% for day in calendar.days %}
+  <div class="col-12 col-md-6 col-lg">
+    <div class="card h-100">
+      <div class="card-header py-1"><strong>{{ day.strftime("%a %d") }}</strong></div>
+      <ul class="list-group list-group-flush">
+      {% for ev in calendar.grid[day.isoformat()] %}
+        <li class="list-group-item py-1 small">
+          <span class="badge bg-light text-dark">{{ ev.type }}</span>
+          {% if ev.link %}<a href="{{ ev.link }}">{{ ev.title }}</a>{% else %}{{ ev.title }}{% endif %}
+          <br><span class="text-muted">{{ ev.start_at.strftime("%H:%M") }}</span>
+        </li>
+      {% else %}
+        <li class="list-group-item py-1 text-muted small">No events</li>
+      {% endfor %}
+      </ul>
+    </div>
+  </div>
+{% endfor %}
+</div>
+{% endblock %}

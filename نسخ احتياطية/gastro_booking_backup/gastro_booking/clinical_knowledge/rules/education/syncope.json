@@ -1,0 +1,26 @@
+{
+  "complaint_code": "CC_syncope",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Fainting / loss of consciousness history — structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Syncope/LOC is the symptom. Do not label 'seizure' or 'cardiogenic syncope' as the chief complaint.",
+        "In a GI setting, always screen bleeding and volume loss as possible precipitants."
+      ],
+      "linked_questions": [
+        "Q000153",
+        "Q000033",
+        "Q000036"
+      ]
+    }
+  ],
+  "question_coaching": {},
+  "answer_triggers": []
+}

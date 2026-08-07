@@ -1,0 +1,118 @@
+{
+  "complaint_code": "CC_abdominal_pain",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Interpret named investigation FLAG categories from clinician-entered categorical results. Never invent numeric lab values.",
+  "result_vocab": {
+    "IX_cbc": ["normal", "anemia", "leukocytosis", "thrombocytopenia", "other_abnormal"],
+    "IX_liver_panel": ["normal", "hepatocellular_pattern", "cholestatic_pattern", "mixed", "isolated_bilirubin"],
+    "IX_lipase": ["normal", "elevated", "markedly_elevated"],
+    "IX_amylase": ["normal", "elevated"],
+    "IX_abdominal_ultrasound": ["normal", "cholelithiasis", "cholecystitis_features", "bile_duct_dilatation", "other"],
+    "IX_ct_abdomen": ["normal", "appendicitis_features", "obstruction_features", "perforation_free_air", "pancreatitis_features", "other"],
+    "IX_upper_endoscopy": ["normal", "ulcer", "bleeding_source", "varices", "other"],
+    "IX_coagulation_panel": ["normal", "coagulopathy"],
+    "IX_basic_metabolic_panel": ["normal", "electrolyte_derangement", "renal_impairment", "other"]
+  },
+  "interpretations": [
+    {
+      "id": "INT_cbc_leukocytosis",
+      "investigation_code": "IX_cbc",
+      "when_result": "leukocytosis",
+      "flag": "inflammatory_or_infectious",
+      "message": "Leukocytosis supports inflammatory/infectious processes; correlate with fever and peritoneal signs.",
+      "differential_hints": ["DX_appendicitis_suspect", "DX_peritonitis_suspect", "DX_biliary_colic_or_cholecystitis_suspect"],
+      "next_steps": ["Complete abdominal exam for peritonitis", "Consider imaging per acuity"]
+    },
+    {
+      "id": "INT_cbc_anemia",
+      "investigation_code": "IX_cbc",
+      "when_result": "anemia",
+      "flag": "possible_bleed_or_chronic_disease",
+      "message": "Anemia with abdominal pain raises concern for GI bleeding or chronic disease — review red-flag bleed history.",
+      "differential_hints": ["DX_gi_bleeding_suspect", "DX_peptic_or_pancreatitis_suspect"],
+      "next_steps": ["Hemodynamic assessment", "Consider endoscopy pathway if bleed suspected"]
+    },
+    {
+      "id": "INT_lft_cholestatic",
+      "investigation_code": "IX_liver_panel",
+      "when_result": "cholestatic_pattern",
+      "flag": "biliary_obstruction_concern",
+      "message": "Cholestatic LFT pattern with pain suggests biliary obstruction pathway.",
+      "differential_hints": ["DX_biliary_colic_or_cholecystitis_suspect"],
+      "next_steps": ["Abdominal ultrasound", "Assess for fever/jaundice (cholangitis features)"]
+    },
+    {
+      "id": "INT_lft_hepatocellular",
+      "investigation_code": "IX_liver_panel",
+      "when_result": "hepatocellular_pattern",
+      "flag": "hepatocellular_injury",
+      "message": "Hepatocellular pattern — broaden beyond acute surgical abdomen; review hepatotoxin/viral exposure.",
+      "differential_hints": [],
+      "next_steps": ["Clinical correlation", "Hepatitis serologies if indicated"]
+    },
+    {
+      "id": "INT_lipase_high",
+      "investigation_code": "IX_lipase",
+      "when_result": ["elevated", "markedly_elevated"],
+      "flag": "pancreatitis_supportive",
+      "message": "Elevated lipase supports pancreatitis when clinical picture fits (epigastric pain, vomiting).",
+      "differential_hints": ["DX_peptic_or_pancreatitis_suspect"],
+      "next_steps": ["Severity assessment", "Imaging if diagnosis uncertain or complications suspected"]
+    },
+    {
+      "id": "INT_us_cholecystitis",
+      "investigation_code": "IX_abdominal_ultrasound",
+      "when_result": ["cholecystitis_features", "cholelithiasis"],
+      "flag": "biliary_imaging_positive",
+      "message": "Ultrasound biliary findings support gallstone-related disease when RUQ pattern present.",
+      "differential_hints": ["DX_biliary_colic_or_cholecystitis_suspect"],
+      "next_steps": ["Surgical/GI pathway per local protocol"]
+    },
+    {
+      "id": "INT_us_duct",
+      "investigation_code": "IX_abdominal_ultrasound",
+      "when_result": "bile_duct_dilatation",
+      "flag": "choledocholithiasis_concern",
+      "message": "Bile duct dilatation — consider choledocholithiasis / cholangitis workup.",
+      "differential_hints": ["DX_biliary_colic_or_cholecystitis_suspect"],
+      "next_steps": ["Urgent labs", "Consider advanced biliary imaging / ERCP pathway if indicated"]
+    },
+    {
+      "id": "INT_ct_appendicitis",
+      "investigation_code": "IX_ct_abdomen",
+      "when_result": "appendicitis_features",
+      "flag": "appendicitis_imaging",
+      "message": "CT features of appendicitis — urgent surgical review.",
+      "differential_hints": ["DX_appendicitis_suspect"],
+      "next_steps": ["NPO", "Surgical consult"]
+    },
+    {
+      "id": "INT_ct_obstruction",
+      "investigation_code": "IX_ct_abdomen",
+      "when_result": "obstruction_features",
+      "flag": "obstruction_imaging",
+      "message": "CT obstruction features — surgical pathway.",
+      "differential_hints": ["DX_bowel_obstruction_suspect"],
+      "next_steps": ["NPO", "Surgical consult", "Serial exams"]
+    },
+    {
+      "id": "INT_ct_free_air",
+      "investigation_code": "IX_ct_abdomen",
+      "when_result": "perforation_free_air",
+      "flag": "perforation",
+      "message": "Free air / perforation features — emergency surgical review.",
+      "differential_hints": ["DX_peritonitis_suspect"],
+      "next_steps": ["Emergency surgery pathway"]
+    },
+    {
+      "id": "INT_egd_bleed",
+      "investigation_code": "IX_upper_endoscopy",
+      "when_result": ["bleeding_source", "ulcer", "varices"],
+      "flag": "endoscopic_bleed_finding",
+      "message": "Endoscopic findings related to bleeding/ulcer/varices — follow bleed pathway; use existing EGD report module for documentation.",
+      "differential_hints": ["DX_gi_bleeding_suspect", "DX_peptic_or_pancreatitis_suspect"],
+      "next_steps": ["Complete EGD report in existing module", "Disposition per bleed risk"]
+    }
+  ]
+}

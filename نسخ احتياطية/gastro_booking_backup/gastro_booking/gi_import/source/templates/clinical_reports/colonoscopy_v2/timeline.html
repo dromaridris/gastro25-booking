@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Timeline — {{ report.report_number }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h1>Procedure Timeline</h1>
+    <p class="text-muted">{{ report.report_number }}</p>
+
+    {% if not can('report:draft') %}
+    <div class="alert alert-warning">You do not have permission to edit the procedure timeline.</div>
+    <a class="btn btn-secondary" href="{{ url_for('clinical_reports.view_report', report_id=report.id) }}">Back to report</a>
+    {% else %}
+    <form method="post">
+        {{ form.hidden_tag() }}
+        <div class="card mb-3">
+            <div class="card-body">
+                {% for event_def in timeline_defs %}
+                {% set ev = existing.get(event_def.key) %}
+                <div class="row mb-3 align-items-center">
+                    <div class="col-md-5">
+                        <label class="form-label mb-0" for="occurred_at_{{ event_def.key }}">{{ event_def.label }}</label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="time" class="form-control" id="occurred_at_{{ event_def.key }}"
+                            name="occurred_at_{{ event_def.key }}"
+                            value="{% if ev and ev.occurred_at %}{{ ev.occurred_at.strftime('%H:%M') }}{% endif %}">
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {{ form.submit(class="btn btn-primary") }}
+        <a class="btn btn-secondary" href="{{ url_for('clinical_reports.view_report', report_id=report.id) }}">Cancel</a>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

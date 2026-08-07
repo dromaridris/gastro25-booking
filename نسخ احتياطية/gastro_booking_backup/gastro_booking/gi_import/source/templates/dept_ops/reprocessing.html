@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Reprocessing Board{% endblock %}
+{% block content %}
+<h1>Scope Reprocessing Board</h1>
+<p class="text-muted">Track the full reprocessing cycle: procedure finished → cleaning → leak test → HLD → drying → storage → available.</p>
+<table class="table table-sm">
+    <thead><tr><th>Scope</th><th>Current step</th><th>Started</th><th>Duration</th><th></th></tr></thead>
+    <tbody>
+    {% for c in cleaning_queue %}
+        <tr>
+            <td><a href="{{ url_for('dept_ops.scope_detail', scope_id=c.scope_id) }}">Scope #{{ c.scope_id }}</a></td>
+            <td>{{ c.current_step.replace('_', ' ') | title }}</td>
+            <td>{{ c.started_at.strftime('%Y-%m-%d %H:%M') if c.started_at else '—' }}</td>
+            <td>—</td>
+            <td>
+                <form method="POST" action="{{ url_for('dept_ops.advance_reprocessing', scope_id=c.scope_id) }}" class="d-inline">
+                    <button class="btn btn-sm btn-outline-primary">{% if c.current_step == 'storage' %}Complete{% else %}Next step{% endif %}</button>
+                </form>
+            </td>
+        </tr>
+    {% else %}
+        <tr><td colspan="5" class="text-muted">No scopes in reprocessing queue.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

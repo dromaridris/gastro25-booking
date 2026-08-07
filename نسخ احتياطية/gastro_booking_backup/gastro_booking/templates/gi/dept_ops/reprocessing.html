@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Scope reprocessing{% endblock %}
+{% block content %}
+<h1>Scope reprocessing</h1>
+{% include "gi/dept_ops/_nav.html" %}
+
+{% if can_manage %}
+<section class="admin-section compact-section">
+  <h2>Start cycle</h2>
+  <form method="POST">
+    <input type="hidden" name="action" value="start">
+    <label>Scope
+      <select name="scope_id" required>
+        {% for s in scopes if s.status in ('awaiting_cleaning', 'in_procedure', 'available') %}
+        <option value="{{ s.id }}">{{ s.scope_code }} ({{ s.status }})</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button class="btn btn--primary" type="submit">Start reprocessing</button>
+  </form>
+</section>
+{% endif %}
+
+<section class="admin-section compact-section">
+  <h2>Active queue</h2>
+  <table class="admin-table compact-table">
+    <thead><tr><th>Scope</th><th>Started</th><th>Current step</th>{% if can_manage %}<th>Advance</th>{% endif %}</tr></thead>
+    <tbody>
+      {% for c in queue %}
+      <tr>
+        <td>{{ c.scope_code }}</td>
+        <td>{{ c.started_at }}</td>
+        <td>{{ c.current_step }}</td>
+        {% if can_manage %}
+        <td>
+          <form method="POST" style="display:inline;">
+            <input type="hidden" name="action" value="advance">
+            <input type="hidden" name="cycle_id" value="{{ c.id }}">
+            <button class="btn btn--sm btn--outline" type="submit">Next step</button>
+          </form>
+        </td>
+        {% endif %}
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="muted">No active reprocessing cycles.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="muted">Steps: {{ reprocessing_steps|join(' → ') }}</p>
+</section>
+{% endblock %}

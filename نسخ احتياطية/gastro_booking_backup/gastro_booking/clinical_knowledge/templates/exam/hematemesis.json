@@ -1,0 +1,87 @@
+{
+  "id": "ET_hematemesis",
+  "complaint_code": "CC_hematemesis",
+  "name": "Blood in vomitus — physical exam",
+  "source": {
+    "work": "Bates' Guide to Physical Examination and History Taking",
+    "note": "Exam organization only; findings recorded against dictionary sign codes."
+  },
+  "systems": [
+    {
+      "key": "general",
+      "title": "General appearance & vitals",
+      "finding_ids": [
+        "SG_tachycardia",
+        "SG_hypotension",
+        "SG_fever",
+        "SG_pallor",
+        "SG_dehydration"
+      ],
+      "checklist": [
+        "General distress / toxic appearance",
+        "Vital signs (HR, BP, RR, SpO2, temperature)",
+        "Hydration / mucous membranes",
+        "Pallor / colour"
+      ]
+    },
+    {
+      "key": "hemodynamic",
+      "title": "Haemodynamic assessment",
+      "finding_ids": [
+        "SG_tachycardia",
+        "SG_hypotension"
+      ],
+      "checklist": [
+        "Postural pulse/BP change",
+        "Capillary refill",
+        "Level of consciousness"
+      ]
+    },
+    {
+      "key": "abdomen",
+      "title": "Abdomen",
+      "finding_ids": [
+        "SG_guarding",
+        "SG_rigidity",
+        "SG_ascites",
+        "SG_hepatomegaly",
+        "SG_splenomegaly",
+        "SG_caput_medusae"
+      ],
+      "checklist": [
+        "Tenderness / peritonism",
+        "Stigmata of chronic liver disease if relevant"
+      ]
+    },
+    {
+      "key": "rectal",
+      "title": "Rectal examination",
+      "finding_ids": [
+        "SG_abnormal_stool_colour",
+        "SG_rectal_mass",
+        "SG_perianal_findings"
+      ],
+      "checklist": [
+        "Stool colour/consistency on glove",
+        "Masses",
+        "Perianal source (haemorrhoids/fissure)"
+      ]
+    },
+    {
+      "key": "chest_if_needed",
+      "title": "Chest (if blood-in-mouth source unclear)",
+      "finding_ids": [],
+      "checklist": [
+        "Respiratory distress / crackles / focal findings when hemoptysis possible"
+      ]
+    }
+  ],
+  "priority_findings": [
+    "SG_hypotension",
+    "SG_tachycardia",
+    "SG_pallor"
+  ],
+  "schema_version": 1,
+  "revision": 1,
+  "status": "active"
+}

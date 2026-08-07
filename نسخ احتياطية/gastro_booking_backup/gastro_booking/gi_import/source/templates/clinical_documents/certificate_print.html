@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Medical Certificate</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/print.css') }}"></head>
+<body class="print-page">
+<h1>Medical Certificate</h1>
+<p>This is to certify that <strong>{{ patient.full_name }}</strong> (MRN: {{ patient.mrn }}) attended this department.</p>
+<p>Date: _________________</p>
+<p>Physician signature: _________________</p>
+<script>window.print()</script>
+</body></html>

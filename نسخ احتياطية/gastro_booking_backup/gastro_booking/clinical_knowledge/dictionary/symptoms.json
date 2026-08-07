@@ -1,0 +1,699 @@
+[
+  {
+    "id": "sx-abdominal-pain",
+    "code": "SX_abdominal_pain",
+    "label": "Abdominal pain",
+    "synonyms": [
+      "Belly pain",
+      "Stomach pain"
+    ],
+    "entity_type": "symptom",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "gastroenterology",
+      "general",
+      "surgery",
+      "emergency"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-chest-pain",
+    "code": "SX_chest_pain",
+    "label": "Chest pain",
+    "synonyms": [
+      "Thoracic pain"
+    ],
+    "entity_type": "symptom",
+    "body_system": "thorax",
+    "specialty_tags": [
+      "cardiology",
+      "pulmonology",
+      "emergency",
+      "general"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-dyspnea",
+    "code": "SX_dyspnea",
+    "label": "Dyspnea",
+    "synonyms": [
+      "Shortness of breath",
+      "Breathlessness"
+    ],
+    "entity_type": "symptom",
+    "body_system": "respiratory",
+    "specialty_tags": [
+      "pulmonology",
+      "cardiology",
+      "emergency",
+      "general"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-nausea",
+    "code": "SX_nausea",
+    "label": "Nausea",
+    "synonyms": [],
+    "entity_type": "symptom",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "gastroenterology",
+      "general"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-vomiting",
+    "code": "SX_vomiting",
+    "label": "Vomiting",
+    "synonyms": [
+      "Emesis"
+    ],
+    "entity_type": "symptom",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "gastroenterology",
+      "general",
+      "emergency"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-diarrhea",
+    "code": "SX_diarrhea",
+    "label": "Diarrhea",
+    "synonyms": [
+      "Loose stools"
+    ],
+    "entity_type": "symptom",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "gastroenterology",
+      "infectious_disease",
+      "general"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-constipation",
+    "code": "SX_constipation",
+    "label": "Constipation",
+    "synonyms": [],
+    "entity_type": "symptom",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "gastroenterology",
+      "general"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-dysphagia",
+    "code": "SX_dysphagia",
+    "label": "Dysphagia",
+    "synonyms": [
+      "Difficulty swallowing"
+    ],
+    "entity_type": "symptom",
+    "body_system": "esophagus",
+    "specialty_tags": [
+      "gastroenterology",
+      "ent",
+      "neurology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-odynophagia",
+    "code": "SX_odynophagia",
+    "label": "Odynophagia",
+    "synonyms": [
+      "Painful swallowing"
+    ],
+    "entity_type": "symptom",
+    "body_system": "esophagus",
+    "specialty_tags": [
+      "gastroenterology",
+      "ent"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-heartburn",
+    "code": "SX_heartburn",
+    "label": "Heartburn",
+    "synonyms": [
+      "Pyrosis"
+    ],
+    "entity_type": "symptom",
+    "body_system": "esophagus",
+    "specialty_tags": [
+      "gastroenterology",
+      "general"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-regurgitation",
+    "code": "SX_regurgitation",
+    "label": "Regurgitation",
+    "synonyms": [],
+    "entity_type": "symptom",
+    "body_system": "esophagus",
+    "specialty_tags": [
+      "gastroenterology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-jaundice",
+    "code": "SX_jaundice",
+    "label": "Jaundice",
+    "synonyms": [
+      "Icterus",
+      "Yellow eyes/skin"
+    ],
+    "entity_type": "symptom",
+    "body_system": "hepatobiliary",
+    "specialty_tags": [
+      "gastroenterology",
+      "hepatology",
+      "general"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-fever",
+    "code": "SX_fever",
+    "label": "Fever",
+    "synonyms": [
+      "Pyrexia"
+    ],
+    "entity_type": "symptom",
+    "body_system": "general",
+    "specialty_tags": [
+      "general",
+      "infectious_disease",
+      "emergency"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-weight-loss",
+    "code": "SX_weight_loss",
+    "label": "Weight loss",
+    "synonyms": [
+      "Unintentional weight loss"
+    ],
+    "entity_type": "symptom",
+    "body_system": "general",
+    "specialty_tags": [
+      "general",
+      "oncology",
+      "gastroenterology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-hematemesis",
+    "code": "SX_hematemesis",
+    "label": "Hematemesis",
+    "synonyms": [
+      "Blood in vomitus",
+      "Coffee-ground emesis",
+      "Vomiting blood"
+    ],
+    "entity_type": "symptom",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "gastroenterology",
+      "emergency"
+    ],
+    "schema_version": 1,
+    "revision": 2,
+    "status": "active"
+  },
+  {
+    "id": "sx-melena",
+    "code": "SX_melena",
+    "label": "Melena",
+    "synonyms": [
+      "Black stools",
+      "Black tarry stools"
+    ],
+    "entity_type": "symptom",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "gastroenterology",
+      "emergency"
+    ],
+    "schema_version": 1,
+    "revision": 2,
+    "status": "active"
+  },
+  {
+    "id": "sx-hematochezia",
+    "code": "SX_hematochezia",
+    "label": "Hematochezia",
+    "synonyms": [
+      "BRBPR",
+      "Bright red blood per rectum",
+      "Rectal bleeding"
+    ],
+    "entity_type": "symptom",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "gastroenterology",
+      "emergency",
+      "surgery"
+    ],
+    "schema_version": 1,
+    "revision": 2,
+    "status": "active"
+  },
+  {
+    "id": "sx-anorexia",
+    "code": "SX_anorexia",
+    "label": "Anorexia",
+    "synonyms": [
+      "Loss of appetite"
+    ],
+    "entity_type": "symptom",
+    "body_system": "general",
+    "specialty_tags": [
+      "general"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-abdominal-distension",
+    "code": "SX_abdominal_distension",
+    "label": "Abdominal distention",
+    "synonyms": [
+      "Abdominal distension",
+      "Abdominal swelling",
+      "Bloating",
+      "Swollen abdomen"
+    ],
+    "entity_type": "symptom",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "gastroenterology"
+    ],
+    "schema_version": 1,
+    "revision": 2,
+    "status": "active"
+  },
+  {
+    "id": "sx-headache",
+    "code": "SX_headache",
+    "label": "Headache",
+    "synonyms": [
+      "Cephalgia"
+    ],
+    "entity_type": "symptom",
+    "body_system": "neurologic",
+    "specialty_tags": [
+      "neurology",
+      "general",
+      "emergency"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-syncope",
+    "code": "SX_syncope",
+    "label": "Syncope",
+    "synonyms": [
+      "Fainting",
+      "Blackout"
+    ],
+    "entity_type": "symptom",
+    "body_system": "cardiovascular",
+    "specialty_tags": [
+      "cardiology",
+      "neurology",
+      "emergency"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-dizziness",
+    "code": "SX_dizziness",
+    "label": "Dizziness",
+    "synonyms": [
+      "Lightheadedness"
+    ],
+    "entity_type": "symptom",
+    "body_system": "general",
+    "specialty_tags": [
+      "general",
+      "neurology",
+      "cardiology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-pruritus",
+    "code": "SX_pruritus",
+    "label": "Pruritus",
+    "synonyms": [
+      "Itching"
+    ],
+    "entity_type": "symptom",
+    "body_system": "skin",
+    "specialty_tags": [
+      "dermatology",
+      "hepatology",
+      "general"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-dark-urine",
+    "code": "SX_dark_urine",
+    "label": "Dark urine",
+    "synonyms": [],
+    "entity_type": "symptom",
+    "body_system": "hepatobiliary",
+    "specialty_tags": [
+      "hepatology",
+      "urology",
+      "general"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-pale-stools",
+    "code": "SX_pale_stools",
+    "label": "Pale stools",
+    "synonyms": [
+      "Acholic stools",
+      "Clay-colored stools"
+    ],
+    "entity_type": "symptom",
+    "body_system": "hepatobiliary",
+    "specialty_tags": [
+      "hepatology",
+      "gastroenterology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-cough",
+    "code": "SX_cough",
+    "label": "Cough",
+    "synonyms": [
+      "Sputum production"
+    ],
+    "entity_type": "symptom",
+    "body_system": "respiratory",
+    "specialty_tags": [
+      "pulmonology",
+      "general"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-hemoptysis",
+    "code": "SX_hemoptysis",
+    "label": "Hemoptysis",
+    "synonyms": [
+      "Coughing blood",
+      "Blood in sputum"
+    ],
+    "entity_type": "symptom",
+    "body_system": "respiratory",
+    "specialty_tags": [
+      "pulmonology",
+      "emergency"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-palpitations",
+    "code": "SX_palpitations",
+    "label": "Palpitations",
+    "synonyms": [
+      "Racing heart",
+      "Fluttering"
+    ],
+    "entity_type": "symptom",
+    "body_system": "cardiovascular",
+    "specialty_tags": [
+      "cardiology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-edema",
+    "code": "SX_edema",
+    "label": "Edema",
+    "synonyms": [
+      "Leg swelling",
+      "Ankle swelling"
+    ],
+    "entity_type": "symptom",
+    "body_system": "cardiovascular",
+    "specialty_tags": [
+      "cardiology",
+      "general"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-fatigue",
+    "code": "SX_fatigue",
+    "label": "Fatigue",
+    "synonyms": [
+      "Low energy",
+      "Malaise"
+    ],
+    "entity_type": "symptom",
+    "body_system": "general",
+    "specialty_tags": [
+      "general"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-weight-gain",
+    "code": "SX_weight_gain",
+    "label": "Weight gain",
+    "synonyms": [
+      "Unintentional weight gain"
+    ],
+    "entity_type": "symptom",
+    "body_system": "general",
+    "specialty_tags": [
+      "general"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-dysuria",
+    "code": "SX_dysuria",
+    "label": "Dysuria",
+    "synonyms": [
+      "Burning urination",
+      "Painful urination"
+    ],
+    "entity_type": "symptom",
+    "body_system": "urinary",
+    "specialty_tags": [
+      "urology",
+      "general"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-hematuria",
+    "code": "SX_hematuria",
+    "label": "Hematuria",
+    "synonyms": [
+      "Blood in urine"
+    ],
+    "entity_type": "symptom",
+    "body_system": "urinary",
+    "specialty_tags": [
+      "urology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-flank-pain",
+    "code": "SX_flank_pain",
+    "label": "Flank pain",
+    "synonyms": [
+      "Loin pain",
+      "Side pain"
+    ],
+    "entity_type": "symptom",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "urology",
+      "gastroenterology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-back-pain",
+    "code": "SX_back_pain",
+    "label": "Back pain",
+    "synonyms": [
+      "Low back pain"
+    ],
+    "entity_type": "symptom",
+    "body_system": "musculoskeletal",
+    "specialty_tags": [
+      "general"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-early-satiety",
+    "code": "SX_early_satiety",
+    "label": "Early satiety",
+    "synonyms": [
+      "Full after small meal"
+    ],
+    "entity_type": "symptom",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "gastroenterology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-fecal-incontinence",
+    "code": "SX_fecal_incontinence",
+    "label": "Fecal incontinence",
+    "synonyms": [
+      "Stool leakage"
+    ],
+    "entity_type": "symptom",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "gastroenterology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-anal-pain",
+    "code": "SX_anal_pain",
+    "label": "Anal pain",
+    "synonyms": [
+      "Perianal pain",
+      "Painful defecation"
+    ],
+    "entity_type": "symptom",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "gastroenterology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-food-intolerance",
+    "code": "SX_food_intolerance",
+    "label": "Food-triggered symptoms",
+    "synonyms": [
+      "Food intolerance"
+    ],
+    "entity_type": "symptom",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "gastroenterology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sx-vertigo",
+    "code": "SX_vertigo",
+    "label": "Vertigo",
+    "synonyms": [
+      "Spinning sensation"
+    ],
+    "entity_type": "symptom",
+    "body_system": "neurologic",
+    "specialty_tags": [
+      "neurology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  }
+]

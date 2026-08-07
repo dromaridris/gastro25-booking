@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Edit Checklist — Session #{{ session.id }}{% endblock %}
+{% block content %}
+<h2>Edit Safety Checklist — Session #{{ session.id }}</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="form-check mb-2">{{ form.consent_confirmed(class="form-check-input") }}{{ form.consent_confirmed.label(class="form-check-label") }}</div>
+    <div class="form-check mb-2">{{ form.identity_confirmed(class="form-check-input") }}{{ form.identity_confirmed.label(class="form-check-label") }}</div>
+    <div class="form-check mb-2">{{ form.indication_confirmed(class="form-check-input") }}{{ form.indication_confirmed.label(class="form-check-label") }}</div>
+    <div class="form-check mb-3">{{ form.anticoagulants_reviewed(class="form-check-input") }}{{ form.anticoagulants_reviewed.label(class="form-check-label") }}</div>
+    {{ form.submit(class="btn btn-primary") }}
+    <a href="{{ url_for('procedure_execution.view_session', session_id=session.id) }}" class="btn btn-link">Cancel</a>
+</form>
+{% endblock %}

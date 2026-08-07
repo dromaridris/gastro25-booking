@@ -1,0 +1,130 @@
+{# Decision-based interview widgets — radio / checkbox / yes-no / numeric / date.
+   Free text only for Other (specify) or physician comments.
+   field_name must be unique per question when batching (e.g. ans__q.code). #}
+{% macro decision_answer_widget(q, field_name='answer_text', existing='') -%}
+{% set atype = (q.answer_type or 'choice')|lower %}
+{% set choices = q.choices or [] %}
+{% set allow_other = q.allow_other or ('Other' in choices) %}
+{% set exist_list = existing.split('; ') if existing else [] %}
+<input type="hidden" name="atype__{{ q.code }}" value="{{ atype }}">
+{% if q.optional %}<input type="hidden" name="optional__{{ q.code }}" value="1">{% endif %}
+{% if q.unit %}<input type="hidden" name="unit__{{ q.code }}" value="{{ q.unit }}">{% endif %}
+{% if q.symptom_id %}<input type="hidden" name="sid__{{ q.code }}" value="{{ q.symptom_id }}">{% endif %}
+
+{% if atype == 'boolean' %}
+  <div class="dq-yn" role="group" aria-label="Yes or No">
+    {% for ch in (choices if choices else ['Yes', 'No', 'Unknown']) %}
+    <label class="dq-yn__opt">
+      <input type="radio" name="{{ field_name }}" value="{{ ch }}"
+        {% if existing == ch %}checked{% endif %}
+        {% if not q.optional %}required{% endif %}>
+      <span>{{ ch }}</span>
+    </label>
+    {% endfor %}
+  </div>
+
+{% elif atype == 'multi_choice' %}
+  <div class="dq-checks" data-allow-other="{{ '1' if allow_other else '0' }}">
+    {% for ch in choices %}
+    <label class="dq-check">
+      <input type="checkbox" name="{{ field_name }}" value="{{ ch }}"
+        class="{% if ch == 'Other' or ch.startswith('Other') %}dq-other-trigger{% endif %}"
+        {% if ch in exist_list or (existing and ch in existing) %}checked{% endif %}>
+      <span>{{ ch }}</span>
+    </label>
+    {% endfor %}
+  </div>
+  {% if allow_other %}
+  <label class="dq-other muted" {% if not (existing and 'Other' in existing) %}hidden{% endif %}>
+    Other (specify)
+    <input type="text" name="other__{{ q.code }}" class="dq-other-input" placeholder="Specify…" autocomplete="off"
+      value="{% if existing and 'Other:' in existing %}{{ existing.split('Other:')[-1]|trim }}{% endif %}">
+  </label>
+  {% endif %}
+
+{% elif atype in ['numeric', 'number', 'scale'] %}
+  <label class="dq-numeric">
+    <input type="number" name="{{ field_name }}"
+      {% if q.min is defined %}min="{{ q.min }}"{% endif %}
+      {% if q.max is defined %}max="{{ q.max }}"{% endif %}
+      step="{{ q.step if q.step is defined else '1' }}"
+      {% if not q.optional %}required{% endif %}
+      inputmode="decimal" placeholder="{{ q.unit or 'value' }}"
+      value="{{ existing }}">
+    {% if q.unit %}<span class="muted">{{ q.unit }}</span>{% endif %}
+  </label>
+  {% if q.optional %}
+  <label class="dq-skip muted"><input type="checkbox" class="dq-skip-numeric" data-target="{{ field_name }}"> Skip / not recorded</label>
+  {% endif %}
+
+{% elif atype == 'date' %}
+  <label class="dq-date">
+    <input type="date" name="{{ field_name }}" {% if not q.optional %}required{% endif %} value="{{ existing }}">
+  </label>
+  {% if q.optional %}
+  <label class="dq-skip muted"><input type="checkbox" class="dq-skip-date" data-target="{{ field_name }}"> Skip / not recorded</label>
+  {% endif %}
+
+{% elif atype == 'text' and q.is_comment %}
+  <label class="dq-comment">
+    <textarea name="comment__{{ q.code }}" rows="2" placeholder="Unusual detail only (optional)">{{ existing }}</textarea>
+  </label>
+  <input type="hidden" name="{{ field_name }}" value="__comment__">
+
+{% elif choices|length > 8 %}
+  <select name="{{ field_name }}" class="dq-select" {% if not q.optional %}required{% endif %} data-allow-other="{{ '1' if allow_other else '0' }}">
+    <option value="" disabled {% if not existing %}selected{% endif %}>— select —</option>
+    {% for ch in choices %}
+    <option value="{{ ch }}" {% if existing == ch %}selected{% endif %}>{{ ch }}</option>
+    {% endfor %}
+  </select>
+  {% if allow_other %}
+  <label class="dq-other muted" {% if not (existing and existing.lower().startswith('other')) %}hidden{% endif %}>
+    Other (specify)
+    <input type="text" name="other__{{ q.code }}" class="dq-other-input" placeholder="Specify…" autocomplete="off">
+  </label>
+  {% endif %}
+
+{% else %}
+  <div class="dq-radios" role="radiogroup" data-allow-other="{{ '1' if allow_other else '0' }}">
+    {% for ch in (choices if choices else ['Yes', 'No']) %}
+    <label class="dq-radio">
+      <input type="radio" name="{{ field_name }}" value="{{ ch }}"
+        class="{% if ch == 'Other' or ch.startswith('Other') %}dq-other-trigger{% endif %}"
+        {% if existing == ch %}checked{% endif %}
+        {% if not q.optional %}required{% endif %}>
+      <span>{{ ch }}</span>
+    </label>
+    {% endfor %}
+  </div>
+  {% if allow_other %}
+  <label class="dq-other muted" {% if not (existing and existing.lower().startswith('other')) %}hidden{% endif %}>
+    Other (specify)
+    <input type="text" name="other__{{ q.code }}" class="dq-other-input" placeholder="Specify…" autocomplete="off">
+  </label>
+  {% endif %}
+{% endif %}
+{%- endmacro %}
+
+{% macro decision_question_block(q, existing='') -%}
+<div class="question-card dq-block" style="margin-bottom:12px;" data-qcode="{{ q.code }}">
+  <div class="dq-prompt">
+    {% if q.symptom_name %}<span class="badge">{{ q.symptom_name }}</span>{% endif %}
+    {% if q.is_exclusion %}<span class="badge badge--warn">Red flag</span>{% endif %}
+    {{ q.prompt }}
+    <span class="dq-atype muted">{{ q.answer_type }}</span>
+  </div>
+  {% if q.why_line %}
+  <p class="dq-why">{{ q.why_line }}</p>
+  {% elif q.help_text %}
+  <p class="dq-why">{{ q.help_text }}</p>
+  {% endif %}
+  {% if q.rule_in or q.rule_out %}
+  <div class="dq-why-tags">
+    {% for n in q.rule_in or [] %}<span class="dq-tag dq-tag--in">↑ {{ n }}</span>{% endfor %}
+    {% for n in q.rule_out or [] %}<span class="dq-tag dq-tag--out">↓ {{ n }}</span>{% endfor %}
+  </div>
+  {% endif %}
+  {{ decision_answer_widget(q, field_name='ans__' ~ q.code, existing=existing) }}
+</div>
+{%- endmacro %}

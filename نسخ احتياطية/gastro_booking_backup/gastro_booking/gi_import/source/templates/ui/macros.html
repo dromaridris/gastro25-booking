@@ -1,0 +1,197 @@
+{# GastroIntelligence Design System — Sprint 8C reusable components #}
+
+{% macro page_header(title, subtitle=None, breadcrumbs=None, actions=None) %}
+<header class="gi-page-header mb-4">
+    {% if breadcrumbs %}
+    <nav aria-label="Breadcrumb" class="gi-breadcrumbs mb-2">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="{{ url_for('core.dashboard') }}">Home</a></li>
+            {% for label, href in breadcrumbs %}
+                {% if href %}
+                <li class="breadcrumb-item"><a href="{{ href }}">{{ label }}</a></li>
+                {% else %}
+                <li class="breadcrumb-item active" aria-current="page">{{ label }}</li>
+                {% endif %}
+            {% endfor %}
+        </ol>
+    </nav>
+    {% endif %}
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+        <div>
+            <h1 class="gi-page-title h2 mb-1">{{ title }}</h1>
+            {% if subtitle %}<p class="gi-page-subtitle text-muted mb-0">{{ subtitle }}</p>{% endif %}
+        </div>
+        {% if actions %}
+        <div class="gi-page-actions d-flex flex-wrap gap-2">
+            {{ actions }}
+        </div>
+        {% endif %}
+    </div>
+</header>
+{% endmacro %}
+
+
+{% macro search_panel(form_action='', method='GET', placeholder='Search…', query='', search_key='gi_search', filters=None, suggestions=None) %}
+<div class="gi-search-panel gi-card p-3 mb-4" data-search-key="{{ search_key }}">
+    <form method="{{ method }}" action="{{ form_action }}" class="gi-search-form" role="search">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-8">
+                <label class="form-label visually-hidden" for="gi-search-q">Search</label>
+                <div class="input-group input-group-lg">
+                    <input type="search" id="gi-search-q" name="q" class="form-control" placeholder="{{ placeholder }}"
+                           value="{{ query }}" autocomplete="off" aria-describedby="gi-search-hint">
+                    <button type="submit" class="btn gi-btn-primary">Search</button>
+                </div>
+                <div id="gi-search-hint" class="form-text">Press Enter to search. Recent searches appear below.</div>
+            </div>
+            {% if filters %}{{ filters }}{% endif %}
+        </div>
+    </form>
+    {% if suggestions %}
+    <div class="gi-search-suggestions mt-2 small text-muted">
+        <strong>Try:</strong> {{ suggestions }}
+    </div>
+    {% endif %}
+    <ul class="gi-recent-searches list-unstyled small mt-2 mb-0" hidden aria-label="Recent searches"></ul>
+</div>
+{% endmacro %}
+
+
+{% macro empty_state(title, message, action_html=None, icon='📋') %}
+<div class="gi-empty-state text-center py-5 px-3" role="status">
+    <div class="gi-empty-icon mb-3" aria-hidden="true">{{ icon }}</div>
+    <h2 class="h5">{{ title }}</h2>
+    <p class="text-muted mb-3">{{ message }}</p>
+    {% if action_html %}{{ action_html | safe }}{% endif %}
+</div>
+{% endmacro %}
+
+
+{% macro loading_skeleton(rows=3, cols=4) %}
+<div class="gi-skeleton" aria-hidden="true" aria-busy="true">
+    {% for _ in range(rows) %}
+    <div class="gi-skeleton-row d-flex gap-3 mb-2">
+        {% for _ in range(cols) %}
+        <div class="gi-skeleton-cell flex-fill"></div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+</div>
+{% endmacro %}
+
+
+{% macro stat_card(label, value, variant='primary', href=None) %}
+<div class="gi-stat-card gi-card h-100">
+    <div class="gi-stat-card-body p-3">
+        <div class="gi-stat-label text-muted small text-uppercase">{{ label }}</div>
+        <div class="gi-stat-value gi-stat-{{ variant }}">{{ value }}</div>
+        {% if href %}<a href="{{ href }}" class="gi-stat-link small stretched-link">View details</a>{% endif %}
+    </div>
+</div>
+{% endmacro %}
+
+
+{% macro kpi_card(title, items) %}
+<div class="gi-kpi-card gi-card h-100">
+    <div class="card-body p-3">
+        <h3 class="h6 gi-section-title mb-3">{{ title }}</h3>
+        {% for label, value, bar_pct in items %}
+        <div class="mb-3">
+            <div class="d-flex justify-content-between small mb-1">
+                <span>{{ label }}</span><span>{{ value }}</span>
+            </div>
+            {% if bar_pct is not none %}
+            <div class="gi-chart-bar"><div class="gi-chart-bar-fill" style="width:{{ bar_pct }}%;"></div></div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endmacro %}
+
+
+{% macro patient_summary_card(patient) %}
+<div class="gi-patient-card gi-card p-3">
+    <div class="d-flex justify-content-between align-items-start">
+        <div>
+            <div class="gi-patient-name fw-semibold">{{ patient.full_name }}</div>
+            <div class="text-muted small"><code>{{ patient.mrn }}</code></div>
+        </div>
+        {% if patient.date_of_birth %}
+        <div class="text-muted small">DOB {{ patient.date_of_birth.strftime('%Y-%m-%d') }}</div>
+        {% endif %}
+    </div>
+</div>
+{% endmacro %}
+
+
+{% macro procedure_card(title, meta, status, href) %}
+<a href="{{ href }}" class="gi-procedure-card gi-card p-3 d-block text-decoration-none">
+    <div class="fw-semibold text-body">{{ title }}</div>
+    <div class="text-muted small">{{ meta }}</div>
+    {% if status %}<span class="badge {{ status }} mt-2">{{ status.replace('gi-badge-', '') | title }}</span>{% endif %}
+</a>
+{% endmacro %}
+
+
+{% macro timeline_card(events) %}
+<div class="gi-timeline-card gi-card p-3">
+    <ul class="gi-timeline list-unstyled mb-0">
+        {% for time, label in events %}
+        <li class="gi-timeline-item d-flex gap-3 py-2 border-bottom">
+            <span class="gi-timeline-time text-muted small">{{ time }}</span>
+            <span>{{ label }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endmacro %}
+
+
+{% macro banner(message, variant='info', dismissible=false) %}
+<div class="gi-banner gi-banner-{{ variant }} alert alert-{{ variant }}{% if dismissible %} alert-dismissible fade show{% endif %}" role="alert">
+    {{ message }}
+    {% if dismissible %}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>{% endif %}
+</div>
+{% endmacro %}
+
+
+{% macro form_section(title, description=None) %}
+<fieldset class="gi-form-section gi-card p-4 mb-4">
+    <legend class="gi-form-section-title h5 mb-1">{{ title }}</legend>
+    {% if description %}<p class="text-muted small mb-3">{{ description }}</p>{% endif %}
+    {{ caller() }}
+</fieldset>
+{% endmacro %}
+
+
+{% macro status_badge(label, status_class='gi-badge-muted') %}
+<span class="badge {{ status_class }}">{{ label }}</span>
+{% endmacro %}
+
+
+{% macro data_table_wrapper(table_class='') %}
+<div class="gi-table-wrapper">
+    <div class="table-responsive">
+        <table class="table gi-table table-hover align-middle {{ table_class }}">
+            {{ caller() }}
+        </table>
+    </div>
+</div>
+{% endmacro %}
+
+
+{% macro table_empty_row(colspan, title='No records found', message='Try adjusting your search or filters.', action_html=None) %}
+<tr class="gi-table-empty">
+    <td colspan="{{ colspan }}">
+        {{ empty_state(title, message, action_html=action_html) }}
+    </td>
+</tr>
+{% endmacro %}
+
+
+{% macro back_link(href, label='Back') %}
+<a href="{{ href }}" class="gi-back-link btn btn-outline-secondary btn-sm mb-3" aria-label="{{ label }}">
+    ← {{ label }}
+</a>
+{% endmacro %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ doc.title }} · doc {{ doc.id }}{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>{{ doc.doc_type }} <span class="muted">v{{ doc.version }} · {{ doc.status }}</span></h1>
+    <p class="muted">EBS fingerprint {{ doc.ebs_fingerprint }} · session {{ doc.session_id }}</p>
+  </div>
+  <a class="btn" href="{{ url_for('ckp_documents_list', session_id=doc.session_id) }}">All docs</a>
+</section>
+<section class="admin-section">
+  {% if doc.status != 'final' %}
+  <form method="POST" action="{{ url_for('ckp_document_edit', document_id=doc.id) }}">
+    <textarea name="body_text" rows="16" style="width:100%;">{{ doc.body_text }}</textarea>
+    <button class="btn btn--primary" type="submit">Save edit (new version)</button>
+  </form>
+  <form method="POST" action="{{ url_for('ckp_document_finalize', document_id=doc.id) }}" style="margin-top:8px;">
+    <button class="btn" type="submit">Finalize (physician author)</button>
+  </form>
+  {% else %}
+  <pre style="white-space:pre-wrap;">{{ doc.body_text }}</pre>
+  <p class="muted">Finalized — create a new draft via regenerate if EBS changed.</p>
+  {% endif %}
+</section>
+<section class="admin-section">
+  <h2>Version history</h2>
+  <ul>{% for v in versions %}<li>v{{ v.version }} · {{ v.change_note }} · {{ v.created_at }}</li>{% endfor %}</ul>
+</section>
+<section class="admin-section">
+  <h2>Audit trail</h2>
+  <ul>{% for a in audit %}<li>{{ a.action }} · {{ a.created_at }}</li>{% endfor %}</ul>
+</section>
+{% endblock %}

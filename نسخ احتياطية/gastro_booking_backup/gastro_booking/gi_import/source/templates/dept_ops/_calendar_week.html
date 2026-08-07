@@ -1,0 +1,41 @@
+{% macro week_grid(calendar, label_key='entries', highlight_today=none) %}
+<div class="table-responsive">
+    <table class="table table-bordered table-sm">
+        <thead>
+            <tr>
+                {% for d in calendar.days %}
+                <th class="text-center {% if highlight_today and d == highlight_today %}table-primary{% endif %}">
+                    {{ d.strftime('%a %d %b') }}
+                </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+            {% for d in calendar.days %}
+                <td class="align-top" style="min-width:120px; vertical-align:top;">
+                {% set cell = calendar.grid[d.isoformat()] %}
+                {% if cell is mapping %}
+                    {% for e in cell.scheduled %}
+                        <div class="small mb-1 p-1 bg-light border rounded">📅 P#{{ e.patient_id }} <span class="badge bg-secondary">{{ e.priority }}</span></div>
+                    {% endfor %}
+                    {% for e in cell.active_unscheduled %}
+                        <div class="small mb-1 p-1 bg-warning-subtle border rounded">⏳ P#{{ e.patient_id }}</div>
+                    {% endfor %}
+                {% else %}
+                    {% for e in cell %}
+                        <div class="small mb-1 p-1 bg-light border rounded">
+                            User #{{ e.user_id }}
+                            <span class="badge bg-secondary">{{ e.shift_type }}</span>
+                            {% if e.is_leave %}<span class="badge bg-danger">Leave</span>{% endif %}
+                            {% if e.is_on_call %}<span class="badge bg-info">On call</span>{% endif %}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                </td>
+            {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endmacro %}

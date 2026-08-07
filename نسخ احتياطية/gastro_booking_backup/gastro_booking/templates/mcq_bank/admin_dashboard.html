@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}MCQ Bank — Admin{% endblock %}
+{% block content %}
+<div class="admin-page mcq-page">
+  <div class="mcq-page-head">
+    <h1>MCQ Question Bank — Admin</h1>
+    <div class="btn-row mcq-page-actions">
+      <a class="btn btn--primary" href="{{ url_for('mcqbank_upload') }}">+ Upload book</a>
+      <a class="btn btn--outline" href="{{ url_for('mcqbank_generate_quiz') }}">Generate quiz</a>
+      <a class="btn btn--ghost" href="{{ url_for('mcqbank_dashboard') }}">Go to solving view</a>
+    </div>
+  </div>
+
+  <a href="{{ url_for('mcqbank_upload') }}" class="compact-card mcq-action-card">
+    <div>
+      <strong>📄 Upload Book (PDF)</strong>
+      <div class="muted" style="font-size:13px;">Upload a PDF textbook or question bank to begin extraction.</div>
+    </div>
+    <span class="btn btn--sm btn--primary">Upload</span>
+  </a>
+
+  {% if not summaries %}
+  <p class="muted">No books uploaded yet.</p>
+  {% endif %}
+
+  <div class="admin-section">
+    {% for s in summaries %}
+    <div class="compact-card mcq-book-card">
+      <div class="mcq-book-meta">
+        <strong class="mcq-book-name">{{ s.book.name }}</strong>
+        <div class="muted mcq-book-stats">
+          <span class="badge">{{ s.pending }} pending</span>
+          <span class="badge badge--muted">{{ s.approved }} approved</span>
+          <span class="badge badge--muted">{{ s.rejected }} rejected</span>
+        </div>
+      </div>
+      <div class="btn-row mcq-book-actions">
+        <a class="btn btn--sm btn--outline" href="{{ url_for('mcqbank_review', book_id=s.book.id) }}">Review</a>
+        <button class="btn btn--sm btn--ghost" onclick="mcqDeleteBook({{ s.book.id }}, {{ s.book.name|tojson }})">Delete</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+async function mcqDeleteBook(bookId, bookName) {
+  if (!confirm(`Delete "${bookName}" and all its questions/progress permanently?`)) return;
+  const res = await fetch(`/mcq-bank/admin/api/books/${bookId}`, { method: 'DELETE' });
+  if (res.ok) location.reload(); else alert('Failed to delete.');
+}
+</script>
+{% endblock %}

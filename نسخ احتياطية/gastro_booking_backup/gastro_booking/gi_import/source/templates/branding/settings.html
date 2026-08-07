@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Branding Settings — {{ branding.display_title }}{% endblock %}
+{% block content %}
+<div class="gi-page-header mb-4">
+    <p class="gi-eyebrow mb-1">Administration</p>
+    <h1 class="gi-page-title h2 mb-1">Branding Settings</h1>
+    <p class="gi-page-subtitle text-muted mb-0">Hospital branding owns the interface. Changes apply immediately across the application.</p>
+</div>
+
+{% if accessibility_warnings %}
+<div class="alert alert-warning mb-4" role="alert">
+    <strong>Accessibility notice (WCAG AA):</strong>
+    <ul class="mb-0 mt-2">
+        {% for w in accessibility_warnings %}
+        <li>{{ w.label }} — contrast ratio {{ w.ratio }}:1 (requires {{ w.required }}:1)</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<form method="POST" enctype="multipart/form-data" class="gi-card gi-form-panel">
+    {{ form.hidden_tag() }}
+
+    <div class="gi-form-section-heading">Identity</div>
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            {{ form.hospital_name.label(class="form-label") }}
+            {{ form.hospital_name(class="form-control") }}
+        </div>
+        <div class="col-md-6">
+            {{ form.department_name.label(class="form-label") }}
+            {{ form.department_name(class="form-control") }}
+        </div>
+    </div>
+
+    <div class="gi-form-section-heading">Logos</div>
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            {{ form.hospital_logo.label(class="form-label") }}
+            {% if branding.hospital_logo_url %}
+                <div class="gi-logo-preview-wrap mb-2">
+                    <img src="{{ branding.hospital_logo_url }}" alt="Current hospital logo" class="gi-logo-preview">
+                </div>
+            {% else %}
+                <p class="text-muted small mb-2">No hospital logo uploaded yet.</p>
+            {% endif %}
+            {{ form.hospital_logo(class="form-control") }}
+        </div>
+        <div class="col-md-6">
+            {{ form.department_logo.label(class="form-label") }}
+            {% if branding.department_logo_url %}
+                <div class="gi-logo-preview-wrap mb-2">
+                    <img src="{{ branding.department_logo_url }}" alt="Current department logo" class="gi-logo-preview">
+                </div>
+            {% else %}
+                <p class="text-muted small mb-2">No department logo uploaded yet.</p>
+            {% endif %}
+            {{ form.department_logo(class="form-control") }}
+            <div class="form-check mt-2">
+                {{ form.remove_department_logo(class="form-check-input") }}
+                {{ form.remove_department_logo.label(class="form-check-label") }}
+            </div>
+        </div>
+    </div>
+
+    <div class="gi-form-section-heading">Theme</div>
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            {{ form.primary_color.label(class="form-label") }}
+            {{ form.primary_color(class="form-control gi-color-input", type="color", value=form.primary_color.data or '#1a5276') }}
+        </div>
+        <div class="col-md-4">
+            {{ form.secondary_color.label(class="form-label") }}
+            {{ form.secondary_color(class="form-control gi-color-input", type="color", value=form.secondary_color.data or '#2874a6') }}
+        </div>
+        <div class="col-md-4">
+            {{ form.accent_color.label(class="form-label") }}
+            {{ form.accent_color(class="form-control gi-color-input", type="color", value=form.accent_color.data or '#3498db') }}
+        </div>
+        <div class="col-md-6">
+            {{ form.theme_mode.label(class="form-label") }}
+            {{ form.theme_mode(class="form-select") }}
+        </div>
+        <div class="col-12">
+            {{ form.slogan.label(class="form-label") }}
+            {{ form.slogan(class="form-control", rows=2) }}
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 pt-2 border-top">
+        {{ form.submit(class="btn gi-btn-primary px-4") }}
+        <a href="{{ url_for('core.dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}

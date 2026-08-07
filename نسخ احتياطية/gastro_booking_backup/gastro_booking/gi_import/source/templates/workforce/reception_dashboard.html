@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Reception{% endblock %}
+{% block content %}
+<div class="gi-page-header mb-4">
+    <p class="gi-eyebrow mb-1">Front desk</p>
+    <h1 class="gi-page-title h2 mb-1">Reception worklist</h1>
+    <p class="gi-page-subtitle text-muted mb-0">Today's appointments and patients waiting for procedures.</p>
+</div>
+
+{% include "ui/_quick_actions.html" %}
+
+<h2 class="h5 mb-3 fw-semibold">Today's appointments ({{ appointments|length }})</h2>
+<div class="gi-table-wrapper mb-4">
+    <div class="table-responsive">
+        <table class="table gi-table mb-0">
+            <thead><tr><th>Time</th><th>Patient</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for a in appointments %}
+                <tr><td>{{ a.scheduled_at.strftime('%H:%M') if a.scheduled_at else '—' }}</td><td>{{ a.patient_id }}</td><td>{{ a.status.replace('_', ' ').title() }}</td></tr>
+            {% else %}
+                <tr><td colspan="3" class="text-muted p-4 text-center">No appointments scheduled for today.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<h2 class="h5 mb-3 fw-semibold">Waiting for procedure ({{ waiting_list|length }})</h2>
+<ul class="list-group">
+{% for p in waiting_list %}
+    <li class="list-group-item"><a href="{{ url_for('procedures.view_procedure', procedure_id=p.id) }}">Procedure #{{ p.id }}</a></li>
+{% else %}
+    <li class="list-group-item text-muted">Waiting list is empty.</li>
+{% endfor %}
+</ul>
+{% endblock %}

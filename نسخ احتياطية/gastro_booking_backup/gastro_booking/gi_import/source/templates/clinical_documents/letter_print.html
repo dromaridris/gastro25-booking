@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Clinical Letter</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/print.css') }}"></head>
+<body class="print-page">
+<h1>Clinical Letter</h1>
+<p>Re: {{ patient.full_name }} (MRN: {{ patient.mrn }})</p>
+<p>Dear Colleague,</p>
+<p>Thank you for referring this patient. Please find our assessment and plan above.</p>
+<p>Yours sincerely,</p>
+<p>_________________</p>
+<script>window.print()</script>
+</body></html>

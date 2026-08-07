@@ -1,0 +1,41 @@
+{
+  "complaint_code": "CC_hematochezia",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Starter investigation framework for CC_hematochezia. Names/urgency/indications only.",
+  "bundles": [
+    {
+      "id": "IXB_hc_baseline",
+      "label": "Hematochezia baseline",
+      "urgency": "urgent",
+      "when": {
+        "always_if_complaint": true
+      },
+      "investigations": [
+        "IX_cbc",
+        "IX_coagulation_panel"
+      ]
+    },
+    {
+      "id": "IXB_hc_massive",
+      "label": "Massive bleed workup",
+      "urgency": "emergency",
+      "when": {
+        "any": [
+          {
+            "pattern_id": "PAT_hc_massive_lgib"
+          },
+          {
+            "pattern_id": "PAT_hc_brisk_ugib"
+          }
+        ]
+      },
+      "investigations": [
+        "IX_cbc",
+        "IX_coagulation_panel",
+        "IX_upper_endoscopy"
+      ],
+      "referral_hint": "Resuscitation + urgent endoscopy as needed"
+    }
+  ]
+}

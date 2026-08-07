@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Clinical Dictionary — Phase 1 index. Entity packs are specialty-neutral seeds; extend without renaming published codes.",
+  "entity_types": [
+    "symptom",
+    "sign",
+    "risk_factor",
+    "past_medical_history",
+    "past_surgical_history",
+    "drug",
+    "allergy",
+    "family_history",
+    "social_history",
+    "investigation",
+    "diagnosis",
+    "procedure",
+    "complication"
+  ],
+  "packs": {
+    "symptom": "symptoms.json",
+    "sign": "signs.json",
+    "risk_factor": "risk_factors.json",
+    "past_medical_history": "past_medical_history.json",
+    "past_surgical_history": "past_surgical_history.json",
+    "drug": "drugs.json",
+    "allergy": "allergies.json",
+    "family_history": "family_history.json",
+    "social_history": "social_history.json",
+    "investigation": "investigations.json",
+    "diagnosis": "diagnoses.json",
+    "procedure": "procedures.json",
+    "complication": "complications.json"
+  },
+  "notes": [
+    "Diagnoses/procedures packs are stubbed for future phases; Phase 2–3 do not expand disease trees from Bates.",
+    "GI-tagged items are first-module seeds, not GI-only platform scope."
+  ]
+}

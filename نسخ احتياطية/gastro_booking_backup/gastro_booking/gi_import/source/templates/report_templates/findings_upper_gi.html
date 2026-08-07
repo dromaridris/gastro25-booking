@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Edit Findings — Upper GI{% endblock %}
+{% block content %}
+<h2>Upper GI Findings</h2>
+<p class="text-muted">Report {{ report.report_number }}</p>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">{{ form.oesophagus_findings.label(class="form-label") }}{{ form.oesophagus_findings(class="form-control", rows=4) }}</div>
+    <div class="mb-3">{{ form.stomach_findings.label(class="form-label") }}{{ form.stomach_findings(class="form-control", rows=4) }}</div>
+    <div class="mb-3">{{ form.duodenum_findings.label(class="form-label") }}{{ form.duodenum_findings(class="form-control", rows=4) }}</div>
+    <div class="mb-3">{{ form.d2_reached.label(class="form-label") }}{{ form.d2_reached(class="form-select") }}</div>
+    <div class="mb-3">{{ form.other_findings.label(class="form-label") }}{{ form.other_findings(class="form-control", rows=3) }}</div>
+    {{ form.submit(class="btn btn-primary") }}
+    <a href="{{ url_for('report_templates.view_report', report_id=report.id) }}" class="btn btn-link">Cancel</a>
+</form>
+{% endblock %}

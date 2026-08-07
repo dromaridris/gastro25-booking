@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Endoscopy Unit Dashboard{% endblock %}
+{% block content %}
+<h1>Endoscopy Nurse / Technician Dashboard</h1>
+{% include "dept_ops/_alert_centre.html" %}
+<div class="row mb-4">
+    <div class="col-md-3"><div class="card"><div class="card-body"><h6>Active rooms</h6><p class="fs-4 mb-0">{{ active_rooms|length }}</p></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body"><h6>Reprocessing queue</h6><p class="fs-4 mb-0">{{ cleaning_queue|length }}</p></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body"><h6>Low stock</h6><p class="fs-4 mb-0">{{ low_stock|length }}</p></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body"><h6>Assigned scopes</h6><p class="fs-4 mb-0">{{ assigned_scopes|length }}</p></div></div></div>
+</div>
+<h2 class="h5">My assigned rooms</h2>
+<ul>{% for r in assigned_rooms %}<li>{{ r.room.name }} — {{ r.state.status }}</li>{% else %}<li class="text-muted">No room assigned today.</li>{% endfor %}</ul>
+<h2 class="h5 mt-3">Active rooms</h2>
+<table class="table table-sm"><thead><tr><th>Room</th><th>Status</th><th>Procedure</th></tr></thead>
+<tbody>{% for r in active_rooms %}<tr><td>{{ r.room.name }}</td><td>{{ r.state.status }}</td><td>{{ r.state.current_procedure_id or '—' }}</td></tr>{% endfor %}</tbody></table>
+<h2 class="h5 mt-3">Pending reprocessing</h2>
+<table class="table table-sm"><thead><tr><th>Scope</th><th>Step</th><th>Started</th><th></th></tr></thead>
+<tbody>{% for c in cleaning_queue %}<tr><td>#{{ c.scope_id }}</td><td>{{ c.current_step }}</td><td>{{ c.started_at.strftime('%H:%M') if c.started_at else '—' }}</td>
+<td><a href="{{ url_for('dept_ops.scope_detail', scope_id=c.scope_id) }}" class="btn btn-sm btn-outline-primary">Manage</a></td></tr>{% else %}<tr><td colspan="4" class="text-muted">Queue empty.</td></tr>{% endfor %}</tbody></table>
+<h2 class="h5 mt-3">Consumables (low stock)</h2>
+<ul>{% for i in low_stock %}<li>{{ i.name }}: {{ i.current_stock }}/{{ i.minimum_stock }}</li>{% else %}<li class="text-muted">Stock levels OK.</li>{% endfor %}</ul>
+{% include "ui/_quick_actions.html" %}
+{% include "ui/_dept_ops_links.html" %}
+{% endblock %}

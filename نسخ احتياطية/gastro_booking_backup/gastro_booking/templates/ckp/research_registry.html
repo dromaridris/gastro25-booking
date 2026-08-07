@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Registry {{ registry.code }}{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>{{ registry.label }}</h1>
+    <p class="muted">{{ registry.code }} v{{ registry.version }}</p>
+  </div>
+  <a class="btn" href="{{ url_for('ckp_research_home') }}">Research home</a>
+</section>
+<section class="admin-section">
+  <p>{{ registry.description }}</p>
+  <p>Variables: <code>{{ registry.variables }}</code></p>
+  <p>Inclusion: <code>{{ registry.inclusion }}</code> · Exclusion: <code>{{ registry.exclusion }}</code></p>
+</section>
+<section class="admin-section">
+  <h2>Create cohort</h2>
+  <form method="POST" action="{{ url_for('ckp_research_cohort_create', registry_id=registry.id) }}" class="settings-form">
+    <label>Code <input name="code" required></label>
+    <label>Label <input name="label" required></label>
+    <label>Criteria note <input name="criteria"></label>
+    <button class="btn btn--primary" type="submit">Create cohort</button>
+  </form>
+  <ul>{% for c in cohorts %}<li><a href="{{ url_for('ckp_research_cohort', cohort_id=c.id) }}">{{ c.code }}</a> — {{ c.label }} (n={{ c.member_count }})</li>{% endfor %}</ul>
+</section>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Order #{{ order.id }} — GastroIntelligence{% endblock %}
+{% block content %}
+<h2>
+    Investigation Order #{{ order.id }}
+    <span class="badge bg-secondary">{{ order.status.replace("_", " ").title() }}</span>
+</h2>
+
+<dl class="row">
+    <dt class="col-sm-3">Patient</dt>
+    <dd class="col-sm-9">
+        <a href="{{ url_for('patients.view_patient', patient_id=order.patient_id) }}">
+            {{ order.patient.full_name if order.patient else order.patient_id }}
+        </a>
+    </dd>
+    <dt class="col-sm-3">Encounter</dt>
+    <dd class="col-sm-9">
+        <a href="{{ url_for('encounters.view_encounter', encounter_id=order.encounter_id) }}">#{{ order.encounter_id }}</a>
+    </dd>
+    <dt class="col-sm-3">Kind</dt><dd class="col-sm-9">{{ order.order_kind.title() }}</dd>
+    <dt class="col-sm-3">Priority</dt><dd class="col-sm-9">{{ order.priority.title() }}</dd>
+    <dt class="col-sm-3">Ordered</dt><dd class="col-sm-9">{{ order.ordered_at.strftime("%Y-%m-%d %H:%M") }}</dd>
+    {% if order.clinical_indication %}
+    <dt class="col-sm-3">Indication</dt><dd class="col-sm-9">{{ order.clinical_indication }}</dd>
+    {% endif %}
+</dl>
+
+{% if order.items %}
+<h4>Items</h4>
+<ul>
+    {% for item in order.items %}
+    <li>{{ item.catalogue_item.name if item.catalogue_item else item.catalogue_item_id }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<div class="d-flex flex-wrap gap-2 mt-3">
+    {% if can('investigation:request') and order.status == 'requested' %}
+        <form method="POST" action="{{ url_for('investigations.mark_order_collected', order_id=order.id) }}">
+            <button type="submit" class="btn btn-outline-primary btn-sm">Mark collected</button>
+        </form>
+    {% endif %}
+    {% if can('investigation:result_enter') and order.order_kind == 'laboratory' and order.status in ('requested', 'collected', 'available') %}
+        <a href="{{ url_for('investigations.enter_lab_results_for_order', order_id=order.id) }}" class="btn btn-primary btn-sm">Enter lab results</a>
+    {% endif %}
+    {% if can('investigation:review') and order.status == 'available' %}
+        <form method="POST" action="{{ url_for('investigations.review_order', order_id=order.id) }}">
+            <button type="submit" class="btn btn-success btn-sm">Mark reviewed</button>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{
+  "complaint_code": "CC_hematemesis",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Blood in vomitus — history structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "This is a symptom pack: blood coming from the mouth with vomiting/retching. It is NOT synonymous with 'upper GI bleed'.",
+        "First discriminate coughed blood (hemoptysis) from vomited blood (hematemesis) — respiratory sources can look like 'GI bleeding'.",
+        "Then characterize colour, volume, and preceding retching. Coffee-ground or frank blood with melena raises concern for upper GI bleeding as a diagnosis to work up later.",
+        "Haemodynamic symptoms (dizziness, syncope) and NSAID/anticoagulant/liver-disease context decide urgency."
+      ],
+      "linked_questions": [
+        "Q000107",
+        "Q000108",
+        "Q000109",
+        "Q000038"
+      ]
+    }
+  ],
+  "question_coaching": {
+    "Q000107": {
+      "why_ask": "Blood from the chest is not GI bleeding. Mislabeling as UGIB sends the work-up down the wrong path.",
+      "listen_for": [
+        "Cough with frothy sputum",
+        "true vomiting/retching"
+      ],
+      "think": "If coughed up → think airway/lungs. If vomited → think esophagus/stomach/duodenum."
+    },
+    "Q000110": {
+      "why_ask": "Forceful retching before blood suggests Mallory–Weiss tear among other causes.",
+      "listen_for": [
+        "Retching then bright red blood"
+      ],
+      "think": "Still a symptom history — diagnosis comes after clustering findings."
+    }
+  },
+  "answer_triggers": [
+    {
+      "id": "AT_hemoptysis_pattern",
+      "question_id": "Q000107",
+      "title": "Unlocked: possible hemoptysis (not GI)",
+      "points": [
+        "Do not frame this as UGIB.",
+        "Examine the chest and pursue respiratory bleeding sources."
+      ],
+      "answer_in": [
+        "Coughed up (from the chest / lungs)"
+      ]
+    }
+  ]
+}

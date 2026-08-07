@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Research platform{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>Research &amp; Learning</h1>
+    <p class="muted">Independent from clinical UX · de-identification · registry versioning</p>
+  </div>
+</section>
+<section class="admin-section">
+  <h2>Dashboard</h2>
+  <p>Registries {{ stats.registries }} · Cohorts {{ stats.cohorts }} · Members {{ stats.members }} · Studies {{ stats.studies }} · Exports {{ stats.exports }}</p>
+</section>
+<section class="admin-section">
+  <h2>Create registry</h2>
+  <form method="POST" action="{{ url_for('ckp_research_registry_create') }}" class="settings-form">
+    <label>Code <input name="code" required placeholder="reg.gi.bleed"></label>
+    <label>Label <input name="label" required></label>
+    <label>Description <textarea name="description"></textarea></label>
+    <label>Inclusion note <input name="inclusion"></label>
+    <label>Exclusion note <input name="exclusion"></label>
+    <button class="btn btn--primary" type="submit">Create</button>
+  </form>
+</section>
+<section class="admin-section">
+  <h2>Registries</h2>
+  <ul>{% for r in registries %}<li><a href="{{ url_for('ckp_research_registry', registry_id=r.id) }}">{{ r.code }}</a> v{{ r.version }} — {{ r.label }}</li>{% else %}<li class="muted">None</li>{% endfor %}</ul>
+</section>
+<section class="admin-section">
+  <h2>Create study</h2>
+  <form method="POST" action="{{ url_for('ckp_research_study_create') }}" class="settings-form">
+    <label>Code <input name="code" required></label>
+    <label>Title <input name="title" required></label>
+    <label>Registry id <input name="registry_id" type="number"></label>
+    <label>Inclusion <input name="inclusion"></label>
+    <label>Exclusion <input name="exclusion"></label>
+    <label>Outcomes <input name="outcomes"></label>
+    <button class="btn" type="submit">Create study</button>
+  </form>
+  <ul>{% for s in studies %}<li>{{ s.code }} — {{ s.title }} ({{ s.status }})</li>{% endfor %}</ul>
+</section>
+{% endblock %}

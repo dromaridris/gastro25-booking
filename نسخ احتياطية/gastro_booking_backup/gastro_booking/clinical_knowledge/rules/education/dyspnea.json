@@ -1,0 +1,74 @@
+{
+  "complaint_code": "CC_dyspnea",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Dyspnoea history structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Distinguish acute vs chronic, and exertional vs at-rest vs orthopnoea/PND — this separates cardiac from pulmonary patterns.",
+        "Always screen chest pain, leg swelling, and mental status alongside breathlessness.",
+        "In a GI context, ascites/hepatic hydrothorax and severe anaemia are important non-cardiopulmonary causes to keep on the list."
+      ],
+      "linked_questions": [
+        "Q000070",
+        "Q000072",
+        "Q000038"
+      ]
+    },
+    {
+      "id": "EDU_red_flags",
+      "title": "Dyspnoea red flags",
+      "trigger": {
+        "any_sign_present": [
+          "SG_reduced_air_entry",
+          "SG_hypotension",
+          "SG_tachypnea"
+        ]
+      },
+      "points": [
+        "Reduced air entry, hypotension, or marked tachypnoea alongside dyspnoea warrant urgent escalation.",
+        "Do not delay oxygen/monitoring to finish the chronic history."
+      ]
+    }
+  ],
+  "question_coaching": {
+    "Q000070": {
+      "why_ask": "Positional pattern (rest vs exertion vs orthopnoea/PND) is a core cardiac-vs-pulmonary discriminator.",
+      "listen_for": [
+        "Orthopnoea",
+        "paroxysmal nocturnal dyspnoea",
+        "at rest"
+      ],
+      "think": "Orthopnoea/PND point toward a cardiac or fluid-overload mechanism."
+    },
+    "Q000072": {
+      "why_ask": "Leg swelling alongside dyspnoea suggests a fluid-overload or right-heart process.",
+      "listen_for": [
+        "Bilateral vs unilateral swelling"
+      ],
+      "think": "Unilateral swelling instead raises DVT/PE concern rather than heart failure."
+    }
+  },
+  "answer_triggers": [
+    {
+      "id": "AT_orthopnea",
+      "question_id": "Q000070",
+      "title": "Unlocked: orthopnoea/PND pattern",
+      "points": [
+        "Suggests cardiac or volume-overload cause.",
+        "Ask about leg swelling and recent weight gain."
+      ],
+      "answer_contains_any": [
+        "orthopnea",
+        "orthopnoea",
+        "pnd"
+      ]
+    }
+  ]
+}

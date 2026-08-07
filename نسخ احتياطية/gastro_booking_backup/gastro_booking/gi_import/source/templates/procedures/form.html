@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Book endoscopy — {{ appointment.patient.full_name }}{% endblock %}
+{% block content %}
+<h2>Book endoscopy</h2>
+<p class="text-muted">Patient: <strong>{{ appointment.patient.full_name }}</strong> ({{ appointment.patient.mrn }}) — appointment on {{ appointment.scheduled_at.strftime("%Y-%m-%d %H:%M") }}</p>
+
+{% include "ui/_form_errors.html" %}
+{% if not catalogue_ready %}
+<div class="alert alert-warning">
+    The endoscopy catalogue is not set up yet. Head of Department can add procedure types at
+    <a href="{{ url_for('procedures.list_procedure_types') }}">Procedure types</a>
+    and rooms at <a href="{{ url_for('procedures.list_rooms') }}">Endoscopy rooms</a>.
+    Until at least one procedure type exists, booking cannot be saved.
+</div>
+{% endif %}
+
+<form method="POST" class="col-md-6" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        {{ form.procedure_type_id.label(class="form-label") }}
+        {{ form.procedure_type_id(class="form-select") }}
+        <div class="form-text">Procedure types requiring special authorization can only be booked by Head of Department / Core Consultant.</div>
+    </div>
+    <div class="mb-3">
+        {{ form.room_id.label(class="form-label") }}
+        {{ form.room_id(class="form-select") }}
+    </div>
+    <div class="mb-3">
+        {{ form.endoscopist_id.label(class="form-label") }}
+        {{ form.endoscopist_id(class="form-select") }}
+        {% if not endoscopists_available %}
+        <div class="form-text text-muted">No endoscopists marked as providers yet. HoD can enable this under user settings.</div>
+        {% endif %}
+    </div>
+    <div class="mb-3">
+        {{ form.priority.label(class="form-label") }}
+        {{ form.priority(class="form-select") }}
+    </div>
+    <div class="mb-3">
+        {{ form.notes.label(class="form-label") }}
+        {{ form.notes(class="form-control", rows=3) }}
+    </div>
+    {% if can('appointment:override') %}
+    <div class="mb-3 form-check">
+        {{ form.is_capacity_override(class="form-check-input") }}
+        {{ form.is_capacity_override.label(class="form-check-label") }}
+    </div>
+    {% endif %}
+    {{ form.submit(class="btn btn-primary") }}
+    <a href="{{ url_for('patients.view_patient', patient_id=appointment.patient_id) }}" class="btn btn-outline-secondary ms-2">Back to patient</a>
+</form>
+{% endblock %}

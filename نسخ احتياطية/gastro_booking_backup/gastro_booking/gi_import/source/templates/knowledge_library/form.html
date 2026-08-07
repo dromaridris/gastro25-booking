@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{% if mode == 'create' %}New{% else %}Edit{% endif %} Knowledge — GastroIntelligence{% endblock %}
+{% block content %}
+<h2>{% if mode == 'create' %}New knowledge object{% else %}Edit draft{% endif %}</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        {{ form.object_type.label(class="form-label") }}
+        {{ form.object_type(class="form-select", readonly=(mode == 'edit')) }}
+    </div>
+    <div class="mb-3">
+        {{ form.title.label(class="form-label") }}
+        {{ form.title(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.stable_id.label(class="form-label") }}
+        {{ form.stable_id(class="form-control", readonly=(mode == 'edit')) }}
+        <div class="form-text">Permanent identifier — cannot change after creation.</div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-3">{{ form.specialty_code.label(class="form-label") }}{{ form.specialty_code(class="form-control") }}</div>
+        <div class="col-md-6 mb-3">{{ form.topic_key.label(class="form-label") }}{{ form.topic_key(class="form-control") }}</div>
+    </div>
+    <div class="mb-3">{{ form.version_label.label(class="form-label") }}{{ form.version_label(class="form-control") }}</div>
+    <div class="mb-3">{{ form.summary.label(class="form-label") }}{{ form.summary(class="form-control", rows=3) }}</div>
+    <div class="mb-3">{{ form.body.label(class="form-label") }}{{ form.body(class="form-control", rows=5) }}</div>
+    <div class="mb-3">
+        {{ form.attributes_json.label(class="form-label") }}
+        {{ form.attributes_json(class="form-control font-monospace") }}
+        <div class="form-text">CDS rules, branching, weights, score calculations, and complaint codes live here as JSON.</div>
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+    <a href="{{ url_for('knowledge_library.list_objects') }}" class="btn btn-link">Cancel</a>
+</form>
+{% endblock %}

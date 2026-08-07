@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — {{ branding.display_title }}{% endblock %}
+{% block content %}
+<section class="gi-dashboard-hero gi-card mb-4">
+    <div class="gi-dashboard-hero-inner">
+        <div>
+            <p class="gi-eyebrow mb-1">Clinical workspace</p>
+            <h1 class="mb-1">Welcome back, {{ current_user.full_name }}</h1>
+            <p class="text-muted mb-0">{{ branding.display_title }}</p>
+        </div>
+    </div>
+</section>
+
+{% include "ui/_quick_actions.html" %}
+{% endblock %}

@@ -1,0 +1,96 @@
+{
+  "complaint_code": "CC_heartburn",
+  "schema_version": 1,
+  "revision": 1,
+  "min_history_answers_for_dx": 5,
+  "min_confidence_to_list_dx": 0.45,
+  "description": "Starter reasoning pack for CC_heartburn (practical, not Sleisenger-complete).",
+  "patterns": [
+    {
+      "id": "PAT_hb_gerd",
+      "label": "Typical GERD / reflux pattern",
+      "diagnosis_code": "DX_gerd_suspect",
+      "diagnosis_label": "GERD (suspect)",
+      "weight_sum_required": 1.0,
+      "criteria": [
+        {
+          "kind": "answer",
+          "question_id": "Q000043",
+          "op": "in",
+          "value": [
+            "Worse after meals",
+            "Worse when lying flat"
+          ],
+          "weight": 0.9,
+          "finding": "Postprandial / positional"
+        }
+      ],
+      "suggested_questions": [
+        "Q000031",
+        "Q000033",
+        "Q000019"
+      ],
+      "suggested_exam": [],
+      "suggested_investigations": [
+        "IX_upper_endoscopy"
+      ]
+    },
+    {
+      "id": "PAT_hb_alarm",
+      "label": "Heartburn with alarm features",
+      "diagnosis_code": "DX_gerd_alarm_suspect",
+      "diagnosis_label": "Reflux with alarms (suspect)",
+      "weight_sum_required": 1.3,
+      "criteria": [
+        {
+          "kind": "answer",
+          "question_id": "Q000031",
+          "op": "truthy",
+          "weight": 1.0,
+          "finding": "Dysphagia"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000019",
+          "op": "truthy",
+          "weight": 0.8,
+          "finding": "Weight loss"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000033",
+          "op": "truthy",
+          "weight": 1.0,
+          "finding": "Hematemesis"
+        }
+      ],
+      "suggested_questions": [
+        "Q000034",
+        "Q000077"
+      ],
+      "suggested_exam": [
+        "SG_pallor"
+      ],
+      "suggested_investigations": [
+        "IX_upper_endoscopy",
+        "IX_cbc"
+      ]
+    }
+  ],
+  "missing_info_rules": [
+    {
+      "id": "need_alarms",
+      "if_unanswered_any": [
+        "Q000031",
+        "Q000019",
+        "Q000033"
+      ],
+      "message": "Screen dysphagia / weight loss / bleed",
+      "next_questions": [
+        "Q000031",
+        "Q000019",
+        "Q000033"
+      ]
+    }
+  ]
+}

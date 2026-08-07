@@ -1,0 +1,60 @@
+{
+  "complaint_code": "CC_melena",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Black stools — history structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Melena is a stool appearance (black, tarry), not a diagnosis of UGIB.",
+        "Confirm tarry character and exclude iron/bismuth/food confounders before escalating.",
+        "Ask about blood in vomitus and haemodynamic symptoms — these may later support an upper GI bleeding diagnosis.",
+        "Massive upper bleeding can also present with hematochezia — keep both symptoms on the board."
+      ],
+      "linked_questions": [
+        "Q000112",
+        "Q000111",
+        "Q000033",
+        "Q000038"
+      ]
+    }
+  ],
+  "question_coaching": {
+    "Q000111": {
+      "why_ask": "Iron and bismuth commonly mimic melena without bleeding.",
+      "listen_for": [
+        "Iron tablets",
+        "bismuth",
+        "charcoal"
+      ],
+      "think": "Dark non-tarry stool on iron ≠ melena."
+    },
+    "Q000112": {
+      "why_ask": "True melena is sticky/tar-like; mere dark colour is weaker evidence.",
+      "listen_for": [
+        "Sticky",
+        "tar"
+      ],
+      "think": "Tarry + occult blood context strengthens bleeding concern."
+    }
+  },
+  "answer_triggers": [
+    {
+      "id": "AT_iron_confounder",
+      "question_id": "Q000111",
+      "title": "Unlocked: possible non-bleed dark stool",
+      "points": [
+        "Iron/bismuth can darken stool without GI bleeding.",
+        "Still examine for haemodynamic compromise if the story is unclear."
+      ],
+      "answer_in": [
+        "yes"
+      ]
+    }
+  ]
+}

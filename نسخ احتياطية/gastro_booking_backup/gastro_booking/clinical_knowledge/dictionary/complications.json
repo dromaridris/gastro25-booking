@@ -1,0 +1,8 @@
+[
+  {"id": "cm-gi-bleed", "code": "CM_gi_bleeding", "label": "Gastrointestinal bleeding", "entity_type": "complication", "specialty_tags": ["gastroenterology", "emergency"], "schema_version": 1, "revision": 1, "status": "draft"},
+  {"id": "cm-perforation", "code": "CM_perforation", "label": "Hollow-viscus perforation", "entity_type": "complication", "specialty_tags": ["surgery", "emergency"], "schema_version": 1, "revision": 1, "status": "draft"},
+  {"id": "cm-sepsis", "code": "CM_sepsis", "label": "Sepsis", "entity_type": "complication", "specialty_tags": ["infectious_disease", "emergency", "critical_care"], "schema_version": 1, "revision": 1, "status": "draft"},
+  {"id": "cm-shock", "code": "CM_shock", "label": "Shock", "entity_type": "complication", "specialty_tags": ["emergency", "critical_care"], "schema_version": 1, "revision": 1, "status": "draft"},
+  {"id": "cm-hepatic-encephalopathy", "code": "CM_hepatic_encephalopathy", "label": "Hepatic encephalopathy", "entity_type": "complication", "specialty_tags": ["hepatology"], "schema_version": 1, "revision": 1, "status": "draft"},
+  {"id": "cm-aspiration", "code": "CM_aspiration", "label": "Aspiration", "entity_type": "complication", "specialty_tags": ["pulmonology", "emergency"], "schema_version": 1, "revision": 1, "status": "draft"}
+]

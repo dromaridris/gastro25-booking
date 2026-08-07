@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% from "ui/macros.html" import page_header, search_panel, data_table_wrapper, table_empty_row %}
+
+{% block title %}Research — {{ branding.display_title }}{% endblock %}
+
+{% block content %}
+{% set header_actions %}
+<a href="{{ url_for('research.list_studies') }}" class="btn btn-outline-secondary btn-sm">Research Studies</a>
+{% endset %}
+
+{{ page_header("Research Registries", subtitle="Structured datasets derived from routine clinical documentation.", breadcrumbs=[("Research", none)], actions=header_actions) }}
+
+{{ search_panel(form_action=url_for('research.list_registries'), placeholder="Filter registries…", query=query if query is defined else "",
+    search_key="research_search", suggestions="Registry name or clinical domain") }}
+
+{% call data_table_wrapper('table-sm') %}
+    <thead>
+        <tr>
+            <th scope="col">Registry</th>
+            <th scope="col">Description</th>
+            <th scope="col"><span class="visually-hidden">Actions</span></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for reg in registries %}
+        <tr>
+            <td class="fw-semibold">{{ reg.name }}</td>
+            <td class="text-muted">{{ reg.description or "—" }}</td>
+            <td><a href="{{ url_for('research.registry_detail', registry_code=reg.code) }}" class="btn btn-outline-primary btn-sm">Open</a></td>
+        </tr>
+        {% else %}
+        {{ table_empty_row(3, "No registries available", "Contact your research coordinator.") }}
+        {% endfor %}
+    </tbody>
+{% endcall %}
+{% endblock %}

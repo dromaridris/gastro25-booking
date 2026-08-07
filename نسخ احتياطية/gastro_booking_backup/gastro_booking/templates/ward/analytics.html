@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Ward analytics{% endblock %}
+{% block content %}
+<div class="page-compact">
+<section class="ward-topbar">
+  <div class="ward-topbar-main">
+    <h1>Ward analytics</h1>
+    <span class="muted ward-topbar-sub">Occupancy &amp; throughput metrics</span>
+  </div>
+  <div class="ward-topbar-actions">
+    <a href="{{ url_for('ward_dashboard', ward_id=ward_id) }}" class="btn btn--outline btn--sm">← Ward board</a>
+  </div>
+</section>
+
+<form method="GET" class="settings-form ward-ward-select">
+  <label>Ward<select name="ward_id" onchange="this.form.submit()">
+    {% for w in wards %}<option value="{{ w.id }}" {% if w.id == ward_id %}selected{% endif %}>{{ w.name }}</option>{% endfor %}
+  </select></label>
+</form>
+{% if stats %}
+<div class="day-modal-grid">
+  <div class="admin-section compact-section"><strong>{{ stats.occupancy_pct }}%</strong><br><span class="muted-sm">Occupancy</span></div>
+  <div class="admin-section compact-section"><strong>{{ stats.admissions_30d }}</strong><br><span class="muted-sm">Admissions (30d)</span></div>
+  <div class="admin-section compact-section"><strong>{{ stats.discharges_30d }}</strong><br><span class="muted-sm">Discharges (30d)</span></div>
+  <div class="admin-section compact-section"><strong>{{ stats.avg_los_hours }}h</strong><br><span class="muted-sm">Avg LOS (90d)</span></div>
+</div>
+{% endif %}
+</div>
+{% endblock %}

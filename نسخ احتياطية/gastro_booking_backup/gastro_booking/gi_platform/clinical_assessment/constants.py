@@ -1,0 +1,35 @@
+"""Clinical Assessment constants."""
+
+CATEGORY_MOST_LIKELY = 'most_likely'
+CATEGORY_IMPORTANT_ALTERNATIVE = 'important_alternative'
+CATEGORY_MUST_NOT_MISS = 'must_not_miss'
+CATEGORY_LESS_LIKELY = 'less_likely'
+
+CATEGORY_DISPLAY_ORDER = (
+    CATEGORY_MUST_NOT_MISS, CATEGORY_MOST_LIKELY,
+    CATEGORY_IMPORTANT_ALTERNATIVE, CATEGORY_LESS_LIKELY,
+)
+
+STATUS_SUGGESTED = 'suggested'
+STATUS_ACCEPTED = 'accepted'
+STATUS_MODIFIED = 'modified'
+STATUS_REJECTED = 'rejected'
+STATUS_CONFIRMED = 'confirmed'
+STATUS_SUSPECTED = 'suspected'
+STATUS_MANUAL = 'manual'
+
+RUN_STATUS_GENERATED = 'generated'
+RUN_STATUS_REVIEWED = 'reviewed'
+RUN_STATUS_FINALIZED = 'finalized'
+
+AUDIT_PREFIX = 'clinical_assessment'
+
+CONFIDENCE_HIGH = 'high'
+CONFIDENCE_MEDIUM = 'medium'
+CONFIDENCE_LOW = 'low'
+
+CONSIDERATION_TO_CATEGORY = {
+    'strong_consideration': CATEGORY_MOST_LIKELY,
+    'consider': CATEGORY_IMPORTANT_ALTERNATIVE,
+    'less_likely': CATEGORY_LESS_LIKELY,
+}

@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+{% block title %}{{ cfg.label }} Report · {{ appt.patient_name }}{% endblock %}
+{% block content %}
+<div class="ercp-page page-compact" id="advancedReportPage"
+     data-report-id="{{ report.id }}"
+     data-procedure-key="{{ procedure_key }}"
+     data-url-prefix="/{{ cfg.url_prefix }}"
+     data-locked="{{ is_locked|lower }}">
+  <div class="ercp-header no-print">
+    <div>
+      <h1>{{ cfg.label }} Report — {{ appt.patient_name }}</h1>
+      <p class="muted">MRN {{ appt.mrn or '—' }} · {{ appt.gender }} / {{ appt.age }}y · {{ appt.appointment_date }}</p>
+    </div>
+    <div class="ercp-header-actions btn-row">
+      <span class="ercp-status-badge ercp-status-{{ report.status }}">{{ 'Finalized' if is_locked else 'Draft' }}</span>
+      {% if patient_overview_url %}
+      <a class="btn btn--outline btn--sm" href="{{ patient_overview_url }}">📁 Patient Overview</a>
+      {% endif %}
+      <a class="btn btn--outline btn--sm" href="{{ url_for(procedure_key ~ '_print', report_id=report.id) }}" target="_blank">🖨 Print</a>
+    </div>
+  </div>
+
+  {% if is_locked %}
+  <div class="holiday-banner no-print">
+    🔒 Finalized by {{ report.finalized_by }} on {{ report.finalized_at[:16] }}.
+    {% if can_unlock %}
+    <form method="POST" action="{{ url_for(procedure_key ~ '_unlock', report_id=report.id) }}" style="display:inline"
+          onsubmit="return confirm('Unlock this report?');">
+      <button class="btn btn--sm btn--outline" type="submit">Unlock</button>
+    </form>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div id="advSaveNotice" class="flash flash--success ercp-toast no-print" hidden>Draft saved.</div>
+
+  <fieldset id="advFieldset" {{ 'disabled' if is_locked }}>
+    <section class="admin-section compact-section">
+      <h2>Endoscopist &amp; Team</h2>
+      <div class="form-row">
+        <label>Endoscopist
+          <select id="f_endoscopist_id">
+            <option value="">— Select —</option>
+            {% for e in endoscopists %}
+            <option value="{{ e.id }}" {{ 'selected' if report.endoscopist_id == e.id }}>{{ e.full_name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        {% if cfg.has_sedation and procedure_key not in ('upper_gi_v2', 'colonoscopy_v2') %}
+        <label>Sedation
+          <select id="f_sedation">
+            <option value="">— Select —</option>
+            {% for opt in sedation_options %}
+            <option value="{{ opt }}" {{ 'selected' if report.sedation == opt }}>{{ opt }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        {% endif %}
+      </div>
+      {% if cfg.get('has_anesthesiologist') %}
+      <div class="form-row">
+        <label>Anesthesiologist <span class="label-hint">(select previous or type new)</span>
+          <input type="text" id="f_anesthesiologist" list="anesthesiologistList"
+                 value="{{ report.anesthesiologist if report.anesthesiologist is defined else '' }}"
+                 placeholder="e.g. Dr. Ahmed">
+          <datalist id="anesthesiologistList">
+            {% for name in anesthesiologists %}
+            <option value="{{ name }}"></option>
+            {% endfor %}
+          </datalist>
+        </label>
+      </div>
+      {% endif %}
+      <div class="form-row">
+        <label>Technician<input type="text" id="f_technician" value="{{ report.technician }}"></label>
+        <label>Assistants<input type="text" id="f_assistants" value="{{ report.assistants }}" placeholder="Comma-separated"></label>
+      </div>
+    </section>
+
+    {% for section in cfg.sections %}
+    <section class="admin-section compact-section">
+      <h2>{{ section.title }}</h2>
+      {% for field in section.fields %}
+        {% set fid = 'f_' ~ field.key %}
+        {% set val = payload.get(field.key, '') %}
+        {% if field.type == 'yes_no' %}
+        <div class="field-yesno-inline{% if field.get('compact') %} field-yesno-inline--compact{% endif %}">
+          <span class="field-yesno-label">{{ field.label }}</span>
+          <select id="{{ fid }}" class="yesno-select">
+            <option value="">—</option>
+            <option value="Yes" {{ 'selected' if val == 'Yes' }}>Yes</option>
+            <option value="No" {{ 'selected' if val == 'No' }}>No</option>
+          </select>
+        </div>
+        {% elif field.type == 'long_text' %}
+        <label>{{ field.label }}<textarea id="{{ fid }}" rows="2" placeholder="{{ field.get('placeholder', '') }}">{{ val }}</textarea></label>
+        {% elif field.type == 'text' %}
+        <label>{{ field.label }}<input type="text" id="{{ fid }}" value="{{ val }}" placeholder="{{ field.get('placeholder', '') }}"></label>
+        {% elif field.type == 'dropdown' %}
+        <label>{{ field.label }}
+          <select id="{{ fid }}">
+            <option value="">— Select —</option>
+            {% for opt in field.options %}
+            <option value="{{ opt }}" {{ 'selected' if val == opt }}>{{ opt }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        {% elif field.type == 'multi_checkbox' %}
+        <div class="form-section-label">{{ field.label }}</div>
+        <div class="ercp-checkbox-grid ercp-checkbox-grid--compact" id="{{ fid }}">
+          {% if val is string %}
+            {% set selected = val.split(',') if val else [] %}
+          {% elif val is iterable %}
+            {% set selected = val %}
+          {% else %}
+            {% set selected = [] %}
+          {% endif %}
+          {% for opt in field.options %}
+          <label class="checkbox-row"><input type="checkbox" value="{{ opt }}" {{ 'checked' if opt in selected }}> {{ opt }}</label>
+          {% endfor %}
+        </div>
+        {% endif %}
+      {% endfor %}
+    </section>
+    {% endfor %}
+
+    <section class="admin-section compact-section">
+      <h2>Procedure Note</h2>
+      <button type="button" class="btn btn--primary btn--sm" id="advGenerateNoteBtn">Generate procedure note</button>
+      <label>Procedure note<textarea id="f_procedure_note" rows="8">{{ report.procedure_note }}</textarea></label>
+      <label>Impression (summary)<textarea id="f_impression" rows="3">{{ report.impression }}</textarea></label>
+      <label>Clinical plan<textarea id="f_clinical_plan" rows="3">{{ report.clinical_plan }}</textarea></label>
+    </section>
+
+    <section class="admin-section compact-section no-print">
+      <h2>Procedure Images ({{ cfg.image_slots }} slots)</h2>
+      <p class="muted label-hint">Slots 1–4: images print beside the report on page 1. If you upload 5 or more images, the report stays on page 1 and all images move to page 2 (ERCP layout). Empty slots are omitted.</p>
+      {% set image_captions = payload.get('image_captions') or {} %}
+      <div class="ercp-image-grid">
+        {% for slot in image_slots %}
+        <div class="ercp-image-slot" data-slot="{{ slot }}">
+          <div class="ercp-image-preview" id="imgPreview{{ slot }}">
+            {% if image_by_slot.get(slot) %}
+            <img src="{{ url_for(procedure_key ~ '_image_serve', report_id=report.id, slot=slot) }}" alt="Slot {{ slot }}">
+            {% else %}
+            <span class="ercp-image-empty">Slot {{ slot }}</span>
+            {% endif %}
+          </div>
+          <label class="ercp-image-caption-label">Caption (optional)
+            <input type="text" class="img-caption-input" data-slot="{{ slot }}"
+                   placeholder="e.g. Caecum, polypectomy site"
+                   value="{{ image_captions.get(slot|string) or image_captions.get(slot) or payload.get('image_caption_' ~ slot|string) or '' }}">
+          </label>
+          <div class="ercp-image-actions">
+            <label class="btn btn--sm btn--outline">Upload<input type="file" accept="image/*" hidden class="img-upload-input" data-slot="{{ slot }}"></label>
+            {% if image_by_slot.get(slot) %}
+            <button type="button" class="btn btn--sm btn--ghost img-delete-btn" data-slot="{{ slot }}">Delete</button>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+  </fieldset>
+
+  {% if not is_locked %}
+  <div class="ercp-footer-actions no-print">
+    <button type="button" class="btn btn--outline" id="advSaveDraftBtn">Save Draft</button>
+    <form method="POST" action="{{ url_for(procedure_key ~ '_finalize', report_id=report.id) }}" style="display:inline;" id="advFinalizeForm">
+      <button type="submit" class="btn btn--primary">Finalize Report</button>
+    </form>
+  </div>
+  {% endif %}
+
+  {% if procedure_key in ('upper_gi_v2', 'colonoscopy_v2') %}
+  <section class="admin-section no-print">
+    <h2>Follow-up Records <span class="label-hint">(independent of the finalized report — always fully editable)</span></h2>
+    <button type="button" class="btn btn--sm btn--primary" onclick="openFollowupModalForNew({{ report.id }})">+ Add Follow-up</button>
+    <div class="timeline" id="followupTimeline-{{ report.id }}" style="margin-top:14px;">Loading…</div>
+  </section>
+  {% include "_structured_followup_include.html" %}
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if procedure_key in ('upper_gi_v2', 'colonoscopy_v2') %}
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% endif %}
+<script src="{{ url_for('static', filename='js/advanced_reports.js') }}"></script>
+{% if procedure_key == 'upper_gi_v2' %}
+<script>
+  setFollowupEndpoints({
+    list: (id) => `/api/upper-gi/${id}/followups`,
+    item: (id) => `/api/upper-gi-followup/${id}`,
+  });
+  initFollowupModal(refreshAllFollowupTimelines);
+  registerFollowupTimeline({{ report.id }});
+</script>
+{% elif procedure_key == 'colonoscopy_v2' %}
+<script>
+  setFollowupEndpoints({
+    list: (id) => `/api/colonoscopy/${id}/followups`,
+    item: (id) => `/api/colonoscopy-followup/${id}`,
+  });
+  initFollowupModal(refreshAllFollowupTimelines);
+  registerFollowupTimeline({{ report.id }});
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{ report_number }} — {{ appt.patient_name }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="print-body print-report-body{% if print_layout == 'sidebar_images' %} print-sidebar-layout{% endif %}">
+  {% include "_print_toolbar.html" %}
+
+  <div class="print-sheet ercp-print-sheet">
+    <div id="printPage1Content" data-print-page="1">
+      {% set header_class = 'ercp-print-header' %}
+      {% set dept_line = 'Gastroenterology Ward 25 · Endoscopy Unit' %}
+      {% set title = cfg.print_title %}
+      {% set subtitle = 'Jinnah Postgraduate Medical Center, Karachi' %}
+      {% include "_print_header.html" %}
+
+      <p class="ercp-report-number">
+        <span>Report No: {{ report_number }}</span>
+        <span data-page-num>Page 1 of 1</span>
+      </p>
+
+      {% if unified_print_rows %}
+      {% include "_print_unified_table.html" %}
+      {% elif print_layout != 'sidebar_images' %}
+      <table class="ercp-print-table">
+        <tr><th colspan="4" class="ercp-section-th">Patient Information</th></tr>
+        <tr>
+          <td class="ercp-label">Patient Name</td><td>{{ appt.patient_name }}</td>
+          <td class="ercp-label">MR Number</td><td>{{ appt.mrn or '—' }}</td>
+        </tr>
+        <tr>
+          <td class="ercp-label">Age / Gender</td><td>{{ appt.age }} / {{ appt.gender }}</td>
+          <td class="ercp-label">Procedure Date</td><td>{{ appt.appointment_date }}</td>
+        </tr>
+        <tr>
+          <td class="ercp-label">Referral</td><td colspan="3">{{ appt.referral or '—' }}</td>
+        </tr>
+      </table>
+
+      {% if cfg.has_sedation or report.technician or report.assistants %}
+      <table class="ercp-print-table">
+        <tr><th colspan="4" class="ercp-section-th">Team &amp; Sedation</th></tr>
+        <tr>
+          {% if cfg.has_sedation %}
+          <td class="ercp-label">Sedation</td><td>{{ sedation_display or report.sedation or '—' }}</td>
+          {% else %}
+          <td class="ercp-label">Procedure</td><td>{{ cfg.label }}</td>
+          {% endif %}
+          <td class="ercp-label">Technician</td><td>{{ report.technician or '—' }}</td>
+        </tr>
+        {% if cfg.get('has_anesthesiologist') %}
+        <tr>
+          <td class="ercp-label">Anesthesiologist</td>
+          <td>{{ ('Dr. ' + report.anesthesiologist) if report.anesthesiologist else '—' }}</td>
+          <td class="ercp-label">Assistants</td>
+          <td>
+            {% if assistants_lines %}
+              {% for line in assistants_lines %}{{ line }}{% if not loop.last %}<br>{% endif %}{% endfor %}
+            {% else %}—{% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td class="ercp-label">Assistants</td>
+          <td colspan="3">
+            {% if assistants_lines %}
+              {% for line in assistants_lines %}{{ line }}{% if not loop.last %}<br>{% endif %}{% endfor %}
+            {% else %}—{% endif %}
+          </td>
+        </tr>
+        {% endif %}
+      </table>
+      {% endif %}
+
+      {% set procedure_section_title = 'Clinical & Procedure Details' %}
+      {% include "_print_procedure_fields_2col.html" %}
+      {% endif %}
+
+      {% if print_layout == 'sidebar_images' %}
+      <div class="print-endoscopy-columns">
+        <div class="print-text-column">
+          <span id="procedureNoteBlockAnchor"></span>
+          {% if note_text %}
+          <div class="ercp-print-block" id="procedureNoteBlock">
+            <h3>Procedure Note</h3>
+            <p class="ercp-print-note-text">{{ note_text }}</p>
+          </div>
+          {% endif %}
+
+          <span id="impressionBlockAnchor"></span>
+          {% if report.impression %}
+          <div class="ercp-print-block" id="impressionBlock">
+            <h3>Impression</h3>
+            <p>{{ report.impression }}</p>
+          </div>
+          {% endif %}
+
+          <span id="planBlockAnchor"></span>
+          {% if report.clinical_plan %}
+          <div class="ercp-print-block" id="planBlock">
+            <h3>Clinical Plan</h3>
+            <p>{{ report.clinical_plan }}</p>
+          </div>
+          {% endif %}
+        </div>
+        {% include "_print_right_rail.html" %}
+      </div>
+      {% include "_print_endoscopy_footer.html" %}
+      {% else %}
+      <span id="procedureNoteBlockAnchor"></span>
+      {% if note_text %}
+      <div class="ercp-print-block" id="procedureNoteBlock">
+        <h3>Procedure Note</h3>
+        <p class="ercp-print-note-text">{{ note_text }}</p>
+      </div>
+      {% endif %}
+
+      <span id="impressionBlockAnchor"></span>
+      {% if report.impression %}
+      <div class="ercp-print-block" id="impressionBlock">
+        <h3>Impression</h3>
+        <p>{{ report.impression }}</p>
+      </div>
+      {% endif %}
+
+      <span id="planBlockAnchor"></span>
+      {% if report.clinical_plan %}
+      <div class="ercp-print-block" id="planBlock">
+        <h3>Clinical Plan</h3>
+        <p>{{ report.clinical_plan }}</p>
+      </div>
+      {% endif %}
+      {% endif %}
+
+      {% if print_layout != 'sidebar_images' %}
+      <div class="ercp-signature-row ercp-signature-row--page1">
+        {% set signature_class = 'print-signature print-signature--ercp' %}
+        {% set person = endoscopist %}
+        {% include "_print_signature_block.html" %}
+        {% include "_print_qr_block.html" %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="ercp-print-page2" id="printPage2" data-print-page="2" hidden>
+      {% set header_class = 'ercp-print-header' %}
+      {% set dept_line = 'Gastroenterology Ward 25 · Endoscopy Unit' %}
+      {% set title = cfg.images_title %}
+      {% set subtitle = 'Report No: ' ~ report_number ~ ' — ' ~ appt.patient_name %}
+      {% include "_print_header.html" %}
+
+      <p class="ercp-report-number">
+        <span>Report No: {{ report_number }}</span>
+        <span data-page-num>Page 2 of 2</span>
+      </p>
+
+      <div id="page2OverflowSlot"></div>
+      {% if print_image_items %}
+        {% include "_print_uploaded_images_grid.html" %}
+      {% elif print_layout == 'sidebar_images' %}
+        {# sidebar mode never reaches here — ≥5 images switches to default split #}
+      {% else %}
+        {% include "_print_image_grid.html" %}
+      {% endif %}
+
+      {% if print_layout != 'sidebar_images' %}
+      <div class="ercp-signature-row">
+        {% set signature_class = 'print-signature print-signature--ercp' %}
+        {% set person = endoscopist %}
+        {% include "_print_signature_block.html" %}
+        {% include "_print_qr_block.html" %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="print-page-footer-num" aria-hidden="true"></div>
+
+  <script src="{{ url_for('static', filename='js/print_report.js') }}"></script>
+  <script>
+    window.onBeforePrintFit = function () {
+      var isSidebar = document.body.classList.contains('print-sidebar-layout');
+      if (isSidebar && window.fitEndoscopyPrintLayout) {
+        window.fitEndoscopyPrintLayout();
+      }
+      window.printReportFit({
+        page1Id: 'printPage1Content',
+        page2Id: 'printPage2',
+        overflowSlotId: 'page2OverflowSlot',
+        /* Endoscopy: keep full report on page 1; page 2 = slots 5–8 images only */
+        moveOrder: isSidebar ? [] : ['planBlock', 'impressionBlock', 'procedureNoteBlock'],
+        syncPage2: function () {
+          var page2 = document.getElementById('printPage2');
+          if (!page2) return;
+          var overflowSlot = document.getElementById('page2OverflowSlot');
+          var hasUploadedGrid = !!page2.querySelector('.ercp-print-image-grid img');
+          var hasOverflow = !!(overflowSlot && overflowSlot.children.length);
+          if (isSidebar) {
+            page2.hidden = true;
+          } else {
+            page2.hidden = !(hasUploadedGrid || hasOverflow);
+          }
+          window.syncPrintPageNumbers();
+        }
+      });
+    };
+  </script>
+</body>
+</html>

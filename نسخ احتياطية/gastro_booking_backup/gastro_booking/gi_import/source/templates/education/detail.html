@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ activity.title }}{% endblock %}
+{% block content %}
+<h2>{{ activity.title }}</h2>
+<dl class="row">
+  <dt class="col-sm-3">Type</dt><dd class="col-sm-9">{{ activity.activity_type }}</dd>
+  <dt class="col-sm-3">Date</dt><dd class="col-sm-9">{{ activity.activity_date.strftime("%Y-%m-%d") }}</dd>
+  {% if activity.duration_minutes %}<dt class="col-sm-3">Duration</dt><dd class="col-sm-9">{{ activity.duration_minutes }} min</dd>{% endif %}
+  {% if activity.location %}<dt class="col-sm-3">Location</dt><dd class="col-sm-9">{{ activity.location }}</dd>{% endif %}
+  {% if activity.description %}<dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ activity.description }}</dd>{% endif %}
+</dl>
+{% if can('education:manage') %}
+<a href="{{ url_for('education.edit', activity_id=activity.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
+{% endif %}
+{% endblock %}

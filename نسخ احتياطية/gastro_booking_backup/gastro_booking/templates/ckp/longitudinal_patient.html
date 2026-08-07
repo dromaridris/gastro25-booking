@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Memory · {{ memory.patient_key }}{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>{{ memory.patient_key }}</h1>
+    <p class="muted">Updated {{ memory.updated_at }} · encounters {{ (memory.summary or {}).encounter_count }}</p>
+  </div>
+  <a class="btn" href="{{ url_for('ckp_longitudinal_home') }}">All memories</a>
+</section>
+<section class="admin-section">
+  <h2>Summary</h2>
+  <pre style="white-space:pre-wrap;">{{ memory.summary }}</pre>
+</section>
+<section class="admin-section">
+  <h2>Timelines</h2>
+  {% for kind, items in (memory.timelines or {}).items() %}
+  <h3>{{ kind }}</h3>
+  <ul>{% for i in items[:30] %}<li>{{ i.at }} · {{ i.code }} · {{ i.polarity }} (s{{ i.session_id }})</li>{% else %}<li class="muted">—</li>{% endfor %}</ul>
+  {% endfor %}
+</section>
+<section class="admin-section">
+  <h2>Baseline / risk / registries</h2>
+  <pre>{{ memory.baseline }}</pre>
+  <pre>{{ memory.risk }}</pre>
+  <pre>{{ memory.registries }}</pre>
+</section>
+{% if compare %}
+<section class="admin-section">
+  <h2>Latest clinical delta</h2>
+  <p>Sessions {{ compare.prior_session_id }} → {{ compare.current_session_id }}</p>
+  <pre>{{ compare.delta }}</pre>
+</section>
+{% endif %}
+<section class="admin-section">
+  <h2>Events</h2>
+  <ul>{% for e in events[:40] %}<li>{{ e.event_kind }} · {{ e.event_code }} · {{ e.polarity }}</li>{% endfor %}</ul>
+</section>
+{% endblock %}

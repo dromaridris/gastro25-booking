@@ -1,0 +1,74 @@
+{
+  "id": "ET_dysphagia",
+  "complaint_code": "CC_dysphagia",
+  "name": "Dysphagia physical examination",
+  "source": {
+    "work": "Bates' Guide to Physical Examination and History Taking",
+    "note": "Exam organization only; findings recorded against dictionary sign codes."
+  },
+  "systems": [
+    {
+      "key": "general",
+      "title": "General appearance & vitals",
+      "finding_ids": [
+        "SG_tachycardia",
+        "SG_hypotension",
+        "SG_fever",
+        "SG_pallor",
+        "SG_dehydration"
+      ],
+      "checklist": [
+        "General distress / toxic appearance",
+        "Vital signs (HR, BP, RR, SpO2, temperature)",
+        "Hydration / mucous membranes",
+        "Pallor / colour"
+      ]
+    },
+    {
+      "key": "oropharynx",
+      "title": "Head, neck & oropharynx",
+      "finding_ids": [
+        "SG_oral_thrush",
+        "SG_oropharyngeal_lesion",
+        "SG_neck_mass",
+        "SG_lymphadenopathy"
+      ],
+      "checklist": [
+        "Oral cavity / oropharynx inspection",
+        "Thyroid / neck mass",
+        "Cervical lymphadenopathy",
+        "Cranial nerve screen relevant to swallowing (IX, X, XII)"
+      ]
+    },
+    {
+      "key": "nutrition",
+      "title": "Nutritional status",
+      "finding_ids": [
+        "SG_dehydration",
+        "SG_pallor"
+      ],
+      "checklist": [
+        "Signs of malnutrition / muscle wasting",
+        "Hydration status"
+      ]
+    },
+    {
+      "key": "chest_abdomen",
+      "title": "Chest & abdomen",
+      "finding_ids": [
+        "SG_reduced_air_entry"
+      ],
+      "checklist": [
+        "Aspiration signs (chest exam)",
+        "Epigastric mass / tenderness"
+      ]
+    }
+  ],
+  "priority_findings": [
+    "SG_oropharyngeal_lesion",
+    "SG_neck_mass"
+  ],
+  "schema_version": 1,
+  "revision": 1,
+  "status": "active"
+}

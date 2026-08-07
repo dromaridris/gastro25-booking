@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Branding{% endblock %}
+{% block content %}
+<section class="dash-head"><h1>White-label branding</h1></section>
+<p class="muted admin-section">Two logos: <strong>hospital</strong> (institute) and <strong>department</strong> (optional — hide either from the top bar when not needed).</p>
+
+<form method="post" enctype="multipart/form-data" class="settings-form admin-section">
+  <label>Site name<input name="site_name" value="{{ branding.site_name }}"></label>
+  <label>Department subtitle<input name="dept_subtitle" value="{{ branding.dept_subtitle }}"></label>
+  <label>Slogan<input name="slogan" value="{{ branding.slogan }}"></label>
+  <label>Primary color<input name="primary_color" type="color" value="{{ branding.primary_color }}"></label>
+  <label>Secondary color<input name="secondary_color" type="color" value="{{ branding.secondary_color }}"></label>
+
+  <fieldset style="margin-top:20px;border:1px solid #ddd;padding:16px;border-radius:8px;">
+    <legend><strong>Hospital logo</strong> (institute / JPMC)</legend>
+    <label style="display:flex;align-items:center;gap:8px;">
+      <input type="checkbox" name="show_hospital_logo" value="1" {{ 'checked' if branding.show_hospital_logo else '' }}>
+      Show hospital logo in top bar
+    </label>
+    {% if branding.hospital_logo_filename %}
+    <p class="muted muted-sm">Current: custom upload · <label style="display:inline;"><input type="checkbox" name="clear_hospital_logo" value="1"> Remove custom (use default JPMC)</label></p>
+    <img src="{{ url_for('gi_branding_asset', kind='hospital') }}" alt="" style="height:48px;object-fit:contain;margin:8px 0;">
+    {% else %}
+    <p class="muted muted-sm">No custom upload — default static logo is used.</p>
+    {% endif %}
+    <label>Upload hospital logo (PNG/JPG/WebP/SVG)<input type="file" name="hospital_logo_file" accept="image/*"></label>
+  </fieldset>
+
+  <fieldset style="margin-top:16px;border:1px solid #ddd;padding:16px;border-radius:8px;">
+    <legend><strong>Department logo</strong> (unit / gastro — optional)</legend>
+    <label style="display:flex;align-items:center;gap:8px;">
+      <input type="checkbox" name="show_department_logo" value="1" {{ 'checked' if branding.show_department_logo else '' }}>
+      Show department logo in top bar
+    </label>
+    {% if branding.logo_filename %}
+    <p class="muted muted-sm">Current: custom upload · <label style="display:inline;"><input type="checkbox" name="clear_department_logo" value="1"> Remove custom (use default dept logo)</label></p>
+    <img src="{{ url_for('gi_branding_asset', kind='department') }}" alt="" style="height:48px;object-fit:contain;margin:8px 0;">
+    {% else %}
+    <p class="muted muted-sm">No custom upload — default department logo is used when shown.</p>
+    {% endif %}
+    <label>Upload department logo<input type="file" name="department_logo_file" accept="image/*"></label>
+  </fieldset>
+
+  <label style="margin-top:16px;">Favicon<input type="file" name="favicon_file" accept="image/*,.ico"></label>
+  <button class="btn btn--primary" type="submit">Save branding</button>
+</form>
+{% endblock %}

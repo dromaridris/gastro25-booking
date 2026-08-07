@@ -1,0 +1,10 @@
+[
+  {"id": "sh-tobacco", "code": "SH_tobacco", "label": "Tobacco use", "entity_type": "social_history", "specialty_tags": ["general"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "sh-alcohol", "code": "SH_alcohol", "label": "Alcohol use", "entity_type": "social_history", "specialty_tags": ["general", "hepatology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "sh-illicit-drugs", "code": "SH_illicit_drugs", "label": "Illicit drug use", "entity_type": "social_history", "specialty_tags": ["general", "psychiatry"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "sh-occupation", "code": "SH_occupation", "label": "Occupation / exposures", "entity_type": "social_history", "specialty_tags": ["general", "occupational"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "sh-living", "code": "SH_living_situation", "label": "Living situation / support", "entity_type": "social_history", "specialty_tags": ["general"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "sh-diet", "code": "SH_diet", "label": "Diet pattern", "entity_type": "social_history", "specialty_tags": ["general", "gastroenterology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "sh-sexual", "code": "SH_sexual_history", "label": "Sexual history (when relevant)", "entity_type": "social_history", "specialty_tags": ["infectious_disease", "general"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "sh-travel", "code": "SH_travel", "label": "Travel history", "entity_type": "social_history", "specialty_tags": ["infectious_disease"], "schema_version": 1, "revision": 1, "status": "active"}
+]

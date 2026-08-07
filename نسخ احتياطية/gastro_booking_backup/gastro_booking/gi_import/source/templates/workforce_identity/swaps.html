@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Duty Swap Requests{% endblock %}
+{% block content %}
+<h1 class="h3">Duty Swap Requests</h1>
+<p><a class="btn btn-primary btn-sm" href="{{ url_for('workforce_identity.request_swap') }}">Request Swap</a></p>
+{% if pending %}
+<h2 class="h5">Pending Approval</h2>
+<table class="table table-sm"><thead><tr><th>Requester</th><th>Reason</th><th></th></tr></thead>
+<tbody>{% for swap in pending %}<tr>
+<td>{{ swap.requesting_user.full_name if swap.requesting_user else swap.requesting_user_id }}</td>
+<td>{{ swap.reason }}</td>
+<td>
+<form method="post" action="{{ url_for('workforce_identity.approve_swap', request_id=swap.id) }}" class="d-inline"><button class="btn btn-sm btn-success">Approve</button></form>
+<form method="post" action="{{ url_for('workforce_identity.reject_swap', request_id=swap.id) }}" class="d-inline"><button class="btn btn-sm btn-outline-secondary">Reject</button></form>
+</td></tr>{% endfor %}</tbody></table>
+{% endif %}
+<h2 class="h5">My Requests</h2>
+<table class="table table-sm"><thead><tr><th>Status</th><th>Reason</th><th>Reviewed</th></tr></thead>
+<tbody>{% for swap in swaps %}<tr><td>{{ swap.status }}</td><td>{{ swap.reason }}</td><td>{{ swap.reviewed_at or '—' }}</td></tr>{% endfor %}</tbody></table>
+{% endblock %}

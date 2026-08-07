@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Assign Endoscopist — Procedure #{{ target.id }}{% endblock %}
+{% block content %}
+<h2>Assign Endoscopist <small class="text-muted">Procedure #{{ target.id }}</small></h2>
+<p class="text-muted">Every assignment and reassignment is recorded in the audit log.</p>
+<form method="POST" class="col-md-6">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        {{ form.endoscopist_id.label(class="form-label") }}
+        {{ form.endoscopist_id(class="form-select") }}
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+</form>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Archive{% endblock %}
+{% block content %}
+<section class="dash-head"><h1>Clinical archive</h1></section>
+
+<div class="btn-row" style="margin-bottom:16px;">
+  <a href="{{ url_for('gi_archive_index') }}" class="btn btn--sm {{ 'btn--primary' if not type_filter else 'btn--outline' }}">All</a>
+  {% for t in record_types %}
+  <a href="{{ url_for('gi_archive_index', type=t) }}" class="btn btn--sm {{ 'btn--primary' if type_filter == t else 'btn--outline' }}">{{ t|title }}</a>
+  {% endfor %}
+</div>
+
+<form method="post" action="{{ url_for('gi_archive_create') }}" enctype="multipart/form-data" class="settings-form admin-section">
+  <h2>Archive record</h2>
+  <label>Title<input name="title" required></label>
+  <label>Type
+    <select name="record_type">{% for t in record_types %}<option value="{{ t }}">{{ t|title }}</option>{% endfor %}</select>
+  </label>
+  <label>Source module<input name="source_module" value="manual"></label>
+  <label>Summary<textarea name="summary" rows="2"></textarea></label>
+  <label>File<input type="file" name="archive_file"></label>
+  <button class="btn btn--primary" type="submit">Archive</button>
+</form>
+
+<div class="admin-table-scroll"><table class="admin-table">
+  <thead><tr><th>Title</th><th>Type</th><th>Module</th><th>Archived</th><th></th></tr></thead>
+  <tbody>
+    {% for r in records %}
+    <tr>
+      <td>{{ r.title }}</td>
+      <td>{{ r.record_type }}</td>
+      <td>{{ r.source_module }}</td>
+      <td>{{ r.archived_at }} · {{ r.archived_by_name or '—' }}</td>
+      <td>
+        {% if r.stored_path %}
+        <a href="{{ url_for('gi_archive_download', record_id=r.id) }}" class="btn btn--sm btn--outline">Download</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="muted">No archive records.</td></tr>
+    {% endfor %}
+  </tbody>
+</table></div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Calendar hub{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>Calendar hub</h1>
+    <p class="muted">Bookings · roster duties · education · custom events</p>
+  </div>
+</section>
+
+<form method="get" class="settings-form admin-section" style="display:flex;gap:12px;flex-wrap:wrap;align-items:end;">
+  <label>From<input type="date" name="from" value="{{ from_date }}"></label>
+  <label>To<input type="date" name="to" value="{{ to_date }}"></label>
+  <button class="btn btn--outline btn--sm" type="submit">Filter</button>
+</form>
+
+{% for day in sorted_days %}
+<section class="admin-section">
+  <h2>{{ day }}</h2>
+  <ul class="compact-list">
+    {% for ev in grouped[day] %}
+    <li>
+      <span class="muted">[{{ ev.event_type }}]</span>
+      {% if ev.link_url %}<a href="{{ ev.link_url }}">{{ ev.title }}</a>{% else %}{{ ev.title }}{% endif %}
+      {% if ev.meta %}<span class="muted"> — {{ ev.meta }}</span>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% else %}
+<p class="muted admin-section">No events in this range.</p>
+{% endfor %}
+
+{% if current_user.role in ['admin','hod','specialist','consultant'] %}
+<form method="post" action="{{ url_for('gi_calendar_hub_add_event') }}" class="settings-form admin-section">
+  <h2>Add custom event</h2>
+  <label>Title<input name="title" required></label>
+  <label>Date<input type="date" name="event_date" required></label>
+  <label>Type<input name="event_type" value="general"></label>
+  <label>Description<textarea name="description" rows="2"></textarea></label>
+  <label>Link URL<input name="link_url"></label>
+  <button class="btn btn--primary" type="submit">Add event</button>
+</form>
+{% endif %}
+{% endblock %}

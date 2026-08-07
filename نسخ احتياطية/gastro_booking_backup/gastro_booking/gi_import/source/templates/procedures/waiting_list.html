@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Waiting List — GastroIntelligence{% endblock %}
+{% block content %}
+<h2>Waiting List</h2>
+<table class="table table-striped">
+    <thead>
+        <tr><th>When</th><th>Patient</th><th>Type</th><th>Priority</th><th></th></tr>
+    </thead>
+    <tbody>
+        {% for p in procedures %}
+        <tr>
+            <td>{{ p.appointment.scheduled_at.strftime("%Y-%m-%d %H:%M") }}</td>
+            <td>{{ p.patient.full_name }} <small class="text-muted">{{ p.patient.mrn }}</small></td>
+            <td>{{ p.procedure_type.name }}{% if p.procedure_type.requires_special_authorization %} <span class="badge bg-warning text-dark">Special Authorization</span>{% endif %}</td>
+            <td><span class="badge bg-info text-dark">{{ p.priority.title() }}</span></td>
+            <td><a href="{{ url_for('procedures.view_procedure', procedure_id=p.id) }}">View</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="text-muted">The waiting list is empty.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

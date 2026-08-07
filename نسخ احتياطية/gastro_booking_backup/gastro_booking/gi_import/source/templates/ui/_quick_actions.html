@@ -1,0 +1,19 @@
+{# Permission-based quick actions — plain labels for clinical staff #}
+{% if gi_quick_actions %}
+<section class="gi-quick-actions mb-4" aria-label="Quick actions">
+    <h2 class="h6 text-muted text-uppercase fw-semibold mb-3">What you can do now</h2>
+    <div class="row g-3">
+        {% for action in gi_quick_actions %}
+        <div class="col-sm-6 col-lg-4">
+            <a href="{{ url_for(action.endpoint, **(action.url_kwargs or {})) }}" class="gi-action-tile gi-card">
+                {% if action.icon %}
+                <div class="gi-action-tile-icon gi-action-tile-icon--patients" aria-hidden="true">{{ action.icon }}</div>
+                {% endif %}
+                <h3 class="h6 mb-1">{{ action.label }}</h3>
+                <p class="small text-muted mb-0">{{ action.description }}</p>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}

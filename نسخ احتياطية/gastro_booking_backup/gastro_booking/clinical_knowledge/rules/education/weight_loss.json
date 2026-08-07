@@ -1,0 +1,69 @@
+{
+  "complaint_code": "CC_weight_loss",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Unintentional weight loss history structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Confirm the loss is genuinely unintentional and quantify amount and timeframe (>5% body weight over 6-12 months is a widely used threshold for concern).",
+        "A full systems review is essential — GI, endocrine, psychiatric, and malignancy causes can all present this way.",
+        "Night sweats, fevers, and lymphadenopathy point toward malignancy or chronic infection."
+      ],
+      "linked_questions": [
+        "Q000020",
+        "Q000018",
+        "Q000091"
+      ]
+    },
+    {
+      "id": "EDU_alarm",
+      "title": "Weight loss red flags",
+      "trigger": {
+        "any_sign_present": [
+          "SG_lymphadenopathy",
+          "SG_abdominal_mass"
+        ]
+      },
+      "points": [
+        "Unintentional weight loss with a palpable mass or lymphadenopathy should be treated as malignancy-suspicious until investigated.",
+        "Combine with age-appropriate cancer screening history."
+      ]
+    }
+  ],
+  "question_coaching": {
+    "Q000020": {
+      "why_ask": "Loss of appetite alongside weight loss helps distinguish reduced intake from increased losses/metabolic demand.",
+      "listen_for": [
+        "True anorexia vs early satiety vs avoiding food due to pain"
+      ],
+      "think": "Early satiety with weight loss raises concern for a gastric outlet or infiltrative process."
+    },
+    "Q000018": {
+      "why_ask": "Night sweats and fevers alongside weight loss are a classic 'B symptoms' pattern.",
+      "listen_for": [
+        "Drenching night sweats vs mild"
+      ],
+      "think": "This combination raises lymphoma and chronic infection (e.g. TB) on the differential."
+    }
+  },
+  "answer_triggers": [
+    {
+      "id": "AT_b_symptoms",
+      "question_id": "Q000018",
+      "title": "Unlocked: B-symptoms pattern",
+      "points": [
+        "Consider lymphoma and chronic infection alongside GI malignancy.",
+        "Examine specifically for lymphadenopathy and hepatosplenomegaly."
+      ],
+      "answer_in": [
+        "yes"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}M&amp;M cases{% endblock %}
+{% block content %}
+<div class="page-compact">
+<p>{% if nav.can_see_governance(current_user.role) %}<a href="{{ url_for('gi_governance_dashboard') }}">← Governance</a>{% else %}<a href="{{ url_for('dashboard') }}">← Booking</a>{% endif %} · <a href="{{ url_for('gi_gov_journal_club') }}">Journal club →</a></p>
+<h1>Mortality &amp; Morbidity</h1>
+{% include "_module_intro.html" %}
+
+{% if can_assign_training %}
+<section class="admin-section compact-section">
+<h2>Schedule M&amp;M case</h2>
+<form method="POST" class="settings-form">
+  <label>Presentation date<input type="date" name="presentation_date"></label>
+  <label>MRN<input name="mrn"></label>
+  <label>Patient<input name="patient_name"></label>
+  <label>Case summary<textarea name="case_summary" rows="5" required></textarea></label>
+  <label class="checkbox-row"><input type="checkbox" name="is_important" value="1"> Important case (training priority)</label>
+  <label>Training route / learning objective<input name="training_route" placeholder="e.g. ERCP cannulation failure review"></label>
+  <label>Presenters <span class="label-hint">@username, comma-separated</span>
+    <input name="presenter_usernames" class="user-mention-input" placeholder="@omar,@abdulsamad"></label>
+  <label>Assigned trainees <span class="label-hint">@username</span>
+    <input name="assigned_usernames" class="user-mention-input" placeholder="@trainee1,@trainee2"></label>
+  <button class="btn btn--primary" type="submit">Add case</button>
+</form>
+</section>
+{% endif %}
+
+<section class="admin-section compact-section">
+<h2>Scheduled cases</h2>
+<ul class="compact-list">{% for c in cases %}
+<li>
+  {% if c.is_important %}<strong>★ Important</strong> · {% endif %}
+  <strong>{{ c.case_summary[:80] }}{% if c.case_summary|length > 80 %}…{% endif %}</strong>
+  · {{ c.status }} · {{ c.presentation_date or '—' }}
+  {% if c.training_route %}<br><span class="muted">Route: {{ c.training_route }}</span>{% endif %}
+  {% if c.presenter_usernames %}<br><span class="muted">Presenters: {{ c.presenter_usernames }}</span>{% endif %}
+  {% if c.assigned_usernames %}<br><span class="muted">Assigned: {{ c.assigned_usernames }}</span>{% endif %}
+</li>
+{% else %}<li class="muted">No cases.</li>{% endfor %}</ul>
+</section>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/user_mentions.js') }}"></script>{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Import manager{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>Import manager</h1>
+    {% include "_module_intro.html" %}
+    <p class="muted">Upload PDF clinical documents into the Knowledge Library.</p>
+  </div>
+  <a href="{{ url_for('gi_knowledge_review') }}" class="btn btn--outline btn--sm">Review queue →</a>
+</section>
+
+<div class="admin-section" style="margin-bottom:20px;">
+  <h2 style="margin-top:0;font-size:16px;">How it works</h2>
+  <ol style="margin:0;padding-left:20px;line-height:1.7;font-size:14px;">
+    <li><strong>Upload PDF</strong> — choose the file and click Run import job. Text is extracted automatically (native PDF text; OCR for scanned pages when pytesseract is installed).</li>
+    <li><strong>Staged for review</strong> — the system creates a Knowledge Library entry (status: <em>review</em>) with extracted text preview. The file is saved on the server.</li>
+    <li><strong>Approve</strong> — open <a href="{{ url_for('gi_knowledge_review') }}">Review queue</a>, check the content, then click <em>Approve &amp; publish</em>.</li>
+  </ol>
+  <p class="muted" style="margin:12px 0 0;font-size:13px;">
+    Status <strong>done</strong> means the file was uploaded and queued for review — it is <em>not</em> published yet.
+  </p>
+</div>
+
+<form method="POST" action="{{ url_for('gi_import_create_job') }}" class="settings-form" enctype="multipart/form-data">
+  <label>Job type
+    <select name="job_type">
+      <option value="knowledge_import">Knowledge import — PDF guideline / clinical document</option>
+      <option value="catalogue_refresh">Refresh catalogue from bundled GI definitions</option>
+    </select>
+  </label>
+  <label>Upload PDF file <span class="muted">(required for knowledge import)</span>
+    <input type="file" name="upload_file" accept=".pdf,.txt,.json">
+  </label>
+  <label>Or filename reference only <span class="muted">(no file stored — metadata only)</span>
+    <input name="filename" placeholder="e.g. BSG_UGIB_2021.pdf">
+  </label>
+  <button class="btn btn--primary" type="submit">Run import job</button>
+</form>
+
+<h2 style="margin-top:28px;">Recent import jobs</h2>
+<div class="admin-table-scroll"><table class="admin-table">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Type</th>
+      <th>Status</th>
+      <th>File</th>
+      <th>When</th>
+      <th>Result</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in jobs %}
+    {% set j = row.job %}
+    {% set s = row.summary %}
+    <tr>
+      <td>{{ j.id }}</td>
+      <td>{{ j.job_type }}</td>
+      <td>
+        <span class="badge {% if j.status == 'done' %}badge--muted{% elif j.status == 'failed' %}{% endif %}"
+              style="{% if j.status == 'done' %}background:var(--green);{% elif j.status == 'failed' %}background:var(--red);{% endif %}">
+          {{ status_labels.get(j.status, j.status) }}
+        </span>
+      </td>
+      <td>{{ j.filename or '—' }}</td>
+      <td style="font-size:12px;white-space:nowrap;">{{ (j.created_at or '')[:16].replace('T', ' ') }}</td>
+      <td style="font-size:13px;max-width:360px;">
+        {% if j.status == 'failed' %}
+          <span style="color:var(--red);">{{ j.error_text or 'Import failed.' }}</span>
+        {% elif s.object_id %}
+          <strong>{{ s.title or s.slug }}</strong><br>
+          <span class="muted">Type: {{ s.object_type }} · Status: {{ s.status }}</span>
+          {% if s.extraction_method and s.extraction_method != 'none' %}
+          <br><span class="muted">Extracted: {{ s.char_count or 0 }} chars ({{ s.extraction_method }})</span>
+          {% endif %}
+          <br>
+          {% if s.message %}<span>{{ s.message }}</span>{% elif s.message_en %}<span>{{ s.message_en }}</span>{% endif %}
+        {% elif s.message or s.message_en %}
+          {{ s.message or s.message_en }}
+        {% else %}
+          <span class="muted">—</span>
+        {% endif %}
+      </td>
+      <td style="white-space:nowrap;">
+        {% if s.object_id %}
+          <a class="btn btn--sm btn--primary" href="{{ url_for('gi_knowledge_detail', object_id=s.object_id) }}">Open</a>
+          <a class="btn btn--sm btn--outline" href="{{ url_for('gi_knowledge_review') }}">Review</a>
+        {% endif %}
+        {% if row.has_file %}
+          <a class="btn btn--sm btn--ghost" href="{{ url_for('gi_import_download', job_id=j.id) }}">PDF</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7" class="muted">No import jobs yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table></div>
+{% endblock %}

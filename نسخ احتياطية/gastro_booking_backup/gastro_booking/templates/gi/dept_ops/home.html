@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Unit Operations{% endblock %}
+{% block content %}
+<h1>Unit Operations</h1>
+<p class="muted">Endoscopy unit dashboard — rooms, scopes, waiting list, and supplies.</p>
+{% include "gi/dept_ops/_nav.html" %}
+
+{% if alerts %}
+<section class="admin-section compact-section">
+  <h2>Alerts</h2>
+  <ul class="alert-list">
+    {% for a in alerts %}
+    <li class="alert alert--{{ a.level }}">{{ a.title }}: {{ a.message }}</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<div class="stat-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:0.75rem;margin:1rem 0;">
+  <div class="admin-section compact-section"><strong>Rooms</strong><br>{{ rooms_occupied }}/{{ rooms_total }} occupied</div>
+  <div class="admin-section compact-section"><strong>Today</strong><br>{{ today_procedure_count }} booked</div>
+  <div class="admin-section compact-section"><strong>Expected</strong><br>{{ today_completed_count }} (non no-show)</div>
+  <div class="admin-section compact-section"><strong>Scopes ready</strong><br>{{ scopes_available }}</div>
+  <div class="admin-section compact-section"><strong>Awaiting clean</strong><br>{{ scopes_awaiting_cleaning }}</div>
+  <div class="admin-section compact-section"><strong>WL pressure</strong><br>{{ waiting_pressure }}</div>
+</div>
+
+<section class="admin-section compact-section">
+  <h2>Room board</h2>
+  <table class="admin-table compact-table">
+    <thead><tr><th>Room</th><th>Type</th><th>Status</th><th>Patient</th></tr></thead>
+    <tbody>
+      {% for r in rooms %}
+      <tr>
+        <td>{{ r.name }}</td>
+        <td>{{ r.room_type }}</td>
+        <td><span class="badge">{{ r.status }}</span></td>
+        <td>{{ r.appt_patient or '—' }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="muted">No rooms configured.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="admin-section compact-section">
+  <h2>Waiting list</h2>
+  <p>Active: {{ waiting_list.active_count }} · Urgent: {{ waiting_list.urgent_count }} · Delayed: {{ waiting_list.delayed_count }}</p>
+</section>
+
+{% if low_stock %}
+<section class="admin-section compact-section">
+  <h2>Low stock</h2>
+  <ul>{% for i in low_stock %}<li>{{ i.name }} — {{ i.current_stock }} {{ i.unit }}</li>{% endfor %}</ul>
+</section>
+{% endif %}
+
+{% if announcements %}
+<section class="admin-section compact-section">
+  <h2>Recent announcements</h2>
+  {% for a in announcements %}
+  <article style="margin-bottom:0.75rem;"><strong>{{ a.title }}</strong><br><span class="muted">{{ a.created_at }}</span><p>{{ a.body }}</p></article>
+  {% endfor %}
+</section>
+{% endif %}
+{% endblock %}

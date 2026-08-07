@@ -1,0 +1,97 @@
+{
+  "complaint_code": "CC_constipation",
+  "schema_version": 1,
+  "revision": 1,
+  "min_history_answers_for_dx": 5,
+  "min_confidence_to_list_dx": 0.45,
+  "description": "Starter reasoning pack for CC_constipation (practical, not Sleisenger-complete).",
+  "patterns": [
+    {
+      "id": "PAT_const_obstruction",
+      "label": "Obstipation / obstruction alarm",
+      "diagnosis_code": "DX_constipation_obstruction_suspect",
+      "diagnosis_label": "Possible obstruction (suspect)",
+      "weight_sum_required": 1.5,
+      "criteria": [
+        {
+          "kind": "answer",
+          "question_id": "Q000045",
+          "op": "truthy",
+          "weight": 1.3,
+          "finding": "Inability to pass stool/gas"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000022",
+          "op": "truthy",
+          "weight": 0.6,
+          "finding": "Vomiting"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000073",
+          "op": "truthy",
+          "weight": 0.7,
+          "finding": "Severe pain"
+        }
+      ],
+      "suggested_questions": [
+        "Q000025",
+        "Q000035"
+      ],
+      "suggested_exam": [
+        "SG_rigidity",
+        "SG_rebound_tenderness"
+      ],
+      "suggested_investigations": [
+        "IX_ct_abdomen",
+        "IX_cbc"
+      ]
+    },
+    {
+      "id": "PAT_const_alarm_colon",
+      "label": "Constipation with colorectal alarms",
+      "diagnosis_code": "DX_constipation_alarm_suspect",
+      "diagnosis_label": "Constipation with alarms (suspect)",
+      "weight_sum_required": 1.3,
+      "criteria": [
+        {
+          "kind": "answer",
+          "question_id": "Q000019",
+          "op": "truthy",
+          "weight": 0.9,
+          "finding": "Weight loss"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000035",
+          "op": "truthy",
+          "weight": 0.9,
+          "finding": "Rectal bleeding"
+        }
+      ],
+      "suggested_questions": [
+        "Q000045"
+      ],
+      "suggested_exam": [
+        "SG_abdominal_mass"
+      ],
+      "suggested_investigations": [
+        "IX_cbc",
+        "IX_colonoscopy"
+      ]
+    }
+  ],
+  "missing_info_rules": [
+    {
+      "id": "need_obstipation",
+      "if_unanswered": [
+        "Q000045"
+      ],
+      "message": "Ask about gas/stool passage",
+      "next_questions": [
+        "Q000045"
+      ]
+    }
+  ]
+}

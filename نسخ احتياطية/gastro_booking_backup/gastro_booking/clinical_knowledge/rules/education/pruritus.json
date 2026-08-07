@@ -1,0 +1,26 @@
+{
+  "complaint_code": "CC_pruritus",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Itching (pruritus) history — structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Pruritus is a symptom. Cholestasis is a pathway you may reach after jaundice/dark urine/pale stool clustering — not the complaint label.",
+        "Ask about distribution, night predominance, and biliary/hepatic companion symptoms."
+      ],
+      "linked_questions": [
+        "Q000029",
+        "Q000026",
+        "Q000027"
+      ]
+    }
+  ],
+  "question_coaching": {},
+  "answer_triggers": []
+}

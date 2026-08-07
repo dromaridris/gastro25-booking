@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Add Medication — Encounter #{{ encounter.id }}{% endblock %}
+{% block content %}
+<h2>Add Medication Entry</h2>
+<p class="text-muted">Encounter #{{ encounter.id }}</p>
+<form method="POST" class="col-md-8">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        {{ form.catalogue_item_id.label(class="form-label") }}
+        {{ form.catalogue_item_id(class="form-select") }}
+    </div>
+    <div class="mb-3">
+        {{ form.entry_type.label(class="form-label") }}
+        {{ form.entry_type(class="form-select") }}
+    </div>
+    <div class="row">
+        <div class="col-md-4 mb-3">{{ form.dose_text.label(class="form-label") }}{{ form.dose_text(class="form-control") }}</div>
+        <div class="col-md-4 mb-3">{{ form.route.label(class="form-label") }}{{ form.route(class="form-control") }}</div>
+        <div class="col-md-4 mb-3">{{ form.frequency_text.label(class="form-label") }}{{ form.frequency_text(class="form-control") }}</div>
+    </div>
+    <div class="mb-3">{{ form.started_on.label(class="form-label") }}{{ form.started_on(class="form-control", type="date") }}</div>
+    <div class="mb-3">{{ form.indication.label(class="form-label") }}{{ form.indication(class="form-control", rows=2) }}</div>
+    <div class="mb-3">{{ form.notes.label(class="form-label") }}{{ form.notes(class="form-control", rows=2) }}</div>
+    {{ form.submit(class="btn btn-primary") }}
+    {{ form.save_as_draft(class="btn btn-outline-secondary") }}
+    <a href="{{ url_for('medications.list_encounter_medications', encounter_id=encounter.id) }}" class="btn btn-link">Cancel</a>
+</form>
+{% endblock %}

@@ -1,0 +1,113 @@
+{
+  "id": "HT_hematemesis",
+  "complaint_code": "CC_hematemesis",
+  "name": "Blood in vomitus (hematemesis) history",
+  "synonyms": [
+    "Vomiting blood",
+    "Coffee-ground vomiting",
+    "Coffee-ground emesis",
+    "Bloody vomit",
+    "Blood in vomitus"
+  ],
+  "body_system": "abdomen",
+  "source": {
+    "work": "Bates' Guide to Physical Examination and History Taking",
+    "note": "Structure for history-taking only; not for disease extraction."
+  },
+  "red_flag_question_ids": [
+    "Q000107",
+    "Q000038",
+    "Q000034",
+    "Q000035",
+    "Q000075",
+    "Q000077"
+  ],
+  "sections": [
+    {
+      "key": "hpi_core",
+      "title": "HPI — core characteristics",
+      "question_ids": [
+        "Q000001",
+        "Q000002",
+        "Q000003",
+        "Q000004",
+        "Q000005",
+        "Q000107",
+        "Q000108",
+        "Q000109",
+        "Q000095",
+        "Q000110",
+        "Q000093",
+        "Q000094"
+      ]
+    },
+    {
+      "key": "associated",
+      "title": "Associated symptoms",
+      "question_ids": [
+        "Q000021",
+        "Q000022",
+        "Q000042",
+        "Q000030",
+        "Q000120",
+        "Q000038",
+        "Q000037",
+        "Q000039",
+        "Q000020",
+        "Q000019"
+      ]
+    },
+    {
+      "key": "red_flags",
+      "title": "Alarm / red flags",
+      "question_ids": [
+        "Q000107",
+        "Q000038",
+        "Q000034",
+        "Q000035",
+        "Q000075",
+        "Q000019",
+        "Q000077"
+      ]
+    },
+    {
+      "key": "risk_context",
+      "title": "Risk factors & exposures",
+      "question_ids": [
+        "Q000096",
+        "Q000098",
+        "Q000053"
+      ]
+    },
+    {
+      "key": "background",
+      "title": "PMH / PSH / meds / allergies / FH / SH",
+      "question_ids": [
+        "Q000078",
+        "Q000079",
+        "Q000080",
+        "Q000081",
+        "Q000082",
+        "Q000083",
+        "Q000084",
+        "Q000085",
+        "Q000086",
+        "Q000087",
+        "Q000088",
+        "Q000089",
+        "Q000090",
+        "Q000091"
+      ]
+    }
+  ],
+  "associated_complaint_codes": [
+    "CC_melena",
+    "CC_hematochezia",
+    "CC_abdominal_pain",
+    "CC_vomiting",
+    "CC_dyspnea"
+  ],
+  "schema_version": 1,
+  "revision": 3,
+  "status": "active"
+}

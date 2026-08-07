@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{% if mode == "create" %}New User{% else %}Edit User{% endif %} — GastroIntelligence{% endblock %}
+{% block content %}
+<h2>{% if mode == "create" %}New User{% else %}Edit User: {{ target.full_name }}{% endif %}</h2>
+<form method="POST" class="col-md-6">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        {{ form.full_name.label(class="form-label") }}
+        {{ form.full_name(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.email.label(class="form-label") }}
+        {{ form.email(class="form-control") }}
+    </div>
+    {% if mode == "create" %}
+    <div class="mb-3">
+        {{ form.password.label(class="form-label") }}
+        {{ form.password(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.role.label(class="form-label") }}
+        {{ form.role(class="form-select") }}
+    </div>
+    {% endif %}
+    {{ form.submit(class="btn btn-primary") }}
+</form>
+{% endblock %}

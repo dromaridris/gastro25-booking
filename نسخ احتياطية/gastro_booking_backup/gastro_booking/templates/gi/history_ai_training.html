@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}History AI Training (legacy){% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>History AI Training <span class="badge">legacy{% if writes_frozen %} · read-only{% endif %}</span></h1>
+    <p class="muted">Teach the legacy guided-history / ward adaptive engines. Prefer Clinical Intelligence JSON knowledge for new Bates-style history.</p>
+  </div>
+  <div class="btn-row">
+    <a class="btn btn--primary btn--sm" href="{{ url_for('ci_home') }}">Clinical Intelligence</a>
+    <a class="btn btn--outline btn--sm" href="{{ url_for('gi_history_templates') }}">History Templates (legacy)</a>
+  </div>
+</section>
+
+<div class="compact-card" style="margin-bottom:14px;border-left:3px solid #b45309;padding-left:12px;">
+  <p style="margin:0 0 6px;"><strong>{% if writes_frozen %}Writes frozen.{% else %}Legacy admin.{% endif %}</strong>
+    This UI feeds <code>gi_guided_history_*</code> and catalogue questions — not
+    <code>clinical_knowledge/</code>. See <code>clinical_intelligence/HISTORY_MIGRATION.md</code>.
+    {% if writes_frozen %}Existing data is preserved for read. Emergency override:
+    <code>GASTRO_ALLOW_LEGACY_HISTORY_WRITES=1</code>.{% endif %}</p>
+</div>
+
+{% if not writes_frozen %}
+<div class="admin-grid">
+  <section class="admin-section">
+    <h2>Add question</h2>
+    <form method="POST" action="{{ url_for('gi_history_ai_training_add_question') }}" class="settings-form">
+      <label>Question ID<input name="question_id" required placeholder="gh.dist.onset"></label>
+      <label>Question text<textarea name="question_text" rows="2" required></textarea></label>
+      <label>Category<select name="category">{% for c in categories %}<option value="{{ c }}">{{ c|replace('_',' ')|title }}</option>{% endfor %}</select></label>
+      <label>Type<select name="question_type">{% for t in question_types %}<option value="{{ t }}">{{ t }}</option>{% endfor %}</select></label>
+      <label>Answer options (comma-separated)<input name="answer_options" placeholder="Yes, No"></label>
+      <label>Priority<input name="priority" type="number" value="100"></label>
+      <label>Clinical purpose<input name="clinical_purpose" placeholder="Why this question matters"></label>
+      <label><input type="checkbox" name="is_required" value="1"> Required</label>
+      <label>Branching rules (JSON)
+        <textarea name="conditional_rules_json" rows="3" placeholder='{"show_when":[{"question_id":"gh.q.severity","answer_in":["Moderate","Severe"]}]}'></textarea>
+      </label>
+      <button class="btn btn--primary" type="submit">Create question</button>
+    </form>
+  </section>
+
+  <section class="admin-section">
+    <h2>Link question to symptom</h2>
+    <form method="POST" action="{{ url_for('gi_history_ai_training_add_rule') }}" class="settings-form">
+      <label>Symptom / complaint<select name="complaint_code">{% for c in complaints %}<option value="{{ c.code }}" {% if c.code == complaint_code %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select></label>
+      <label>Question<select name="question_id">{% for q in questions %}<option value="{{ q.question_id }}">{{ q.question_id }} — {{ q.question_text[:60] }}</option>{% endfor %}</select></label>
+      <label>Sort order<input name="sort_order" type="number" value="100"></label>
+      <label>Activation rules (JSON)
+        <textarea name="activation_rules_json" rows="3" placeholder='{"show_when":[{"question_id":"gh.dist.pain","answer_equals":"yes"}]}'></textarea>
+      </label>
+      <button class="btn btn--primary" type="submit">Link to symptom</button>
+    </form>
+  </section>
+</div>
+{% endif %}
+
+<section class="admin-section">
+  <h2>Questions catalogue ({{ questions|length }})</h2>
+  <form method="GET" class="settings-form inline-form">
+    <input name="q" value="{{ request.args.get('q','') }}" placeholder="Search questions">
+    <button class="btn btn--sm btn--outline" type="submit">Search</button>
+  </form>
+  {% for q in questions %}
+  <details class="compact-card" style="margin-bottom:8px;">
+    <summary><strong>{{ q.question_id }}</strong> — {{ q.question_text }}</summary>
+    {% if writes_frozen %}
+    <div class="settings-form" style="opacity:0.9;">
+      <p class="muted" style="margin:8px 0;">Category: {{ q.category }} · Type: {{ q.question_type }} · Priority: {{ q.priority }}</p>
+      {% if q.clinical_purpose %}<p>{{ q.clinical_purpose }}</p>{% endif %}
+      {% if q.answer_options %}<p>Options: {{ q.answer_options|join(', ') }}</p>{% endif %}
+    </div>
+    {% else %}
+    <form method="POST" action="{{ url_for('gi_history_ai_training_update_question', question_id=q.question_id) }}" class="settings-form">
+      <label>Text<textarea name="question_text" rows="2">{{ q.question_text }}</textarea></label>
+      <label>Category<select name="category">{% for c in categories %}<option value="{{ c }}" {% if c == q.category %}selected{% endif %}>{{ c|replace('_',' ')|title }}</option>{% endfor %}</select></label>
+      <label>Type<select name="question_type">{% for t in question_types %}<option value="{{ t }}" {% if t == q.question_type %}selected{% endif %}>{{ t }}</option>{% endfor %}</select></label>
+      <label>Options<input name="answer_options" value="{{ q.answer_options|join(', ') }}"></label>
+      <label>Priority<input name="priority" type="number" value="{{ q.priority }}"></label>
+      <label>Purpose<input name="clinical_purpose" value="{{ q.clinical_purpose }}"></label>
+      <label><input type="checkbox" name="is_required" value="1" {% if q.is_required %}checked{% endif %}> Required</label>
+      <label>Branching JSON<textarea name="conditional_rules_json" rows="3">{{ q.conditional_rules|tojson }}</textarea></label>
+      <div class="btn-row">
+        <button class="btn btn--primary btn--sm" type="submit" name="action" value="save">Save</button>
+        <button class="btn btn--outline btn--sm" type="submit" name="action" value="delete" onclick="return confirm('Delete this question?')">Delete</button>
+      </div>
+    </form>
+    {% endif %}
+  </details>
+  {% endfor %}
+</section>
+
+<section class="admin-section">
+  <h2>Rules for {{ complaint_code or 'symptom' }}</h2>
+  <form method="GET" class="settings-form inline-form">
+    <select name="complaint" onchange="this.form.submit()">{% for c in complaints %}<option value="{{ c.code }}" {% if c.code == complaint_code %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select>
+  </form>
+  {% if rules %}
+  <table class="data-table">
+    <thead><tr><th>Order</th><th>Question</th><th>Activation</th><th></th></tr></thead>
+    <tbody>
+    {% for r in rules %}
+    <tr>
+      <td>{{ r.sort_order }}</td>
+      <td>{{ r.question_id }} — {{ r.question_text }}</td>
+      <td><code>{{ r.activation_rules|tojson }}</code></td>
+      <td>
+        {% if not writes_frozen %}
+        <form method="POST" action="{{ url_for('gi_history_ai_training_delete_rule', rule_id=r.id) }}">
+          <input type="hidden" name="complaint_code" value="{{ complaint_code }}">
+          <button class="btn btn--sm btn--outline" type="submit">Remove</button>
+        </form>
+        {% else %}—{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No trained questions linked to this symptom yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

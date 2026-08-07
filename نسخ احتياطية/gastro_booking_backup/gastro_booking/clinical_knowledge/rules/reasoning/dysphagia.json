@@ -1,0 +1,86 @@
+{
+  "complaint_code": "CC_dysphagia",
+  "schema_version": 1,
+  "revision": 1,
+  "min_history_answers_for_dx": 5,
+  "min_confidence_to_list_dx": 0.45,
+  "description": "Starter reasoning pack for CC_dysphagia (practical, not Sleisenger-complete).",
+  "patterns": [
+    {
+      "id": "PAT_dys_impaction",
+      "label": "Food impaction / obstructive dysphagia",
+      "diagnosis_code": "DX_food_impaction_suspect",
+      "diagnosis_label": "Food impaction / obstructive dysphagia (suspect)",
+      "weight_sum_required": 1.2,
+      "criteria": [
+        {
+          "kind": "answer",
+          "question_id": "Q000031",
+          "op": "truthy",
+          "weight": 0.8,
+          "finding": "Dysphagia"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000058",
+          "op": "truthy",
+          "weight": 1.0,
+          "finding": "Food impaction"
+        }
+      ],
+      "suggested_questions": [
+        "Q000019",
+        "Q000033"
+      ],
+      "suggested_exam": [],
+      "suggested_investigations": [
+        "IX_upper_endoscopy"
+      ]
+    },
+    {
+      "id": "PAT_dys_alarm",
+      "label": "Dysphagia with red flags",
+      "diagnosis_code": "DX_dysphagia_alarm_suspect",
+      "diagnosis_label": "Dysphagia with alarms (suspect)",
+      "weight_sum_required": 1.3,
+      "criteria": [
+        {
+          "kind": "answer",
+          "question_id": "Q000019",
+          "op": "truthy",
+          "weight": 1.0,
+          "finding": "Weight loss"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000033",
+          "op": "truthy",
+          "weight": 0.8,
+          "finding": "Hematemesis"
+        }
+      ],
+      "suggested_questions": [
+        "Q000058"
+      ],
+      "suggested_exam": [
+        "SG_pallor"
+      ],
+      "suggested_investigations": [
+        "IX_upper_endoscopy",
+        "IX_cbc"
+      ]
+    }
+  ],
+  "missing_info_rules": [
+    {
+      "id": "need_impaction",
+      "if_unanswered": [
+        "Q000058"
+      ],
+      "message": "Ask about food impaction",
+      "next_questions": [
+        "Q000058"
+      ]
+    }
+  ]
+}

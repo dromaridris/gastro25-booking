@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Unit roster{% endblock %}
+{% block content %}
+<h1>Endoscopy unit roster</h1>
+{% include "gi/dept_ops/_nav.html" %}
+<p class="muted">Daily endoscopy unit assignments — separate from PG/HO on-call roster.</p>
+
+{% if can_manage %}
+<section class="admin-section compact-section">
+  <h2>Set assignment</h2>
+  <form method="POST" class="form-grid">
+    <label>Staff
+      <select name="user_id" required>{% for u in staff %}<option value="{{ u.id }}">{{ u.username }} ({{ u.role }})</option>{% endfor %}</select>
+    </label>
+    <label>Date <input name="roster_date" type="date" required></label>
+    <label>Shift <select name="shift_type">{% for s in shift_types %}<option value="{{ s }}">{{ s }}</option>{% endfor %}</select></label>
+    <label><input type="checkbox" name="is_on_call" value="1"> On call</label>
+    <label>Notes <input name="notes"></label>
+    <button class="btn btn--primary" type="submit">Save</button>
+  </form>
+</section>
+{% endif %}
+
+<section class="admin-section compact-section">
+  <table class="admin-table compact-table">
+    <thead><tr><th>Date</th><th>Staff</th><th>Shift</th><th>On call</th><th>Notes</th></tr></thead>
+    <tbody>
+      {% for r in roster %}
+      <tr>
+        <td>{{ r.roster_date }}</td>
+        <td>{{ r.full_name or r.username }}</td>
+        <td>{{ r.shift_type }}</td>
+        <td>{{ 'Yes' if r.is_on_call else '—' }}</td>
+        <td>{{ r.notes or '—' }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="muted">No roster entries this week.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

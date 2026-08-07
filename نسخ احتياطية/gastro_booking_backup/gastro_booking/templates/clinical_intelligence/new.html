@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}New CI encounter{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>New encounter</h1>
+    <p class="muted">Canonical structured history — Clinical Intelligence History Engine (JSON knowledge)</p>
+  </div>
+  <a class="btn btn--outline btn--sm" href="{{ url_for('ci_home') }}">Back</a>
+</section>
+
+{% if ward_patient %}
+<div class="compact-card" style="margin-bottom:14px;border-left:3px solid var(--accent,#2563eb);padding-left:12px;">
+  <strong>Ward link</strong>
+  <p class="muted" style="margin:4px 0 0;">{{ ward_patient.patient_name }} · MRN {{ ward_patient.mrn or '—' }}.</p>
+  <p class="muted" style="margin:4px 0 0;font-size:13px;">
+    <strong>Physician care path:</strong>
+    <a href="{{ url_for('gi_clinical_workflow', ward_patient_id=ward_patient.id) }}">Ward Clinical Workflow</a>
+    (diagnostic / known-disease encounter). This CI screen is for knowledge training / research — not the primary chart path.
+  </p>
+  <a class="btn btn--sm btn--primary" href="{{ url_for('gi_clinical_workflow', ward_patient_id=ward_patient.id) }}">Open clinical workflow</a>
+</div>
+{% endif %}
+
+<section class="admin-section">
+  <form method="POST" class="settings-form">
+    {% if ward_patient_id %}<input type="hidden" name="ward_patient_id" value="{{ ward_patient_id }}">{% endif %}
+    <label>Complaint
+      <select name="complaint_code" required>
+        {% for c in complaints %}
+        <option value="{{ c.complaint_code }}"
+          {% if suggested_complaint and c.complaint_code == suggested_complaint %}selected
+          {% elif not suggested_complaint and c.complaint_code == 'CC_abdominal_pain' %}selected{% endif %}>
+          {{ c.name }}
+        </option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Patient label (optional)
+      <input name="patient_label" value="{{ patient_label or '' }}" placeholder="e.g. Ward demo / MRN optional">
+    </label>
+    <button class="btn btn--primary" type="submit">Start history</button>
+  </form>
+</section>
+{% endblock %}

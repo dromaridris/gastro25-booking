@@ -1,0 +1,24 @@
+{# Shared patient header + navigation, included at the top of every
+   ward-patient sub-page (Clinical workflow, Laboratory, Journey,
+   Documents...). Sticky so it stays visible while scrolling a long page —
+   the clinician can jump straight to another section (or back to the Ward
+   board) without navigating back to the main patient page first.
+   Expects: patient (with .id, .patient_name, .mrn), admission (optional). #}
+<section class="ward-topbar ward-topbar--sticky">
+  <div class="ward-topbar-main">
+    <h1>{{ patient.patient_name }}</h1>
+    <span class="muted ward-topbar-sub">
+      MRN {{ patient.mrn or '—' }} ·
+      {% if admission %}Bed {{ admission.bed_label }} ({{ admission.bed_kind }}){% else %}Not admitted{% endif %}
+    </span>
+  </div>
+  <div class="ward-topbar-actions">
+    <a href="{{ url_for('gi_clinical_workflow', ward_patient_id=patient.id) }}" class="btn btn--primary btn--sm">Clinical workflow</a>
+    <a href="{{ url_for('gi_patient_documents', ward_patient_id=patient.id) }}" class="btn btn--outline btn--sm">Documents</a>
+    <a href="{{ url_for('gi_consult_request_new', ward_patient_id=patient.id) }}" class="btn btn--outline btn--sm">Consult</a>
+    <a href="{{ url_for('gi_laboratory_patient', ward_patient_id=patient.id) }}" class="btn btn--outline btn--sm">Laboratory</a>
+    <a href="{{ url_for('gi_patient_journey', ward_patient_id=patient.id) }}" class="btn btn--outline btn--sm">Journey</a>
+    <a href="{{ url_for('ward_patient_view', ward_patient_id=patient.id) }}" class="btn btn--outline btn--sm">Patient overview</a>
+    <a href="{{ url_for('ward_dashboard') }}" class="btn btn--outline btn--sm">← Ward board</a>
+  </div>
+</section>

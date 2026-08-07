@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Sign Consent{% endblock %}
+{% block content %}
+<h2>{{ record.template.title if record.template else 'Consent' }}</h2>
+<div class="border p-3 mb-3">{{ record.rendered_html|safe }}</div>
+{% if record.status != 'signed' and can('consent:sign') %}
+<form method="POST" action="{{ url_for('clinical_documents.consent_do_sign', record_id=record.id) }}">
+  <div class="mb-2"><input name="witness_name" class="form-control" placeholder="Witness name (optional)"></div>
+  <button class="btn btn-primary">Sign Consent</button>
+</form>
+{% elif record.status == 'signed' %}
+<p class="text-success">Signed {{ record.signed_at.strftime("%Y-%m-%d %H:%M") if record.signed_at else '' }}</p>
+<a href="{{ url_for('clinical_documents.consent_print', record_id=record.id) }}" class="btn btn-outline-secondary btn-sm">Print</a>
+{% endif %}
+{% endblock %}

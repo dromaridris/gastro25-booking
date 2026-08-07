@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Lab Results #{{ result_set.id }} — GastroIntelligence{% endblock %}
+{% block content %}
+<h2>
+    Laboratory Results
+    <span class="badge bg-secondary">{{ result_set.status.title() }}</span>
+</h2>
+
+<p class="text-muted">
+    Patient:
+    <a href="{{ url_for('patients.view_patient', patient_id=result_set.patient_id) }}">
+        {{ result_set.patient.full_name if result_set.patient else result_set.patient_id }}
+    </a>
+    · Encounter #{{ result_set.encounter_id }}
+    {% if result_set.order_id %} · Order #{{ result_set.order_id }}{% endif %}
+</p>
+
+<table class="table table-sm">
+    <thead><tr><th>Test</th><th>Value</th><th>Unit</th><th>Reference</th><th>Flag</th></tr></thead>
+    <tbody>
+        {% for v in result_set.values %}
+        <tr>
+            <td>{{ v.test_code }}</td>
+            <td>{{ v.numeric_value if v.numeric_value is not none else v.text_value }}</td>
+            <td>{{ v.unit or "—" }}</td>
+            <td class="text-muted small">
+                {% if v.reference_low is not none and v.reference_high is not none %}
+                    {{ v.reference_low }} – {{ v.reference_high }}
+                {% elif v.reference_text %}{{ v.reference_text }}{% else %}—{% endif %}
+            </td>
+            <td>
+                {% if v.abnormal_flag == 'high' %}
+                    <span class="badge bg-danger">High</span>
+                {% elif v.abnormal_flag == 'low' %}
+                    <span class="badge bg-warning text-dark">Low</span>
+                {% elif v.abnormal_flag == 'normal' %}
+                    <span class="badge bg-success">Normal</span>
+                {% else %}
+                    <span class="badge bg-secondary">—</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="text-muted">No values recorded.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if can('investigation:review') and result_set.status == 'available' %}
+<form method="POST" action="{{ url_for('investigations.review_lab_result', result_set_id=result_set.id) }}">
+    <button type="submit" class="btn btn-success btn-sm">Mark reviewed</button>
+</form>
+{% endif %}
+{% endblock %}

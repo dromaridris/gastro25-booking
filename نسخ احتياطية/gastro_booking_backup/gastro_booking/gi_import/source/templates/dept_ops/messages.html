@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Internal Messages{% endblock %}
+{% block content %}
+<h1>Internal Messages</h1>
+<form method="POST" action="{{ url_for('dept_ops.send_message') }}" class="mb-4">
+    <div class="mb-2"><input name="subject" class="form-control" placeholder="Subject" required></div>
+    <div class="mb-2"><textarea name="body" class="form-control" placeholder="Message" required></textarea></div>
+    <div class="mb-2">
+        <select name="message_scope" class="form-select w-auto d-inline">
+            <option value="direct">Direct</option>
+            <option value="team">Team</option>
+            <option value="department">Department-wide</option>
+        </select>
+        <input name="recipient_id" type="number" class="form-control w-auto d-inline" placeholder="Recipient user ID (direct only)">
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm">Send</button>
+</form>
+<ul class="list-group">
+{% for m in messages %}
+    <li class="list-group-item"><strong>{{ m.subject }}</strong> — from user #{{ m.sender_id }} <small class="text-muted">{{ m.message_scope }}</small></li>
+{% else %}
+    <li class="list-group-item text-muted">No messages.</li>
+{% endfor %}
+</ul>
+{% endblock %}

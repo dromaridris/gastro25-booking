@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Teaching Mode{% endblock %}
+{% block content %}
+<h2>Teaching Explanation</h2>
+<p class="text-muted">For trainee education only — not part of the official medical record.</p>
+
+{% if teaching %}
+<p>{{ teaching.why_this_diagnosis }}</p>
+
+<h5>Supporting historical features</h5>
+<ul>
+    {% for s in teaching.supporting_features %}
+    <li>{{ s.prompt }} — <strong>{{ s.answer }}</strong></li>
+    {% else %}
+    <li class="text-muted">No structured supporting features recorded.</li>
+    {% endfor %}
+</ul>
+
+<h5>Features that excluded alternatives</h5>
+<ul>
+    {% for e in teaching.features_that_excluded_alternatives %}
+    <li>{{ e.prompt }} ({{ e.answer }}) — weighed against {{ e.excluded_name }}</li>
+    {% else %}
+    <li class="text-muted">No exclusion features recorded.</li>
+    {% endfor %}
+</ul>
+
+<h5>Investigation rationale</h5>
+<ul>
+    {% for i in teaching.investigation_rationale %}
+    <li><code>{{ i.investigation_code }}</code> — {{ i.reason or 'Suggested' }}</li>
+    {% endfor %}
+</ul>
+
+{% if teaching.management_summary %}
+<h5>Management principles</h5>
+<p>{{ teaching.management_summary }}</p>
+<p>{{ teaching.management_principles }}</p>
+{% endif %}
+
+<p class="small text-muted">{{ teaching.disclaimer }}</p>
+{% else %}
+<div class="alert alert-info">Confirm a diagnosis to generate the teaching explanation.</div>
+{% endif %}
+
+<a href="{{ url_for('clinical_history.view_session', session_id=session.id) }}" class="btn btn-link">Back</a>
+{% endblock %}

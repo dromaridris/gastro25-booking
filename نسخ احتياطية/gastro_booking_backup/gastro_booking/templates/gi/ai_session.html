@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}AI session{% endblock %}
+{% block content %}
+{% from 'gi/_back.html' import back_link %}
+{{ back_link(back_url) }}
+
+<h1>Clinical assistant · session #{{ sess.id }}</h1>
+<p class="muted">
+  Provider: <strong>{{ active_provider or 'stub' }}</strong> —
+  context from history, labs, knowledge library, and procedures.
+  Set <code>CLINICAL_AI_DEFAULT_PROVIDER</code> for live LLM output.
+</p>
+
+{% if cds_hint and cds_hint.differentials %}
+<section class="admin-section">
+  <h2>Current differential (from saved history)</h2>
+  <ul>{% for d in cds_hint.differentials[:6] %}<li>{{ d.title }} — {{ d.summary }}</li>{% endfor %}</ul>
+</section>
+{% endif %}
+
+<form method="POST" class="settings-form">
+  <label>Prompt type
+    <select name="prompt_type">
+      {% for pt in prompt_types %}
+      <option value="{{ pt }}">{{ pt.replace('_', ' ')|title }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>Question
+    <textarea name="prompt" rows="3" required placeholder="e.g. What is your differential diagnosis for this patient?"></textarea>
+  </label>
+  <button class="btn btn--primary" type="submit">Ask Clinical AI</button>
+</form>
+
+{% if last_parsed %}
+<section class="admin-section" style="margin-top:20px;">
+  <h2>Latest parsed response</h2>
+  {% if last_parsed.narrative %}
+  <p style="white-space:pre-wrap;">{{ last_parsed.narrative }}</p>
+  {% endif %}
+  {% if last_parsed.recommendations %}
+  <h3>Recommendations</h3>
+  <ul>{% for r in last_parsed.recommendations %}<li>{{ r }}</li>{% endfor %}</ul>
+  {% endif %}
+  {% if last_parsed.cds_differential %}
+  <p class="muted">CDS differential: {{ last_parsed.cds_differential }}</p>
+  {% endif %}
+</section>
+{% endif %}
+
+<h2 style="margin-top:20px;">Responses</h2>
+{% for item in parsed_logs %}
+{% set log = item.log %}
+{% set parsed = item.parsed %}
+<article style="border-top:1px solid var(--line);padding:10px 0;">
+  <p class="muted">
+    {{ log.created_at }} · {{ log.provider or 'stub' }}
+    {% if log.prompt_type %} · {{ log.prompt_type }}{% endif %}
+  </p>
+  <p><strong>Q:</strong> {{ log.prompt_text }}</p>
+  {% if parsed and parsed.narrative %}
+  <p style="white-space:pre-wrap;"><strong>A:</strong> {{ parsed.narrative }}</p>
+  {% if parsed.recommendations %}
+  <ul>{% for r in parsed.recommendations %}<li>{{ r }}</li>{% endfor %}</ul>
+  {% endif %}
+  {% else %}
+  <p style="white-space:pre-wrap;"><strong>A:</strong> {{ log.response_text }}</p>
+  {% endif %}
+</article>
+{% else %}<p class="muted">Ask a question above.</p>{% endfor %}
+{% endblock %}

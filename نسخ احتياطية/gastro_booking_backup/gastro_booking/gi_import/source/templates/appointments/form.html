@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}New Appointment — {{ patient.full_name }}{% endblock %}
+{% block content %}
+<h2>Book Appointment</h2>
+<p class="text-muted">For <strong>{{ patient.full_name }}</strong> (<code>{{ patient.mrn }}</code>)</p>
+{% include "ui/_form_errors.html" %}
+<form method="POST" class="col-md-6">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        {{ form.provider_id.label(class="form-label") }}
+        {{ form.provider_id(class="form-select") }}
+    </div>
+    <div class="mb-3">
+        {{ form.scheduled_at.label(class="form-label") }}
+        {{ form.scheduled_at(class="form-control", type="datetime-local") }}
+    </div>
+    <div class="mb-3">
+        {{ form.duration_minutes.label(class="form-label") }}
+        {{ form.duration_minutes(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.reason.label(class="form-label") }}
+        {{ form.reason(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.notes.label(class="form-label") }}
+        {{ form.notes(class="form-control", rows=3) }}
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+</form>
+{% endblock %}

@@ -1,0 +1,40 @@
+{
+  "complaint_code": "CC_vomiting",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Starter investigation framework for CC_vomiting. Names/urgency/indications only.",
+  "bundles": [
+    {
+      "id": "IXB_vom_baseline",
+      "label": "Vomiting baseline",
+      "urgency": "routine",
+      "when": {
+        "always_if_complaint": true
+      },
+      "investigations": [
+        "IX_cbc",
+        "IX_basic_metabolic_panel"
+      ]
+    },
+    {
+      "id": "IXB_vom_obstruction",
+      "label": "Obstruction imaging",
+      "urgency": "emergency",
+      "when": {
+        "any": [
+          {
+            "pattern_id": "PAT_vom_obstruction"
+          },
+          {
+            "question_id": "Q000045",
+            "op": "truthy"
+          }
+        ]
+      },
+      "investigations": [
+        "IX_ct_abdomen"
+      ],
+      "referral_hint": "Surgical review if obstruction suspected"
+    }
+  ]
+}

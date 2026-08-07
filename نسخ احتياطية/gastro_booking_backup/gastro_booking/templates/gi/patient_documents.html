@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Patient documents{% endblock %}
+{% block content %}
+{% if patient %}{% include 'gi/_patient_topbar.html' %}{% endif %}
+<section class="dash-head">
+  <h1>Patient documents</h1>
+  <a href="{{ back_url }}" class="btn btn--outline btn--sm">← Patient</a>
+</section>
+
+<form method="post" enctype="multipart/form-data" class="settings-form admin-section">
+  <h2>Upload</h2>
+  <label>Title<input name="title" placeholder="Discharge summary, referral letter…"></label>
+  <label>Category
+    <select name="category">
+      <option value="general">General</option>
+      <option value="lab">Laboratory</option>
+      <option value="imaging">Imaging</option>
+      <option value="referral">Referral</option>
+      <option value="consent">Consent</option>
+    </select>
+  </label>
+  <label>Notes<textarea name="notes" rows="2"></textarea></label>
+  <label>File<input type="file" name="document_file" accept=".pdf,.jpg,.jpeg,.png,.txt" required></label>
+  <button class="btn btn--primary" type="submit">Upload</button>
+</form>
+
+<section class="admin-section">
+  <h2>Documents</h2>
+  <div class="admin-table-scroll"><table class="admin-table">
+    <thead><tr><th>Title</th><th>Category</th><th>Uploaded</th><th>By</th><th></th></tr></thead>
+    <tbody>
+      {% for d in documents %}
+      <tr>
+        <td>{{ d.title }}</td>
+        <td>{{ d.category }}</td>
+        <td>{{ d.created_at }}</td>
+        <td>{{ d.uploaded_by_name or '—' }}</td>
+        <td>
+          <a href="{{ url_for('gi_patient_document_download', doc_id=d.id) }}" class="btn btn--sm btn--outline">Download</a>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="muted">No documents yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table></div>
+</section>
+{% endblock %}

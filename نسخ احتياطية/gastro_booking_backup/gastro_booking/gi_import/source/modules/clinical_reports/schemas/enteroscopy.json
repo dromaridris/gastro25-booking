@@ -1,0 +1,655 @@
+{
+  "schema_version": "1",
+  "template_key": "enteroscopy",
+  "label": "Device-assisted Enteroscopy — Structured Clinical Report",
+  "sections": [
+    {
+      "id": "context",
+      "label": "Clinical Context",
+      "workflow_phase": "WF_CONTEXT",
+      "fields": [
+        {
+          "id": "enteroscopy.context.indication_category",
+          "label": "Indication category",
+          "type": "multi_select",
+          "required": true,
+          "default": [],
+          "vocabulary_source": "enteroscopy_indication_category",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ],
+          "research_flag": true
+        },
+        {
+          "id": "enteroscopy.context.indication_detail",
+          "label": "Indication detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ]
+        },
+        {
+          "id": "enteroscopy.context.urgency",
+          "label": "Urgency",
+          "type": "dropdown",
+          "required": true,
+          "default": "",
+          "vocabulary_source": "procedure_urgency",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ]
+        },
+        {
+          "id": "enteroscopy.context.consent_obtained",
+          "label": "Consent obtained",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ]
+        },
+        {
+          "id": "enteroscopy.context.prior_surgery",
+          "label": "Prior GI surgery",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ]
+        },
+        {
+          "id": "enteroscopy.context.estimated_location",
+          "label": "Estimated lesion location",
+          "type": "text",
+          "default": "",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "approach",
+      "label": "Approach & Depth",
+      "workflow_phase": "WF_ACCESS",
+      "fields": [
+        {
+          "id": "enteroscopy.approach.approach_type",
+          "label": "Approach",
+          "type": "dropdown",
+          "required": true,
+          "default": "",
+          "vocabulary_source": "enteroscopy_approach",
+          "workflow_phases": [
+            "WF_ACCESS"
+          ]
+        },
+        {
+          "id": "enteroscopy.approach.device_type",
+          "label": "Device type",
+          "type": "dropdown",
+          "required": true,
+          "default": "",
+          "vocabulary_source": "enteroscopy_device_type",
+          "workflow_phases": [
+            "WF_ACCESS"
+          ]
+        },
+        {
+          "id": "enteroscopy.approach.sedation_type",
+          "label": "Sedation type",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "sedation_type",
+          "workflow_phases": [
+            "WF_ACCESS"
+          ]
+        },
+        {
+          "id": "enteroscopy.approach.max_depth_reached",
+          "label": "Maximum depth reached",
+          "type": "dropdown",
+          "required": true,
+          "default": "",
+          "vocabulary_source": "enteroscopy_max_depth",
+          "workflow_phases": [
+            "WF_ACCESS"
+          ],
+          "qi_flag": true,
+          "qi_mapping": {
+            "metric_key": "max_depth_reached",
+            "operator": "not_empty",
+            "value": null
+          }
+        },
+        {
+          "id": "enteroscopy.approach.total_enteroscopy_achieved",
+          "label": "Total enteroscopy achieved",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_ACCESS"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "findings",
+      "label": "Findings",
+      "workflow_phase": "WF_IMAGING",
+      "fields": [
+        {
+          "id": "enteroscopy.findings.jejunum_normal",
+          "label": "Jejunum — normal",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ]
+        },
+        {
+          "id": "enteroscopy.findings.jejunum_findings",
+          "label": "Jejunum — findings",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "enteroscopy_finding_type",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "enteroscopy.findings.jejunum_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "enteroscopy.findings.jejunum_detail",
+          "label": "Jejunum — detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "enteroscopy.findings.jejunum_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "enteroscopy.findings.ileum_normal",
+          "label": "Ileum — normal",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ]
+        },
+        {
+          "id": "enteroscopy.findings.ileum_findings",
+          "label": "Ileum — findings",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "enteroscopy_finding_type",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "enteroscopy.findings.ileum_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "enteroscopy.findings.ileum_detail",
+          "label": "Ileum — detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "enteroscopy.findings.ileum_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        }
+      ]
+    },
+    {
+      "id": "interventions",
+      "label": "Interventions",
+      "workflow_phase": "WF_THERAPY",
+      "fields": [
+        {
+          "id": "enteroscopy.interventions.interventions",
+          "label": "Interventions",
+          "type": "repeatable_group",
+          "default": [],
+          "min_rows": 0,
+          "workflow_phases": [
+            "WF_THERAPY"
+          ],
+          "fields": [
+            {
+              "id": "intervention_type",
+              "label": "Intervention type",
+              "type": "dropdown",
+              "vocabulary_source": "enteroscopy_intervention_type"
+            },
+            {
+              "id": "success",
+              "label": "Success",
+              "type": "yes_no"
+            },
+            {
+              "id": "details",
+              "label": "Details",
+              "type": "text"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "closure",
+      "label": "Closure",
+      "workflow_phase": "WF_CLOSURE",
+      "fields": [
+        {
+          "id": "enteroscopy.closure.procedure_completed",
+          "label": "Procedure completed as planned",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ],
+          "qi_flag": true,
+          "qi_mapping": {
+            "metric_key": "procedure_completed",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "enteroscopy.closure.immediate_complication",
+          "label": "Immediate complication",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ],
+          "qi_flag": true,
+          "qi_mapping": {
+            "metric_key": "immediate_complication",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "enteroscopy.closure.complication_types",
+          "label": "Complication type(s)",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "standard_complication_type",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "enteroscopy.closure.immediate_complication",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "enteroscopy.closure.complication_detail",
+          "label": "Complication detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "enteroscopy.closure.immediate_complication",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "enteroscopy.closure.specimens_sent",
+          "label": "Specimens sent",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ]
+        },
+        {
+          "id": "enteroscopy.closure.specimen_details",
+          "label": "Specimen details",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "enteroscopy.closure.specimens_sent",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        }
+      ]
+    },
+    {
+      "id": "synthesis",
+      "label": "Synthesis",
+      "workflow_phase": "WF_SYNTHESIS",
+      "fields": [
+        {
+          "id": "enteroscopy.synthesis.impression_primary",
+          "label": "Primary impression",
+          "type": "long_text",
+          "required": true,
+          "default": "",
+          "workflow_phases": [
+            "WF_SYNTHESIS"
+          ]
+        },
+        {
+          "id": "enteroscopy.synthesis.clinical_plan",
+          "label": "Recommendations / clinical plan",
+          "type": "long_text",
+          "required": true,
+          "default": "",
+          "workflow_phases": [
+            "WF_SYNTHESIS"
+          ]
+        },
+        {
+          "id": "enteroscopy.synthesis.reenteroscopy_needed",
+          "label": "Re-enteroscopy needed",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_SYNTHESIS"
+          ]
+        },
+        {
+          "id": "enteroscopy.synthesis.addendum_text",
+          "label": "Addendum",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_SYNTHESIS"
+          ]
+        }
+      ]
+    }
+  ],
+  "components": {
+    "timeline": [
+      {
+        "key": "scope_insertion",
+        "label": "Scope inserted"
+      },
+      {
+        "key": "max_depth_reached",
+        "label": "Maximum depth reached"
+      },
+      {
+        "key": "scope_removal",
+        "label": "Scope removed"
+      }
+    ]
+  },
+  "section_narratives": [
+    {
+      "section": "clinical_indication",
+      "intro": "Clinical indication:",
+      "bindings": [
+        {
+          "mode": "literal",
+          "field_id": "enteroscopy.context.indication_category",
+          "label": "Category"
+        },
+        {
+          "mode": "literal",
+          "field_id": "enteroscopy.context.indication_detail",
+          "label": "Detail"
+        },
+        {
+          "mode": "sentence",
+          "field_id": "enteroscopy.context.urgency",
+          "template": "Urgency: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "enteroscopy.context.consent_obtained",
+          "template": "Consent obtained: {value}."
+        }
+      ]
+    },
+    {
+      "section": "impression",
+      "bindings": [
+        {
+          "mode": "sentence",
+          "field_id": "enteroscopy.synthesis.impression_primary",
+          "template": "Impression:\n{value}"
+        }
+      ]
+    },
+    {
+      "section": "recommendations",
+      "intro": "Recommendations / plan:",
+      "bindings": [
+        {
+          "mode": "literal",
+          "field_id": "enteroscopy.synthesis.clinical_plan",
+          "label": ""
+        },
+        {
+          "mode": "sentence",
+          "field_id": "enteroscopy.synthesis.addendum_text",
+          "template": "Addendum:\n{value}"
+        }
+      ]
+    },
+    {
+      "section": "complications",
+      "intro": "Complications and closure:",
+      "bindings": [
+        {
+          "mode": "sentence",
+          "field_id": "enteroscopy.closure.procedure_completed",
+          "template": "Procedure completed as planned: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "enteroscopy.closure.immediate_complication",
+          "template": "Immediate complication: {value}."
+        },
+        {
+          "mode": "literal",
+          "field_id": "enteroscopy.closure.complication_types",
+          "label": "Complication type(s)"
+        },
+        {
+          "mode": "sentence",
+          "field_id": "enteroscopy.closure.complication_detail",
+          "template": "Complication detail: {value}."
+        }
+      ]
+    }
+  ],
+  "workflow": {
+    "states": [
+      "WF_CONTEXT",
+      "WF_ACCESS",
+      "WF_IMAGING",
+      "WF_THERAPY",
+      "WF_CLOSURE",
+      "WF_SYNTHESIS",
+      "WF_REVIEW",
+      "WF_FINALIZE"
+    ],
+    "transitions": {
+      "WF_CONTEXT": [
+        "WF_ACCESS"
+      ],
+      "WF_ACCESS": [
+        "WF_CONTEXT",
+        "WF_IMAGING"
+      ],
+      "WF_IMAGING": [
+        "WF_ACCESS",
+        "WF_THERAPY"
+      ],
+      "WF_THERAPY": [
+        "WF_IMAGING",
+        "WF_CLOSURE"
+      ],
+      "WF_CLOSURE": [
+        "WF_THERAPY",
+        "WF_SYNTHESIS"
+      ],
+      "WF_SYNTHESIS": [
+        "WF_CLOSURE",
+        "WF_REVIEW"
+      ],
+      "WF_REVIEW": [
+        "WF_SYNTHESIS",
+        "WF_FINALIZE"
+      ],
+      "WF_FINALIZE": [
+        "WF_REVIEW"
+      ]
+    }
+  },
+  "validation": [
+    {
+      "id": "V_ENTEROSCOPY_INDICATION",
+      "severity": "error",
+      "message": "Indication category is required before finalize.",
+      "rule": {
+        "type": "field_present",
+        "field_id": "enteroscopy.context.indication_category"
+      }
+    },
+    {
+      "id": "V_ENTEROSCOPY_URGENCY",
+      "severity": "error",
+      "message": "Urgency is required before finalize.",
+      "rule": {
+        "type": "field_present",
+        "field_id": "enteroscopy.context.urgency"
+      }
+    },
+    {
+      "id": "V_ENTEROSCOPY_CONSENT",
+      "severity": "error",
+      "message": "Consent outcome must be documented before finalize.",
+      "rule": {
+        "type": "field_in",
+        "field_id": "enteroscopy.context.consent_obtained",
+        "values": [
+          "Yes",
+          "No"
+        ]
+      }
+    },
+    {
+      "id": "V_ENTEROSCOPY_PROC",
+      "severity": "error",
+      "message": "Maximum depth reached must be documented before finalize.",
+      "rule": {
+        "type": "field_present",
+        "field_id": "enteroscopy.approach.max_depth_reached"
+      }
+    },
+    {
+      "id": "V_ENTEROSCOPY_COMPLETED",
+      "severity": "error",
+      "message": "Procedure completion status is required before finalize.",
+      "rule": {
+        "type": "field_present",
+        "field_id": "enteroscopy.closure.procedure_completed"
+      }
+    },
+    {
+      "id": "V_ENTEROSCOPY_COMPLICATION",
+      "severity": "error",
+      "message": "Immediate complication outcome must be documented before finalize.",
+      "rule": {
+        "type": "field_present",
+        "field_id": "enteroscopy.closure.immediate_complication"
+      }
+    },
+    {
+      "id": "V_ENTEROSCOPY_IMPRESSION",
+      "severity": "error",
+      "message": "Primary impression is required before finalize.",
+      "rule": {
+        "type": "field_nonempty",
+        "field_id": "enteroscopy.synthesis.impression_primary"
+      }
+    },
+    {
+      "id": "V_ENTEROSCOPY_PLAN",
+      "severity": "error",
+      "message": "Clinical plan / recommendations are required before finalize.",
+      "rule": {
+        "type": "field_nonempty",
+        "field_id": "enteroscopy.synthesis.clinical_plan"
+      }
+    }
+  ],
+  "quick_fill": {
+    "normal_diagnostic": {
+      "label": "Normal diagnostic enteroscopy",
+      "values": {
+        "enteroscopy.context.indication_category": [
+          "obscure_bleeding"
+        ],
+        "enteroscopy.context.urgency": "elective",
+        "enteroscopy.context.consent_obtained": "Yes",
+        "enteroscopy.approach.approach_type": "oral",
+        "enteroscopy.approach.device_type": "double_balloon",
+        "enteroscopy.approach.max_depth_reached": "mid_jejunum",
+        "enteroscopy.approach.total_enteroscopy_achieved": "No",
+        "enteroscopy.findings.jejunum_normal": "Yes",
+        "enteroscopy.findings.ileum_normal": "Yes",
+        "enteroscopy.closure.procedure_completed": "Yes",
+        "enteroscopy.closure.immediate_complication": "No",
+        "enteroscopy.synthesis.impression_primary": "Normal enteroscopy.",
+        "enteroscopy.synthesis.clinical_plan": "Routine clinical follow-up as indicated.",
+        "enteroscopy.synthesis.reenteroscopy_needed": "No"
+      }
+    }
+  },
+  "qi": [
+    {
+      "metric_key": "max_depth_reached",
+      "label": "Maximum depth documented"
+    },
+    {
+      "metric_key": "immediate_complication",
+      "label": "Immediate complication"
+    },
+    {
+      "metric_key": "procedure_completed",
+      "label": "Procedure completed"
+    }
+  ]
+}

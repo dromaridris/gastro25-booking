@@ -1,0 +1,114 @@
+<!-- Booking Modal (shared by dashboard.html and calendar.html) -->
+<div id="bookingModal" class="modal-backdrop no-print" hidden
+     data-default-date="{{ today }}"
+     data-can-override="{{ can_override|lower }}"
+     data-can-ercp="{{ can_book_ercp|lower }}"
+     data-can-special="{{ can_book_special|lower }}">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="bookingModalTitle">New Booking</h2>
+      <button class="modal-close" id="closeBookingBtn">&times;</button>
+    </div>
+    <form id="bookingForm" class="booking-form">
+      <input type="hidden" name="appt_id" id="apptIdField" value="">
+      <div id="formError" class="form-error" hidden></div>
+      <div id="dateRestrictionWarning" class="form-error" hidden></div>
+
+      <label>Procedure Type
+        <select name="procedure_type" id="procedureType" required>
+          <option value="upper_gi">Upper GI Endoscopy</option>
+          <option value="colonoscopy">Colonoscopy</option>
+          <option value="peg_tube">PEG Tube Insertion</option>
+          <option value="ercp" id="ercpOption">ERCP (Tue/Sat only)</option>
+          <option value="dilatation" id="dilatationOption">Dilatation (special case)</option>
+          <option value="polypectomy" id="polypectomyOption">Polypectomy (special case)</option>
+          {% if booking_advanced %}
+          <optgroup label="Advanced endoscopy" id="advancedGroup">
+            {% for key, label in booking_advanced %}
+            <option value="{{ key }}" class="advanced-opt">{{ label }}</option>
+            {% endfor %}
+          </optgroup>
+          {% endif %}
+        </select>
+      </label>
+
+      <label>Appointment Date
+        <input type="date" name="appointment_date" id="apptDate" required>
+      </label>
+
+      <div class="form-row">
+        <label>Patient Name
+          <input type="text" name="patient_name" required>
+        </label>
+        <label>Gender
+          <select name="gender" required>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="form-row">
+        <label>Age
+          <input type="number" name="age" min="0" max="130" required>
+        </label>
+        <label>Phone Number
+          <input type="tel" name="phone" required>
+        </label>
+      </div>
+
+      <label>Medical Record Number (MRN) <span class="label-hint">(optional)</span>
+        <input type="text" name="mrn">
+      </label>
+
+      <label>Referral <span class="label-hint">(where the patient came from — optional)</span>
+        <input type="text" name="referral" placeholder="e.g. OPD, Medicine Ward, Dr. Ahmed">
+      </label>
+
+      <label>Clinical Notes <span class="label-hint">(case summary, high-risk warnings, lab results)</span>
+        <textarea name="clinical_notes" rows="3"></textarea>
+      </label>
+
+      <div class="form-section-label">Pre-procedure Labs <span class="label-hint">(optional — fill in if available)</span></div>
+      <div class="form-row">
+        <label>Hb (on admission)
+          <input type="text" name="on_admission_hb" placeholder="e.g. 11.2 g/dL">
+        </label>
+        <label>Platelet
+          <input type="text" name="platelet" placeholder="e.g. 210">
+        </label>
+      </div>
+      <div class="form-row">
+        <label>INR
+          <input type="text" name="inr" placeholder="e.g. 1.1">
+        </label>
+        <label>Comorbidities / Etiology
+          <input type="text" name="comorbs_etiology" placeholder="e.g. CKD, cirrhosis">
+        </label>
+      </div>
+
+      <label class="checkbox-row" id="bleedingRow">
+        <input type="checkbox" name="is_bleeding" id="bleedingCheckbox">
+        Bleeding Patient (emergency — highlights record in red)
+      </label>
+
+      <label class="checkbox-row" id="overrideRow" hidden>
+        <input type="checkbox" name="is_override" id="overrideCheckbox">
+        Admin/Specialist Override — bypass cap for this emergency booking
+      </label>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn--ghost" id="cancelBookingBtn">Cancel</button>
+        <button type="submit" class="btn btn--primary" id="bookingSubmitBtn">Confirm Booking</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Alert popup for booking errors (e.g. "list is full") — tap anywhere to dismiss -->
+<div id="alertPopup" class="alert-popup-backdrop no-print" hidden onclick="hideAlertPopup()">
+  <div class="alert-popup-card">
+    <p class="alert-popup-message" id="alertPopupMessage"></p>
+    <p class="alert-popup-hint">Tap anywhere to close</p>
+  </div>
+</div>

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Clinical AI admin{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <h1>Clinical AI — deployment status</h1>
+</section>
+
+<div class="admin-section">
+  <p><strong>Active provider:</strong> {{ active_provider }}</p>
+  <p><strong>Default provider (env):</strong> {{ config.default_provider }}</p>
+  <p><strong>Provider chain:</strong> {{ config.provider_chain|join(', ') }}</p>
+  <p class="muted">Set <code>CLINICAL_AI_DEFAULT_PROVIDER=openai|claude|gemini|local|stub</code> on the server.</p>
+</div>
+
+<h2>Provider credentials</h2>
+<div class="admin-table-scroll"><table class="admin-table">
+  <thead><tr><th>Provider</th><th>Env variable</th><th>Configured</th><th>Test</th></tr></thead>
+  <tbody>
+    {% for key, st in provider_status.items() %}
+    <tr>
+      <td>{{ key }}</td>
+      <td><code>{{ st.env_var or '—' }}</code></td>
+      <td>{{ 'Yes' if st.configured else 'No' }}</td>
+      <td>
+        <form method="post" action="{{ url_for('gi_clinical_ai_test') }}" style="display:inline;">
+          <input type="hidden" name="provider_key" value="{{ key }}">
+          <button class="btn btn--sm btn--outline" type="submit">Test</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table></div>
+
+<div class="admin-section" style="margin-top:24px;">
+  <h2>OCR (Knowledge import)</h2>
+  <p>PDF import uses native text extraction via <code>pypdf</code>. Scanned PDFs fall back to OCR when installed:</p>
+  <ul>
+    <li><code>pip install pytesseract pdf2image</code></li>
+    <li>System: Tesseract OCR + Poppler (PythonAnywhere: may require custom binaries)</li>
+  </ul>
+  <p><strong>OCR available on this server:</strong> {{ 'Yes' if ocr_available else 'No — install pytesseract + pdf2image' }}</p>
+</div>
+{% endblock %}

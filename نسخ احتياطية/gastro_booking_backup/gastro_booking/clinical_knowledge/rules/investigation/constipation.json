@@ -1,0 +1,35 @@
+{
+  "complaint_code": "CC_constipation",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Starter investigation framework for CC_constipation. Names/urgency/indications only.",
+  "bundles": [
+    {
+      "id": "IXB_const_baseline",
+      "label": "Constipation baseline",
+      "urgency": "routine",
+      "when": {
+        "always_if_complaint": true
+      },
+      "investigations": [
+        "IX_cbc",
+        "IX_basic_metabolic_panel"
+      ]
+    },
+    {
+      "id": "IXB_const_obstruction",
+      "label": "Obstruction imaging",
+      "urgency": "emergency",
+      "when": {
+        "any": [
+          {
+            "pattern_id": "PAT_const_obstruction"
+          }
+        ]
+      },
+      "investigations": [
+        "IX_ct_abdomen"
+      ]
+    }
+  ]
+}

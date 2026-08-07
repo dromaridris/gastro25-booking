@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}On-call rosters{% endblock %}
+{% block content %}
+<h1>On-call rosters</h1>
+{% include "_module_intro.html" %}
+<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;">
+  {% if can_trainee %}<a class="btn btn--primary" href="{{ url_for('gi_roster_list', roster_type='pg_trainee') }}">{{ labels.pg_trainee }}</a>{% endif %}
+  {% if can_ho %}<a class="btn btn--primary" href="{{ url_for('gi_roster_list', roster_type='house_officer') }}">{{ labels.house_officer }}</a>{% endif %}
+  <a class="btn btn--outline" href="{{ url_for('gi_my_duties') }}">My duties</a>
+</div>
+{% if not can_trainee and not can_ho %}
+<p class="muted" style="margin-top:16px;">You can view <a href="{{ url_for('gi_my_duties') }}">your assigned duties</a>. Roster management requires admin-assigned permission.</p>
+{% endif %}
+{% endblock %}

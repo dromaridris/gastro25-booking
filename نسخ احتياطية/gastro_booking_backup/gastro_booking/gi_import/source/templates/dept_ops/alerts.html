@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Operational Alerts{% endblock %}
+{% block content %}
+<h1>Operational Alert Centre</h1>
+<p class="text-muted">Unified view of all department operational alerts.</p>
+<table class="table table-sm">
+    <thead><tr><th>Severity</th><th>Alert</th><th>Detail</th><th>Type</th></tr></thead>
+    <tbody>
+    {% for a in alerts %}
+        <tr class="{% if a.severity == 'high' %}table-danger{% elif a.severity == 'medium' %}table-warning{% endif %}">
+            <td>{{ a.severity }}</td>
+            <td>{{ a.title }}</td>
+            <td>{{ a.detail }}</td>
+            <td><code>{{ a.type }}</code></td>
+        </tr>
+    {% else %}
+        <tr><td colspan="4" class="text-muted">No active alerts.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

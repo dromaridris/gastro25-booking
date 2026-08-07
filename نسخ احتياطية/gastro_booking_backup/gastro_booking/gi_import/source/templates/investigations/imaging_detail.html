@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Imaging #{{ study.id }} — GastroIntelligence{% endblock %}
+{% block content %}
+<h2>
+    Imaging Study
+    <span class="badge bg-secondary">{{ study.status.title() }}</span>
+</h2>
+
+<dl class="row">
+    <dt class="col-sm-3">Modality</dt>
+    <dd class="col-sm-9">{{ study.catalogue_item.name if study.catalogue_item else "—" }}</dd>
+    <dt class="col-sm-3">Study date</dt><dd class="col-sm-9">{{ study.study_date.strftime("%Y-%m-%d") }}</dd>
+    <dt class="col-sm-3">Body region</dt><dd class="col-sm-9">{{ study.body_region or "—" }}</dd>
+    <dt class="col-sm-3">Patient</dt>
+    <dd class="col-sm-9">
+        <a href="{{ url_for('patients.view_patient', patient_id=study.patient_id) }}">
+            {{ study.patient.full_name if study.patient else study.patient_id }}
+        </a>
+    </dd>
+</dl>
+
+{% if study.findings_summary %}
+<h5>Findings</h5>
+<p>{{ study.findings_summary }}</p>
+{% endif %}
+{% if study.impression %}
+<h5>Impression</h5>
+<p>{{ study.impression }}</p>
+{% endif %}
+{% if study.file_name %}
+<p class="text-muted small">Attachment: {{ study.file_name }}</p>
+{% endif %}
+
+{% if can('investigation:review') and study.status == 'available' %}
+<form method="POST" action="{{ url_for('investigations.review_imaging', study_id=study.id) }}">
+    <button type="submit" class="btn btn-success btn-sm">Mark reviewed</button>
+</form>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Guided history · {{ patient.patient_name }}{% endblock %}
+{% block content %}
+{% from 'gi/_back.html' import back_link %}
+{{ back_link(back_url) }}
+
+<div class="compact-card" style="margin-bottom:14px;border-left:3px solid #b45309;padding-left:12px;">
+  <p style="margin:0 0 8px;"><strong>Legacy:</strong> Guided History AI is not the physician path.
+    Use <a href="{{ url_for('gi_clinical_workflow', ward_patient_id=patient.id) }}">Ward Clinical Workflow</a>
+    for diagnostic and known-disease encounters (characterization, differential, exam, investigations).</p>
+</div>
+
+<h1>AI-guided history <span class="badge">legacy</span></h1>
+<p class="muted">{{ patient.patient_name }} · MRN {{ patient.mrn or '—' }} · History session #{{ history_session_id }}</p>
+
+{% if not gh_session %}
+<section class="admin-section">
+  <h2>Start guided interview</h2>
+  <p class="muted">Structured questions with AI-assisted narrative generation. Requires a chief complaint on the history session.</p>
+  <form method="POST" action="{{ url_for('gi_guided_history_start', ward_patient_id=patient.id) }}" class="settings-form">
+    <input type="hidden" name="history_session_id" value="{{ history_session_id }}">
+    {% if not hist.complaint_code %}
+    <label>Chief complaint code
+      <input name="complaint_code" placeholder="e.g. hist.upper_gi_bleeding" required>
+    </label>
+    {% else %}
+    <p>Complaint: <strong>{{ hist.chief_complaint or hist.complaint_code }}</strong></p>
+    {% endif %}
+    <button class="btn btn--primary" type="submit">Start guided session</button>
+  </form>
+</section>
+{% else %}
+
+<section class="admin-section">
+  <p class="muted">Guided session #{{ gh_session.id }} · status {{ gh_session.status }}</p>
+
+  {% if questions %}
+  <h2>Next questions</h2>
+  <form method="POST" action="{{ url_for('gi_guided_history_answer', session_id=gh_session.id) }}" class="settings-form">
+    {% for q in questions %}
+    <label>{{ q.question_text }}
+      {% if q.question_type == 'boolean' %}
+      <select name="answer_{{ q.question_id }}" required>
+        <option value="yes">Yes</option><option value="no">No</option>
+      </select>
+      {% elif q.question_type == 'choice' and q.answer_options %}
+      <select name="answer_{{ q.question_id }}" required>
+        {% for opt in q.answer_options %}<option value="{{ opt }}">{{ opt }}</option>{% endfor %}
+      </select>
+      {% else %}
+      <input name="answer_{{ q.question_id }}" required>
+      {% endif %}
+    </label>
+    {% endfor %}
+    <button class="btn btn--primary" type="submit">Save answers</button>
+  </form>
+  {% else %}
+  <p class="muted">No pending questions — generate history draft when ready.</p>
+  {% endif %}
+
+  <form method="POST" action="{{ url_for('gi_guided_history_generate', session_id=gh_session.id) }}" style="margin-top:16px;">
+    <button class="btn btn--outline" type="submit">Generate AI history draft</button>
+  </form>
+</section>
+
+{% if draft %}
+<section class="admin-section">
+  <h2>Draft ({{ draft.status }})</h2>
+  {% for key, text in draft.sections.items() %}
+  {% if text %}
+  <h3>{{ key.replace('_', ' ')|title }}</h3>
+  <p style="white-space:pre-wrap;">{{ text }}</p>
+  {% endif %}
+  {% endfor %}
+  {% if draft.missing_information %}
+  <p class="muted">Missing: {{ draft.missing_information|join(', ') }}</p>
+  {% endif %}
+  {% if draft.status != 'approved' %}
+  <form method="POST" action="{{ url_for('gi_guided_history_approve', draft_id=draft.id) }}">
+    <button class="btn btn--primary" type="submit">Approve &amp; sync to summary</button>
+  </form>
+  {% endif %}
+</section>
+{% endif %}
+{% endif %}
+{% endblock %}

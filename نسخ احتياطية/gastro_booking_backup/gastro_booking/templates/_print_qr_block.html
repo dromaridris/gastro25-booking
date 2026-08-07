@@ -1,0 +1,10 @@
+{% if qr_data_uri or qr_fallback_url %}
+<div class="ercp-qr-box">
+  {% if qr_data_uri %}
+  <img src="{{ qr_data_uri }}" alt="QR code" class="ercp-qr-img">
+  {% else %}
+  <img src="{{ qr_fallback_url }}" alt="QR code" class="ercp-qr-img" crossorigin="anonymous">
+  {% endif %}
+  <p class="ercp-qr-caption">{{ codes_caption|default('Scan to view in system') }}</p>
+</div>
+{% endif %}

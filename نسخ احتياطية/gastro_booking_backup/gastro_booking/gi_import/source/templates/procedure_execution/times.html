@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Edit Times — Session #{{ session.id }}{% endblock %}
+{% block content %}
+<h2>Edit Time Tracking — Session #{{ session.id }}</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">{{ form.patient_in_at.label(class="form-label") }}{{ form.patient_in_at(class="form-control") }}</div>
+    <div class="mb-3">{{ form.procedure_start_at.label(class="form-label") }}{{ form.procedure_start_at(class="form-control") }}</div>
+    <div class="mb-3">{{ form.procedure_finish_at.label(class="form-label") }}{{ form.procedure_finish_at(class="form-control") }}</div>
+    <div class="mb-3">{{ form.patient_out_at.label(class="form-label") }}{{ form.patient_out_at(class="form-control") }}</div>
+    {{ form.submit(class="btn btn-primary") }}
+    <a href="{{ url_for('procedure_execution.view_session', session_id=session.id) }}" class="btn btn-link">Cancel</a>
+</form>
+{% endblock %}

@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}Solving — MCQ Bank{% endblock %}
+{% block content %}
+<a class="back-link" href="{{ url_for('mcqbank_dashboard') }}">← Back to study picker</a>
+<h1 style="margin-top:4px;">
+  {% if chapter %}{{ book.name if book else '' }} · Ch {{ chapter.number }} — {{ chapter.title }}
+  {% elif book %}{{ book.name }}
+  {% else %}Mixed practice{% endif %}
+  {% if wrong_only == '1' %}<span class="muted">(wrong answers only)</span>{% endif %}
+  {% if random == '1' %}<span class="muted">(random order)</span>{% endif %}
+</h1>
+
+{% if daily_target.enabled %}
+<div class="mcq-daily-target mcq-daily-target--active" id="mcq-daily-target" style="margin:12px 0 4px;">
+  <div class="mcq-daily-target-main">
+    <span class="mcq-daily-target-label">Daily Target</span>
+    <strong class="mcq-daily-target-count" id="mcq-daily-solved">{{ daily_target.solved }}</strong>
+    <span class="muted">/</span>
+    <strong id="mcq-daily-goal">{{ daily_target.target }}</strong>
+    <span class="badge" id="mcq-daily-met" style="{% if not daily_target.met %}display:none{% endif %}">Goal met</span>
+  </div>
+</div>
+{% else %}
+<p class="muted" style="font-size:13px;margin:8px 0;">
+  <a href="{{ url_for('mcqbank_dashboard') }}#mcq-daily-settings">Set daily target</a>
+</p>
+{% endif %}
+
+<div class="stats-summary-grid" style="margin:16px 0;">
+  <div class="stat-card"><div class="stat-value" id="stat-solved">–</div><div class="stat-label">Solved</div></div>
+  <div class="stat-card"><div class="stat-value" id="stat-remaining">–</div><div class="stat-label">Remaining</div></div>
+  <div class="stat-card"><div class="stat-value" id="stat-correct">–</div><div class="stat-label">Correct</div></div>
+  <div class="stat-card"><div class="stat-value" id="stat-accuracy">–</div><div class="stat-label">Accuracy</div></div>
+</div>
+<div style="background:#eee;border-radius:8px;overflow:hidden;height:8px;margin-bottom:20px;">
+  <div id="progress-bar" style="background:var(--brand-primary,#A6192E);height:100%;width:0%;transition:width .3s;"></div>
+</div>
+
+<div id="question-area"></div>
+
+<script>
+const SCOPE = {
+  book_id: {{ book_id or 'null' }},
+  chapter_id: {{ chapter_id or 'null' }},
+  topic: {{ topic|tojson }},
+  wrong_only: "{{ wrong_only }}",
+  random: "{{ random }}",
+};
+let currentItemId=null, currentScopeKey=null, currentCycle=null, answered=false;
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function qs(p) {
+  const u = new URLSearchParams();
+  if (p.book_id) u.set('book_id', p.book_id);
+  if (p.chapter_id) u.set('chapter_id', p.chapter_id);
+  if (p.topic) u.set('topic', p.topic);
+  if (p.wrong_only === '1') u.set('wrong_only', '1');
+  if (p.random === '1') u.set('random', '1');
+  return u.toString();
+}
+function renderDailyTarget(dt) {
+  if (!dt || !dt.enabled) return;
+  const solvedEl = document.getElementById('mcq-daily-solved');
+  const goalEl = document.getElementById('mcq-daily-goal');
+  const metEl = document.getElementById('mcq-daily-met');
+  if (solvedEl) solvedEl.textContent = dt.solved;
+  if (goalEl) goalEl.textContent = dt.target;
+  if (metEl) metEl.style.display = dt.met ? '' : 'none';
+}
+function renderStats(s) {
+  document.getElementById('stat-solved').textContent = s.solved;
+  document.getElementById('stat-remaining').textContent = s.remaining;
+  document.getElementById('stat-correct').textContent = s.correct;
+  document.getElementById('stat-accuracy').textContent = s.accuracy_pct + '%';
+  document.getElementById('progress-bar').style.width = (s.total ? Math.round(s.solved/s.total*100) : 0) + '%';
+}
+function renderQuestion(data) {
+  answered = false;
+  currentItemId = data.item_id; currentScopeKey = data.scope_key; currentCycle = data.cycle_number;
+  renderStats(data.stats);
+  const q = data.question;
+  const opts = q.options.map(o => `
+    <button type="button" data-letter="${esc(o.letter)}" class="option-btn compact-card" style="display:flex;gap:10px;text-align:left;width:100%;cursor:pointer;margin-bottom:8px;border:2px solid #ddd;background:#fff;">
+      <strong>${esc(o.letter)}</strong><span>${esc(o.text)}</span>
+    </button>`).join('');
+  document.getElementById('question-area').innerHTML = `
+    <div class="compact-card">
+      <p style="white-space:pre-line;">${esc(q.question_text)}</p>
+      <div id="options-list">${opts}</div>
+      <div id="explanation-area"></div>
+    </div>`;
+  document.querySelectorAll('.option-btn').forEach(btn => {
+    btn.addEventListener('click', () => selectOption(btn.dataset.letter));
+  });
+}
+function renderDone(stats) {
+  renderStats(stats);
+  document.getElementById('question-area').innerHTML = `
+    <div class="compact-card" style="text-align:center;">
+      <h2>Cycle complete!</h2>
+      <p class="muted">You answered all ${esc(stats.total)} question(s) — ${esc(stats.correct)}/${esc(stats.solved)} correct (${esc(stats.accuracy_pct)}%).</p>
+      <button type="button" class="btn btn--primary" id="new-cycle-btn">Start a new cycle</button>
+    </div>`;
+  document.getElementById('new-cycle-btn').addEventListener('click', startNewCycle);
+}
+async function loadNext() {
+  const res = await fetch('/mcq-bank/api/next?' + qs(SCOPE));
+  const data = await res.json();
+  if (data.daily_target) renderDailyTarget(data.daily_target);
+  if (data.done) { renderDone(data.stats); return; }
+  renderQuestion(data);
+}
+async function selectOption(letter) {
+  if (answered) return;
+  answered = true;
+  document.querySelectorAll('.option-btn').forEach(b => b.onclick = null);
+  const res = await fetch('/mcq-bank/api/answer', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({item_id: currentItemId, scope_key: currentScopeKey, cycle_number: currentCycle, selected_option: letter}),
+  });
+  const result = await res.json();
+  document.querySelectorAll('.option-btn').forEach(btn => {
+    const l = btn.dataset.letter;
+    if (l === result.correct_answer) btn.style.borderColor = '#16a34a', btn.style.background = '#f0fdf4';
+    else if (l === letter) btn.style.borderColor = '#dc2626', btn.style.background = '#fef2f2';
+    else btn.style.opacity = '0.5';
+  });
+  const badge = result.is_correct ? '<span class="badge">✓ Correct</span>' : '<span class="badge">✗ Incorrect</span>';
+  const refs = Array.isArray(result.references) ? result.references.join(', ') : (result.references || '');
+  document.getElementById('explanation-area').innerHTML = `
+    <div style="border-top:1px solid #eee;margin-top:12px;padding-top:12px;">
+      ${badge}
+      <p style="white-space:pre-line;">${esc(result.explanation_text)}</p>
+      ${refs ? `<p class="muted" style="font-size:12px;">${esc(refs)}</p>` : ''}
+      <button type="button" class="btn btn--primary" id="next-q-btn">Next question →</button>
+    </div>`;
+  document.getElementById('next-q-btn').addEventListener('click', loadNext);
+  renderStats(result.stats);
+  if (result.daily_target) renderDailyTarget(result.daily_target);
+}
+async function startNewCycle() {
+  await fetch('/mcq-bank/api/new_cycle', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({scope_key: currentScopeKey})});
+  loadNext();
+}
+loadNext();
+</script>
+{% endblock %}

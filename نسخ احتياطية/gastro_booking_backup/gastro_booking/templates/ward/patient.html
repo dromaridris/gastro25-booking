@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}{{ patient.patient_name }} · Ward{% endblock %}
+{% block content %}
+<div class="page-compact">
+<section class="ward-topbar">
+  <div class="ward-topbar-main">
+    <h1>{{ patient.patient_name }}</h1>
+    <span class="muted ward-topbar-sub">
+      MRN {{ patient.mrn or '—' }} ·
+      {% if admission %}Bed {{ admission.bed_label }} ({{ admission.bed_kind }}){% else %}Not admitted{% endif %}
+    </span>
+  </div>
+  <div class="ward-topbar-actions">
+    <a href="{{ url_for('gi_clinical_workflow', ward_patient_id=patient.id) }}" class="btn btn--primary btn--sm">Clinical workflow</a>
+    <a href="{{ url_for('gi_patient_documents', ward_patient_id=patient.id) }}" class="btn btn--outline btn--sm">Documents</a>
+    <a href="{{ url_for('gi_consult_request_new', ward_patient_id=patient.id) }}" class="btn btn--outline btn--sm">Consult</a>
+    <a href="{{ url_for('gi_laboratory_patient', ward_patient_id=patient.id) }}" class="btn btn--outline btn--sm">Laboratory</a>
+    <a href="{{ url_for('gi_patient_journey', ward_patient_id=patient.id) }}" class="btn btn--outline btn--sm">Journey</a>
+    <a href="{{ url_for('ward_dashboard') }}" class="btn btn--outline btn--sm">← Ward board</a>
+  </div>
+</section>
+
+{% if not patient.mrn %}
+<section class="admin-section compact-section" style="border-left:3px solid #b45309;">
+  <h2>MRN missing</h2>
+  <p class="muted">MRN links this ward chart to booking appointments and procedures. Add it when available.</p>
+  <form method="post" action="{{ url_for('ward_patient_update_mrn', ward_patient_id=patient.id) }}" class="settings-form">
+    <label>Hospital MRN<input name="mrn" required placeholder="e.g. 123456"></label>
+    <button type="submit" class="btn btn--primary btn--sm">Save MRN &amp; link identity</button>
+  </form>
+</section>
+{% endif %}
+
+<section class="admin-section compact-section" id="clinical">
+  <h2>Clinical workflow</h2>
+  <p class="muted">One physician path: choose diagnostic or known-disease encounter, then History → Exam → Investigations → Summary → Plan.</p>
+  <div class="btn-row">
+    <a class="btn btn--primary btn--sm" href="{{ url_for('gi_clinical_workflow', ward_patient_id=patient.id) }}">Open clinical workflow</a>
+  </div>
+  {% if generated_history %}
+  <p class="muted muted-sm">Last narrative draft {{ generated_history.generated_at or '' }}</p>
+  {% endif %}
+</section>
+
+{% if linked_appointments is defined %}
+<section class="admin-section compact-section" id="appointments">
+  <h2>Linked booking appointments</h2>
+  {% if patient.mrn %}
+  <p class="muted muted-sm">Matched by MRN {{ patient.mrn }}</p>
+  {% if linked_appointments %}
+  <div class="admin-table-scroll">
+    <table class="admin-table compact-table">
+      <thead><tr><th>Date</th><th>Procedure</th><th>Patient</th><th>Notes</th></tr></thead>
+      <tbody>
+        {% for a in linked_appointments %}
+        <tr>
+          <td>{{ a.appointment_date }}</td>
+          <td>{{ a.procedure_type }}</td>
+          <td>{{ a.patient_name }}</td>
+          <td class="muted muted-sm">{{ (a.clinical_notes or '')[:80] }}{% if a.clinical_notes and a.clinical_notes|length > 80 %}…{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted">No scheduled appointments found for this MRN.</p>
+  {% endif %}
+  {% else %}
+  <p class="muted">Add an MRN to surface scheduled procedures from booking.</p>
+  {% endif %}
+</section>
+{% endif %}
+
+<section class="admin-section compact-section" id="tasks">
+  <h2>Task distribution</h2>
+  <p class="muted">PG Trainee → history · House Officer → labs · Registrar → approvals · Consultant → procedures</p>
+  <div class="btn-row">
+    <a class="btn btn--sm btn--outline" href="{{ url_for('gi_patient_tasks', ward_patient_id=patient.id) }}">Manage tasks</a>
+    <a class="btn btn--sm btn--outline" href="{{ url_for('gi_registrar_approvals') }}">Registrar approvals</a>
+    <a class="btn btn--sm btn--outline" href="{{ url_for('gi_governance_dashboard') }}">Governance / logbook</a>
+  </div>
+  <ul class="compact-list">
+    {% for t in tasks %}
+    <li>{{ t.title }} — <em>{{ t.assigned_role|replace('_',' ')|title }}</em> ({{ t.status }})</li>
+    {% else %}
+    <li class="muted">No tasks yet.</li>
+    {% endfor %}
+  </ul>
+</section>
+
+<section class="admin-section compact-section" id="discharge">
+  <h2>Discharge summary</h2>
+  {% if discharge_checklist %}
+  <div class="compact-card" style="margin-bottom:12px;font-size:13px;">
+    <strong>Discharge checklist</strong>
+    <div>{% if discharge_checklist.has_final_diagnosis %}✓{% else %}○{% endif %} Final diagnosis
+      {% if discharge_checklist.final_diagnosis %}— {{ discharge_checklist.final_diagnosis }}{% endif %}</div>
+    <div>{% if discharge_checklist.has_approved_plan %}✓{% else %}○{% endif %} Approved management plan
+      {% if discharge_checklist.plan_status %}({{ discharge_checklist.plan_status }}){% endif %}</div>
+    <div>{% if discharge_checklist.has_summary %}✓{% else %}○{% endif %} Discharge summary on file</div>
+  </div>
+  {% endif %}
+  {% if lab_results %}
+  <div class="compact-card" style="margin-bottom:12px;font-size:13px;">
+    <strong>Recent labs</strong> (auto from Laboratory — included in summary draft below)
+    <ul style="margin:6px 0 0;padding-left:18px;">
+      {% for lab in lab_results[:8] %}
+      <li>{{ lab.test_name or lab.test_code }}: {{ lab.result_value }}{% if lab.result_unit %} {{ lab.result_unit }}{% endif %}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+  <form method="post" action="{{ url_for('ward_discharge_summary', ward_patient_id=patient.id) }}" class="settings-form">
+    <label>Summary<textarea name="summary_text" rows="6" required placeholder="Hospital course, key findings, condition on discharge…">{% if labs_prefill and not discharge_summaries %}{{ labs_prefill }}
+
+{% endif %}</textarea></label>
+    <label>Follow-up plan<textarea name="follow_up_plan" rows="3" placeholder="Outpatient review, medications, red flags…"></textarea></label>
+    <button type="submit" class="btn btn--outline">Save discharge summary</button>
+  </form>
+  {% for ds in discharge_summaries %}
+  <article class="compact-card">
+    <span class="muted muted-sm">{{ ds.created_at }}</span>
+    <p class="compact-text">{{ ds.summary_text }}</p>
+    {% if ds.follow_up_plan %}<p><strong>Follow-up:</strong> {{ ds.follow_up_plan }}</p>{% endif %}
+  </article>
+  {% endfor %}
+</section>
+
+<section class="admin-section compact-section" id="notes">
+  <h2>Clinical notes</h2>
+  <form method="post" action="{{ url_for('ward_patient_add_note', ward_patient_id=patient.id) }}" class="settings-form">
+    <label>Note type
+      <select name="note_type">
+        <option value="progress">Daily progress note</option>
+        <option value="consultant">Consultant note</option>
+        <option value="follow_up">Follow-up note</option>
+        <option value="management">Management plan</option>
+      </select>
+    </label>
+    <label>Note<textarea name="body" rows="4" required></textarea></label>
+    <button type="submit" class="btn btn--primary">Save note</button>
+  </form>
+  {% if notes %}
+  <div style="margin-top:16px;">
+    {% for n in notes %}
+    <article class="compact-card">
+      <strong>{{ n.note_type|replace('_',' ')|title }}</strong>
+      <span class="muted muted-sm"> · {{ n.created_at }}</span>
+      <p class="compact-text">{{ n.body }}</p>
+    </article>
+    {% endfor %}
+  </div>
+  {% endif %}
+</section>
+</div>
+{% endblock %}

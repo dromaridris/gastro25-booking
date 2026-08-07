@@ -1,0 +1,9 @@
+[
+  {"id": "fh-gi-cancer", "code": "FH_gi_cancer", "label": "GI cancer in first-degree relative", "entity_type": "family_history", "specialty_tags": ["gastroenterology", "oncology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "fh-colon-cancer", "code": "FH_colon_cancer", "label": "Colon cancer in family", "entity_type": "family_history", "specialty_tags": ["gastroenterology", "oncology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "fh-ibd", "code": "FH_ibd", "label": "IBD in family", "entity_type": "family_history", "specialty_tags": ["gastroenterology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "fh-liver-disease", "code": "FH_liver_disease", "label": "Liver disease in family", "entity_type": "family_history", "specialty_tags": ["hepatology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "fh-cad", "code": "FH_premature_cad", "label": "Premature coronary disease in family", "entity_type": "family_history", "specialty_tags": ["cardiology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "fh-diabetes", "code": "FH_diabetes", "label": "Diabetes in family", "entity_type": "family_history", "specialty_tags": ["endocrinology", "general"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "fh-sudden-death", "code": "FH_sudden_death", "label": "Sudden death in family", "entity_type": "family_history", "specialty_tags": ["cardiology"], "schema_version": 1, "revision": 1, "status": "active"}
+]

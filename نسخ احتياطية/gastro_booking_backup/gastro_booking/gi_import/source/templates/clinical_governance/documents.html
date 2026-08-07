@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Controlled Documents{% endblock %}
+{% block content %}
+<h1>Document Control</h1>
+{% if can('governance:document_manage') %}
+<form method="POST" action="{{ url_for('clinical_governance.create_document') }}" class="mb-4 row g-2">
+    <div class="col-md-4"><input name="title" class="form-control form-control-sm" placeholder="Title" required></div>
+    <div class="col-md-2"><select name="document_type" class="form-select form-select-sm">{% for t in doc_types %}<option value="{{ t }}">{{ t }}</option>{% endfor %}</select></div>
+    <div class="col-md-2"><input name="version" class="form-control form-control-sm" value="1.0"></div>
+    <div class="col-md-2"><button class="btn btn-primary btn-sm">Create</button></div>
+</form>
+{% endif %}
+<table class="table table-sm"><thead><tr><th>Title</th><th>Type</th><th>Version</th><th>Status</th><th>Expiry</th><th></th></tr></thead>
+<tbody>{% for d in documents %}<tr><td>{{ d.title }}</td><td>{{ d.document_type }}</td><td>{{ d.version }}</td><td>{{ d.status }}</td><td>{{ d.expiry_date or '—' }}</td>
+<td><form method="POST" action="{{ url_for('clinical_governance.acknowledge_document', doc_id=d.id) }}" class="d-inline"><button class="btn btn-sm btn-outline-secondary">Acknowledge</button></form></td></tr>{% else %}<tr><td colspan="6" class="text-muted">No documents.</td></tr>{% endfor %}</tbody></table>
+{% endblock %}

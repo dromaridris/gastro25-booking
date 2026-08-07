@@ -1,0 +1,895 @@
+{
+  "schema_version": "1",
+  "template_key": "colonoscopy_v2",
+  "label": "Colonoscopy — Structured Clinical Report",
+  "sections": [
+    {
+      "id": "context",
+      "label": "Clinical Context",
+      "workflow_phase": "WF_CONTEXT",
+      "fields": [
+        {
+          "id": "colonoscopy_v2.context.indication_category",
+          "label": "Indication category",
+          "type": "multi_select",
+          "required": true,
+          "default": [],
+          "vocabulary_source": "colonoscopy_indication_category",
+          "workflow_phases": ["WF_CONTEXT"],
+          "research_flag": true
+        },
+        {
+          "id": "colonoscopy_v2.context.indication_detail",
+          "label": "Indication detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_CONTEXT"]
+        },
+        {
+          "id": "colonoscopy_v2.context.urgency",
+          "label": "Urgency",
+          "type": "dropdown",
+          "required": true,
+          "default": "",
+          "vocabulary_source": "procedure_urgency",
+          "workflow_phases": ["WF_CONTEXT"]
+        },
+        {
+          "id": "colonoscopy_v2.context.consent_obtained",
+          "label": "Consent obtained",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": ["WF_CONTEXT"]
+        },
+        {
+          "id": "colonoscopy_v2.context.anticoagulation",
+          "label": "Anticoagulation / antiplatelet therapy",
+          "type": "dropdown",
+          "default": "",
+          "vocabulary_source": "anticoagulation_status",
+          "workflow_phases": ["WF_CONTEXT"]
+        },
+        {
+          "id": "colonoscopy_v2.context.anticoagulation_management",
+          "label": "Anticoagulation management",
+          "type": "dropdown",
+          "default": "",
+          "vocabulary_source": "anticoagulation_management",
+          "workflow_phases": ["WF_CONTEXT"],
+          "visibility": {
+            "when": "field",
+            "field_id": "colonoscopy_v2.context.anticoagulation",
+            "operator": "not_equals",
+            "value": "none"
+          }
+        },
+        {
+          "id": "colonoscopy_v2.context.asa_class",
+          "label": "ASA class",
+          "type": "dropdown",
+          "default": "",
+          "vocabulary_source": "asa_class",
+          "workflow_phases": ["WF_CONTEXT"]
+        }
+      ]
+    },
+    {
+      "id": "procedure",
+      "label": "Procedure",
+      "workflow_phase": "WF_ACCESS",
+      "fields": [
+        {
+          "id": "colonoscopy_v2.procedure.sedation_type",
+          "label": "Sedation type",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "sedation_type",
+          "workflow_phases": ["WF_ACCESS"]
+        },
+        {
+          "id": "colonoscopy_v2.procedure.scope_type",
+          "label": "Scope type",
+          "type": "dropdown",
+          "default": "",
+          "vocabulary_source": "colonoscopy_scope_type",
+          "workflow_phases": ["WF_ACCESS"]
+        },
+        {
+          "id": "colonoscopy_v2.procedure.caecum_reached",
+          "label": "Caecum reached",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": ["WF_ACCESS"],
+          "qi_flag": true,
+          "qi_mapping": { "metric_key": "caecum_intubation", "operator": "equals", "value": "Yes" }
+        },
+        {
+          "id": "colonoscopy_v2.procedure.ti_intubated",
+          "label": "Terminal ileum intubated",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_ACCESS"],
+          "qi_flag": true,
+          "qi_mapping": { "metric_key": "ti_intubation", "operator": "equals", "value": "Yes" }
+        },
+        {
+          "id": "colonoscopy_v2.procedure.withdrawal_time_min",
+          "label": "Withdrawal time (minutes)",
+          "type": "text",
+          "default": "",
+          "workflow_phases": ["WF_ACCESS"],
+          "qi_flag": true,
+          "qi_mapping": { "metric_key": "withdrawal_time_min", "operator": "not_empty", "value": null }
+        },
+        {
+          "id": "colonoscopy_v2.procedure.bbps_right",
+          "label": "BBPS — right colon",
+          "type": "dropdown",
+          "default": "",
+          "vocabulary_source": "bbps_score",
+          "workflow_phases": ["WF_ACCESS"]
+        },
+        {
+          "id": "colonoscopy_v2.procedure.bbps_transverse",
+          "label": "BBPS — transverse colon",
+          "type": "dropdown",
+          "default": "",
+          "vocabulary_source": "bbps_score",
+          "workflow_phases": ["WF_ACCESS"]
+        },
+        {
+          "id": "colonoscopy_v2.procedure.bbps_left",
+          "label": "BBPS — left colon",
+          "type": "dropdown",
+          "default": "",
+          "vocabulary_source": "bbps_score",
+          "workflow_phases": ["WF_ACCESS"]
+        },
+        {
+          "id": "colonoscopy_v2.procedure.prep_regimen",
+          "label": "Bowel preparation regimen",
+          "type": "dropdown",
+          "default": "",
+          "vocabulary_source": "bowel_prep_regimen",
+          "workflow_phases": ["WF_ACCESS"]
+        },
+        {
+          "id": "colonoscopy_v2.procedure.limited_exam",
+          "label": "Limited examination",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_ACCESS"]
+        },
+        {
+          "id": "colonoscopy_v2.procedure.limited_exam_reason",
+          "label": "Reason for limited examination",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_ACCESS"],
+          "visibility": {
+            "when": "field",
+            "field_id": "colonoscopy_v2.procedure.limited_exam",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        }
+      ]
+    },
+    {
+      "id": "findings",
+      "label": "Findings",
+      "workflow_phase": "WF_IMAGING",
+      "fields": [
+        {
+          "id": "colonoscopy_v2.findings.terminal_ileum_normal",
+          "label": "Terminal ileum — normal",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"]
+        },
+        {
+          "id": "colonoscopy_v2.findings.terminal_ileum_findings",
+          "label": "Terminal ileum — findings",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "colonic_finding_type",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "colonoscopy_v2.findings.terminal_ileum_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "colonoscopy_v2.findings.terminal_ileum_detail",
+          "label": "Terminal ileum — detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "colonoscopy_v2.findings.terminal_ileum_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "colonoscopy_v2.findings.caecum_normal",
+          "label": "Caecum — normal",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"]
+        },
+        {
+          "id": "colonoscopy_v2.findings.caecum_findings",
+          "label": "Caecum — findings",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "colonic_finding_type",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "colonoscopy_v2.findings.caecum_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "colonoscopy_v2.findings.caecum_detail",
+          "label": "Caecum — detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "colonoscopy_v2.findings.caecum_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "colonoscopy_v2.findings.ascending_normal",
+          "label": "Ascending colon — normal",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"]
+        },
+        {
+          "id": "colonoscopy_v2.findings.ascending_findings",
+          "label": "Ascending colon — findings",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "colonic_finding_type",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "colonoscopy_v2.findings.ascending_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "colonoscopy_v2.findings.ascending_detail",
+          "label": "Ascending colon — detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "colonoscopy_v2.findings.ascending_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "colonoscopy_v2.findings.transverse_normal",
+          "label": "Transverse colon — normal",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"]
+        },
+        {
+          "id": "colonoscopy_v2.findings.transverse_findings",
+          "label": "Transverse colon — findings",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "colonic_finding_type",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "colonoscopy_v2.findings.transverse_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "colonoscopy_v2.findings.transverse_detail",
+          "label": "Transverse colon — detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "colonoscopy_v2.findings.transverse_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "colonoscopy_v2.findings.descending_normal",
+          "label": "Descending colon — normal",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"]
+        },
+        {
+          "id": "colonoscopy_v2.findings.descending_findings",
+          "label": "Descending colon — findings",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "colonic_finding_type",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "colonoscopy_v2.findings.descending_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "colonoscopy_v2.findings.descending_detail",
+          "label": "Descending colon — detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "colonoscopy_v2.findings.descending_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "colonoscopy_v2.findings.sigmoid_normal",
+          "label": "Sigmoid colon — normal",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"]
+        },
+        {
+          "id": "colonoscopy_v2.findings.sigmoid_findings",
+          "label": "Sigmoid colon — findings",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "colonic_finding_type",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "colonoscopy_v2.findings.sigmoid_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "colonoscopy_v2.findings.sigmoid_detail",
+          "label": "Sigmoid colon — detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "colonoscopy_v2.findings.sigmoid_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "colonoscopy_v2.findings.rectum_normal",
+          "label": "Rectum — normal",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"]
+        },
+        {
+          "id": "colonoscopy_v2.findings.rectum_findings",
+          "label": "Rectum — findings",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "colonic_finding_type",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "colonoscopy_v2.findings.rectum_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "colonoscopy_v2.findings.rectum_detail",
+          "label": "Rectum — detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "colonoscopy_v2.findings.rectum_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "colonoscopy_v2.findings.anus_normal",
+          "label": "Anus — normal",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"]
+        },
+        {
+          "id": "colonoscopy_v2.findings.anus_findings",
+          "label": "Anus — findings",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "colonic_finding_type",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "colonoscopy_v2.findings.anus_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "colonoscopy_v2.findings.anus_detail",
+          "label": "Anus — detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "colonoscopy_v2.findings.anus_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        }
+      ]
+    },
+    {
+      "id": "interventions",
+      "label": "Interventions",
+      "workflow_phase": "WF_THERAPY",
+      "fields": [
+        {
+          "id": "colonoscopy_v2.interventions.interventions",
+          "label": "Interventions",
+          "type": "repeatable_group",
+          "default": [],
+          "min_rows": 0,
+          "workflow_phases": ["WF_THERAPY"],
+          "fields": [
+            {
+              "id": "intervention_type",
+              "label": "Intervention type",
+              "type": "dropdown",
+              "vocabulary_source": "colonoscopy_intervention_type"
+            },
+            {
+              "id": "success",
+              "label": "Success",
+              "type": "yes_no"
+            },
+            {
+              "id": "details",
+              "label": "Details",
+              "type": "text"
+            }
+          ],
+          "narrative_binding": {
+            "mode": "list",
+            "field_id": "colonoscopy_v2.interventions.interventions",
+            "item_template": "{index}. {intervention_type} — success: {success}; {details}",
+            "empty_text": "No therapeutic interventions recorded."
+          }
+        }
+      ]
+    },
+    {
+      "id": "closure",
+      "label": "Closure",
+      "workflow_phase": "WF_CLOSURE",
+      "fields": [
+        {
+          "id": "colonoscopy_v2.closure.procedure_completed",
+          "label": "Procedure completed as planned",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": ["WF_CLOSURE"],
+          "qi_flag": true,
+          "qi_mapping": { "metric_key": "procedure_completed", "operator": "equals", "value": "Yes" }
+        },
+        {
+          "id": "colonoscopy_v2.closure.immediate_complication",
+          "label": "Immediate complication",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": ["WF_CLOSURE"],
+          "qi_flag": true,
+          "qi_mapping": { "metric_key": "immediate_complication", "operator": "equals", "value": "Yes" }
+        },
+        {
+          "id": "colonoscopy_v2.closure.complication_types",
+          "label": "Complication type(s)",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "standard_complication_type",
+          "workflow_phases": ["WF_CLOSURE"],
+          "visibility": {
+            "when": "field",
+            "field_id": "colonoscopy_v2.closure.immediate_complication",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "colonoscopy_v2.closure.complication_detail",
+          "label": "Complication detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_CLOSURE"],
+          "visibility": {
+            "when": "field",
+            "field_id": "colonoscopy_v2.closure.immediate_complication",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "colonoscopy_v2.closure.specimens_sent",
+          "label": "Specimens sent to histology",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_CLOSURE"]
+        },
+        {
+          "id": "colonoscopy_v2.closure.specimen_details",
+          "label": "Specimen details",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_CLOSURE"],
+          "visibility": {
+            "when": "field",
+            "field_id": "colonoscopy_v2.closure.specimens_sent",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        }
+      ]
+    },
+    {
+      "id": "synthesis",
+      "label": "Synthesis",
+      "workflow_phase": "WF_SYNTHESIS",
+      "fields": [
+        {
+          "id": "colonoscopy_v2.synthesis.impression_primary",
+          "label": "Primary impression",
+          "type": "long_text",
+          "required": true,
+          "default": "",
+          "workflow_phases": ["WF_SYNTHESIS"]
+        },
+        {
+          "id": "colonoscopy_v2.synthesis.clinical_plan",
+          "label": "Recommendations / clinical plan",
+          "type": "long_text",
+          "required": true,
+          "default": "",
+          "workflow_phases": ["WF_SYNTHESIS"]
+        },
+        {
+          "id": "colonoscopy_v2.synthesis.surveillance_interval",
+          "label": "Surveillance interval",
+          "type": "dropdown",
+          "default": "",
+          "vocabulary_source": "surveillance_interval",
+          "workflow_phases": ["WF_SYNTHESIS"]
+        },
+        {
+          "id": "colonoscopy_v2.synthesis.follow_up_procedure",
+          "label": "Follow-up procedure planned",
+          "type": "dropdown",
+          "default": "",
+          "vocabulary_source": "follow_up_procedure",
+          "workflow_phases": ["WF_SYNTHESIS"]
+        },
+        {
+          "id": "colonoscopy_v2.synthesis.addendum_text",
+          "label": "Addendum",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_SYNTHESIS"]
+        }
+      ]
+    }
+  ],
+  "components": {
+    "timeline": [
+      { "key": "scope_insertion", "label": "Scope inserted" },
+      { "key": "caecum_reached", "label": "Caecum reached" },
+      { "key": "scope_removal", "label": "Scope removed" }
+    ]
+  },
+  "section_narratives": [
+    {
+      "section": "clinical_indication",
+      "intro": "Clinical indication for colonoscopy:",
+      "bindings": [
+        { "mode": "literal", "field_id": "colonoscopy_v2.context.indication_category", "label": "Category" },
+        { "mode": "literal", "field_id": "colonoscopy_v2.context.indication_detail", "label": "Detail" },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.context.urgency", "template": "Urgency: {value}." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.context.consent_obtained", "template": "Consent obtained: {value}." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.context.anticoagulation", "template": "Anticoagulation / antiplatelet: {value}." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.context.anticoagulation_management", "template": "Anticoagulation management: {value}." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.context.asa_class", "template": "ASA class: {value}." }
+      ]
+    },
+    {
+      "section": "procedure_description",
+      "intro": "Colonoscopy was performed under appropriate sedation and monitoring.",
+      "bindings": [
+        { "mode": "literal", "field_id": "colonoscopy_v2.procedure.sedation_type", "label": "Sedation" },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.procedure.scope_type", "template": "Scope: {value}." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.procedure.caecum_reached", "template": "Caecum reached: {value}." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.procedure.ti_intubated", "template": "Terminal ileum intubated: {value}." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.procedure.withdrawal_time_min", "template": "Withdrawal time: {value} minutes." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.procedure.bbps_right", "template": "BBPS right: {value}." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.procedure.bbps_transverse", "template": "BBPS transverse: {value}." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.procedure.bbps_left", "template": "BBPS left: {value}." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.procedure.prep_regimen", "template": "Bowel prep regimen: {value}." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.procedure.limited_exam", "template": "Limited examination: {value}." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.procedure.limited_exam_reason", "template": "Reason for limited exam: {value}." }
+      ]
+    },
+    {
+      "section": "findings",
+      "intro": "Colonoscopic findings:",
+      "bindings": [
+        { "mode": "sentence", "field_id": "colonoscopy_v2.findings.terminal_ileum_normal", "template": "Terminal ileum: {value} (normal)." },
+        { "mode": "literal", "field_id": "colonoscopy_v2.findings.terminal_ileum_findings", "label": "Terminal ileum findings" },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.findings.terminal_ileum_detail", "template": "Terminal ileum detail: {value}." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.findings.caecum_normal", "template": "Caecum: {value} (normal)." },
+        { "mode": "literal", "field_id": "colonoscopy_v2.findings.caecum_findings", "label": "Caecum findings" },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.findings.caecum_detail", "template": "Caecum detail: {value}." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.findings.ascending_normal", "template": "Ascending colon: {value} (normal)." },
+        { "mode": "literal", "field_id": "colonoscopy_v2.findings.ascending_findings", "label": "Ascending colon findings" },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.findings.ascending_detail", "template": "Ascending colon detail: {value}." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.findings.transverse_normal", "template": "Transverse colon: {value} (normal)." },
+        { "mode": "literal", "field_id": "colonoscopy_v2.findings.transverse_findings", "label": "Transverse colon findings" },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.findings.transverse_detail", "template": "Transverse colon detail: {value}." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.findings.descending_normal", "template": "Descending colon: {value} (normal)." },
+        { "mode": "literal", "field_id": "colonoscopy_v2.findings.descending_findings", "label": "Descending colon findings" },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.findings.descending_detail", "template": "Descending colon detail: {value}." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.findings.sigmoid_normal", "template": "Sigmoid colon: {value} (normal)." },
+        { "mode": "literal", "field_id": "colonoscopy_v2.findings.sigmoid_findings", "label": "Sigmoid colon findings" },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.findings.sigmoid_detail", "template": "Sigmoid colon detail: {value}." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.findings.rectum_normal", "template": "Rectum: {value} (normal)." },
+        { "mode": "literal", "field_id": "colonoscopy_v2.findings.rectum_findings", "label": "Rectum findings" },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.findings.rectum_detail", "template": "Rectum detail: {value}." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.findings.anus_normal", "template": "Anus: {value} (normal)." },
+        { "mode": "literal", "field_id": "colonoscopy_v2.findings.anus_findings", "label": "Anus findings" },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.findings.anus_detail", "template": "Anus detail: {value}." },
+        {
+          "mode": "list",
+          "field_id": "colonoscopy_v2.interventions.interventions",
+          "item_template": "{index}. {intervention_type} — success: {success}; {details}",
+          "empty_text": "\nNo therapeutic interventions recorded."
+        }
+      ]
+    },
+    {
+      "section": "impression",
+      "bindings": [
+        { "mode": "sentence", "field_id": "colonoscopy_v2.synthesis.impression_primary", "template": "Impression:\n{value}" }
+      ]
+    },
+    {
+      "section": "recommendations",
+      "intro": "Recommendations / plan:",
+      "bindings": [
+        { "mode": "literal", "field_id": "colonoscopy_v2.synthesis.clinical_plan", "label": "" },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.synthesis.surveillance_interval", "template": "Surveillance interval: {value}." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.synthesis.follow_up_procedure", "template": "Follow-up procedure: {value}." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.synthesis.addendum_text", "template": "Addendum:\n{value}" }
+      ]
+    },
+    {
+      "section": "complications",
+      "intro": "Complications and closure:",
+      "bindings": [
+        { "mode": "sentence", "field_id": "colonoscopy_v2.closure.procedure_completed", "template": "Procedure completed as planned: {value}." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.closure.immediate_complication", "template": "Immediate complication: {value}." },
+        { "mode": "literal", "field_id": "colonoscopy_v2.closure.complication_types", "label": "Complication type(s)" },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.closure.complication_detail", "template": "Complication detail: {value}." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.closure.specimens_sent", "template": "Specimens sent to histology: {value}." },
+        { "mode": "sentence", "field_id": "colonoscopy_v2.closure.specimen_details", "template": "Specimen details: {value}." }
+      ]
+    }
+  ],
+  "workflow": {
+    "states": [
+      "WF_CONTEXT",
+      "WF_ACCESS",
+      "WF_IMAGING",
+      "WF_THERAPY",
+      "WF_CLOSURE",
+      "WF_SYNTHESIS",
+      "WF_REVIEW",
+      "WF_FINALIZE"
+    ],
+    "transitions": {
+      "WF_CONTEXT": ["WF_ACCESS"],
+      "WF_ACCESS": ["WF_CONTEXT", "WF_IMAGING"],
+      "WF_IMAGING": ["WF_ACCESS", "WF_THERAPY"],
+      "WF_THERAPY": ["WF_IMAGING", "WF_CLOSURE"],
+      "WF_CLOSURE": ["WF_THERAPY", "WF_SYNTHESIS"],
+      "WF_SYNTHESIS": ["WF_CLOSURE", "WF_REVIEW"],
+      "WF_REVIEW": ["WF_SYNTHESIS", "WF_FINALIZE"],
+      "WF_FINALIZE": ["WF_REVIEW"]
+    }
+  },
+  "validation": [
+    {
+      "id": "V_COL_INDICATION",
+      "severity": "error",
+      "message": "Indication category is required before finalize.",
+      "rule": { "type": "field_present", "field_id": "colonoscopy_v2.context.indication_category" }
+    },
+    {
+      "id": "V_COL_URGENCY",
+      "severity": "error",
+      "message": "Urgency is required before finalize.",
+      "rule": { "type": "field_present", "field_id": "colonoscopy_v2.context.urgency" }
+    },
+    {
+      "id": "V_COL_CONSENT",
+      "severity": "error",
+      "message": "Consent outcome must be documented before finalize.",
+      "rule": { "type": "field_in", "field_id": "colonoscopy_v2.context.consent_obtained", "values": ["Yes", "No"] }
+    },
+    {
+      "id": "V_COL_CAECUM",
+      "severity": "error",
+      "message": "Caecum reached outcome must be documented before finalize.",
+      "rule": { "type": "field_present", "field_id": "colonoscopy_v2.procedure.caecum_reached" }
+    },
+    {
+      "id": "V_COL_PROCEDURE_COMPLETED",
+      "severity": "error",
+      "message": "Procedure completion status is required before finalize.",
+      "rule": { "type": "field_present", "field_id": "colonoscopy_v2.closure.procedure_completed" }
+    },
+    {
+      "id": "V_COL_IMMEDIATE_COMPLICATION",
+      "severity": "error",
+      "message": "Immediate complication outcome must be documented before finalize.",
+      "rule": { "type": "field_present", "field_id": "colonoscopy_v2.closure.immediate_complication" }
+    },
+    {
+      "id": "V_COL_IMPRESSION",
+      "severity": "error",
+      "message": "Primary impression is required before finalize.",
+      "rule": { "type": "field_nonempty", "field_id": "colonoscopy_v2.synthesis.impression_primary" }
+    },
+    {
+      "id": "V_COL_PLAN",
+      "severity": "error",
+      "message": "Clinical plan / recommendations are required before finalize.",
+      "rule": { "type": "field_nonempty", "field_id": "colonoscopy_v2.synthesis.clinical_plan" }
+    },
+    {
+      "id": "V_COL_COMPLICATION_DETAIL",
+      "severity": "warning",
+      "message": "Immediate complication recorded — specify complication type(s).",
+      "rule": {
+        "type": "when_field_equals",
+        "field_id": "colonoscopy_v2.closure.immediate_complication",
+        "value": "Yes",
+        "then": { "type": "list_nonempty", "field_id": "colonoscopy_v2.closure.complication_types" }
+      }
+    },
+    {
+      "id": "V_COL_WITHDRAWAL",
+      "severity": "warning",
+      "message": "Withdrawal time not documented for complete colonoscopy.",
+      "rule": {
+        "type": "when_field_equals",
+        "field_id": "colonoscopy_v2.procedure.caecum_reached",
+        "value": "Yes",
+        "then": { "type": "field_nonempty", "field_id": "colonoscopy_v2.procedure.withdrawal_time_min" }
+      }
+    },
+    {
+      "id": "V_COL_BBPS",
+      "severity": "warning",
+      "message": "BBPS segments not fully documented when caecum reached.",
+      "rule": {
+        "type": "when_field_equals",
+        "field_id": "colonoscopy_v2.procedure.caecum_reached",
+        "value": "Yes",
+        "then": { "type": "field_present", "field_id": "colonoscopy_v2.procedure.bbps_right" }
+      }
+    }
+  ],
+  "quick_fill": {
+    "normal_diagnostic": {
+      "label": "Normal diagnostic colonoscopy",
+      "values": {
+        "colonoscopy_v2.context.indication_category": ["screening"],
+        "colonoscopy_v2.context.urgency": "elective",
+        "colonoscopy_v2.context.consent_obtained": "Yes",
+        "colonoscopy_v2.procedure.caecum_reached": "Yes",
+        "colonoscopy_v2.procedure.ti_intubated": "No",
+        "colonoscopy_v2.procedure.withdrawal_time_min": "8",
+        "colonoscopy_v2.procedure.bbps_right": "3",
+        "colonoscopy_v2.procedure.bbps_transverse": "3",
+        "colonoscopy_v2.procedure.bbps_left": "3",
+        "colonoscopy_v2.procedure.limited_exam": "No",
+        "colonoscopy_v2.findings.terminal_ileum_normal": "Yes",
+        "colonoscopy_v2.findings.caecum_normal": "Yes",
+        "colonoscopy_v2.findings.ascending_normal": "Yes",
+        "colonoscopy_v2.findings.transverse_normal": "Yes",
+        "colonoscopy_v2.findings.descending_normal": "Yes",
+        "colonoscopy_v2.findings.sigmoid_normal": "Yes",
+        "colonoscopy_v2.findings.rectum_normal": "Yes",
+        "colonoscopy_v2.findings.anus_normal": "Yes",
+        "colonoscopy_v2.closure.procedure_completed": "Yes",
+        "colonoscopy_v2.closure.immediate_complication": "No",
+        "colonoscopy_v2.synthesis.impression_primary": "Normal colonoscopy to caecum. No polyps or significant mucosal abnormality identified.",
+        "colonoscopy_v2.synthesis.clinical_plan": "Routine screening interval per local guidelines."
+      }
+    },
+    "polypectomy_session": {
+      "label": "Polypectomy session",
+      "values": {
+        "colonoscopy_v2.context.indication_category": ["polyp"],
+        "colonoscopy_v2.context.urgency": "elective",
+        "colonoscopy_v2.context.consent_obtained": "Yes",
+        "colonoscopy_v2.procedure.caecum_reached": "Yes",
+        "colonoscopy_v2.interventions.interventions": [
+          { "intervention_type": "polypectomy", "success": "Yes", "details": "Cold snare" }
+        ],
+        "colonoscopy_v2.closure.procedure_completed": "Yes",
+        "colonoscopy_v2.closure.immediate_complication": "No",
+        "colonoscopy_v2.closure.specimens_sent": "Yes",
+        "colonoscopy_v2.synthesis.impression_primary": "Polyp(s) removed. Specimens sent for histology.",
+        "colonoscopy_v2.synthesis.clinical_plan": "Surveillance interval pending histology."
+      }
+    },
+    "incomplete_prep": {
+      "label": "Incomplete — poor preparation",
+      "values": {
+        "colonoscopy_v2.context.indication_category": ["symptoms"],
+        "colonoscopy_v2.context.urgency": "elective",
+        "colonoscopy_v2.context.consent_obtained": "Yes",
+        "colonoscopy_v2.procedure.caecum_reached": "No",
+        "colonoscopy_v2.procedure.limited_exam": "Yes",
+        "colonoscopy_v2.procedure.limited_exam_reason": "Poor bowel preparation",
+        "colonoscopy_v2.closure.procedure_completed": "Yes",
+        "colonoscopy_v2.closure.immediate_complication": "No",
+        "colonoscopy_v2.synthesis.impression_primary": "Incomplete colonoscopy due to poor bowel preparation.",
+        "colonoscopy_v2.synthesis.clinical_plan": "Repeat colonoscopy after optimised bowel preparation."
+      }
+    }
+  },
+  "qi": [
+    { "metric_key": "caecum_intubation", "label": "Caecum intubation" },
+    { "metric_key": "ti_intubation", "label": "TI intubation" },
+    { "metric_key": "withdrawal_time_min", "label": "Withdrawal time documented" },
+    { "metric_key": "immediate_complication", "label": "Immediate complication" },
+    { "metric_key": "procedure_completed", "label": "Procedure completed" }
+  ]
+}

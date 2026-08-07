@@ -1,0 +1,9 @@
+[
+  {"id": "al-drug-allergy", "code": "AL_drug_allergy_unspecified", "label": "Drug allergy (unspecified)", "entity_type": "allergy", "specialty_tags": ["general"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "al-penicillin", "code": "AL_penicillin", "label": "Penicillin allergy", "entity_type": "allergy", "specialty_tags": ["general", "infectious_disease"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "al-sulfa", "code": "AL_sulfa", "label": "Sulfa allergy", "entity_type": "allergy", "specialty_tags": ["general"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "al-nsaid", "code": "AL_nsaid", "label": "NSAID allergy / intolerance", "entity_type": "allergy", "specialty_tags": ["general"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "al-contrast", "code": "AL_iodinated_contrast", "label": "Iodinated contrast allergy", "entity_type": "allergy", "specialty_tags": ["radiology", "emergency"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "al-latex", "code": "AL_latex", "label": "Latex allergy", "entity_type": "allergy", "specialty_tags": ["general", "surgery"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "al-food", "code": "AL_food_allergy", "label": "Food allergy", "entity_type": "allergy", "specialty_tags": ["allergy_immunology", "general"], "schema_version": 1, "revision": 1, "status": "active"}
+]

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% from "ui/macros.html" import page_header, data_table_wrapper, table_empty_row, status_badge %}
+
+{% block title %}Reports — {{ branding.display_title }}{% endblock %}
+
+{% block content %}
+{{ page_header("Endoscopy Reports", subtitle="Open a report from a procedure execution session or browse existing reports.", breadcrumbs=[("Reports", none)]) }}
+
+{% call data_table_wrapper('table-striped') %}
+    <thead>
+        <tr>
+            <th scope="col">Report #</th>
+            <th scope="col">Patient</th>
+            <th scope="col">Status</th>
+            <th scope="col">Author</th>
+            <th scope="col"><span class="visually-hidden">Actions</span></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for report in reports %}
+        <tr>
+            <td>{{ report.report_number }}</td>
+            <td>{{ report.patient.full_name if report.patient else "—" }}</td>
+            <td>{{ status_badge(report.status.title(), "gi-badge-muted") }}</td>
+            <td>{{ report.author.full_name if report.author else "—" }}</td>
+            <td><a href="{{ url_for('reports.view_report', report_id=report.id) }}" class="btn btn-outline-primary btn-sm">Open</a></td>
+        </tr>
+        {% else %}
+        {{ table_empty_row(5, "No endoscopy reports yet", "Reports are written after a procedure is performed. Book and complete a procedure first.") }}
+        {% endfor %}
+    </tbody>
+{% endcall %}
+{% endblock %}

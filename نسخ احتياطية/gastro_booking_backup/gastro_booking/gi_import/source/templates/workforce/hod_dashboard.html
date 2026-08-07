@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Department Training Overview{% endblock %}
+{% block content %}
+<div class="gi-page-header mb-4">
+    <p class="gi-eyebrow mb-1">Workforce &amp; Training</p>
+    <h1 class="gi-page-title h2 mb-1">Department Training Overview</h1>
+    <p class="gi-page-subtitle text-muted mb-0">Supervision analytics — not public ranking.</p>
+</div>
+
+{% include "ui/_quick_actions.html" %}
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card gi-stat-card h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase fw-semibold mb-1">Trainees</div>
+                <div class="gi-stat-value gi-stat-primary">{{ department.trainee_count }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card gi-stat-card h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase fw-semibold mb-1">Encounters</div>
+                <div class="gi-stat-value gi-stat-accent">{{ workload_summary.encounters }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card gi-stat-card h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase fw-semibold mb-1">Procedures</div>
+                <div class="gi-stat-value gi-stat-secondary">{{ workload_summary.procedures }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card gi-stat-card h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase fw-semibold mb-1">Reports</div>
+                <div class="gi-stat-value gi-stat-primary">{{ workload_summary.reports }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2 class="h5 mb-3 fw-semibold">Trainee comparison</h2>
+<div class="gi-table-wrapper">
+    <div class="table-responsive">
+        <table class="table table-striped gi-table mb-0">
+            <thead>
+                <tr>
+                    <th>Trainee</th>
+                    <th>Encounters</th>
+                    <th>Procedures</th>
+                    <th>Reports</th>
+                    <th>Research</th>
+                    <th>Avg daily</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for row in trainee_comparison %}
+                <tr>
+                    <td class="fw-medium">{{ row.name }}</td>
+                    <td>{{ row.encounters }}</td>
+                    <td>{{ row.procedures }}</td>
+                    <td>{{ row.reports }}</td>
+                    <td>{{ row.research }}</td>
+                    <td>{{ row.avg_daily }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

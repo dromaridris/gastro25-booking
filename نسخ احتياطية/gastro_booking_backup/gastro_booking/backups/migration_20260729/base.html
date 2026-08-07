@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}JPMC Gastro Booking{% endblock %}</title>
+
+<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='icons/favicon.ico') }}">
+<link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='icons/icon-32.png') }}">
+<link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='icons/icon-16.png') }}">
+<link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='icons/icon-180.png') }}">
+<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+<meta name="theme-color" content="#A6192E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gastro Booking">
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+{% if current_user %}
+<header class="topbar no-print">
+  <div class="topbar-inner">
+    <div class="brand">
+      <img src="{{ url_for('static', filename='logos/jpmc_logo1.png') }}" alt="JPGMC" class="brand-logo brand-logo--institute">
+      <img src="{{ url_for('static', filename='logos/jpmc_gastro_logo.png') }}" alt="Dept. of Gastroenterology" class="brand-logo brand-logo--dept">
+      <div class="brand-text">
+        <span class="brand-title">Gastroenterology • Advanced Endoscopy</span>
+        <span class="brand-sub">Research Center · Ward 25 · JPMC</span>
+        <span class="brand-sub brand-sub-line2">The Source of Truth and Care</span>
+      </div>
+    </div>
+    <button class="nav-toggle no-print" id="navToggleBtn" aria-label="Menu" aria-expanded="false">☰</button>
+    <nav class="mainnav" id="mainNav">
+      <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint=='dashboard' }}">Today</a>
+      <a href="{{ url_for('calendar_view') }}" class="{{ 'active' if request.endpoint=='calendar_view' }}">Calendar</a>
+      {% if current_user.role in ['admin','specialist','nurse_manager'] %}
+      {% set research_active = request.endpoint in ['statistics_view', 'ercp_research_registry', 'dilatation_registry'] %}
+      <div class="nav-dropdown">
+        <button type="button" class="nav-dropdown-trigger {{ 'active' if research_active }}" aria-expanded="false">
+          Research <span class="nav-dropdown-arrow">▾</span>
+        </button>
+        <div class="nav-dropdown-menu">
+          <a href="{{ url_for('statistics_view') }}" class="{{ 'active' if request.endpoint=='statistics_view' }}">Statistics</a>
+          <a href="{{ url_for('ercp_research_registry') }}" class="{{ 'active' if request.endpoint=='ercp_research_registry' }}">ERCP Registry</a>
+          <a href="{{ url_for('dilatation_registry') }}" class="{{ 'active' if request.endpoint=='dilatation_registry' }}">Dilatation Registry</a>
+        </div>
+      </div>
+      {% endif %}
+      {% if current_user.role in ['admin','specialist'] %}
+      {% set admin_active = request.endpoint in ['admin_panel', 'holidays_view', 'endoscopists_view'] %}
+      <div class="nav-dropdown">
+        <button type="button" class="nav-dropdown-trigger {{ 'active' if admin_active }}" aria-expanded="false">
+          Admin <span class="nav-dropdown-arrow">▾</span>
+        </button>
+        <div class="nav-dropdown-menu">
+          <a href="{{ url_for('admin_panel') }}" class="{{ 'active' if request.endpoint=='admin_panel' }}">Admin Panel</a>
+          <a href="{{ url_for('holidays_view') }}" class="{{ 'active' if request.endpoint=='holidays_view' }}">Holidays</a>
+          <a href="{{ url_for('endoscopists_view') }}" class="{{ 'active' if request.endpoint=='endoscopists_view' }}">Endoscopists</a>
+        </div>
+      </div>
+      {% endif %}
+    </nav>
+    {% if current_user.role in ['admin','specialist','nurse_manager'] %}
+    <div class="nav-search-wrap no-print">
+      <button type="button" class="nav-search-toggle" id="searchToggleBtn" aria-label="Search" aria-expanded="false">🔍</button>
+      <form action="{{ url_for('search_patients') }}" method="GET" class="nav-search" id="navSearchForm" hidden>
+        <input type="text" name="q" placeholder="Name, MRN, or date..." id="navSearchInput"
+               value="{{ request.args.get('q', '') if request.endpoint == 'search_patients' else '' }}">
+        <button type="submit" aria-label="Search">🔍</button>
+      </form>
+    </div>
+    {% endif %}
+    <div class="userbox">
+      <span class="userbox-name">{{ current_user.full_name }}</span>
+      <span class="userbox-role">{{ user_role_label(current_user.role) }}</span>
+      <a href="{{ url_for('change_password') }}" class="logout-link">Change password</a>
+      <a href="{{ url_for('logout') }}" class="logout-link">Log out</a>
+    </div>
+  </div>
+</header>
+<script>
+  (function(){
+    var toggle = document.getElementById('navToggleBtn');
+    var nav = document.getElementById('mainNav');
+    if (!toggle || !nav) return;
+    function closeMenu(){
+      nav.classList.remove('nav-open');
+      toggle.textContent = '☰';
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+    toggle.addEventListener('click', function(){
+      var isOpen = nav.classList.toggle('nav-open');
+      toggle.textContent = isOpen ? '✕' : '☰';
+      toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+    nav.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click', closeMenu);
+    });
+    document.addEventListener('click', function(e){
+      if (!nav.contains(e.target) && !toggle.contains(e.target)) closeMenu();
+    });
+
+    document.querySelectorAll('.nav-dropdown').forEach(function(dropdown){
+      var dropdownBtn = dropdown.querySelector('.nav-dropdown-trigger');
+      var dropdownMenu = dropdown.querySelector('.nav-dropdown-menu');
+      if (!dropdownBtn || !dropdownMenu) return;
+      function closeDropdown(){
+        dropdownMenu.classList.remove('nav-dropdown-open');
+        dropdownBtn.setAttribute('aria-expanded', 'false');
+      }
+      dropdownBtn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var isOpen = dropdownMenu.classList.toggle('nav-dropdown-open');
+        dropdownBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        // close any other open dropdown so only one is open at a time
+        document.querySelectorAll('.nav-dropdown-menu.nav-dropdown-open').forEach(function(otherMenu){
+          if (otherMenu !== dropdownMenu) otherMenu.classList.remove('nav-dropdown-open');
+        });
+      });
+      document.addEventListener('click', function(e){
+        if (!dropdownMenu.contains(e.target) && !dropdownBtn.contains(e.target)) closeDropdown();
+      });
+    });
+
+    var searchToggle = document.getElementById('searchToggleBtn');
+    var searchForm = document.getElementById('navSearchForm');
+    var searchInput = document.getElementById('navSearchInput');
+    if (searchToggle && searchForm) {
+      searchToggle.addEventListener('click', function(e){
+        e.stopPropagation();
+        var isOpen = !searchForm.hidden;
+        searchForm.hidden = isOpen;
+        searchToggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+        if (!isOpen && searchInput) searchInput.focus();
+      });
+      document.addEventListener('click', function(e){
+        if (!searchForm.contains(e.target) && !searchToggle.contains(e.target) && !searchForm.hidden && !searchInput.value) {
+          searchForm.hidden = true;
+          searchToggle.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+  })();
+</script>
+{% endif %}
+
+<main class="page {{ 'page--auth' if not current_user }}">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-stack no-print">
+        {% for category, message in messages %}
+          <div class="flash flash--{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

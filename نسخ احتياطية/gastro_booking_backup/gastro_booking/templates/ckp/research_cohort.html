@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Cohort {{ cohort.code }}{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>{{ cohort.label }}</h1>
+    <p class="muted">{{ cohort.code }} · members {{ cohort.member_count }}</p>
+  </div>
+</section>
+<section class="admin-section">
+  <h2>Enroll from longitudinal memory</h2>
+  <form method="POST" action="{{ url_for('ckp_research_enroll', cohort_id=cohort.id) }}" class="settings-form">
+    <label>Patient key <input name="patient_key" required placeholder="same label used in encounter"></label>
+    <button class="btn btn--primary" type="submit">Enroll</button>
+  </form>
+</section>
+<section class="admin-section">
+  <h2>Data quality</h2>
+  <pre>{{ quality }}</pre>
+  <h2>Survival support rows</h2>
+  <pre>{{ survival }}</pre>
+</section>
+<section class="admin-section">
+  <h2>Members</h2>
+  <ul>{% for m in members %}<li>{{ m.deid_token }} · {{ m.patient_key }}</li>{% else %}<li class="muted">None</li>{% endfor %}</ul>
+  <form method="POST" action="{{ url_for('ckp_research_export', cohort_id=cohort.id) }}">
+    <button class="btn" type="submit">Export de-identified dataset</button>
+  </form>
+</section>
+{% endblock %}

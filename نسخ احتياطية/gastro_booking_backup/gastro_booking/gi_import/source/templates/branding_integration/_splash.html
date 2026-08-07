@@ -1,0 +1,21 @@
+<div id="gi-splash" class="gi-splash" aria-hidden="true">
+    <div class="gi-splash-inner text-center">
+        <div class="gi-splash-logos d-flex justify-content-center align-items-center gap-3 mb-3 flex-wrap">
+            {% if branding.hospital_logo_url %}
+                <img src="{{ branding.hospital_logo_url }}" alt="" class="gi-splash-logo">
+            {% endif %}
+            {% if branding.department_logo_url %}
+                <img src="{{ branding.department_logo_url }}" alt="" class="gi-splash-logo gi-splash-logo-dept">
+            {% endif %}
+        </div>
+        <div class="gi-splash-title">{{ branding.display_title }}</div>
+        <div class="gi-loading-spinner mt-3" role="status" aria-label="Loading"></div>
+    </div>
+</div>
+
+<div id="gi-loading-overlay" class="gi-loading-overlay" hidden aria-live="polite" aria-busy="true">
+    <div class="gi-loading-panel">
+        <div class="gi-loading-spinner" role="status" aria-label="Loading"></div>
+        <div class="gi-loading-text mt-2">Loading…</div>
+    </div>
+</div>

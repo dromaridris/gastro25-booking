@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if mode == 'edit' else 'New' }} Education Activity{% endblock %}
+{% block content %}
+<h2>{{ 'Edit' if mode == 'edit' else 'Record' }} Education Activity</h2>
+<form method="POST">
+  <div class="mb-3"><label class="form-label">Title</label><input name="title" class="form-control" value="{{ activity.title if activity else '' }}" required></div>
+  <div class="mb-3"><label class="form-label">Type</label><input name="activity_type" class="form-control" value="{{ activity.activity_type if activity else 'teaching' }}" required></div>
+  <div class="mb-3"><label class="form-label">Date</label><input name="activity_date" type="date" class="form-control" value="{{ activity.activity_date.isoformat() if activity else '' }}" required></div>
+  <div class="mb-3"><label class="form-label">Duration (minutes)</label><input name="duration_minutes" type="number" class="form-control" value="{{ activity.duration_minutes if activity else '' }}"></div>
+  <div class="mb-3"><label class="form-label">Location</label><input name="location" class="form-control" value="{{ activity.location if activity else '' }}"></div>
+  <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="3">{{ activity.description if activity else '' }}</textarea></div>
+  <button class="btn btn-primary">Save</button>
+</form>
+{% endblock %}

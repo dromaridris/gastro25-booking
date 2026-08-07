@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Invite trainee or house officer{% endblock %}
+{% block content %}
+<h1 class="h3">Invite trainee or house officer</h1>
+<p class="text-muted small">Choose the role, start date, and account expiry date. House officer accounts are usually shorter than postgraduate trainee accounts.</p>
+<form method="post">{{ form.hidden_tag() }}
+<div class="row g-3">
+<div class="col-md-4">{{ form.role_code.label(class="form-label") }}{{ form.role_code(class="form-select") }}</div>
+<div class="col-md-4">{{ form.rotation_label.label(class="form-label") }}{{ form.rotation_label(class="form-control") }}</div>
+<div class="col-md-4">{{ form.email.label(class="form-label") }}{{ form.email(class="form-control") }}</div>
+<div class="col-md-4">{{ form.start_date.label(class="form-label") }}{{ form.start_date(class="form-control") }}</div>
+<div class="col-md-4">{{ form.expiry_date.label(class="form-label") }}{{ form.expiry_date(class="form-control") }}</div>
+<div class="col-md-4">{{ form.maximum_validity_days.label(class="form-label") }}{{ form.maximum_validity_days(class="form-control") }}</div>
+</div>
+<button type="submit" class="btn btn-primary mt-3">Create Invitation</button>
+</form>
+{% endblock %}

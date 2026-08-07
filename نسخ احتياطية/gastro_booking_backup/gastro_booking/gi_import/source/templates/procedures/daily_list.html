@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Daily Endoscopy List — {{ on_date }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3 no-print">
+    <h2>Daily Endoscopy List — {{ on_date }}</h2>
+    <button onclick="window.print()" class="btn btn-outline-secondary btn-sm">Print</button>
+</div>
+
+<form method="GET" class="mb-3 row g-2 align-items-end no-print">
+    <div class="col-auto">
+        {{ filter_form.date.label(class="form-label") }}
+        {{ filter_form.date(class="form-control") }}
+    </div>
+    <div class="col-auto">
+        {{ filter_form.room_id.label(class="form-label") }}
+        {{ filter_form.room_id(class="form-select") }}
+    </div>
+    <div class="col-auto">
+        {{ filter_form.procedure_type_id.label(class="form-label") }}
+        {{ filter_form.procedure_type_id(class="form-select") }}
+    </div>
+    <div class="col-auto">
+        {{ filter_form.endoscopist_id.label(class="form-label") }}
+        {{ filter_form.endoscopist_id(class="form-select") }}
+    </div>
+    <div class="col-auto">
+        {{ filter_form.status.label(class="form-label") }}
+        {{ filter_form.status(class="form-select") }}
+    </div>
+    <div class="col-auto">
+        {{ filter_form.priority.label(class="form-label") }}
+        {{ filter_form.priority(class="form-select") }}
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-secondary">Filter</button>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr><th>When</th><th>Patient</th><th>Type</th><th>Room</th><th>Endoscopist</th><th>Priority</th><th>Status</th><th class="no-print"></th></tr>
+    </thead>
+    <tbody>
+        {% for p in procedures %}
+        <tr>
+            <td>{{ p.appointment.scheduled_at.strftime("%H:%M") }}</td>
+            <td>{{ p.patient.full_name }} <small class="text-muted">{{ p.patient.mrn }}</small></td>
+            <td>{{ p.procedure_type.name }}{% if p.procedure_type.requires_special_authorization %} <span class="badge bg-warning text-dark">Special Authorization</span>{% endif %}</td>
+            <td>{{ p.room.name if p.room else "—" }}</td>
+            <td>{{ p.endoscopist.full_name if p.endoscopist else "Unassigned" }}</td>
+            <td><span class="badge bg-info text-dark">{{ p.priority.title() }}</span></td>
+            <td><span class="badge bg-secondary">{{ p.status.replace("_", " ").title() }}</span></td>
+            <td class="no-print"><a href="{{ url_for('procedures.view_procedure', procedure_id=p.id) }}">View</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8" class="text-muted">No procedures scheduled for this date.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+<style>
+    @media print { .no-print { display: none !important; } }
+</style>
+{% endblock %}

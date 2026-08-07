@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}CDS{% endblock %}
+{% block content %}
+{% from 'gi/_back.html' import back_link %}
+{{ back_link(back_url) }}
+
+<h1>Clinical decision support</h1>
+<p class="muted">Uses history already saved for session #{{ sess.id }} — no need to re-enter.</p>
+
+{% if not sess.complaint_code %}
+<p class="muted">Select a chief complaint in the history session first.</p>
+{% elif not result %}
+<p class="muted">Not enough data yet — answer history questions, then return here.</p>
+{% else %}
+
+<section class="admin-section">
+  <h2>Differential diagnosis</h2>
+  {% if result.differentials %}
+  <ul>{% for d in result.differentials %}<li><strong>{{ d.title }}</strong> — {{ d.summary or '' }}</li>{% endfor %}</ul>
+  {% else %}
+  <p class="muted">No differentials ranked yet. Ensure chief complaint is set and history answers are saved.</p>
+  {% endif %}
+</section>
+
+<section class="admin-section">
+  <h2>Red flags</h2>
+  <ul>{% for r in result.red_flags %}<li>{{ r }}</li>{% else %}<li class="muted">None flagged from current answers.</li>{% endfor %}</ul>
+</section>
+
+<section class="admin-section">
+  <h2>Guidelines &amp; recommendations</h2>
+  <ul>{% for g in result.guidelines %}<li><strong>{{ g.title }}</strong> — {{ g.summary or '' }}</li>{% else %}<li class="muted">No guideline hits for this presentation yet.</li>{% endfor %}</ul>
+</section>
+
+<section class="admin-section">
+  <h2>Suggested investigations</h2>
+  <ul>{% for i in result.investigations %}<li>{{ i.name }} ({{ i.priority }}) — {{ i.rationale or 'See order page to request' }}</li>{% else %}<li class="muted">No suggestions yet.</li>{% endfor %}</ul>
+  <p><a class="btn btn--primary btn--sm" href="{{ url_for('gi_investigations', session_id=sess.id) }}">Order investigations →</a></p>
+</section>
+
+{% if result.teaching %}
+<section class="admin-section">
+  <h2>Teaching points</h2>
+  <ul>{% for t in result.teaching %}<li>{{ t }}</li>{% endfor %}</ul>
+</section>
+{% endif %}
+{% endif %}
+{% endblock %}

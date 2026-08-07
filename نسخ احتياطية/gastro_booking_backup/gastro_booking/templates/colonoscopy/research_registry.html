@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Colonoscopy Registry · Gastro & Hepatology{% endblock %}
+{% block content %}
+<div class="stats-page">
+  <h1>Colonoscopy Registry</h1>
+  <p class="muted">
+    Structured colonoscopy registry — caecal intubation, BBPS, polypectomy, adenoma detection,
+    and session tracking. Built from live report and research data.
+  </p>
+
+  <form method="GET" class="settings-form stats-form">
+    <label>Start Date
+      <input type="date" name="start" value="{{ start }}" required>
+    </label>
+    <label>End Date
+      <input type="date" name="end" value="{{ end }}" required>
+    </label>
+    <button class="btn btn--primary" type="submit">Run Query</button>
+  </form>
+
+  {% if error %}
+  <div class="flash flash--error" style="margin-top:16px;">{{ error }}</div>
+  {% endif %}
+
+  {% if rows is not none %}
+  <section class="admin-section" style="margin-top:20px;">
+    <h2>Registry <span class="badge">{{ rows|length }}</span></h2>
+    <a class="btn btn--outline" href="{{ url_for('colonoscopy_research_registry_export', start=start, end=end) }}" style="margin-bottom:14px; display:inline-block;">Download .xlsx</a>
+
+    <div class="admin-table-scroll"><table class="admin-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Session</th>
+          <th>Patient</th>
+          <th>MRN</th>
+          <th>Indication</th>
+          <th>Endoscopist</th>
+          <th>Caecum</th>
+          <th>TI</th>
+          <th>BBPS</th>
+          <th>Polypectomy</th>
+          <th>Polyps</th>
+          <th>Adenoma</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td>{{ row.appointment_date }}</td>
+          <td>{{ row.session_number }}{% if row.has_multiple_sessions %} <span class="followup-tag">{{ row.total_sessions_for_patient }} total</span>{% endif %}</td>
+          <td>{{ row.patient_name }}</td>
+          <td>{{ row.mrn or '—' }}</td>
+          <td>{{ row.indication_summary or '—' }}</td>
+          <td>{{ row.endoscopist_name or '—' }}</td>
+          <td>{{ row.caecum_reached or '—' }}</td>
+          <td>{{ row.ti_intubated or '—' }}</td>
+          <td>{{ row.bbps_total or '—' }}</td>
+          <td>{{ row.polypectomy_performed or '—' }}</td>
+          <td>{{ row.polyps_resected_count or '—' }}</td>
+          <td>{{ row.adenoma_documented or '—' }}</td>
+          <td>
+            {% if row.status %}
+            <span class="ercp-status-badge ercp-status-{{ row.status }}">{{ 'Finalized' if row.status == 'finalized' else 'Draft' }}</span>
+            {% else %}<span class="muted">Not started</span>{% endif %}
+          </td>
+          <td>
+            {% if row.report_id %}
+            <a class="btn btn--sm btn--outline" href="{{ url_for('colonoscopy_report_view', appointment_id=row.appointment_id) }}">Open</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="14" class="muted">No colonoscopy sessions in this date range.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table></div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

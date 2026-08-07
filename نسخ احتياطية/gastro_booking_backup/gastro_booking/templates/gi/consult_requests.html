@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Consult requests{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>Consult requests</h1>
+    <p class="muted">Cross-specialty consult workflow with in-app notifications.</p>
+  </div>
+  <a href="{{ url_for('gi_consult_request_new') }}" class="btn btn--primary btn--sm">New request</a>
+</section>
+
+<div class="btn-row" style="margin-bottom:16px;">
+  <a href="{{ url_for('gi_consult_requests') }}" class="btn btn--sm {{ 'btn--primary' if not status_filter else 'btn--outline' }}">All</a>
+  {% for s in ['pending','accepted','completed','rejected','cancelled'] %}
+  <a href="{{ url_for('gi_consult_requests', status=s) }}" class="btn btn--sm {{ 'btn--primary' if status_filter == s else 'btn--outline' }}">{{ s|title }}</a>
+  {% endfor %}
+</div>
+
+<div class="admin-table-scroll"><table class="admin-table">
+  <thead><tr><th>Patient</th><th>Specialty</th><th>Urgency</th><th>Status</th><th>Requested</th><th></th></tr></thead>
+  <tbody>
+    {% for r in requests %}
+    <tr>
+      <td>{{ r.patient_name }} <span class="muted">({{ r.mrn or '—' }})</span></td>
+      <td>{{ r.specialty }}</td>
+      <td>{{ r.urgency }}</td>
+      <td>{{ r.status }}</td>
+      <td>{{ r.created_at }}</td>
+      <td><a href="{{ url_for('gi_consult_request_detail', request_id=r.id) }}">Open</a></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="muted">No consult requests.</td></tr>
+    {% endfor %}
+  </tbody>
+</table></div>
+{% endblock %}

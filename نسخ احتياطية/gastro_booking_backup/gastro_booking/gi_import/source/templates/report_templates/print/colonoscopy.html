@@ -1,0 +1,40 @@
+{% extends "branding_integration/base_print.html" %}
+{% block print_title %}{{ template_label }} — {{ report.report_number }}{% endblock %}
+{% block print_extra_head %}
+<style>
+.report-title { border-bottom: 2px solid var(--gi-color-primary); padding-bottom: 0.5rem; }
+.section-block { margin-bottom: 1rem; page-break-inside: avoid; }
+.section-block h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--gi-color-primary); }
+.colonoscopy-meta { background: var(--gi-color-bg); padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; }
+</style>
+{% endblock %}
+{% block print_pdf_link %}
+<a href="{{ url_for('branding_integration.pdf_template_report', report_id=report.id) }}" class="btn btn-outline-secondary btn-sm">Download PDF</a>
+{% endblock %}
+{% block print_back_link %}
+<a href="{{ url_for('report_templates.view_report', report_id=report.id) }}" class="btn btn-link btn-sm">Back</a>
+{% endblock %}
+{% block print_content %}
+<header class="mb-4">
+    <h1 class="h4 report-title">{{ template_label }}</h1>
+    <dl class="row mb-0 small">
+        <dt class="col-sm-3">Report Number</dt><dd class="col-sm-9">{{ header.report_number }}</dd>
+        <dt class="col-sm-3">Patient</dt><dd class="col-sm-9">{{ header.patient_name }} ({{ header.patient_mrn }})</dd>
+        <dt class="col-sm-3">Procedure Date</dt>
+        <dd class="col-sm-9">{{ header.procedure_date.strftime("%Y-%m-%d %H:%M") if header.procedure_date else "—" }}</dd>
+        <dt class="col-sm-3">Room</dt><dd class="col-sm-9">{{ header.room }}</dd>
+        <dt class="col-sm-3">Endoscopist</dt><dd class="col-sm-9">{{ header.endoscopist }}</dd>
+        <dt class="col-sm-3">Sedation</dt><dd class="col-sm-9">{{ header.sedation_category }}</dd>
+        <dt class="col-sm-3">Author</dt><dd class="col-sm-9">{{ header.author }}</dd>
+        <dt class="col-sm-3">Supervising Consultant</dt><dd class="col-sm-9">{{ header.supervising_consultant }}</dd>
+    </dl>
+</header>
+
+{% for key, label in section_labels.items() %}
+{% set section = report.sections | selectattr('section_key', 'equalto', key) | first %}
+<section class="section-block gi-print-section">
+    <h3>{{ label }}</h3>
+    <pre>{{ section.content if section and section.content else "—" }}</pre>
+</section>
+{% endfor %}
+{% endblock %}

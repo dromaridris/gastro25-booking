@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Medication Entry — GastroIntelligence{% endblock %}
+{% block content %}
+<h2>{{ entry.catalogue_item.name if entry.catalogue_item else entry.drug_code }}</h2>
+<span class="badge bg-secondary">{{ entry.status.title() }}</span>
+<span class="badge bg-info text-dark">{{ entry.entry_type.replace("_", " ").title() }}</span>
+
+<dl class="row mt-3">
+    <dt class="col-sm-3">Patient</dt>
+    <dd class="col-sm-9">
+        <a href="{{ url_for('patients.view_patient', patient_id=entry.patient_id) }}">
+            {{ entry.patient.full_name if entry.patient else entry.patient_id }}
+        </a>
+    </dd>
+    <dt class="col-sm-3">Encounter</dt>
+    <dd class="col-sm-9"><a href="{{ url_for('encounters.view_encounter', encounter_id=entry.encounter_id) }}">#{{ entry.encounter_id }}</a></dd>
+    <dt class="col-sm-3">Dose</dt><dd class="col-sm-9">{{ entry.dose_text or "—" }}</dd>
+    <dt class="col-sm-3">Route</dt><dd class="col-sm-9">{{ entry.route or "—" }}</dd>
+    <dt class="col-sm-3">Frequency</dt><dd class="col-sm-9">{{ entry.frequency_text or "—" }}</dd>
+    <dt class="col-sm-3">Started</dt><dd class="col-sm-9">{{ entry.started_on.strftime("%Y-%m-%d") if entry.started_on else "—" }}</dd>
+    {% if entry.stopped_on %}
+    <dt class="col-sm-3">Stopped</dt><dd class="col-sm-9">{{ entry.stopped_on.strftime("%Y-%m-%d") }}</dd>
+    {% endif %}
+    {% if entry.indication %}
+    <dt class="col-sm-3">Indication</dt><dd class="col-sm-9">{{ entry.indication }}</dd>
+    {% endif %}
+    {% if entry.notes %}
+    <dt class="col-sm-3">Notes</dt><dd class="col-sm-9">{{ entry.notes }}</dd>
+    {% endif %}
+</dl>
+
+<div class="d-flex gap-2">
+    {% if can('medication:document') and entry.status == 'active' %}
+        <form method="POST" action="{{ url_for('medications.stop_entry', entry_id=entry.id) }}">
+            <button type="submit" class="btn btn-outline-warning btn-sm">Mark stopped</button>
+        </form>
+    {% endif %}
+    {% if can('medication:review') and entry.status == 'active' %}
+        <form method="POST" action="{{ url_for('medications.review_entry', entry_id=entry.id) }}">
+            <button type="submit" class="btn btn-success btn-sm">Mark reviewed</button>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

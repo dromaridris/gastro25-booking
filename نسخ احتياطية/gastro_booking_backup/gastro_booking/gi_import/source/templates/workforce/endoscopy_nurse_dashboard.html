@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Endoscopy Unit{% endblock %}
+{% block content %}
+<div class="gi-page-header mb-4">
+    <p class="gi-eyebrow mb-1">Endoscopy nursing</p>
+    <h1 class="gi-page-title h2 mb-1">Endoscopy unit worklist</h1>
+    <p class="gi-page-subtitle text-muted mb-0">Move procedures through waiting, ready, in room, and finished.</p>
+</div>
+
+{% include "ui/_quick_actions.html" %}
+
+<h2 class="h5 mb-3 fw-semibold">Procedures needing action ({{ endoscopy_list|length }})</h2>
+<div class="gi-table-wrapper">
+    <div class="table-responsive">
+        <table class="table gi-table mb-0">
+            <thead><tr><th>Procedure</th><th>Status</th><th>Patient</th><th></th></tr></thead>
+            <tbody>
+            {% for p in endoscopy_list %}
+                <tr>
+                    <td>#{{ p.id }}</td>
+                    <td>{{ p.status.replace('_', ' ').title() }}</td>
+                    <td>{{ p.patient_id }}</td>
+                    <td><a href="{{ url_for('procedures.view_procedure', procedure_id=p.id) }}" class="btn btn-outline-primary btn-sm">Open</a></td>
+                </tr>
+            {% else %}
+                <tr><td colspan="4" class="text-muted p-4 text-center">No procedures on the list right now.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

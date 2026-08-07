@@ -1,0 +1,39 @@
+{
+  "complaint_code": "CC_diarrhea",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Starter investigation framework for CC_diarrhea. Names/urgency/indications only.",
+  "bundles": [
+    {
+      "id": "IXB_diarrhea_baseline",
+      "label": "Diarrhea baseline",
+      "urgency": "routine",
+      "when": {
+        "always_if_complaint": true
+      },
+      "investigations": [
+        "IX_cbc",
+        "IX_basic_metabolic_panel"
+      ]
+    },
+    {
+      "id": "IXB_diarrhea_inflammatory",
+      "label": "Inflammatory / bloody diarrhea",
+      "urgency": "urgent",
+      "when": {
+        "any": [
+          {
+            "pattern_id": "PAT_diarrhea_ibd_alarm"
+          },
+          {
+            "question_id": "Q000035",
+            "op": "truthy"
+          }
+        ]
+      },
+      "investigations": [
+        "IX_cbc"
+      ]
+    }
+  ]
+}

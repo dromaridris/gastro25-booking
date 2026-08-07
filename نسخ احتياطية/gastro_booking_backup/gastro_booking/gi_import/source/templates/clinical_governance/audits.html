@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Audit Projects{% endblock %}
+{% block content %}
+<h1>Audit Projects</h1>
+{% if can('governance:audit_manage') %}
+<form method="POST" action="{{ url_for('clinical_governance.create_audit') }}" class="mb-4">
+    <input name="title" class="form-control mb-2" placeholder="Title" required>
+    <textarea name="objective" class="form-control mb-2" placeholder="Objective" required></textarea>
+    <textarea name="methodology" class="form-control mb-2" placeholder="Methodology"></textarea>
+    <button class="btn btn-primary btn-sm">Create audit</button>
+</form>
+{% endif %}
+<table class="table table-sm"><thead><tr><th>Title</th><th>Status</th><th>Investigator</th></tr></thead>
+<tbody>{% for a in audits %}<tr><td>{{ a.title }}</td><td>{{ a.status }}</td><td>{{ a.investigator_id or '—' }}</td></tr>{% else %}<tr><td colspan="3" class="text-muted">No audits.</td></tr>{% endfor %}</tbody></table>
+{% endblock %}

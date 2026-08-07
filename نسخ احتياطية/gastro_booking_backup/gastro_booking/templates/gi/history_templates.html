@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}History Templates (legacy){% endblock %}
+{% block content %}
+<div class="compact-card" style="margin-bottom:14px;border-left:3px solid #b45309;padding-left:12px;">
+  <p style="margin:0 0 8px;"><strong>Legacy — writes frozen:</strong> Disease-based DB templates for the old ward/AI path.
+    New complaint history templates live under <code>clinical_knowledge/templates/history/</code>
+    — manage via <a href="{{ url_for('ci_home') }}">Clinical Intelligence</a>.
+    Existing data is preserved (read-only). Emergency override: <code>GASTRO_ALLOW_LEGACY_HISTORY_WRITES=1</code>.</p>
+</div>
+<h1>History Templates <span class="badge">legacy · read-only</span></h1>
+<p class="muted">Browse existing disease-based history questions. Create/edit is disabled while writes are frozen.</p>
+<div class="btn-row" style="margin-bottom:16px;">
+  {% if not writes_frozen %}
+  <a class="btn btn--primary" href="{{ url_for('gi_history_template_new') }}">New template</a>
+  {% else %}
+  <span class="btn btn--outline" style="opacity:0.55;pointer-events:none;" title="Writes frozen">New template (frozen)</span>
+  {% endif %}
+  <a class="btn btn--outline" href="{{ url_for('ci_home') }}">Clinical Intelligence</a>
+</div>
+<form method="GET" class="settings-form" style="max-width:400px;margin-bottom:16px;">
+  <label>Search<input name="q" value="{{ request.args.get('q','') }}" placeholder="Disease name or code"></label>
+  <button class="btn btn--outline btn--sm" type="submit">Search</button>
+</form>
+<table class="admin-table">
+  <thead><tr><th>Disease</th><th>Code</th><th>Updated</th><th></th></tr></thead>
+  <tbody>
+    {% for t in templates %}
+    <tr>
+      <td>{{ t.disease_name }}</td>
+      <td><code>{{ t.disease_code }}</code></td>
+      <td>{{ t.updated_at[:16] if t.updated_at else '—' }}</td>
+      <td><a class="btn btn--sm btn--outline" href="{{ url_for('gi_history_template_edit', template_id=t.id) }}">{% if writes_frozen %}View{% else %}Edit{% endif %}</a></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4" class="muted">No templates yet. Prefer Clinical Intelligence for new Bates packs.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

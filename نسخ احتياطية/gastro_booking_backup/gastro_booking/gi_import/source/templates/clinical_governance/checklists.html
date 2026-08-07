@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Checklist Compliance{% endblock %}
+{% block content %}
+<h1>Checklist Compliance</h1>
+<table class="table table-sm"><thead><tr><th>Checklist</th><th>Complete</th><th>Total</th><th>Compliance</th></tr></thead>
+<tbody>{% for k, v in summary.items() %}<tr><td>{{ k.replace('_',' ') | title }}</td><td>{{ v.complete }}</td><td>{{ v.total }}</td><td><strong>{{ v.compliance_pct }}%</strong></td></tr>{% endfor %}</tbody></table>
+{% endblock %}

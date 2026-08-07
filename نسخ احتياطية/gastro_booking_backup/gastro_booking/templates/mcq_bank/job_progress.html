@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Extracting… — MCQ Bank{% endblock %}
+{% block content %}
+<div class="admin-page mcq-page" style="max-width:480px;">
+  <h1>Extracting questions</h1>
+  <p class="muted" id="mcq-step">Starting…</p>
+  <div style="background:#eee;border-radius:8px;overflow:hidden;height:10px;">
+    <div id="mcq-bar" style="background:var(--brand-primary,#A6192E);height:100%;width:0%;transition:width .4s;"></div>
+  </div>
+  <p class="muted" id="mcq-pct">0%</p>
+</div>
+<script>
+const jobId = {{ job_id }};
+async function poll() {
+  const res = await fetch(`/mcq-bank/admin/api/jobs/${jobId}`);
+  const job = await res.json();
+  document.getElementById('mcq-step').textContent = job.current_step || job.status;
+  const pct = job.total_units ? Math.round((job.processed_units / job.total_units) * 100) : 0;
+  document.getElementById('mcq-bar').style.width = pct + '%';
+  document.getElementById('mcq-pct').textContent = pct + '%';
+  if (job.status === 'completed') { window.location.href = `/mcq-bank/admin/review/${job.book_id}`; return; }
+  if (job.status === 'failed') { document.getElementById('mcq-step').textContent = 'Failed: ' + (job.error_message || 'unknown error'); return; }
+  setTimeout(poll, 900);
+}
+poll();
+</script>
+{% endblock %}

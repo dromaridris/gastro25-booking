@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Reschedule Appointment{% endblock %}
+{% block content %}
+<h2>Reschedule Appointment <small class="text-muted">#{{ target.id }}</small></h2>
+<p class="text-muted">Currently scheduled for {{ target.scheduled_at.strftime("%Y-%m-%d %H:%M") }}. The original booking time ({{ target.original_scheduled_at.strftime("%Y-%m-%d %H:%M") }}) and this change are both kept in the audit trail.</p>
+{% include "ui/_form_errors.html" %}
+<form method="POST" class="col-md-6">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        {{ form.new_scheduled_at.label(class="form-label") }}
+        {{ form.new_scheduled_at(class="form-control", type="datetime-local") }}
+    </div>
+    <div class="mb-3">
+        {{ form.reason.label(class="form-label") }}
+        {{ form.reason(class="form-control") }}
+    </div>
+    {% if can('appointment:override') %}
+    <div class="mb-3 form-check">
+        {{ form.is_capacity_override(class="form-check-input") }}
+        {{ form.is_capacity_override.label(class="form-check-label") }}
+    </div>
+    {% endif %}
+    {{ form.submit(class="btn btn-primary") }}
+</form>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Patient tasks{% endblock %}
+{% block content %}
+<h1>Task distribution · Patient #{{ ward_patient_id }}</h1>
+<a href="{{ url_for('ward_patient_view', ward_patient_id=ward_patient_id) }}" class="btn btn--outline btn--sm">← Patient</a>
+<p class="muted" style="margin-top:12px;">Ward tasks stay here — the person who opened the file is assigned; consultants and registrars can approve any task.</p>
+<table class="admin-table" style="margin-top:16px;">
+  <thead><tr><th>Task</th><th>Assigned to</th><th>Role</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+    {% for t in tasks %}
+    <tr>
+      <td>{{ t.title }}</td>
+      <td>{{ t.assignee_name or '—' }}</td>
+      <td>{{ t.assigned_role|replace('_',' ')|title }}</td>
+      <td>{{ t.status }}</td>
+      <td>
+        {% if t.status != 'done' %}
+        <form method="POST" action="{{ url_for('gi_task_status', task_id=t.id) }}" style="display:inline;">
+          <input type="hidden" name="status" value="done">
+          <button class="btn btn--sm btn--outline" type="submit">Complete</button>
+        </form>
+        {% endif %}
+        {% if can_delete_task %}
+        <form method="POST" action="{{ url_for('gi_task_delete', task_id=t.id) }}" style="display:inline;" onsubmit="return confirm('Delete this task?');">
+          <button class="btn btn--sm btn--outline" type="submit">Delete</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="muted">No tasks yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<form method="POST" class="settings-form" style="margin-top:20px;">
+  <label>Task type<select name="task_type">{% for k,v in task_types.items() %}<option value="{{ k }}">{{ v.title }}</option>{% endfor %}</select></label>
+  <label>Assign to role<select name="assigned_role">
+    <option value="pg_trainee">PG Trainee</option>
+    <option value="house_officer">House Officer</option>
+    <option value="registrar">Registrar</option>
+    <option value="consultant">Consultant</option>
+    <option value="staff_nurse">Staff Nurse</option>
+  </select></label>
+  <label>Notes<textarea name="notes" rows="2"></textarea></label>
+  <button class="btn btn--primary" type="submit">Add task</button>
+</form>
+{% endblock %}

@@ -1,0 +1,38 @@
+# Secrets / local runtime
+.flask_secret_key
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Accidental pip shell artifacts (e.g. `pip install foo==2.31` redirect)
+=/
+=2.*
+=3.*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+
+# Local DB / uploads (keep schema in code; not local patient data / books)
+gastro_booking.db
+gastro_booking.db-*
+gastro.db
+test_*.db
+data/import_uploads/
+data/mcq_bank_uploads/
+*.sqlite3
+
+# Large Bates OCR extract intermediates (re-run scripts/import_bates_ocr.py)
+scripts/tmp_bates_ocr/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

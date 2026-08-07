@@ -1,0 +1,29 @@
+<!-- Schedule Repeat Dilatation Modal (shared by dilatation_report.html and dilatation_patient_overview.html) -->
+<div id="repeatDilatationModal" class="modal-backdrop no-print" hidden>
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Schedule Repeat Dilatation</h2>
+      <button class="modal-close" id="closeRepeatDilatationBtn">&times;</button>
+    </div>
+    <form id="repeatDilatationForm" class="booking-form">
+      <input type="hidden" id="repeatDilatationSourceApptId">
+      <p class="muted" id="repeatDilatationPatientInfo"></p>
+      <div id="repeatDilatationError" class="form-error" hidden></div>
+
+      <label>New Appointment Date
+        <input type="date" id="repeatDilatationDateField" required>
+      </label>
+
+      <p class="label-hint">
+        Patient demographic details (name, gender, age, phone, MRN, referral) carry over automatically.
+        Clinical notes and labs are left blank for fresh entry against the new procedure.
+        A brand-new Dilatation report will be created — the previous report is never modified.
+      </p>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn--ghost" id="cancelRepeatDilatationBtn">Cancel</button>
+        <button type="submit" class="btn btn--primary">Schedule Repeat Dilatation</button>
+      </div>
+    </form>
+  </div>
+</div>

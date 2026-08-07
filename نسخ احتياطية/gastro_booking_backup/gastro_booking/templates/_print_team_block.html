@@ -1,0 +1,19 @@
+<table class="ercp-print-table">
+  <tr><th colspan="2" class="ercp-section-th">Procedural Team</th></tr>
+  <tr>
+    <td class="ercp-label">Anesthesiologist</td>
+    <td>{{ ('Dr. ' + anesthesiologist) if anesthesiologist else '—' }}</td>
+  </tr>
+  <tr>
+    <td class="ercp-label">Endoscopy Assistants</td>
+    <td>
+      {% if assistants_lines %}
+        {% for line in assistants_lines %}{{ line }}{% if not loop.last %}<br>{% endif %}{% endfor %}
+      {% else %}—{% endif %}
+    </td>
+  </tr>
+  <tr>
+    <td class="ercp-label">Endoscopy Technician</td>
+    <td>{{ technician or '—' }}</td>
+  </tr>
+</table>

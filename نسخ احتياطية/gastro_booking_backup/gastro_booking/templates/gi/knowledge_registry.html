@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Knowledge Registry{% endblock %}
+{% block content %}
+<h1>Production Knowledge Registry</h1>
+<p class="muted">Unified catalogue — Blueprint §6. Objects require explicit review and activation.</p>
+<div class="day-modal-grid" style="margin:16px 0;">
+  <div class="admin-section"><strong>{{ reg_stats.total }}</strong><br><span class="muted">Total objects</span></div>
+  <div class="admin-section"><strong>{{ reg_stats.pending_review }}</strong><br><span class="muted">Awaiting review</span></div>
+  <div class="admin-section"><strong>{{ reg_stats.pending_activation }}</strong><br><span class="muted">Activation queue</span></div>
+  <div class="admin-section"><strong>{{ reg_stats.by_status.get('published', 0) }}</strong><br><span class="muted">Published</span></div>
+</div>
+<h2>By type</h2>
+<ul>{% for t, c in reg_stats.by_type.items() %}<li>{{ t|replace('_',' ')|title }}: {{ c }}</li>{% endfor %}</ul>
+<p>
+  <a class="btn btn--outline btn--sm" href="{{ url_for('gi_knowledge_review') }}">Review queue</a>
+  <a class="btn btn--outline btn--sm" href="{{ url_for('gi_knowledge_activation') }}">Activation queue</a>
+  <a class="btn btn--outline btn--sm" href="{{ url_for('gi_import_manager') }}">Import manager</a>
+</p>
+<h2>Recently updated</h2>
+<ul>{% for o in recent %}<li><a href="{{ url_for('gi_knowledge_detail', object_id=o.id) }}">{{ o.title }}</a> — {{ o.status }}</li>{% endfor %}</ul>
+{% endblock %}

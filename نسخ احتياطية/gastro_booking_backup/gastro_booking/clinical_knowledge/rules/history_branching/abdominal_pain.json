@@ -1,0 +1,47 @@
+{
+  "complaint_code": "CC_abdominal_pain",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Optional skip/stop rules for History Engine. Engine ignores unknown ops safely.",
+  "skip_rules": [
+    {
+      "id": "skip_bm_detail_if_no_constipation_diarrhea",
+      "if_all": [
+        {"question_id": "Q000023", "op": "falsy"},
+        {"question_id": "Q000024", "op": "falsy"}
+      ],
+      "skip_question_ids": ["Q000044"],
+      "reason": "Bowel-movement relation less useful when no diarrhea/constipation reported"
+    },
+    {
+      "id": "skip_meal_relation_if_diffuse_only",
+      "if_all": [
+        {"question_id": "Q000042", "op": "eq", "value": "Diffuse"}
+      ],
+      "skip_question_ids": [],
+      "reason": "Placeholder — no skip; region still drives exam focus"
+    }
+  ],
+  "stop_rules": [
+    {
+      "id": "gi_bleed_emergency",
+      "if_any": [
+        {"question_id": "Q000033", "op": "truthy"},
+        {"question_id": "Q000034", "op": "truthy"},
+        {"question_id": "Q000035", "op": "truthy"}
+      ],
+      "action": "flag_emergency",
+      "message": "Possible GI bleeding — escalate urgency; finish remaining red-flag questions then proceed to exam/stabilization.",
+      "skip_low_priority_remainder": true
+    },
+    {
+      "id": "obstipation_emergency",
+      "if_any": [
+        {"question_id": "Q000045", "op": "truthy"}
+      ],
+      "action": "flag_emergency",
+      "message": "Obstipation / possible obstruction — escalate; prioritize exam for peritonitis/obstruction.",
+      "skip_low_priority_remainder": false
+    }
+  ]
+}

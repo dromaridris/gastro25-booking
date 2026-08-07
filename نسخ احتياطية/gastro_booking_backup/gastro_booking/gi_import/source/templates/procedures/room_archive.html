@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Archive Room — {{ target.name }}{% endblock %}
+{% block content %}
+<h2>Archive: {{ target.name }}</h2>
+<p class="text-muted">This archives the room — it is never deleted, and can be restored later.</p>
+<form method="POST" class="col-md-6">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        {{ form.reason.label(class="form-label") }}
+        {{ form.reason(class="form-control") }}
+    </div>
+    {{ form.submit(class="btn btn-danger") }}
+</form>
+{% endblock %}

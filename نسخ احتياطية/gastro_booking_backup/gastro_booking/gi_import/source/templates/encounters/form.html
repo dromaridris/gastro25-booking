@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Start Encounter — {{ patient.full_name }}{% endblock %}
+{% block content %}
+<h2>Start Clinical Encounter</h2>
+<p class="text-muted">Patient: <strong>{{ patient.full_name }}</strong> (<code>{{ patient.mrn }}</code>)</p>
+<form method="POST" class="col-md-6">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        {{ form.encounter_type.label(class="form-label") }}
+        {{ form.encounter_type(class="form-select") }}
+    </div>
+    <div class="mb-3">
+        {{ form.summary.label(class="form-label") }}
+        {{ form.summary(class="form-control") }}
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+    <a href="{{ url_for('patients.view_patient', patient_id=patient.id) }}" class="btn btn-outline-secondary">Cancel</a>
+</form>
+{% endblock %}

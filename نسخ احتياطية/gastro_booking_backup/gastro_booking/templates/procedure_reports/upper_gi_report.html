@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}{{ procedure_label }} Report{% endblock %}
+{% block content %}
+<div class="holiday-banner no-print" style="margin-bottom:14px;">
+  ⚠ <strong>Legacy simple report</strong> — this is the old Phase-8 form. For structured EGD (variceal banding, haemostasis, registry)
+  use the <a href="{{ url_for('upper_gi_report_view', appointment_id=appt.id) }}"><strong>new EGD Report</strong></a>.
+  The two systems use separate databases and must not be mixed.
+</div>
+<section class="dash-head">
+  <div>
+    <h1>{{ procedure_label }}</h1>
+    <p class="muted">{{ appt.patient_name }} · {{ appt.appointment_date }} · Report #{{ report.id }}</p>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <a class="btn btn--outline btn--sm" href="{{ url_for('dashboard') }}">← Dashboard</a>
+    <a class="btn btn--outline btn--sm" href="{{ url_for('procedure_report_print', procedure_key=procedure_key, report_id=report.id) }}" target="_blank">Print</a>
+  </div>
+</section>
+
+<form id="pr-form" class="settings-form" {% if is_locked %}data-locked="1"{% endif %}>
+  <label>Indication<textarea name="indication" rows="2">{{ report.indication or '' }}</textarea></label>
+  <label>Procedure details<textarea name="procedure_detail" rows="3">{{ report.procedure_detail or '' }}</textarea></label>
+  <label>Findings<textarea name="findings_text" rows="5">{{ report.findings_text or '' }}</textarea></label>
+  <label>Impression<textarea name="impression" rows="3">{{ report.impression or '' }}</textarea></label>
+  <label>Recommendations<textarea name="recommendations" rows="3">{{ report.recommendations or '' }}</textarea></label>
+  <label>Complications<textarea name="complications" rows="2">{{ report.complications or '' }}</textarea></label>
+  <label>Endoscopist
+    <select name="endoscopist_id">
+      <option value="">—</option>
+      {% for e in endoscopists %}<option value="{{ e.id }}" {% if report.endoscopist_id == e.id %}selected{% endif %}>{{ e.full_name }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Generated procedure note<textarea name="procedure_note" rows="8" readonly>{{ report.procedure_note or '' }}</textarea></label>
+</form>
+
+<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+  {% if not is_locked %}
+  <button class="btn btn--primary" type="button" id="btn-save">Save</button>
+  <form method="POST" action="{{ url_for('procedure_report_generate_note', procedure_key=procedure_key, report_id=report.id) }}">
+    <button class="btn btn--outline" type="submit">Generate note</button>
+  </form>
+  <form method="POST" action="{{ url_for('procedure_report_finalize', procedure_key=procedure_key, report_id=report.id) }}">
+    <button class="btn btn--primary" type="submit">Finalize</button>
+  </form>
+  {% else %}
+  <span class="muted">Report finalized — read only{% if can_unlock %} (admin may unlock via DB){% endif %}</span>
+  {% endif %}
+</div>
+
+<script>
+(function(){
+  const form = document.getElementById('pr-form');
+  if (form.dataset.locked) return;
+  document.getElementById('btn-save').addEventListener('click', async () => {
+    const data = Object.fromEntries(new FormData(form));
+    const res = await fetch('{{ url_for("procedure_report_save", procedure_key=procedure_key, report_id=report.id) }}', {
+      method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)
+    });
+    alert(res.ok ? 'Saved.' : 'Save failed.');
+  });
+})();
+</script>
+{% endblock %}

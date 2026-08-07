@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% from "ui/macros.html" import page_header, search_panel, data_table_wrapper, table_empty_row, status_badge %}
+
+{% block title %}Procedures — {{ branding.display_title }}{% endblock %}
+
+{% block content %}
+{% set header_actions %}
+<a href="{{ url_for('procedures.daily_endoscopy_list') }}" class="btn btn-outline-secondary btn-sm">Daily List</a>
+<a href="{{ url_for('procedures.waiting_list_view') }}" class="btn btn-outline-secondary btn-sm">Waiting List</a>
+<a href="{{ url_for('procedures.list_procedure_types') }}" class="btn btn-outline-secondary btn-sm">Catalogue</a>
+<a href="{{ url_for('procedures.list_rooms') }}" class="btn btn-outline-secondary btn-sm">Rooms</a>
+{% endset %}
+
+{{ page_header("Endoscopy bookings", subtitle="Scheduled endoscopy procedures for your department.", breadcrumbs=[("Endoscopy bookings", none)], actions=header_actions) }}
+
+{{ search_panel(form_action=url_for('procedures.list_procedures'), placeholder="Search procedures by patient or MRN", query=query if query is defined else "",
+    search_key="procedure_search", suggestions="Patient name, MRN, procedure type") }}
+
+{% call data_table_wrapper('table-striped') %}
+    <thead>
+        <tr>
+            <th scope="col">When</th>
+            <th scope="col">Patient</th>
+            <th scope="col">Type</th>
+            <th scope="col">Room</th>
+            <th scope="col">Endoscopist</th>
+            <th scope="col">Priority</th>
+            <th scope="col">Status</th>
+            <th scope="col"><span class="visually-hidden">Actions</span></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in procedures %}
+        <tr>
+            <td>{{ p.appointment.scheduled_at.strftime("%Y-%m-%d %H:%M") }}</td>
+            <td>{{ p.patient.full_name }} <small class="text-muted">{{ p.patient.mrn }}</small></td>
+            <td>{{ p.procedure_type.name }}{% if p.procedure_type.requires_special_authorization %} {{ status_badge("Special Auth", "gi-badge-warning") }}{% endif %}</td>
+            <td>{{ p.room.name if p.room else "—" }}</td>
+            <td>{{ p.endoscopist.full_name if p.endoscopist else "Unassigned" }}</td>
+            <td>{{ status_badge(p.priority.title(), "gi-badge-info") }}</td>
+            <td>{{ status_badge(p.status.replace("_", " ").title(), "gi-badge-muted") }}</td>
+            <td><a href="{{ url_for('procedures.view_procedure', procedure_id=p.id) }}" class="btn btn-outline-primary btn-sm">View</a></td>
+        </tr>
+        {% else %}
+        {% set booking_help %}
+        <ol class="text-start small text-muted mb-3 mx-auto" style="max-width: 28rem;">
+            <li>Open the <a href="{{ url_for('patients.list_patients') }}">patient list</a> and choose a patient</li>
+            <li>Click <strong>Book Appointment</strong> on their record</li>
+            <li>Open the appointment and click <strong>Book endoscopy</strong></li>
+        </ol>
+        <div class="d-flex gap-2 justify-content-center flex-wrap">
+            {% if can('patient:view') %}<a href="{{ url_for('patients.list_patients') }}" class="btn btn-primary btn-sm">Patient list</a>{% endif %}
+            {% if can('appointment:view') %}<a href="{{ url_for('appointments.list_appointments') }}" class="btn btn-outline-primary btn-sm">Appointments</a>{% endif %}
+        </div>
+        {% endset %}
+        {{ table_empty_row(8, "No endoscopy bookings yet", "Follow these steps to schedule a procedure:", action_html=booking_help) }}
+        {% endfor %}
+    </tbody>
+{% endcall %}
+{% endblock %}

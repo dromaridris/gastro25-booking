@@ -1,0 +1,35 @@
+{
+  "id": "ET_flank_pain",
+  "complaint_code": "CC_flank_pain",
+  "name": "Flank pain — physical exam",
+  "source": {
+    "work": "Bates' Guide to Physical Examination and History Taking",
+    "note": "Exam organization only; findings recorded against dictionary sign codes."
+  },
+  "systems": [
+    {
+      "key": "general",
+      "title": "General appearance & vitals",
+      "finding_ids": [
+        "SG_tachycardia",
+        "SG_hypotension",
+        "SG_fever",
+        "SG_pallor",
+        "SG_dehydration"
+      ],
+      "checklist": [
+        "Distress",
+        "Vital signs",
+        "Hydration",
+        "Pallor"
+      ]
+    }
+  ],
+  "priority_findings": [
+    "SG_tachycardia",
+    "SG_hypotension"
+  ],
+  "schema_version": 1,
+  "revision": 1,
+  "status": "active"
+}

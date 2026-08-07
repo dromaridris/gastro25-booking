@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Registrar approvals{% endblock %}
+{% block content %}
+<div class="page-compact">
+<h1>Registrar approval queue</h1>
+{% include "_module_intro.html" %}
+
+<h2>Pending investigation orders</h2>
+{% for o in pending_orders %}
+<article class="compact-card">
+  <strong>{{ o.item_name }}</strong> <span class="muted">({{ o.order_type }})</span> — {{ o.patient_name or 'Patient' }}
+  <span class="muted" style="font-size:12px;"> · {{ o.ordered_by_name or '—' }} · {{ o.created_at[:16] if o.created_at else '' }}</span>
+  <form method="POST" action="{{ url_for('gi_approve_order', order_id=o.id) }}" class="compact-form">
+    <input name="note" placeholder="Optional note" class="compact-input">
+    {% if o.order_type == 'endoscopy' %}
+    <label style="font-size:12px;">Procedure date (required)<input type="date" name="scheduled_date" required class="compact-input"></label>
+    <label style="font-size:12px;">Preferred time<input type="time" name="scheduled_time" class="compact-input"></label>
+    {% endif %}
+    <div style="display:flex;gap:6px;">
+      <button class="btn btn--primary btn--sm" name="decision" value="approve" type="submit">Approve</button>
+      <button class="btn btn--outline btn--sm" name="decision" value="reject" type="submit">Reject</button>
+    </div>
+  </form>
+</article>
+{% else %}<p class="muted">No pending orders.</p>{% endfor %}
+
+<h2 style="margin-top:20px;">Pending management plans</h2>
+{% for p in pending_plans %}
+<article class="compact-card">
+  <strong>{{ p.patient_name or 'Patient' }}</strong>
+  <span class="muted" style="font-size:12px;"> · {{ p.author_name or '—' }} · {{ p.created_at[:16] if p.created_at else '' }}</span>
+  <p class="compact-text">{{ p.plan_text }}</p>
+  <form method="POST" action="{{ url_for('gi_approve_plan', plan_id=p.id) }}" class="compact-form">
+    <input name="note" placeholder="Optional note" class="compact-input">
+    <div style="display:flex;gap:6px;">
+      <button class="btn btn--primary btn--sm" name="decision" value="approve" type="submit">Approve</button>
+      <button class="btn btn--outline btn--sm" name="decision" value="reject" type="submit">Reject</button>
+    </div>
+  </form>
+</article>
+{% else %}<p class="muted">No pending plans.</p>{% endfor %}
+</div>
+{% endblock %}

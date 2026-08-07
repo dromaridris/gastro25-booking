@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Follow-up — {{ patient.full_name }}{% endblock %}
+{% block content %}
+<h2>Follow-up Entry</h2>
+<p class="text-muted">Follow-up notes are append-only — historical entries are never modified.</p>
+
+<form method="POST" class="col-md-8 mb-4">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">{{ form.narrative_text.label(class="form-label") }}{{ form.narrative_text(class="form-control", rows=5) }}</div>
+    {{ form.submit(class="btn btn-primary") }}
+    <a href="{{ url_for('patients.view_patient', patient_id=patient.id) }}" class="btn btn-link">Cancel</a>
+</form>
+
+{% if follow_ups %}
+<h5>Previous follow-ups</h5>
+<table class="table table-sm">
+    <thead><tr><th>When</th><th>Note</th></tr></thead>
+    <tbody>
+        {% for f in follow_ups %}
+        <tr>
+            <td>{{ f.documented_at.strftime("%Y-%m-%d %H:%M") }}</td>
+            <td>{{ f.narrative_text }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endblock %}

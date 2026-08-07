@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}{{ registry.title }}{% endblock %}
+{% block content %}
+<h1>{{ registry.title }}</h1>
+{% include "_module_intro.html" %}
+{% if lead_user %}
+<p class="muted">Lead: {{ lead_user.full_name }} (@{{ lead_user.username }})</p>
+{% endif %}
+{% if team_users %}
+<p class="muted">Team: {% for u in team_users %}{{ u.full_name }} (@{{ u.username }}){% if not loop.last %}, {% endif %}{% endfor %}</p>
+{% endif %}
+
+{% if can_manage_team %}
+<section class="admin-section compact-section">
+  <h2>Manage research team (HOD)</h2>
+  <p class="muted">Change lead, add members with @username, or remove someone from the team.</p>
+  <form method="POST" action="{{ url_for('gi_research_update_team', registry_id=registry.id) }}" class="settings-form">
+    <label>Research lead
+      <input name="lead_usernames" class="user-mention-input" required
+             value="{% if lead_user %}@{{ lead_user.username }}{% endif %}"
+             placeholder="@lead"></label>
+    <label>Team members
+      <input name="team_usernames" class="user-mention-input"
+             value="{% for u in team_users %}@{{ u.username }}{% if not loop.last %}, {% endif %}{% endfor %}"
+             placeholder="@member1, @member2"></label>
+    <button class="btn btn--primary btn--sm" type="submit">Save team</button>
+  </form>
+  {% if team_users %}
+  <div style="margin-top:12px;">
+    <span class="muted" style="font-size:13px;">Quick remove:</span>
+    {% for u in team_users %}
+    <form method="POST" action="{{ url_for('gi_research_update_team', registry_id=registry.id) }}" style="display:inline;margin-left:6px;">
+      <input type="hidden" name="remove_user_id" value="{{ u.id }}">
+      <button class="btn btn--sm btn--ghost" type="submit"
+              onclick="return confirm('Remove {{ u.full_name }} from this research team?');">Remove {{ u.full_name }}</button>
+    </form>
+    {% endfor %}
+  </div>
+  {% endif %}
+</section>
+{% endif %}
+
+<p>{{ registry.description }}</p>
+
+{% if can_hod_review and registry.hod_status in ['pending_approval', 'needs_revision', None] %}
+<section class="admin-section compact-section">
+  <h2>HOD project approval</h2>
+  {% if registry.hod_review_note %}<p class="muted">Previous note: {{ registry.hod_review_note }}</p>{% endif %}
+  <form method="POST" action="{{ url_for('gi_research_hod_review', registry_id=registry.id) }}" class="settings-form">
+    <label>Review note<textarea name="note" rows="2"></textarea></label>
+    <div class="btn-row">
+      <button class="btn btn--primary btn--sm" type="submit" name="decision" value="approve">Approve project</button>
+      <button class="btn btn--outline btn--sm" type="submit" name="decision" value="reject">Request revision</button>
+    </div>
+  </form>
+</section>
+{% endif %}
+
+<p class="btn-row">
+  <a class="btn btn--sm btn--outline" href="{{ url_for('gi_research_dashboard', registry_id=registry.id) }}">Analytics</a>
+  {% if can_hod_review or is_lead %}
+  <a class="btn btn--sm btn--outline" href="{{ url_for('gi_research_add_variable', registry_id=registry.id) }}">Add variable (direct)</a>
+  {% endif %}
+  <a class="btn btn--sm btn--outline" href="{{ url_for('gi_research_export', registry_id=registry.id) }}">Export CSV</a>
+</p>
+
+{% if analytics %}
+<p class="muted">Completeness: {{ analytics.completeness_pct }}% · {{ analytics.enrollment_count }} enrollments</p>
+{% endif %}
+
+{% if team_activity %}
+<section class="admin-section compact-section">
+  <h2>Team activity</h2>
+  <table class="admin-table compact-table">
+    <thead><tr><th>Member</th><th>Patients enrolled</th><th>Active days</th></tr></thead>
+    <tbody>
+      {% for row in team_activity %}
+      <tr>
+        <td>{{ row.full_name or '—' }}</td>
+        <td>{{ row.patients }}</td>
+        <td>{{ row.active_days }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+
+{% if is_lead %}
+<section class="admin-section compact-section">
+  <h2>Propose research variable (lead)</h2>
+  <form method="POST" action="{{ url_for('gi_research_propose_variable', registry_id=registry.id) }}" class="settings-form">
+    <label>Variable name<input name="name" required></label>
+    <label>Code<input name="code" placeholder="e.g. hemoglobin"></label>
+    <label>Type<select name="var_type"><option value="text">Text</option><option value="number">Number</option><option value="date">Date</option><option value="boolean">Yes/No</option></select></label>
+    <button class="btn btn--outline btn--sm" type="submit">Propose for HOD approval</button>
+  </form>
+</section>
+{% endif %}
+
+<h2>Research variables</h2>
+<table class="admin-table">
+  <thead><tr><th>Code</th><th>Name</th><th>Source</th><th>Type</th><th>Status</th><th>Required</th><th></th></tr></thead>
+  <tbody>
+    {% for v in variables %}
+    <tr>
+      <td>{{ v.code or '—' }}</td>
+      <td>{{ v.name }}</td>
+      <td>{{ v.source_type or '—' }}</td>
+      <td>{{ v.var_type }}</td>
+      <td>{{ v.approval_status or 'approved' }}</td>
+      <td>{{ 'Yes' if v.required else 'No' }}</td>
+      <td>
+        {% if can_hod_review and v.approval_status == 'pending_hod' %}
+        <form method="POST" action="{{ url_for('gi_research_variable_review', variable_id=v.id) }}" class="inline-form">
+          <input type="hidden" name="note" value="">
+          <button class="btn btn--sm btn--primary" type="submit" name="decision" value="approve">Approve</button>
+          <button class="btn btn--sm btn--outline" type="submit" name="decision" value="reject">Revise</button>
+        </form>
+        {% elif can_hod_review %}
+        <form method="POST" action="{{ url_for('gi_research_delete_variable', variable_id=v.id) }}" class="inline-form"
+              onsubmit="return confirm('Delete this variable?');">
+          <button class="btn btn--sm btn--ghost" type="submit">Delete</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7" class="muted">No variables defined.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Enrollments</h2>
+{% if registry.status != 'active' or registry.hod_status in ['pending_approval', 'needs_revision'] %}
+<p class="form-error">Enrollment is disabled until HOD approves this project.</p>
+{% else %}
+<form method="POST" action="{{ url_for('gi_research_enroll', registry_id=registry.id) }}" class="settings-form">
+  <label>Ward patient ID<input name="ward_patient_id" type="number" value="{{ ward_patient_id or '' }}"></label>
+  <label>MRN<input name="mrn"></label>
+  <label>Appointment ID (optional)<input name="appointment_id" type="number" placeholder="Links EGD/COL report import"></label>
+  <button class="btn btn--outline" type="submit">Enroll patient</button>
+</form>
+<p class="muted">Demographics, labs, and EGD/colonoscopy report fields import automatically when linked.</p>
+{% endif %}
+<ul style="margin-top:12px;">
+  {% for e in enrollments %}
+  <li>
+    {{ e.ward_patient_name or e.mrn or 'Patient' }} — {{ e.enrolled_at }}
+    {% if e.status and e.status != 'active' %}<span class="muted">({{ e.status }})</span>{% endif %}
+    {% if (e.status or 'active') == 'active' %}
+    · <a href="{{ url_for('gi_research_capture', enrollment_id=e.id) }}">Capture data</a>
+    · <form method="POST" action="{{ url_for('gi_research_withdraw', enrollment_id=e.id) }}" style="display:inline;"
+          onsubmit="return confirm('Withdraw this enrollment?');">
+      <button class="btn btn--sm btn--ghost" type="submit">Withdraw</button>
+    </form>
+    {% endif %}
+  </li>
+  {% else %}
+  <li class="muted">No enrollments.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

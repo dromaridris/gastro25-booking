@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Portfolio{% endblock %}
+{% block content %}
+<h1>Auto Portfolio</h1>
+<p class="text-muted">Generated from verified clinical activity — references source records by ID only.</p>
+<form method="POST" action="{{ url_for('workforce.sync_portfolio') }}" class="mb-3"><button type="submit" class="btn btn-outline-secondary btn-sm">Sync now</button></form>
+
+<h2 class="h5 mt-4">Competency tracking</h2>
+<table class="table table-sm mb-4">
+    <thead><tr><th>Skill</th><th>Specialty</th><th>Completed</th><th>Required</th><th>Remaining</th><th>%</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for c in totals.competencies %}
+        <tr>
+            <td>{{ c.name }}</td>
+            <td>{{ c.specialty }}</td>
+            <td>{{ c.completed_count }}</td>
+            <td>{{ c.required_count }}</td>
+            <td>{{ c.remaining_count }}</td>
+            <td>{{ c.completion_pct }}%</td>
+            <td>{{ c.status.replace('_', ' ') | title }}</td>
+        </tr>
+    {% else %}
+        <tr><td colspan="7" class="text-muted">No competency standards configured.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<h2 class="h5">Activity log</h2>
+<table class="table table-sm">
+    <thead><tr><th>Date</th><th>Activity</th><th>Title</th><th>Skill</th><th>Role</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for e in entries %}
+        <tr>
+            <td>{{ e.activity_at.strftime('%Y-%m-%d') if e.activity_at else '—' }}</td>
+            <td>{{ e.activity_type }}</td>
+            <td>{{ e.title }}</td>
+            <td>{{ e.skill_code or '—' }}</td>
+            <td>{{ e.participation_role or '—' }}</td>
+            <td>{{ e.verification_status }}</td>
+            <td>
+                {% if can('workforce:supervise') and e.verification_status == 'draft' %}
+                <form method="POST" action="{{ url_for('workforce.verify_entry', entry_id=e.id) }}" class="d-inline">
+                    <button type="submit" class="btn btn-outline-success btn-sm">Verify</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+    {% else %}
+        <tr><td colspan="7" class="text-muted">No portfolio entries. Clinical activity will appear here automatically.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

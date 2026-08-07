@@ -1,0 +1,18 @@
+{% extends "branding_integration/base_print.html" %}
+{% block print_title %}{{ template_label }} — {{ report.report_number }}{% endblock %}
+{% block print_extra_head %}
+<style>
+.internal-section { margin-top: 2rem; padding-top: 1rem; border-top: 2px dashed var(--gi-color-card-border); }
+.internal-section h3 { font-size: 0.95rem; color: var(--gi-color-muted); }
+.timeline-table { width: auto; min-width: 280px; }
+</style>
+{% endblock %}
+{% block print_pdf_link %}
+<a href="{{ url_for('branding_integration.pdf_clinical_report', report_id=report.id) }}" class="btn btn-outline-secondary btn-sm">Download PDF</a>
+{% endblock %}
+{% block print_back_link %}
+<a href="{{ url_for('clinical_reports.view_report', report_id=report.id) }}" class="btn btn-link btn-sm">Back to report</a>
+{% endblock %}
+{% block print_content %}
+{% include "branding_integration/_clinical_report_print_content.html" %}
+{% endblock %}

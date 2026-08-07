@@ -1,0 +1,69 @@
+{
+  "complaint_code": "CC_constipation",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Constipation history structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Establish baseline bowel habit, stool consistency (Bristol scale), and whether this represents a genuine change from normal.",
+        "New constipation in an older adult, especially with weight loss or rectal bleeding, is an alarm pattern until colorectal cancer is excluded.",
+        "Screen medication causes (opioids, anticholinergics, iron, calcium channel blockers) before assuming a primary functional cause."
+      ],
+      "linked_questions": [
+        "Q000091",
+        "Q000047",
+        "Q000035"
+      ]
+    },
+    {
+      "id": "EDU_alarm",
+      "title": "Constipation alarm features",
+      "trigger": {
+        "any_sign_present": [
+          "SG_abdominal_mass",
+          "SG_rectal_mass"
+        ]
+      },
+      "points": [
+        "New change in bowel habit with rectal bleeding, weight loss, or a palpable mass warrants colonoscopy rather than empirical laxative therapy alone."
+      ]
+    }
+  ],
+  "question_coaching": {
+    "Q000091": {
+      "why_ask": "A genuine, sustained change in bowel habit is far more concerning than lifelong mild constipation.",
+      "listen_for": [
+        "New vs longstanding pattern"
+      ],
+      "think": "New change in an older adult should not be attributed to diet/lifestyle without further evaluation."
+    },
+    "Q000035": {
+      "why_ask": "Rectal bleeding alongside constipation should never be attributed to haemorrhoids without examination.",
+      "listen_for": [
+        "Bright red blood",
+        "on the stool vs mixed in"
+      ],
+      "think": "Combine with age and family history to decide on colonoscopy referral."
+    }
+  },
+  "answer_triggers": [
+    {
+      "id": "AT_new_change",
+      "question_id": "Q000091",
+      "title": "Unlocked: new change in bowel habit",
+      "points": [
+        "This is an alarm feature, particularly in patients over 50.",
+        "Ensure rectal bleeding and weight loss have been specifically asked about."
+      ],
+      "answer_in": [
+        "yes"
+      ]
+    }
+  ]
+}

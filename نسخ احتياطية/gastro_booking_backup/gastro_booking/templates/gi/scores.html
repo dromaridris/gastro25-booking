@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Clinical Scores{% endblock %}
+{% block content %}
+{% from 'gi/_back.html' import back_link %}
+{{ back_link(back_url) }}
+<h1>Clinical scores · session {{ sess.id }}</h1>
+<p class="muted">Modular scoring engine — auto-calculated from laboratory results and history. Independent of procedure reports.</p>
+
+<section class="admin-section">
+  <form method="POST" style="margin-bottom:12px;">
+    <input type="hidden" name="action" value="recalculate">
+    <button class="btn btn--primary" type="submit">Recalculate all applicable scores</button>
+  </form>
+  {% if suggested_scores %}
+  <p class="muted">Suggested from diagnosis / Knowledge Library: {{ suggested_scores|join(', ') }}</p>
+  {% endif %}
+</section>
+
+<section class="admin-section">
+  <h2>Auto-calculated scores</h2>
+  <table class="admin-table compact-table">
+    <thead><tr><th>Score</th><th>Group</th><th>Value</th><th>Status</th><th>Interpretation</th></tr></thead>
+    <tbody>
+      {% for s in live_scores %}
+      <tr>
+        <td>{{ s.name }}</td>
+        <td>{{ score_groups.get(s.group, s.group) }}</td>
+        <td>{% if s.available %}<strong>{{ s.value }}</strong>{% else %}—{% endif %}</td>
+        <td>{% if s.available %}Ready{% else %}Missing: {{ s.missing|join(', ') }}{% endif %}</td>
+        <td>{{ s.interpretation or '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="admin-section">
+  <h2>Recorded scores</h2>
+  <table class="admin-table compact-table">
+    <thead><tr><th>Score</th><th>Value</th><th>Interpretation</th><th>Auto</th></tr></thead>
+    <tbody>
+      {% for s in scores %}
+      <tr>
+        <td>{{ s.score_name }}</td>
+        <td><strong>{{ s.score_value }}</strong></td>
+        <td>{{ s.interpretation or '—' }}</td>
+        <td>{% if s.auto_calculated %}Yes{% else %}Manual{% endif %}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="muted">No scores recorded yet — enter lab results or recalculate.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="admin-section">
+  <h2>Manual: Rockall (post-endoscopy)</h2>
+  <form method="POST" class="settings-form">
+    <input type="hidden" name="score_name" value="Rockall (post-endoscopy)">
+    <label>Age points (0 if &lt;60, 1 if ≥60)<input name="age" type="number" min="0" max="1" value="0"></label>
+    <label>Shock<select name="shock"><option value="none">None (0)</option><option value="hr100">HR ≥100, SBP ≥100 (1)</option><option value="sbp100">SBP &lt;100 (2)</option><option value="both">Both (3)</option></select></label>
+    <label>Comorbidity<select name="comorbidity"><option value="none">None (0)</option><option value="heart_failure">Heart failure / IHD (2)</option><option value="other">Renal/liver/malignancy (3)</option></select></label>
+    <label>Diagnosis<select name="diagnosis"><option value="mallory_weiss">Mallory-Weiss (0)</option><option value="other">Other (1)</option><option value="malignancy">Malignancy (2)</option></select></label>
+    <label>Stigmata<select name="stigmata"><option value="none">None (0)</option><option value="dark_spot">Dark spot / clot (2)</option><option value="spurting">Spurting (3)</option></select></label>
+    <button class="btn btn--outline" type="submit">Calculate Rockall manually</button>
+  </form>
+</section>
+
+<section class="admin-section">
+  <h2>Score registry</h2>
+  <p class="muted">Built-in calculators — extensible without redesigning architecture.</p>
+  <ul class="compact-list">
+    {% for entry in score_registry %}
+    <li><strong>{{ entry.code }}</strong> — {{ score_groups.get(entry.group, entry.group) }}</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}

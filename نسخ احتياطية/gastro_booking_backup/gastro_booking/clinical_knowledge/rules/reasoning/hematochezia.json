@@ -1,0 +1,151 @@
+{
+  "complaint_code": "CC_hematochezia",
+  "schema_version": 1,
+  "revision": 1,
+  "min_history_answers_for_dx": 5,
+  "min_confidence_to_list_dx": 0.45,
+  "description": "Starter reasoning pack for CC_hematochezia (practical, not Sleisenger-complete).",
+  "patterns": [
+    {
+      "id": "PAT_hc_massive_lgib",
+      "label": "Massive LGIB / brisk bleed",
+      "diagnosis_code": "DX_massive_lgib_suspect",
+      "diagnosis_label": "Massive lower GI bleed (suspect)",
+      "weight_sum_required": 1.6,
+      "criteria": [
+        {
+          "kind": "answer",
+          "question_id": "Q000035",
+          "op": "truthy",
+          "weight": 1.0,
+          "finding": "Hematochezia"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000038",
+          "op": "truthy",
+          "weight": 0.9,
+          "finding": "Presyncope"
+        },
+        {
+          "kind": "exam",
+          "sign_code": "SG_hypotension",
+          "op": "present",
+          "weight": 1.1,
+          "finding": "Hypotension"
+        },
+        {
+          "kind": "exam",
+          "sign_code": "SG_tachycardia",
+          "op": "present",
+          "weight": 0.6,
+          "finding": "Tachycardia"
+        }
+      ],
+      "suggested_questions": [
+        "Q000033",
+        "Q000034",
+        "Q000114"
+      ],
+      "suggested_exam": [
+        "SG_hypotension",
+        "SG_tachycardia",
+        "SG_pallor"
+      ],
+      "suggested_investigations": [
+        "IX_cbc",
+        "IX_coagulation_panel",
+        "IX_ct_abdomen"
+      ]
+    },
+    {
+      "id": "PAT_hc_brisk_ugib",
+      "label": "Brisk UGIB presenting as hematochezia",
+      "diagnosis_code": "DX_brisk_ugib_as_hematochezia_suspect",
+      "diagnosis_label": "Brisk UGIB with hematochezia (suspect)",
+      "weight_sum_required": 1.5,
+      "criteria": [
+        {
+          "kind": "answer",
+          "question_id": "Q000033",
+          "op": "truthy",
+          "weight": 1.2,
+          "finding": "Hematemesis"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000035",
+          "op": "truthy",
+          "weight": 0.8,
+          "finding": "Hematochezia"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000038",
+          "op": "truthy",
+          "weight": 0.6,
+          "finding": "Hemodynamic symptoms"
+        }
+      ],
+      "suggested_questions": [
+        "Q000034",
+        "Q000038"
+      ],
+      "suggested_exam": [
+        "SG_hypotension",
+        "SG_pallor"
+      ],
+      "suggested_investigations": [
+        "IX_cbc",
+        "IX_upper_endoscopy",
+        "IX_coagulation_panel"
+      ]
+    },
+    {
+      "id": "PAT_hc_anorectal",
+      "label": "Likely anorectal source (stable)",
+      "diagnosis_code": "DX_anorectal_bleed_suspect",
+      "diagnosis_label": "Anorectal bleeding (suspect)",
+      "weight_sum_required": 1.2,
+      "criteria": [
+        {
+          "kind": "answer",
+          "question_id": "Q000114",
+          "op": "truthy",
+          "weight": 0.8,
+          "finding": "Rectal blood characterised"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000035",
+          "op": "truthy",
+          "weight": 0.7,
+          "finding": "Hematochezia"
+        }
+      ],
+      "suggested_questions": [
+        "Q000034",
+        "Q000019"
+      ],
+      "suggested_exam": [
+        "SG_pallor"
+      ],
+      "suggested_investigations": [
+        "IX_cbc",
+        "IX_colonoscopy"
+      ]
+    }
+  ],
+  "missing_info_rules": [
+    {
+      "id": "need_blood_colour",
+      "if_unanswered": [
+        "Q000114"
+      ],
+      "message": "Clarify blood colour / pattern",
+      "next_questions": [
+        "Q000114"
+      ]
+    }
+  ]
+}

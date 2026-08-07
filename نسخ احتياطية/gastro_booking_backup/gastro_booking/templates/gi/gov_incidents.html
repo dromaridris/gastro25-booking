@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Clinical incidents{% endblock %}
+{% block content %}
+<div class="page-compact">
+<p><a href="{{ url_for('gi_governance_dashboard') }}">← Governance</a></p>
+<h1>Clinical incidents</h1>
+{% include "_module_intro.html" %}
+<section class="admin-section compact-section">
+<form method="POST" class="settings-form">
+  <label>Date<input type="datetime-local" name="incident_date" required></label>
+  <label>Category<select name="category">{% for c in categories %}<option value="{{ c }}">{{ c|replace('_',' ') }}</option>{% endfor %}</select></label>
+  <label>Severity<select name="severity">{% for s in severities %}<option value="{{ s }}">{{ s|title }}</option>{% endfor %}</select></label>
+  <label>MRN<input name="mrn"></label>
+  <label>Patient name<input name="patient_name"></label>
+  <label>Description<textarea name="description" rows="4" required></textarea></label>
+  <button class="btn btn--primary" type="submit">Report incident</button>
+</form>
+</section>
+{% for i in incidents %}
+<article class="compact-card">
+  <strong>{{ i.category|replace('_',' ') }}</strong> · {{ i.severity|title }} · {{ i.status }}
+  <span class="muted muted-sm"> · {{ i.incident_date[:16] if i.incident_date else '' }}</span>
+  <p>{{ i.description }}</p>
+  {% if i.status != 'closed' and current_user.role in ['admin','hod','consultant','specialist'] %}
+  <form method="POST" action="{{ url_for('gi_gov_incident_review', incident_id=i.id) }}" class="compact-form">
+    <input class="compact-input" name="root_cause" placeholder="Root cause">
+    <input class="compact-input" name="corrective_action" placeholder="Corrective action">
+    <input class="compact-input" name="preventive_action" placeholder="Preventive action">
+    <button class="btn btn--sm btn--outline" type="submit">Close &amp; review</button>
+  </form>
+  {% endif %}
+</article>
+{% else %}<p class="muted">No incidents.</p>{% endfor %}
+</div>
+{% endblock %}

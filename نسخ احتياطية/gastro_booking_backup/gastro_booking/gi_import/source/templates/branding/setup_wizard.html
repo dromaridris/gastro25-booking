@@ -1,0 +1,75 @@
+{% extends "base_setup.html" %}
+{% block title %}Initial Setup — {{ platform.name }}{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card gi-card shadow-sm">
+            <div class="card-body p-4 p-md-5">
+                <h1 class="h3 mb-1">Welcome to {{ platform.name }}</h1>
+                <p class="text-muted mb-4">Configure your hospital branding to complete the initial setup.</p>
+
+                <form method="POST" enctype="multipart/form-data" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            {{ form.hospital_name.label(class="form-label") }}
+                            {{ form.hospital_name(class="form-control", placeholder="City General Hospital") }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.department_name.label(class="form-label") }}
+                            {{ form.department_name(class="form-control", placeholder="Gastroenterology") }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.hospital_logo.label(class="form-label") }}
+                            {{ form.hospital_logo(class="form-control") }}
+                            <div class="form-text">Required. Colours can be generated automatically from this logo.</div>
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.department_logo.label(class="form-label") }}
+                            {{ form.department_logo(class="form-control") }}
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+                    <h2 class="h5">Colour Palette</h2>
+                    <p class="text-muted small">Leave blank to auto-generate from the hospital logo.</p>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            {{ form.primary_color.label(class="form-label") }}
+                            {{ form.primary_color(class="form-control", type="color", value=form.primary_color.data or '#1a5276') }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.secondary_color.label(class="form-label") }}
+                            {{ form.secondary_color(class="form-control", type="color", value=form.secondary_color.data or '#2874a6') }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.accent_color.label(class="form-label") }}
+                            {{ form.accent_color(class="form-control", type="color", value=form.accent_color.data or '#3498db') }}
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+                    <h2 class="h5">Slogan (optional)</h2>
+                    {% if suggested_slogan %}
+                        <div class="alert alert-light border gi-suggested-slogan">
+                            <strong>Suggested:</strong> {{ suggested_slogan }}
+                            {{ form.suggested_slogan(value=suggested_slogan) }}
+                            <div class="form-check mt-2">
+                                {{ form.use_suggested_slogan(class="form-check-input") }}
+                                {{ form.use_suggested_slogan.label(class="form-check-label") }}
+                            </div>
+                        </div>
+                    {% endif %}
+                    {{ form.slogan.label(class="form-label") }}
+                    {{ form.slogan(class="form-control", rows=2, placeholder="Or enter your own slogan") }}
+
+                    <div class="mt-4 d-grid">
+                        {{ form.submit(class="btn gi-btn-primary btn-lg") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

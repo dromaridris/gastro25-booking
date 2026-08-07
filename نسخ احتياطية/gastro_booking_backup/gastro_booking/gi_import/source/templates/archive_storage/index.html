@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Archive Storage{% endblock %}
+{% block content %}
+<h2>Archive Storage</h2>
+<form method="GET" class="row g-2 mb-3">
+  <div class="col-auto"><input name="q" class="form-control form-control-sm" placeholder="Search..." value="{{ q }}"></div>
+  <div class="col-auto"><button class="btn btn-outline-secondary btn-sm">Search</button></div>
+</form>
+<table class="table table-sm">
+  <thead><tr><th>Title</th><th>Type</th><th>Archived</th><th></th></tr></thead>
+  <tbody>
+  {% for asset in assets %}
+    <tr>
+      <td>{{ asset.title }}</td>
+      <td>{{ asset.resource_type }}</td>
+      <td>{{ asset.archived_at.strftime("%Y-%m-%d") }}</td>
+      <td>
+        {% if can('archive_storage:manage') %}
+        <form method="POST" action="{{ url_for('archive_storage.restore', asset_id=asset.id) }}" class="d-inline">
+          <button class="btn btn-outline-success btn-sm">Restore</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="4" class="text-muted">No archived assets.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

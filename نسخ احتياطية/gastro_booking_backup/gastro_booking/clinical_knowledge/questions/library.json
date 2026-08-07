@@ -1,0 +1,2973 @@
+{
+  "schema_version": 1,
+  "revision": 4,
+  "questions": [
+    {
+      "id": "Q000001",
+      "prompt": "What is the chief complaint in the patient's own words?",
+      "answer_type": "text",
+      "bates_domain": "HPI",
+      "dedupe_key": "chief_complaint_verbatim",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000002",
+      "prompt": "When did this problem begin?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "onset_timing",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ],
+      "choices": [
+        "Hours",
+        "Days",
+        "Weeks",
+        "Months",
+        "Years"
+      ]
+    },
+    {
+      "id": "Q000003",
+      "prompt": "Was the onset sudden or gradual?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "onset_pattern",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ],
+      "choices": [
+        "Sudden",
+        "Gradual",
+        "Unclear"
+      ]
+    },
+    {
+      "id": "Q000004",
+      "prompt": "Where is the symptom located?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "location",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ],
+      "choices": [
+        "Epigastric",
+        "RUQ",
+        "LUQ",
+        "Periumbilical",
+        "RLQ",
+        "LLQ",
+        "Diffuse",
+        "Flank",
+        "Other"
+      ],
+      "allow_other": true
+    },
+    {
+      "id": "Q000005",
+      "prompt": "Does the symptom radiate anywhere?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "radiation",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ],
+      "choices": [
+        "None",
+        "To back",
+        "To shoulder",
+        "To groin",
+        "To chest",
+        "Other"
+      ],
+      "allow_other": true
+    },
+    {
+      "id": "Q000006",
+      "prompt": "How would you describe the quality/character of the symptom?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "quality",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ],
+      "choices": [
+        "Dull / aching",
+        "Sharp / stabbing",
+        "Colicky",
+        "Burning",
+        "Pressure / tightness",
+        "Other"
+      ],
+      "allow_other": true
+    },
+    {
+      "id": "Q000007",
+      "prompt": "How severe is it on a scale of 0–10?",
+      "answer_type": "numeric",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "severity_0_10",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ],
+      "choices": [],
+      "min": 0,
+      "max": 10,
+      "unit": "/10"
+    },
+    {
+      "id": "Q000008",
+      "prompt": "Is it constant or intermittent?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "timing_pattern",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ],
+      "choices": [
+        "Constant",
+        "Intermittent",
+        "Waxing and waning",
+        "Unclear"
+      ]
+    },
+    {
+      "id": "Q000009",
+      "prompt": "How long does each episode last?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "episode_duration",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ],
+      "choices": [
+        "Hours",
+        "Days",
+        "Weeks",
+        "Months",
+        "Years"
+      ]
+    },
+    {
+      "id": "Q000010",
+      "prompt": "How often does it occur?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "frequency",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ],
+      "choices": [
+        "Constant",
+        "Several times daily",
+        "Daily",
+        "Several times weekly",
+        "Weekly or less",
+        "Unclear"
+      ]
+    },
+    {
+      "id": "Q000011",
+      "prompt": "What makes it worse?",
+      "answer_type": "multi_choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "aggravating",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ],
+      "choices": [
+        "None clear",
+        "Food",
+        "Hunger / empty stomach",
+        "Movement",
+        "Lying flat",
+        "Breathing",
+        "Other"
+      ],
+      "allow_other": true
+    },
+    {
+      "id": "Q000012",
+      "prompt": "What makes it better?",
+      "answer_type": "multi_choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "relieving",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ],
+      "choices": [
+        "Nothing",
+        "Antacids / PPI",
+        "Food",
+        "Vomiting",
+        "Position change",
+        "Analgesia",
+        "Other"
+      ],
+      "allow_other": true
+    },
+    {
+      "id": "Q000013",
+      "prompt": "Have the symptoms been getting better, worse, or staying the same?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "course",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ],
+      "choices": [
+        "Improving",
+        "Worsening",
+        "Stable",
+        "Fluctuating",
+        "Unclear"
+      ]
+    },
+    {
+      "id": "Q000014",
+      "prompt": "Have you had this same problem before?",
+      "answer_type": "boolean",
+      "bates_domain": "HPI",
+      "dedupe_key": "prior_similar_episodes",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000015",
+      "prompt": "What happened around the time it started (context/setting)?",
+      "answer_type": "choice",
+      "bates_domain": "HPI",
+      "dedupe_key": "context_setting",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ],
+      "choices": [
+        "At rest",
+        "After meals",
+        "After exertion",
+        "After alcohol",
+        "After medication",
+        "Post-procedure",
+        "No clear trigger",
+        "Other"
+      ],
+      "allow_other": true
+    },
+    {
+      "id": "Q000016",
+      "prompt": "What treatments have you tried so far, and did they help?",
+      "answer_type": "multi_choice",
+      "bates_domain": "HPI",
+      "dedupe_key": "treatments_tried",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ],
+      "choices": [
+        "None",
+        "Antacids / PPI",
+        "Analgesia",
+        "Antibiotics",
+        "IV fluids / hospital care",
+        "Home remedies",
+        "Other"
+      ],
+      "allow_other": true
+    },
+    {
+      "id": "Q000017",
+      "prompt": "Have you had fever?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_fever",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000018",
+      "prompt": "Have you had chills or night sweats?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_chills_sweats",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000019",
+      "prompt": "Have you had unintentional weight loss?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_weight_loss",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000020",
+      "prompt": "Have you had loss of appetite?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_anorexia",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000021",
+      "prompt": "Have you had nausea?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_nausea",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000022",
+      "prompt": "Have you had vomiting?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_vomiting",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000023",
+      "prompt": "Have you had diarrhea?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_diarrhea",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000024",
+      "prompt": "Have you had constipation?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_constipation",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000025",
+      "prompt": "Have you had bloating or abdominal distention (belly swelling)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_bloating_distention",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000026",
+      "prompt": "Have you noticed jaundice (yellow eyes/skin)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_jaundice",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000027",
+      "prompt": "Have you had dark urine?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_dark_urine",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000028",
+      "prompt": "Have you had pale or clay-colored stools?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_pale_stools",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000029",
+      "prompt": "Have you had itching (pruritus)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_pruritus",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000030",
+      "prompt": "Have you had heartburn or acid regurgitation?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_heartburn",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000031",
+      "prompt": "Have you had difficulty swallowing?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_dysphagia",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000032",
+      "prompt": "Have you had painful swallowing?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_odynophagia",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000033",
+      "prompt": "Have you vomited blood or coffee-ground material?",
+      "answer_type": "boolean",
+      "bates_domain": "red_flags",
+      "dedupe_key": "rf_hematemesis",
+      "priority_default": "emergency",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000034",
+      "prompt": "Have you passed black tarry stools (melena)?",
+      "answer_type": "boolean",
+      "bates_domain": "red_flags",
+      "dedupe_key": "rf_melena",
+      "priority_default": "emergency",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000035",
+      "prompt": "Have you passed bright red blood from the rectum?",
+      "answer_type": "boolean",
+      "bates_domain": "red_flags",
+      "dedupe_key": "rf_hematochezia",
+      "priority_default": "emergency",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000036",
+      "prompt": "Have you had chest pain?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_chest_pain",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000037",
+      "prompt": "Have you had shortness of breath?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_dyspnea",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000038",
+      "prompt": "Have you had lightheadedness, dizziness, or fainting?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_dizziness_syncope",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000039",
+      "prompt": "Have you had cough?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_cough",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000040",
+      "prompt": "Have you had headache?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_headache",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000041",
+      "prompt": "Have you had urinary symptoms (dysuria, frequency, hematuria)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_urinary",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000042",
+      "prompt": "Which part of the abdomen hurts most (point with one finger if possible)?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "abd_pain_region",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology",
+        "surgery",
+        "emergency"
+      ],
+      "choices": [
+        "Epigastric",
+        "RUQ",
+        "LUQ",
+        "RLQ",
+        "LLQ",
+        "Periumbilical",
+        "Diffuse",
+        "Other/unclear"
+      ]
+    },
+    {
+      "id": "Q000043",
+      "prompt": "Is the pain related to meals?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "abd_pain_meals",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ],
+      "choices": [
+        "Worse after meals",
+        "Better after meals",
+        "Worse when fasting",
+        "No relation",
+        "Unclear"
+      ]
+    },
+    {
+      "id": "Q000044",
+      "prompt": "Is the pain related to bowel movements?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "abd_pain_bm",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ],
+      "choices": [
+        "Worse before BM",
+        "Better after BM",
+        "No relation",
+        "Unclear"
+      ]
+    },
+    {
+      "id": "Q000045",
+      "prompt": "Have you had inability to pass stool or gas?",
+      "answer_type": "boolean",
+      "bates_domain": "red_flags",
+      "dedupe_key": "rf_obstipation",
+      "priority_default": "emergency",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "surgery",
+        "gastroenterology",
+        "emergency"
+      ]
+    },
+    {
+      "id": "Q000046",
+      "prompt": "Have you noticed progressive abdominal distention (belly getting larger)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_progressive_distension",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology",
+        "hepatology"
+      ]
+    },
+    {
+      "id": "Q000047",
+      "prompt": "How many bowel movements per day (or week) currently?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "bm_frequency",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ],
+      "choices": [
+        "1–3 / day",
+        "4–6 / day",
+        "7–10 / day",
+        ">10 / day",
+        "<3 / week",
+        "Variable"
+      ]
+    },
+    {
+      "id": "Q000048",
+      "prompt": "What is the stool consistency (e.g. Bristol description or watery/formed)?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "stool_consistency",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ],
+      "choices": [
+        "Watery (Bristol 7)",
+        "Loose (Bristol 6)",
+        "Soft (Bristol 5)",
+        "Formed (Bristol 3–4)",
+        "Hard lumps (Bristol 1–2)",
+        "Variable"
+      ]
+    },
+    {
+      "id": "Q000049",
+      "prompt": "Is there mucus in the stool?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "stool_mucus",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000050",
+      "prompt": "Is there urgency or incontinence with stools?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "stool_urgency",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000051",
+      "prompt": "Any nocturnal diarrhea waking you from sleep?",
+      "answer_type": "boolean",
+      "bates_domain": "red_flags",
+      "dedupe_key": "rf_nocturnal_diarrhea",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000052",
+      "prompt": "Any recent antibiotic use?",
+      "answer_type": "boolean",
+      "bates_domain": "risk_factors",
+      "dedupe_key": "rf_recent_antibiotics",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "infectious_disease",
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000053",
+      "prompt": "Any recent travel or suspect food/water exposure?",
+      "answer_type": "boolean",
+      "bates_domain": "risk_factors",
+      "dedupe_key": "rf_travel_food",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "infectious_disease",
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000054",
+      "prompt": "Is dysphagia to solids, liquids, or both?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "dysphagia_solids_liquids",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology",
+        "ent"
+      ],
+      "choices": [
+        "Solids only",
+        "Liquids only",
+        "Both",
+        "Unclear"
+      ]
+    },
+    {
+      "id": "Q000055",
+      "prompt": "Is dysphagia progressive or intermittent?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "dysphagia_course",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ],
+      "choices": [
+        "Progressive",
+        "Intermittent",
+        "Unclear"
+      ]
+    },
+    {
+      "id": "Q000056",
+      "prompt": "Do you feel food sticking, and where (neck vs chest)?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "dysphagia_level",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology",
+        "ent"
+      ],
+      "choices": [
+        "Neck / oropharyngeal",
+        "Mid-chest",
+        "Lower chest / epigastric",
+        "No sticking",
+        "Unclear"
+      ]
+    },
+    {
+      "id": "Q000057",
+      "prompt": "Any regurgitation of undigested food?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_regurgitation",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000058",
+      "prompt": "Any food impaction episodes?",
+      "answer_type": "boolean",
+      "bates_domain": "red_flags",
+      "dedupe_key": "rf_food_impaction",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000059",
+      "prompt": "Does heartburn occur after meals or when lying down?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "heartburn_triggers",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ],
+      "choices": [
+        "After meals",
+        "When lying down",
+        "Both",
+        "Neither / unclear"
+      ]
+    },
+    {
+      "id": "Q000060",
+      "prompt": "How often do you have heartburn?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "heartburn_frequency",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ],
+      "choices": [
+        "Constant",
+        "Several times daily",
+        "Daily",
+        "Several times weekly",
+        "Weekly or less",
+        "Unclear"
+      ]
+    },
+    {
+      "id": "Q000061",
+      "prompt": "Any response to antacids or acid suppression?",
+      "answer_type": "choice",
+      "bates_domain": "HPI",
+      "dedupe_key": "heartburn_response_therapy",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ],
+      "choices": [
+        "Good response",
+        "Partial response",
+        "No response",
+        "Not tried",
+        "Unknown"
+      ]
+    },
+    {
+      "id": "Q000062",
+      "prompt": "Did jaundice start with pain, fever, or without symptoms?",
+      "answer_type": "choice",
+      "bates_domain": "HPI",
+      "dedupe_key": "jaundice_context",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "hepatology",
+        "gastroenterology"
+      ],
+      "choices": [
+        "With pain",
+        "With fever",
+        "Painless / asymptomatic",
+        "Mixed",
+        "Unknown"
+      ]
+    },
+    {
+      "id": "Q000063",
+      "prompt": "Any known liver disease, hepatitis, or alcohol use relevant to this presentation?",
+      "answer_type": "multi_choice",
+      "bates_domain": "risk_factors",
+      "dedupe_key": "jaundice_liver_risk",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "hepatology"
+      ],
+      "choices": [
+        "None known",
+        "Chronic liver disease / cirrhosis",
+        "Viral hepatitis",
+        "Heavy alcohol use",
+        "Metabolic / fatty liver",
+        "Other"
+      ],
+      "allow_other": true
+    },
+    {
+      "id": "Q000064",
+      "prompt": "Any pale stools and dark urine together?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "cholestatic_features",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "hepatology"
+      ]
+    },
+    {
+      "id": "Q000065",
+      "prompt": "Is the chest pain pressure-like, sharp, burning, or tearing?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "chest_pain_quality",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "cardiology",
+        "emergency",
+        "pulmonology"
+      ],
+      "choices": [
+        "Pressure/squeezing",
+        "Sharp/pleuritic",
+        "Burning",
+        "Tearing",
+        "Other/unclear"
+      ]
+    },
+    {
+      "id": "Q000066",
+      "prompt": "Does chest pain radiate to arm, jaw, back, or neck?",
+      "answer_type": "multi_choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "chest_pain_radiation",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "cardiology",
+        "emergency"
+      ],
+      "choices": [
+        "None",
+        "Arm",
+        "Jaw",
+        "Back",
+        "Neck",
+        "Other"
+      ],
+      "allow_other": true
+    },
+    {
+      "id": "Q000067",
+      "prompt": "Is chest pain worse with exertion or better with rest?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "chest_pain_exertion",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "cardiology",
+        "emergency"
+      ],
+      "choices": [
+        "Worse with exertion",
+        "Better with rest",
+        "No relation",
+        "Unclear"
+      ]
+    },
+    {
+      "id": "Q000068",
+      "prompt": "Is chest pain worse with breathing or position?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "chest_pain_pleuritic_positional",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "pulmonology",
+        "cardiology",
+        "emergency"
+      ],
+      "choices": [
+        "Worse with breathing",
+        "Worse with position",
+        "Both",
+        "Neither",
+        "Unclear"
+      ]
+    },
+    {
+      "id": "Q000069",
+      "prompt": "Any associated sweating, nausea, or sense of doom?",
+      "answer_type": "boolean",
+      "bates_domain": "red_flags",
+      "dedupe_key": "rf_acs_assoc",
+      "priority_default": "emergency",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "cardiology",
+        "emergency"
+      ]
+    },
+    {
+      "id": "Q000070",
+      "prompt": "Is dyspnea at rest, with exertion, or orthopnea/PND?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "dyspnea_pattern",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "pulmonology",
+        "cardiology",
+        "emergency"
+      ],
+      "choices": [
+        "At rest",
+        "With exertion",
+        "Orthopnea / PND",
+        "Mixed",
+        "Unclear"
+      ]
+    },
+    {
+      "id": "Q000071",
+      "prompt": "Any wheezing or known asthma/COPD?",
+      "answer_type": "choice",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "dyspnea_wheeze_lung_hx",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "pulmonology"
+      ],
+      "choices": [
+        "Wheeze only",
+        "Known asthma/COPD",
+        "Both",
+        "Neither",
+        "Unknown"
+      ]
+    },
+    {
+      "id": "Q000072",
+      "prompt": "Any leg swelling?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_leg_edema",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "cardiology",
+        "general"
+      ]
+    },
+    {
+      "id": "Q000073",
+      "prompt": "Any severe or rapidly worsening pain?",
+      "answer_type": "boolean",
+      "bates_domain": "red_flags",
+      "dedupe_key": "rf_severe_pain",
+      "priority_default": "emergency",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000074",
+      "prompt": "Any confusion, lethargy, or altered mental status?",
+      "answer_type": "boolean",
+      "bates_domain": "red_flags",
+      "dedupe_key": "rf_altered_mental",
+      "priority_default": "emergency",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000075",
+      "prompt": "Any signs of dehydration (very dry mouth, little urine, extreme thirst)?",
+      "answer_type": "boolean",
+      "bates_domain": "red_flags",
+      "dedupe_key": "rf_dehydration",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000076",
+      "prompt": "Any pregnancy possibility?",
+      "answer_type": "boolean",
+      "bates_domain": "risk_factors",
+      "dedupe_key": "rf_pregnancy",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "obstetrics",
+        "emergency",
+        "general"
+      ]
+    },
+    {
+      "id": "Q000077",
+      "prompt": "Any black stools or vomiting blood (reconfirm GI bleed alarms)?",
+      "answer_type": "boolean",
+      "bates_domain": "red_flags",
+      "dedupe_key": "rf_gi_bleed_confirm",
+      "priority_default": "emergency",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology",
+        "emergency"
+      ]
+    },
+    {
+      "id": "Q000078",
+      "prompt": "What medical problems have you been diagnosed with in the past?",
+      "answer_type": "text",
+      "bates_domain": "PMH",
+      "dedupe_key": "pmh_list",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000079",
+      "prompt": "Any prior hospitalizations related to this problem?",
+      "answer_type": "boolean",
+      "bates_domain": "PMH",
+      "dedupe_key": "pmh_related_admissions",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000080",
+      "prompt": "What surgeries have you had?",
+      "answer_type": "text",
+      "bates_domain": "PSH",
+      "dedupe_key": "psh_list",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000081",
+      "prompt": "What medicines do you take regularly (including over-the-counter and herbs)?",
+      "answer_type": "text",
+      "bates_domain": "drugs",
+      "dedupe_key": "meds_list",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000082",
+      "prompt": "Are you taking NSAIDs, aspirin, or blood thinners?",
+      "answer_type": "boolean",
+      "bates_domain": "drugs",
+      "dedupe_key": "meds_nsaid_aspirin_anticoag",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000083",
+      "prompt": "Do you have any drug allergies? What happens?",
+      "answer_type": "text",
+      "bates_domain": "allergies",
+      "dedupe_key": "allergies_detail",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000084",
+      "prompt": "Is there important disease in your family (especially similar problems or cancer)?",
+      "answer_type": "text",
+      "bates_domain": "FH",
+      "dedupe_key": "fh_summary",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000085",
+      "prompt": "Do you smoke or use tobacco? How much and for how long?",
+      "answer_type": "choice",
+      "bates_domain": "SH",
+      "dedupe_key": "sh_tobacco",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ],
+      "choices": [
+        "Never",
+        "Former",
+        "Current — light",
+        "Current — heavy",
+        "Unknown"
+      ]
+    },
+    {
+      "id": "Q000086",
+      "prompt": "Do you drink alcohol? How much and how often?",
+      "answer_type": "choice",
+      "bates_domain": "SH",
+      "dedupe_key": "sh_alcohol",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ],
+      "choices": [
+        "None",
+        "Occasional",
+        "Regular",
+        "Heavy",
+        "Unknown"
+      ]
+    },
+    {
+      "id": "Q000087",
+      "prompt": "Any recreational drug use?",
+      "answer_type": "choice",
+      "bates_domain": "SH",
+      "dedupe_key": "sh_drugs",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 2,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ],
+      "choices": [
+        "None",
+        "Past use",
+        "Current use",
+        "Unknown"
+      ]
+    },
+    {
+      "id": "Q000088",
+      "prompt": "What is your occupation and any relevant exposures?",
+      "answer_type": "text",
+      "bates_domain": "SH",
+      "dedupe_key": "sh_occupation",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000089",
+      "prompt": "Who do you live with / what support do you have at home?",
+      "answer_type": "text",
+      "bates_domain": "SH",
+      "dedupe_key": "sh_support",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000090",
+      "prompt": "Any other new symptoms not already discussed?",
+      "answer_type": "text",
+      "bates_domain": "ROS",
+      "dedupe_key": "ros_other",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000091",
+      "prompt": "Any change in bowel habit lasting more than a few weeks?",
+      "answer_type": "boolean",
+      "bates_domain": "ROS",
+      "dedupe_key": "ros_bowel_habit_change",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000092",
+      "prompt": "Any early satiety?",
+      "answer_type": "boolean",
+      "bates_domain": "ROS",
+      "dedupe_key": "ros_early_satiety",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000093",
+      "dedupe_key": "bleed_color",
+      "prompt": "What colour was the blood you saw?",
+      "answer_type": "choice",
+      "priority_default": "high",
+      "choices": [
+        "Bright red",
+        "Dark red",
+        "Black like coffee grounds",
+        "Mixed in with the stool",
+        "Not sure"
+      ],
+      "schema_version": 1,
+      "bates_domain": "symptom_characteristics",
+      "status": "active",
+      "revision": 1
+    },
+    {
+      "id": "Q000094",
+      "dedupe_key": "bleed_amount",
+      "prompt": "About how much blood was there?",
+      "answer_type": "choice",
+      "priority_default": "high",
+      "choices": [
+        "A few spots or streaks",
+        "A small amount (a few spoonfuls)",
+        "A large amount (a cup or more)",
+        "Not sure"
+      ],
+      "schema_version": 1,
+      "bates_domain": "symptom_characteristics",
+      "status": "active"
+    },
+    {
+      "id": "Q000095",
+      "dedupe_key": "bleed_episode_count",
+      "prompt": "How many times has this bleeding happened?",
+      "answer_type": "choice",
+      "priority_default": "high",
+      "choices": [
+        "Just once",
+        "A few times today",
+        "Several times over a few days",
+        "Happening continuously"
+      ],
+      "schema_version": 1,
+      "bates_domain": "symptom_characteristics",
+      "status": "active"
+    },
+    {
+      "id": "Q000096",
+      "dedupe_key": "known_ulcer_or_varices",
+      "prompt": "Have you ever been told you have a stomach ulcer or swollen veins in the food pipe (varices)?",
+      "answer_type": "boolean",
+      "priority_default": "high",
+      "schema_version": 1,
+      "bates_domain": "risk_factors",
+      "status": "active"
+    },
+    {
+      "id": "Q000097",
+      "dedupe_key": "recent_weight_change",
+      "prompt": "Has your weight changed recently?",
+      "answer_type": "choice",
+      "priority_default": "routine",
+      "choices": [
+        "Gained weight",
+        "Lost weight",
+        "No change",
+        "Not sure"
+      ],
+      "schema_version": 1
+    },
+    {
+      "id": "Q000098",
+      "dedupe_key": "known_liver_cirrhosis",
+      "prompt": "Have you been told you have liver cirrhosis or chronic liver disease?",
+      "answer_type": "boolean",
+      "priority_default": "high",
+      "schema_version": 1
+    },
+    {
+      "id": "Q000099",
+      "dedupe_key": "hepatic_encephalopathy_signs",
+      "prompt": "Has anyone around you noticed confusion, forgetfulness, or a mixed-up sleep schedule (awake at night, sleepy in the day)?",
+      "answer_type": "boolean",
+      "priority_default": "high",
+      "schema_version": 1
+    },
+    {
+      "id": "Q000100",
+      "dedupe_key": "prior_paracentesis",
+      "prompt": "Have you ever had fluid drained from your belly with a needle before (paracentesis)?",
+      "answer_type": "boolean",
+      "priority_default": "routine",
+      "schema_version": 1
+    },
+    {
+      "id": "Q000101",
+      "dedupe_key": "easy_bruising_bleeding_gums",
+      "prompt": "Do you bruise easily or have your gums bled without a clear reason?",
+      "answer_type": "boolean",
+      "priority_default": "routine",
+      "schema_version": 1
+    },
+    {
+      "id": "Q000102",
+      "dedupe_key": "pain_bores_to_back",
+      "prompt": "Does the pain go straight through to your back?",
+      "answer_type": "boolean",
+      "priority_default": "high",
+      "schema_version": 1
+    },
+    {
+      "id": "Q000103",
+      "dedupe_key": "fatty_food_trigger",
+      "prompt": "Does the pain get worse after a fatty or greasy meal?",
+      "answer_type": "boolean",
+      "priority_default": "routine",
+      "schema_version": 1
+    },
+    {
+      "id": "Q000104",
+      "dedupe_key": "known_gallstones",
+      "prompt": "Have you been told before that you have gallstones?",
+      "answer_type": "boolean",
+      "priority_default": "routine",
+      "schema_version": 1
+    },
+    {
+      "id": "Q000105",
+      "dedupe_key": "greasy_foul_stools",
+      "prompt": "Have your stools been greasy, floating, or unusually foul-smelling?",
+      "answer_type": "boolean",
+      "priority_default": "routine",
+      "schema_version": 1
+    },
+    {
+      "id": "Q000106",
+      "dedupe_key": "pain_attack_pattern",
+      "prompt": "How would you describe the pattern of the pain?",
+      "answer_type": "choice",
+      "priority_default": "routine",
+      "choices": [
+        "One steady attack",
+        "Comes and goes in separate attacks",
+        "Constant pain with occasional worse spells"
+      ],
+      "schema_version": 1
+    },
+    {
+      "id": "Q000107",
+      "prompt": "Was the blood coughed up from the chest, or brought up with vomiting from the stomach?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "blood_source_route",
+      "priority_default": "emergency",
+      "choices": [
+        "Coughed up (from the chest / lungs)",
+        "Vomited / retched up (from the stomach)",
+        "Came up without clear cough or vomit",
+        "Not sure"
+      ],
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology",
+        "pulmonology",
+        "emergency"
+      ]
+    },
+    {
+      "id": "Q000108",
+      "prompt": "What did the material look like when it came up?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "vomitus_appearance",
+      "priority_default": "emergency",
+      "choices": [
+        "Bright red blood",
+        "Dark / coffee-ground material",
+        "Mixed blood with food or fluid",
+        "Frothy / mixed with sputum (possibly from chest)",
+        "Not sure"
+      ],
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology",
+        "emergency"
+      ]
+    },
+    {
+      "id": "Q000109",
+      "prompt": "About how much bloody material came up (best estimate)?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "blood_volume_estimate",
+      "priority_default": "emergency",
+      "choices": [
+        "Teaspoon or streaks",
+        "A few spoonfuls",
+        "About a cup",
+        "More than a cup / continuous",
+        "Not sure"
+      ],
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology",
+        "emergency"
+      ]
+    },
+    {
+      "id": "Q000110",
+      "prompt": "Did prolonged retching or vomiting come before you saw blood?",
+      "answer_type": "boolean",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "retching_before_blood",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000111",
+      "prompt": "Are you taking iron tablets, bismuth, charcoal, or foods/medicines that darken the stool?",
+      "answer_type": "boolean",
+      "bates_domain": "risk_factors",
+      "dedupe_key": "black_stool_confounders",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000112",
+      "prompt": "Is the stool sticky and tar-like, or only dark without being sticky?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "stool_tarry_vs_dark",
+      "priority_default": "high",
+      "choices": [
+        "Sticky / tar-like (true melena character)",
+        "Dark but not sticky",
+        "Not sure / did not look closely"
+      ],
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000113",
+      "prompt": "Where is the blood relative to the stool?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "blood_stool_relation",
+      "priority_default": "high",
+      "choices": [
+        "Mixed throughout the stool",
+        "On the surface of the stool",
+        "Only on toilet paper / dripping into the bowl",
+        "Large volume separate from stool",
+        "Not sure"
+      ],
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology",
+        "surgery"
+      ]
+    },
+    {
+      "id": "Q000114",
+      "prompt": "What colour is the blood from the rectum?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "rectal_blood_color",
+      "priority_default": "emergency",
+      "choices": [
+        "Bright red",
+        "Dark red / maroon",
+        "Mixed with black / tarry stool",
+        "Not sure"
+      ],
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology",
+        "emergency"
+      ]
+    },
+    {
+      "id": "Q000115",
+      "prompt": "How quickly has your abdomen become swollen or enlarged?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "distention_tempo",
+      "priority_default": "high",
+      "choices": [
+        "Hours (sudden)",
+        "Days",
+        "Weeks",
+        "Months or longer",
+        "Not sure"
+      ],
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000116",
+      "prompt": "Does the swelling change during the day, after meals, or after passing stool or gas?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "distention_fluctuation",
+      "priority_default": "routine",
+      "choices": [
+        "Worse after meals / gas",
+        "Improves after stool or flatus",
+        "Steady / does not fluctuate much",
+        "Worse by evening / better in morning",
+        "Not sure"
+      ],
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000117",
+      "prompt": "What do you think is making the belly enlarge (your impression)?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "distention_patient_impression",
+      "priority_default": "routine",
+      "choices": [
+        "Gas / bloating",
+        "Fluid / water feeling",
+        "A lump or mass",
+        "Fat / weight gain",
+        "Pregnancy (if applicable)",
+        "Do not know"
+      ],
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000118",
+      "prompt": "With the abdominal swelling, have the legs or ankles swollen too?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_leg_edema_with_distention",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology",
+        "cardiology"
+      ]
+    },
+    {
+      "id": "Q000119",
+      "prompt": "Have you felt a lump or hard area in the abdomen yourself?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_felt_mass",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology",
+        "oncology"
+      ]
+    },
+    {
+      "id": "Q000120",
+      "prompt": "Have you had black stools or blood in the stool as well?",
+      "answer_type": "choice",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_stool_blood_any",
+      "priority_default": "emergency",
+      "choices": [
+        "Black tarry stools",
+        "Bright red blood",
+        "Both",
+        "Neither",
+        "Not sure"
+      ],
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology",
+        "emergency"
+      ]
+    },
+    {
+      "id": "Q000121",
+      "prompt": "Is odynophagia (pain on swallowing) your main swallowing problem, or mainly food sticking without pain?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "dysphagia_vs_odynophagia_primary",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ],
+      "choices": [
+        "Mainly pain on swallowing",
+        "Mainly food sticking / not going down",
+        "Both",
+        "Not sure"
+      ]
+    },
+    {
+      "id": "Q000122",
+      "prompt": "Do you feel a lump in the throat unrelated to swallowing (globus)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_globus",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology",
+        "ent"
+      ]
+    },
+    {
+      "id": "Q000123",
+      "prompt": "What does the vomitus look/smell like?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "vomitus_character",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ],
+      "choices": [
+        "Food / clear fluid",
+        "Yellow-green (bilious)",
+        "Brown / feculent odor",
+        "Bloody / coffee-ground",
+        "Not sure"
+      ]
+    },
+    {
+      "id": "Q000124",
+      "prompt": "Have you had early satiety (feeling full after only a small amount of food)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_early_satiety",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000125",
+      "prompt": "Have you had postprandial fullness or upper abdominal fullness after meals?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_postprandial_fullness",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000126",
+      "prompt": "Have you had excessive belching?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_belching",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000127",
+      "prompt": "Have you had excessive gas / flatulence?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_flatulence",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000128",
+      "prompt": "Have you had hiccups that are new or persistent?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_hiccups",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000129",
+      "prompt": "Have you noticed a change in your usual bowel habit (frequency, form, or timing)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_bowel_habit_change",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000130",
+      "prompt": "Do you have tenesmus (constant urge to defecate with straining and little stool)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_tenesmus",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000131",
+      "prompt": "Is defecation painful?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_painful_defecation",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000132",
+      "prompt": "Do you strain hard to pass stool?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_straining_defecation",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000133",
+      "prompt": "Do you feel incomplete evacuation after a bowel movement?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_incomplete_evacuation",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000134",
+      "prompt": "Have you had accidental leakage of stool (fecal incontinence)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_fecal_incontinence",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000135",
+      "prompt": "Is there pus in the stool?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "stool_pus",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000136",
+      "prompt": "Are stools greasy, floating, frothy, or unusually foul (steatorrhea-type)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "stool_steatorrhea",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000137",
+      "prompt": "Have you had anal pain?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_anal_pain",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000138",
+      "prompt": "Have you had anal itching?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_anal_itch",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000139",
+      "prompt": "Have you had rectal discharge?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_rectal_discharge",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000140",
+      "prompt": "Have you noticed something prolapsing from the anus, or a perianal swelling?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_perianal_swelling_prolapse",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000141",
+      "prompt": "Have you heard or felt loud bowel sounds / rumbling (borborygmi)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_borborygmi",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000142",
+      "prompt": "Do certain foods reliably trigger your symptoms (food intolerance pattern)?",
+      "answer_type": "text",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "food_trigger_pattern",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000143",
+      "prompt": "Have you had acid regurgitation (sour/bitter fluid coming up)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_acid_regurgitation",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000144",
+      "prompt": "Do you get short of breath when lying flat (orthopnea)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_orthopnea",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "cardiology"
+      ]
+    },
+    {
+      "id": "Q000145",
+      "prompt": "Do you wake at night suddenly short of breath (PND)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_pnd",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "cardiology"
+      ]
+    },
+    {
+      "id": "Q000146",
+      "prompt": "Have you had coughing up blood (hemoptysis)?",
+      "answer_type": "boolean",
+      "bates_domain": "red_flags",
+      "dedupe_key": "rf_hemoptysis",
+      "priority_default": "emergency",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "pulmonology",
+        "emergency"
+      ]
+    },
+    {
+      "id": "Q000147",
+      "prompt": "How long have you been coughing, and is it mainly dry or productive?",
+      "answer_type": "text",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "cough_duration_type",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "pulmonology"
+      ]
+    },
+    {
+      "id": "Q000148",
+      "prompt": "Do you produce sputum with cough? If yes, what colour/amount?",
+      "answer_type": "text",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "sputum_character",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "pulmonology"
+      ]
+    },
+    {
+      "id": "Q000149",
+      "prompt": "Have you had wheezing?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_wheeze",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "pulmonology"
+      ]
+    },
+    {
+      "id": "Q000150",
+      "prompt": "Have you had chest tightness?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_chest_tightness",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "pulmonology",
+        "cardiology"
+      ]
+    },
+    {
+      "id": "Q000151",
+      "prompt": "Is the chest pain sharp and worse with breathing (pleuritic)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "chest_pain_pleuritic_yn",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "pulmonology",
+        "emergency"
+      ]
+    },
+    {
+      "id": "Q000152",
+      "prompt": "Have you had palpitations (awareness of heartbeat: racing, fluttering, pounding)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_palpitations",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "cardiology"
+      ]
+    },
+    {
+      "id": "Q000153",
+      "prompt": "Have you fainted or lost consciousness?",
+      "answer_type": "boolean",
+      "bates_domain": "red_flags",
+      "dedupe_key": "rf_syncope_loc",
+      "priority_default": "emergency",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "cardiology",
+        "neurology",
+        "emergency"
+      ]
+    },
+    {
+      "id": "Q000154",
+      "prompt": "Have you had true spinning vertigo, or more lightheadedness?",
+      "answer_type": "choice",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "dizziness_type",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "neurology",
+        "cardiology"
+      ],
+      "choices": [
+        "Spinning vertigo",
+        "Lightheaded / near-faint",
+        "Unsteady / off-balance",
+        "Not sure"
+      ]
+    },
+    {
+      "id": "Q000155",
+      "prompt": "Have you had snoring or witnessed pauses in breathing during sleep?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_sleep_apnea_symptoms",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "pulmonology"
+      ]
+    },
+    {
+      "id": "Q000156",
+      "prompt": "Do your legs hurt with walking that improves with rest (claudication)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_claudication",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "cardiology",
+        "vascular"
+      ]
+    },
+    {
+      "id": "Q000157",
+      "prompt": "Are your feet or hands cold, pale, or blue (cyanosis)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_cold_cyanosis_extremities",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "cardiology",
+        "vascular"
+      ]
+    },
+    {
+      "id": "Q000158",
+      "prompt": "Have you had burning or pain on urination (dysuria)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_dysuria",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "urology",
+        "general"
+      ]
+    },
+    {
+      "id": "Q000159",
+      "prompt": "Have you had urinary frequency or urgency?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_urinary_freq_urgency",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "urology"
+      ]
+    },
+    {
+      "id": "Q000160",
+      "prompt": "Do you wake at night to urinate (nocturia)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_nocturia",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "urology",
+        "cardiology"
+      ]
+    },
+    {
+      "id": "Q000161",
+      "prompt": "Do you have hesitancy, weak stream, or incomplete bladder emptying?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_voiding_obstruction",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "urology"
+      ]
+    },
+    {
+      "id": "Q000162",
+      "prompt": "Have you had blood in the urine (hematuria)?",
+      "answer_type": "boolean",
+      "bates_domain": "red_flags",
+      "dedupe_key": "rf_hematuria",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "urology"
+      ]
+    },
+    {
+      "id": "Q000163",
+      "prompt": "Have you had urinary incontinence?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_urinary_incontinence",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "urology"
+      ]
+    },
+    {
+      "id": "Q000164",
+      "prompt": "Have you had flank pain (side/back under the ribs)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_flank_pain",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "urology",
+        "gastroenterology"
+      ]
+    },
+    {
+      "id": "Q000165",
+      "prompt": "Is urine cloudy or foul-smelling?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "urine_cloudy_foul",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "urology"
+      ]
+    },
+    {
+      "id": "Q000166",
+      "prompt": "Have you had fatigue or unusual loss of energy?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_fatigue",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000167",
+      "prompt": "Have you had generalized weakness (not just fatigue)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_weakness",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general",
+        "neurology"
+      ]
+    },
+    {
+      "id": "Q000168",
+      "prompt": "Have you had malaise (general unwell feeling)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_malaise",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000169",
+      "prompt": "Have you gained weight unintentionally?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_weight_gain",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000170",
+      "prompt": "Have you had easy bruising or spontaneous gum/nose bleeding?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_easy_bleeding_bruising",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "hematology",
+        "hepatology"
+      ]
+    },
+    {
+      "id": "Q000171",
+      "prompt": "Have you had reduced oral intake or signs of dehydration (dry mouth, low urine)?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_reduced_intake_dehydration",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000172",
+      "prompt": "Have you had polyuria, polydipsia, or polyphagia?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_poly_symptoms",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "endocrine"
+      ]
+    },
+    {
+      "id": "Q000173",
+      "prompt": "Have you had heat or cold intolerance, or excessive sweating?",
+      "answer_type": "text",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "temp_intolerance_sweats",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "endocrine"
+      ]
+    },
+    {
+      "id": "Q000174",
+      "prompt": "Where is the headache located, and what is it like (pressure, throbbing, sudden)?",
+      "answer_type": "text",
+      "bates_domain": "symptom_characteristics",
+      "dedupe_key": "headache_character_location",
+      "priority_default": "high",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "neurology"
+      ]
+    },
+    {
+      "id": "Q000175",
+      "prompt": "Any headache warning features (sudden worst-ever, fever/neck stiffness, neuro deficit, trauma)?",
+      "answer_type": "text",
+      "bates_domain": "red_flags",
+      "dedupe_key": "rf_headache_alarms",
+      "priority_default": "emergency",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "neurology",
+        "emergency"
+      ]
+    },
+    {
+      "id": "Q000176",
+      "prompt": "Have you had confusion, memory loss, or trouble speaking/understanding?",
+      "answer_type": "boolean",
+      "bates_domain": "red_flags",
+      "dedupe_key": "rf_neuro_cognitive",
+      "priority_default": "emergency",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "neurology"
+      ]
+    },
+    {
+      "id": "Q000177",
+      "prompt": "Have you had numbness, tingling, tremor, or seizures?",
+      "answer_type": "text",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_neuro_sensory_seizure",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "neurology"
+      ]
+    },
+    {
+      "id": "Q000178",
+      "prompt": "Have you had back or neck pain related to this problem?",
+      "answer_type": "text",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_back_neck_pain",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000179",
+      "prompt": "Have you had joint pain, swelling, or stiffness?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_joint_symptoms",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "rheumatology"
+      ]
+    },
+    {
+      "id": "Q000180",
+      "prompt": "Have you had a new skin rash, hair loss, or nail changes?",
+      "answer_type": "text",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_skin_hair_nails",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "dermatology"
+      ]
+    },
+    {
+      "id": "Q000181",
+      "prompt": "Have you had sore throat, hoarseness, nasal congestion, or nosebleeds?",
+      "answer_type": "text",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_ent_symptoms",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "ent"
+      ]
+    },
+    {
+      "id": "Q000182",
+      "prompt": "Have you had eye symptoms (pain, redness, vision change, photophobia)?",
+      "answer_type": "text",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_eye_symptoms",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "ophthalmology"
+      ]
+    },
+    {
+      "id": "Q000183",
+      "prompt": "Have you had anxiety, low mood, panic, insomnia, or poor concentration with this illness?",
+      "answer_type": "text",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_mood_sleep",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "psychiatry",
+        "general"
+      ]
+    },
+    {
+      "id": "Q000184",
+      "prompt": "Have you noticed swollen lymph nodes?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_lymphadenopathy_symptom",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "general"
+      ]
+    },
+    {
+      "id": "Q000185",
+      "prompt": "Have you had mouth ulcers, dry mouth, burning mouth, or bad breath?",
+      "answer_type": "text",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_oral_symptoms",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "gastroenterology",
+        "ent"
+      ]
+    },
+    {
+      "id": "Q000186",
+      "prompt": "Have you lost smell or taste?",
+      "answer_type": "boolean",
+      "bates_domain": "associated_symptoms",
+      "dedupe_key": "assoc_smell_taste_loss",
+      "priority_default": "routine",
+      "schema_version": 1,
+      "revision": 1,
+      "status": "active",
+      "specialty_tags": [
+        "ent",
+        "neurology"
+      ]
+    }
+  ]
+}

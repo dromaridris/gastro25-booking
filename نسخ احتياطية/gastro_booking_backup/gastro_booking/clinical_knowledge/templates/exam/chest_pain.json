@@ -1,0 +1,82 @@
+{
+  "id": "ET_chest_pain",
+  "complaint_code": "CC_chest_pain",
+  "name": "Chest pain physical examination",
+  "source": {
+    "work": "Bates' Guide to Physical Examination and History Taking",
+    "note": "Exam organization only; findings recorded against dictionary sign codes."
+  },
+  "systems": [
+    {
+      "key": "general",
+      "title": "General appearance & vitals",
+      "finding_ids": [
+        "SG_tachycardia",
+        "SG_hypotension",
+        "SG_fever",
+        "SG_pallor",
+        "SG_dehydration"
+      ],
+      "checklist": [
+        "General distress / toxic appearance",
+        "Vital signs (HR, BP, RR, SpO2, temperature)",
+        "Hydration / mucous membranes",
+        "Pallor / colour"
+      ]
+    },
+    {
+      "key": "cardiovascular",
+      "title": "Cardiovascular exam",
+      "finding_ids": [
+        "SG_raised_jvp",
+        "SG_cardiac_murmur",
+        "SG_peripheral_edema",
+        "SG_tachycardia",
+        "SG_hypotension"
+      ],
+      "checklist": [
+        "Pulse rate, rhythm, character",
+        "Blood pressure (both arms if dissection suspected)",
+        "JVP",
+        "Heart sounds / murmurs / rubs",
+        "Peripheral pulses",
+        "Peripheral oedema"
+      ]
+    },
+    {
+      "key": "respiratory",
+      "title": "Respiratory exam",
+      "finding_ids": [
+        "SG_tachypnea",
+        "SG_reduced_air_entry",
+        "SG_crackles",
+        "SG_wheeze"
+      ],
+      "checklist": [
+        "Chest wall movement / symmetry",
+        "Percussion note",
+        "Breath sounds / added sounds",
+        "Signs of pneumothorax or effusion"
+      ]
+    },
+    {
+      "key": "chest_wall",
+      "title": "Chest wall & epigastrium",
+      "finding_ids": [],
+      "checklist": [
+        "Reproducible chest wall tenderness",
+        "Epigastric tenderness (reflux/PUD-type pain)",
+        "Surgical scars"
+      ]
+    }
+  ],
+  "priority_findings": [
+    "SG_hypotension",
+    "SG_reduced_air_entry",
+    "SG_raised_jvp",
+    "SG_cardiac_murmur"
+  ],
+  "schema_version": 1,
+  "revision": 1,
+  "status": "active"
+}

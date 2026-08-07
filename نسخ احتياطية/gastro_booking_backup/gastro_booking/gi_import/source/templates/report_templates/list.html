@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% from "ui/macros.html" import page_header, data_table_wrapper, table_empty_row, status_badge, empty_state %}
+
+{% block title %}Colonoscopy &amp; Upper GI Reports — {{ branding.display_title }}{% endblock %}
+
+{% block content %}
+{{ page_header(
+    "Colonoscopy & Upper GI Reports",
+    subtitle="Standard endoscopy report forms for colonoscopy and upper GI procedures.",
+    breadcrumbs=[("Reports", none)]
+) }}
+
+<p class="text-muted mb-4">
+    Reports appear here after a procedure is completed and documentation begins.
+    To start a new report, open the procedure from
+    <a href="{{ url_for('procedure_execution.list_sessions') }}">Procedures in progress</a>.
+</p>
+
+{% if reports %}
+{% call data_table_wrapper('table-striped') %}
+    <thead>
+        <tr>
+            <th scope="col">Report #</th>
+            <th scope="col">Patient</th>
+            <th scope="col">Procedure</th>
+            <th scope="col">Report type</th>
+            <th scope="col">Status</th>
+            <th scope="col"><span class="visually-hidden">Actions</span></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for report in reports %}
+        <tr>
+            <td>{{ report.report_number }}</td>
+            <td>{{ report.patient.full_name if report.patient else "—" }}</td>
+            <td>{{ report.procedure.procedure_type.name if report.procedure and report.procedure.procedure_type else "—" }}</td>
+            <td>
+                {% set key = report.procedure.procedure_type.report_template_key if report.procedure and report.procedure.procedure_type else none %}
+                {{ template_labels.get(key, "Standard endoscopy report") if key else "Standard endoscopy report" }}
+            </td>
+            <td>{{ status_badge(report.status.replace("_", " ").title(), "gi-badge-muted") }}</td>
+            <td><a href="{{ url_for('report_templates.view_report', report_id=report.id) }}" class="btn btn-outline-primary btn-sm">Open report</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+{% endcall %}
+{% else %}
+{{ empty_state(
+    "No colonoscopy or upper GI reports yet",
+    "Complete a procedure session first, then open the report from Procedures in progress.",
+    action_html='<a href="' ~ url_for('procedure_execution.list_sessions') ~ '" class="btn btn-primary btn-sm">Go to procedures in progress</a>'
+) }}
+{% endif %}
+{% endblock %}

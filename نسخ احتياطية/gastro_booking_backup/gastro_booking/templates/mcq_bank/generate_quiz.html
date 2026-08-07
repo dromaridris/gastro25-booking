@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Generate Quiz — MCQ Bank{% endblock %}
+{% block content %}
+<div class="admin-page mcq-page">
+  <a class="back-link" href="{{ url_for('mcqbank_admin_dashboard') }}">← Back</a>
+  <h1>Generate a quick quiz</h1>
+  <form method="post" class="compact-form mcq-form">
+    <div class="form-row">
+      <label>Quiz title</label>
+      <input class="compact-input" name="title" placeholder="e.g. Weekly Quiz — Liver" required>
+    </div>
+    <div class="form-row">
+      <label>Number of questions</label>
+      <input class="compact-input" type="number" name="question_count" value="20" min="1" max="200">
+    </div>
+    <div class="form-row">
+      <label>Book (optional — leave blank for any approved question)</label>
+      <select class="compact-input" name="book_id">
+        <option value="">Any book</option>
+        {% for b in books %}
+        <option value="{{ b.id }}">{{ b.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Assign to</label>
+      <div class="mcq-user-picker">
+        {% for u in users %}
+        <label class="mcq-user-option">
+          <input type="checkbox" name="user_ids" value="{{ u.id }}"> {{ u.full_name or u.username }} <span class="muted">({{ u.role }})</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+    <button class="btn btn--primary">Generate & Assign</button>
+  </form>
+</div>
+{% endblock %}

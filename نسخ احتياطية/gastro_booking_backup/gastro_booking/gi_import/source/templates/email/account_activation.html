@@ -1,0 +1,7 @@
+{% extends "email/base.html" %}
+{% block email_body %}
+<h1 style="font-size:20px;color:{{ branding.primary_color }};margin:0 0 12px;">Activate Your Account</h1>
+<p>Welcome to {{ branding.hospital_name }}.</p>
+<p>Your account has been created. Please activate it to access the clinical platform.</p>
+<p><a href="{{ activation_url }}" style="display:inline-block;padding:12px 20px;background:{{ branding.primary_color }};color:#ffffff;text-decoration:none;border-radius:4px;">Activate Account</a></p>
+{% endblock %}

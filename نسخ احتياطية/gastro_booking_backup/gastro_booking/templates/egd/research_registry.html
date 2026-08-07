@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}EGD Registry · Gastro & Hepatology{% endblock %}
+{% block content %}
+<div class="stats-page">
+  <h1>Esophagogastroduodenoscopy (EGD) Registry</h1>
+  <p class="muted">
+    Structured Upper GI endoscopy registry — variceal band ligation, haemostasis, quality indicators,
+    and session tracking. Built from live report and research data (not duplicated).
+  </p>
+
+  <form method="GET" class="settings-form stats-form">
+    <label>Start Date
+      <input type="date" name="start" value="{{ start }}" required>
+    </label>
+    <label>End Date
+      <input type="date" name="end" value="{{ end }}" required>
+    </label>
+    <button class="btn btn--primary" type="submit">Run Query</button>
+  </form>
+
+  {% if error %}
+  <div class="flash flash--error" style="margin-top:16px;">{{ error }}</div>
+  {% endif %}
+
+  {% if rows is not none %}
+  <section class="admin-section" style="margin-top:20px;">
+    <h2>Registry <span class="badge">{{ rows|length }}</span></h2>
+    <a class="btn btn--outline" href="{{ url_for('upper_gi_research_registry_export', start=start, end=end) }}" style="margin-bottom:14px; display:inline-block;">Download .xlsx</a>
+
+    <div class="admin-table-scroll"><table class="admin-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Session</th>
+          <th>Patient</th>
+          <th>MRN</th>
+          <th>Indication</th>
+          <th>Endoscopist</th>
+          <th>D2</th>
+          <th>Variceal BL</th>
+          <th>Bands</th>
+          <th>Haemostasis</th>
+          <th>Forrest</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td>{{ row.appointment_date }}</td>
+          <td>{{ row.session_number }}{% if row.has_multiple_sessions %} <span class="followup-tag">{{ row.total_sessions_for_patient }} total</span>{% endif %}</td>
+          <td>{{ row.patient_name }}</td>
+          <td>{{ row.mrn or '—' }}</td>
+          <td>{{ row.indication_summary or '—' }}</td>
+          <td>{{ row.endoscopist_name or '—' }}</td>
+          <td>{{ row.d2_reached or '—' }}</td>
+          <td>{{ row.variceal_banding_performed or '—' }}</td>
+          <td>{{ row.bands_placed or '—' }}</td>
+          <td>{{ row.hemostasis_performed or '—' }}</td>
+          <td>{{ row.forrest_classification or '—' }}</td>
+          <td>
+            {% if row.status %}
+            <span class="ercp-status-badge ercp-status-{{ row.status }}">{{ 'Finalized' if row.status == 'finalized' else 'Draft' }}</span>
+            {% else %}<span class="muted">Not started</span>{% endif %}
+          </td>
+          <td>
+            {% if row.report_id %}
+            <a class="btn btn--sm btn--outline" href="{{ url_for('upper_gi_report_view', appointment_id=row.appointment_id) }}">Open</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="13" class="muted">No EGD sessions in this date range.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table></div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

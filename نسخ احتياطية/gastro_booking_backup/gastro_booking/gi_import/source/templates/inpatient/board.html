@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Ward Bed Board{% endblock %}
+{% block content %}
+<h2>Ward Bed Board</h2>
+<div class="row g-3">
+{% for ward_block in board %}
+  <div class="col-12">
+    <h4>{{ ward_block.ward.name }}</h4>
+    <div class="row g-2">
+    {% for room_block in ward_block.rooms %}
+      {% for item in room_block.beds %}
+      <div class="col-6 col-md-4 col-lg-3">
+        <div class="card gi-bed-card h-100 border-{{ 'success' if item.bed.status == 'available' else 'warning' if item.bed.status == 'occupied' else 'secondary' }}">
+          <div class="card-body p-2">
+            <div class="d-flex justify-content-between">
+              <strong>{{ room_block.room.name }} — {{ item.bed.label }}</strong>
+              <span class="badge bg-secondary">{{ item.bed.status }}</span>
+            </div>
+            {% if item.occupancy %}
+              <p class="mb-1 small">{{ item.occupancy.patient.full_name }}</p>
+              <p class="text-muted small mb-0">Since {{ item.occupancy.admitted_at.strftime("%d %b %H:%M") }}</p>
+            {% else %}
+              <p class="text-muted small mb-0">Empty</p>
+            {% endif %}
+            {% if can('inpatient:manage') %}
+            <div class="mt-2 d-flex flex-wrap gap-1">
+              {% if item.bed.status in ['cleaning', 'isolation'] %}
+              <form method="POST" action="{{ url_for('inpatient.set_status', bed_id=item.bed.id) }}" class="d-inline">
+                <input type="hidden" name="status" value="available">
+                <button class="btn btn-outline-success btn-sm">Ready</button>
+              </form>
+              {% endif %}
+              {% if not item.occupancy %}
+              <form method="POST" action="{{ url_for('inpatient.set_status', bed_id=item.bed.id) }}" class="d-inline">
+                <input type="hidden" name="status" value="cleaning">
+                <button class="btn btn-outline-secondary btn-sm">Cleaning</button>
+              </form>
+              <form method="POST" action="{{ url_for('inpatient.set_status', bed_id=item.bed.id) }}" class="d-inline">
+                <input type="hidden" name="status" value="isolation">
+                <button class="btn btn-outline-warning btn-sm">Isolation</button>
+              </form>
+              {% else %}
+              <form method="POST" action="{{ url_for('inpatient.discharge_patient', bed_id=item.bed.id) }}">
+                <button class="btn btn-outline-danger btn-sm">Discharge</button>
+              </form>
+              {% endif %}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% endfor %}
+    </div>
+  </div>
+{% else %}
+  <p class="text-muted">No wards configured.</p>
+{% endfor %}
+</div>
+{% endblock %}

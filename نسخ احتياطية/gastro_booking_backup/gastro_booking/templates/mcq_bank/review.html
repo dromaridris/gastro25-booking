@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% block title %}Review — {{ book.name }}{% endblock %}
+{% block content %}
+<div class="admin-page mcq-page">
+  <a class="back-link" href="{{ url_for('mcqbank_admin_dashboard') }}">← Back</a>
+  <div class="mcq-page-head">
+    <h1>{{ book.name }} — Review</h1>
+    <button class="btn btn--primary btn--sm" onclick="mcqBulkApprove()">Bulk-approve high confidence</button>
+  </div>
+
+  <form method="get" class="compact-form form-row mcq-filter-bar">
+    <select name="chapter_id" class="compact-input" onchange="this.form.submit()">
+      <option value="">All chapters</option>
+      {% for ch in chapters %}
+      <option value="{{ ch.id }}" {% if chapter_id == ch.id %}selected{% endif %}>Ch {{ ch.number }} — {{ ch.title[:30] }}</option>
+      {% endfor %}
+    </select>
+    <select name="status" class="compact-input" onchange="this.form.submit()">
+      <option value="">All statuses</option>
+      {% for st in ['pending_review','approved','rejected'] %}
+      <option value="{{ st }}" {% if status == st %}selected{% endif %}>{{ st }}</option>
+      {% endfor %}
+    </select>
+    <select name="confidence_flag" class="compact-input" onchange="this.form.submit()">
+      <option value="">All confidence</option>
+      {% for c in ['high','medium','low'] %}
+      <option value="{{ c }}" {% if confidence_flag == c %}selected{% endif %}>{{ c }}</option>
+      {% endfor %}
+    </select>
+    <input name="search" value="{{ search }}" class="compact-input" placeholder="search question text...">
+    <button class="btn btn--sm">Go</button>
+  </form>
+
+  <p class="muted">{{ total }} item(s) match this filter · You can edit approved questions anytime (answer, options, explanation).</p>
+
+  {% for item in items %}
+  {% set ch = chapter_by_id.get(item.chapter_id) %}
+  <div class="compact-card" data-item-id="{{ item.id }}" data-references="{{ (item.payload.references or [])|tojson|e }}" style="margin-bottom:10px;">
+    <div class="form-row" style="justify-content:space-between;align-items:flex-start;">
+      <div>
+        <strong style="font-size:14px;">Ch {{ ch.number if ch else '?' }} · Q{{ item.item_number }}</strong>
+        <span class="muted" style="font-size:12px;margin-left:6px;">ID {{ item.id }}</span>
+        {% if ch %}<div class="muted" style="font-size:12px;">{{ ch.title }}</div>{% endif %}
+        <div style="margin-top:4px;">
+          <span class="badge {% if item.status != 'pending_review' %}badge--muted{% endif %}">{{ item.status }}</span>
+          <span class="badge badge--muted">{{ item.confidence_flag }} confidence</span>
+          {% for f in item.review_flags %}<span class="badge badge--muted">{{ f }}</span>{% endfor %}
+        </div>
+      </div>
+      <div class="btn-row">
+        {% if item.status != 'approved' %}
+        <button class="btn btn--sm btn--primary" onclick="mcqSetStatus({{ item.id }}, 'approved')">Approve</button>
+        {% endif %}
+        {% if item.status != 'rejected' %}
+        <button class="btn btn--sm btn--ghost" onclick="mcqSetStatus({{ item.id }}, 'rejected')">Reject</button>
+        {% endif %}
+        {% if item.status == 'approved' %}
+        <button class="btn btn--sm btn--outline" onclick="mcqSetStatus({{ item.id }}, 'pending_review')">Unapprove</button>
+        {% endif %}
+        <button class="btn btn--sm btn--outline" onclick="mcqToggleEdit({{ item.id }})">Edit</button>
+      </div>
+    </div>
+
+    {% if item.review_evidence %}
+    <p class="muted" style="font-size:12px;">
+      Book states correct = {{ item.review_evidence.book_states_correct }}, explanation language may favor
+      {{ item.review_evidence.rationale_language_favors }}. Evidence: "{{ item.review_evidence.evidence_sentence }}"
+    </p>
+    {% endif %}
+
+    <div class="view-mode">
+      <p>{{ item.payload.question_text }}</p>
+      <ul>
+        {% for o in item.payload.options %}
+        <li{% if o.letter == item.payload.correct_answer %} style="font-weight:600;"{% endif %}>
+          {{ o.letter }}. {{ o.text }} {% if o.letter == item.payload.correct_answer %}✓{% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+      <p class="muted">{{ item.payload.explanation_text }}</p>
+    </div>
+
+    <div class="edit-mode" style="display:none;margin-top:10px;">
+      <label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px;">Question text</label>
+      <textarea class="edit-question compact-input" style="width:100%;box-sizing:border-box;" rows="3">{{ item.payload.question_text }}</textarea>
+
+      <label style="display:block;font-size:12px;font-weight:700;margin:10px 0 4px;">Options</label>
+      <div class="edit-options">
+        {% for o in item.payload.options %}
+        <div class="form-row" style="align-items:center;gap:8px;margin-bottom:6px;" data-letter="{{ o.letter }}">
+          <strong style="min-width:1.5rem;">{{ o.letter }}.</strong>
+          <input class="edit-option-text compact-input" style="flex:1;width:100%;" value="{{ o.text }}">
+        </div>
+        {% endfor %}
+      </div>
+
+      <label style="display:block;font-size:12px;font-weight:700;margin:10px 0 4px;">Correct answer</label>
+      <select class="edit-correct compact-input">
+        {% for o in item.payload.options %}
+        <option value="{{ o.letter }}" {% if o.letter == item.payload.correct_answer %}selected{% endif %}>{{ o.letter }}</option>
+        {% endfor %}
+      </select>
+
+      <label style="display:block;font-size:12px;font-weight:700;margin:10px 0 4px;">Explanation</label>
+      <textarea class="edit-explanation compact-input" style="width:100%;box-sizing:border-box;" rows="4">{{ item.payload.explanation_text }}</textarea>
+
+      <div class="btn-row" style="margin-top:10px;">
+        <button class="btn btn--sm btn--primary" onclick="mcqSavePayload({{ item.id }})">Save changes</button>
+        <button class="btn btn--sm btn--ghost" onclick="mcqToggleEdit({{ item.id }})">Cancel</button>
+      </div>
+      <p class="muted" style="font-size:12px;margin-top:6px;">Edits apply immediately. Approved questions stay approved after save.</p>
+    </div>
+  </div>
+  {% endfor %}
+
+  <div class="btn-row" style="justify-content:center;">
+    {% if page > 1 %}
+    <a class="btn btn--sm btn--outline" href="?page={{ page - 1 }}&chapter_id={{ chapter_id or '' }}&status={{ status or '' }}&confidence_flag={{ confidence_flag or '' }}&search={{ search }}">Prev</a>
+    {% endif %}
+    <span class="muted">Page {{ page }}</span>
+    {% if items|length == per_page %}
+    <a class="btn btn--sm btn--outline" href="?page={{ page + 1 }}&chapter_id={{ chapter_id or '' }}&status={{ status or '' }}&confidence_flag={{ confidence_flag or '' }}&search={{ search }}">Next</a>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+function mcqToggleEdit(id) {
+  const card = document.querySelector(`[data-item-id="${id}"]`);
+  const view = card.querySelector('.view-mode');
+  const edit = card.querySelector('.edit-mode');
+  const showing = edit.style.display !== 'none';
+  view.style.display = showing ? '' : 'none';
+  edit.style.display = showing ? 'none' : '';
+}
+
+async function mcqSetStatus(id, status) {
+  const res = await fetch(`/mcq-bank/admin/api/items/${id}`, {
+    method: 'PATCH',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({status}),
+  });
+  if (!res.ok) { alert('Failed to update status.'); return; }
+  location.reload();
+}
+
+async function mcqSavePayload(id) {
+  const card = document.querySelector(`[data-item-id="${id}"]`);
+  const options = [];
+  card.querySelectorAll('.edit-options [data-letter]').forEach(row => {
+    options.push({
+      letter: row.getAttribute('data-letter'),
+      text: row.querySelector('.edit-option-text').value.trim(),
+    });
+  });
+  const payload = {
+    question_text: card.querySelector('.edit-question').value.trim(),
+    options,
+    correct_answer: card.querySelector('.edit-correct').value,
+    explanation_text: card.querySelector('.edit-explanation').value.trim(),
+    references: [],
+  };
+  try {
+    payload.references = JSON.parse(card.getAttribute('data-references') || '[]');
+  } catch (e) {
+    payload.references = [];
+  }
+  if (!payload.question_text) { alert('Question text is required.'); return; }
+  if (!options.length || options.some(o => !o.text)) { alert('Every option needs text.'); return; }
+
+  const res = await fetch(`/mcq-bank/admin/api/items/${id}`, {
+    method: 'PATCH',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({payload}),
+  });
+  if (!res.ok) { alert('Failed to save changes.'); return; }
+  location.reload();
+}
+
+async function mcqBulkApprove() {
+  const chapterId = new URLSearchParams(location.search).get('chapter_id') || null;
+  await fetch(`/mcq-bank/admin/api/books/{{ book.id }}/bulk_approve`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({chapter_id: chapterId}),
+  });
+  location.reload();
+}
+</script>
+{% endblock %}

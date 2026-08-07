@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from "ui/macros.html" import page_header, stat_card, data_table_wrapper %}
+
+{% block title %}Clinical Governance — {{ branding.display_title }}{% endblock %}
+
+{% block content %}
+{{ page_header("Clinical Governance", subtitle="Quality, safety and clinical governance dashboard.", breadcrumbs=[("Governance", none)]) }}
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4 col-lg-2">{{ stat_card("Open incidents", open_incidents|length, href=url_for('clinical_governance.incidents')) }}</div>
+    <div class="col-6 col-md-4 col-lg-2">{{ stat_card("Under review", incidents_under_review|length, variant="accent") }}</div>
+    <div class="col-6 col-md-4 col-lg-2">{{ stat_card("M&M cases", mm_cases|length, variant="secondary") }}</div>
+    <div class="col-6 col-md-4 col-lg-2">{{ stat_card("Pending audits", pending_audits|length) }}</div>
+    <div class="col-6 col-md-4 col-lg-2">{{ stat_card("Procedures", procedure_count) }}</div>
+    <div class="col-6 col-md-4 col-lg-2">{{ stat_card("Equipment issues", equipment_issues|length, variant="accent") }}</div>
+</div>
+
+{% if quality_indicators %}
+<h2 class="h5 gi-section-title mb-3">Quality indicators</h2>
+<div class="row g-3 mb-4">
+    <div class="col-md-4">{{ stat_card("Colonoscopy ADR", (quality_indicators.colonoscopy.adenoma_detection_rate_pct or '—') ~ '%') }}</div>
+    <div class="col-md-4">{{ stat_card("ERCP cannulation", (quality_indicators.ercp.cannulation_success_pct or '—') ~ '%', variant="accent") }}</div>
+    <div class="col-md-4">{{ stat_card("Report turnaround", (quality_indicators.reports.report_turnaround_hours or '—') ~ ' hrs', variant="secondary") }}</div>
+</div>
+{% endif %}
+
+<h2 class="h5 gi-section-title mb-3">Checklist compliance</h2>
+{% call data_table_wrapper('table-sm w-auto') %}
+    <thead><tr><th scope="col">Checklist</th><th scope="col">Compliance</th></tr></thead>
+    <tbody>
+        {% for k, v in checklist_compliance.items() %}
+        <tr><td>{{ k.replace('_',' ') }}</td><td>{{ v.compliance_pct }}% ({{ v.complete }}/{{ v.total }})</td></tr>
+        {% endfor %}
+    </tbody>
+{% endcall %}
+
+{% include "ui/_quick_actions.html" %}
+
+<nav class="gi-quick-links mt-4 d-flex flex-wrap gap-2" aria-label="Governance sections">
+    <a href="{{ url_for('clinical_governance.incidents') }}" class="btn btn-outline-secondary btn-sm">Incidents</a>
+    <a href="{{ url_for('clinical_governance.mm_cases') }}" class="btn btn-outline-secondary btn-sm">M&amp;M</a>
+    <a href="{{ url_for('clinical_governance.kpis') }}" class="btn btn-outline-secondary btn-sm">KPIs</a>
+    <a href="{{ url_for('clinical_governance.audits') }}" class="btn btn-outline-secondary btn-sm">Audits</a>
+    <a href="{{ url_for('clinical_governance.checklists') }}" class="btn btn-outline-secondary btn-sm">Checklists</a>
+    <a href="{{ url_for('clinical_governance.documents') }}" class="btn btn-outline-secondary btn-sm">Documents</a>
+</nav>
+{% endblock %}

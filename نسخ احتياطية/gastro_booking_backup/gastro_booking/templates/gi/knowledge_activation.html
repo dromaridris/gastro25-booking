@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Knowledge activation{% endblock %}
+{% block content %}
+<h1>Activation requests</h1>
+<p class="muted">Explicit human approval required before clinical activation (Blueprint §12).</p>
+{% for a in pending %}
+<article style="border:1px solid var(--line);padding:12px;margin-bottom:10px;border-radius:8px;">
+  <strong>{{ a.title }}</strong> ({{ a.slug }})<br>
+  <span class="muted">{{ a.notes or 'No notes' }} · {{ a.created_at }}</span>
+  <form method="POST" action="{{ url_for('gi_knowledge_resolve_activation', activation_id=a.id) }}" style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
+    <input name="notes" placeholder="Reviewer notes" style="flex:1;min-width:200px;">
+    <button class="btn btn--primary btn--sm" name="decision" value="approve" type="submit">Approve &amp; publish</button>
+    <button class="btn btn--outline btn--sm" name="decision" value="reject" type="submit">Reject</button>
+  </form>
+</article>
+{% else %}
+<p class="muted">No pending activations.</p>
+{% endfor %}
+{% endblock %}

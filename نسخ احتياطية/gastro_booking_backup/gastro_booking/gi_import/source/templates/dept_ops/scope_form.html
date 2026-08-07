@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Register Endoscope{% endblock %}
+{% block content %}
+<h1>Register Endoscope</h1>
+<form method="POST">
+    <div class="mb-3"><label class="form-label">Scope code</label><input name="scope_code" class="form-control" required></div>
+    <div class="mb-3"><label class="form-label">Type</label>
+        <select name="scope_type" class="form-select">
+            <option value="gastroscope">Gastroscope</option>
+            <option value="colonoscope">Colonoscope</option>
+            <option value="duodenoscope">Duodenoscope</option>
+            <option value="echoendoscope">Echoendoscope</option>
+            <option value="pediatric">Pediatric</option>
+            <option value="other">Other</option>
+        </select>
+    </div>
+    <div class="mb-3"><label class="form-label">Serial number</label><input name="serial_number" class="form-control"></div>
+    <div class="mb-3"><label class="form-label">Model</label><input name="model" class="form-control"></div>
+    <div class="mb-3"><label class="form-label">Manufacturer</label><input name="manufacturer" class="form-control"></div>
+    <button type="submit" class="btn btn-primary">Register</button>
+</form>
+{% endblock %}

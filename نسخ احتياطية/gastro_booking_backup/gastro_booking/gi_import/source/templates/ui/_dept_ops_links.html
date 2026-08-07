@@ -1,0 +1,26 @@
+{# Plain-language shortcuts into unit operations — permission-aware #}
+<nav class="gi-dept-ops-links mt-4 mb-2 d-flex flex-wrap gap-2" aria-label="Unit operations">
+    {% if can('dept_ops:view') %}
+    <a href="{{ url_for('dept_ops.rooms') }}" class="btn btn-outline-secondary btn-sm">Endoscopy rooms</a>
+    <a href="{{ url_for('dept_ops.scopes') }}" class="btn btn-outline-secondary btn-sm">Scope inventory</a>
+    <a href="{{ url_for('dept_ops.reprocessing_board') }}" class="btn btn-outline-secondary btn-sm">Reprocessing</a>
+    {% endif %}
+    {% if can('dept_ops:waiting_list') %}
+    <a href="{{ url_for('dept_ops.waiting_list') }}" class="btn btn-outline-secondary btn-sm">Waiting list</a>
+    {% endif %}
+    {% if can('dept_ops:consumable_manage') %}
+    <a href="{{ url_for('dept_ops.consumables') }}" class="btn btn-outline-secondary btn-sm">Consumables</a>
+    {% endif %}
+    {% if can('dept_ops:roster_manage') %}
+    <a href="{{ url_for('dept_ops.roster') }}" class="btn btn-outline-secondary btn-sm">Duty roster</a>
+    {% endif %}
+    {% if can('dept_ops:announce') %}
+    <a href="{{ url_for('dept_ops.announcements') }}" class="btn btn-outline-secondary btn-sm">Announcements</a>
+    {% endif %}
+    {% if can('dept_ops:message') %}
+    <a href="{{ url_for('dept_ops.messages') }}" class="btn btn-outline-secondary btn-sm">Department messages</a>
+    {% endif %}
+    {% if can('dept_ops:view') %}
+    <a href="{{ url_for('dept_ops.alerts') }}" class="btn btn-outline-secondary btn-sm">Alerts</a>
+    {% endif %}
+</nav>

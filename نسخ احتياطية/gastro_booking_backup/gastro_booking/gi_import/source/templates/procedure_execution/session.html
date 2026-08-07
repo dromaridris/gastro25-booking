@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Execution Session #{{ session.id }}{% endblock %}
+{% block content %}
+<h2>Procedure Execution Session <small class="text-muted">#{{ session.id }}</small></h2>
+
+{% if session.is_cancelled %}
+    <div class="alert alert-danger">
+        <strong>Cancelled</strong>
+        {% if session.cancelled_at %} on {{ session.cancelled_at.strftime("%Y-%m-%d %H:%M") }}{% endif %}
+        {% if session.cancelled_by %} by {{ session.cancelled_by.full_name }}{% endif %}
+        {% if session.cancellation_reason %}<br>Reason: {{ session.cancellation_reason }}{% endif %}
+    </div>
+{% elif session.outcome %}
+    <div class="alert alert-success">Outcome recorded: <strong>{{ session.outcome.title() }}</strong></div>
+{% endif %}
+
+<dl class="row">
+    <dt class="col-sm-3">Patient</dt>
+    <dd class="col-sm-9">
+        <a href="{{ url_for('patients.view_patient', patient_id=session.patient.id) }}">
+            {{ session.patient.full_name }} ({{ session.patient.mrn }})
+        </a>
+    </dd>
+
+    <dt class="col-sm-3">Appointment</dt>
+    <dd class="col-sm-9">
+        <a href="{{ url_for('appointments.view_appointment', appointment_id=session.appointment.id) }}">
+            {{ session.appointment.scheduled_at.strftime("%Y-%m-%d %H:%M") }}
+        </a>
+    </dd>
+
+    <dt class="col-sm-3">Procedure</dt>
+    <dd class="col-sm-9">
+        <a href="{{ url_for('procedures.view_procedure', procedure_id=session.procedure.id) }}">
+            {{ session.procedure.procedure_type.name }} (#{{ session.procedure.id }})
+        </a>
+    </dd>
+
+    <dt class="col-sm-3">Room</dt>
+    <dd class="col-sm-9">{{ session.procedure.room.name if session.procedure.room else "Not assigned" }}</dd>
+</dl>
+
+<h4>Team</h4>
+<dl class="row">
+    <dt class="col-sm-3">Endoscopist</dt><dd class="col-sm-9">{{ session.endoscopist.full_name if session.endoscopist else "—" }}</dd>
+    <dt class="col-sm-3">Assistant</dt><dd class="col-sm-9">{{ session.assistant.full_name if session.assistant else "—" }}</dd>
+    <dt class="col-sm-3">Nurse</dt><dd class="col-sm-9">{{ session.nurse.full_name if session.nurse else "—" }}</dd>
+    <dt class="col-sm-3">Technician</dt><dd class="col-sm-9">{{ session.technician.full_name if session.technician else "—" }}</dd>
+    <dt class="col-sm-3">Anaesthetist</dt><dd class="col-sm-9">{{ session.anaesthetist.full_name if session.anaesthetist else "—" }}</dd>
+</dl>
+
+<h4>Time Tracking</h4>
+<dl class="row">
+    <dt class="col-sm-3">Patient In</dt>
+    <dd class="col-sm-9">{{ session.patient_in_at.strftime("%Y-%m-%d %H:%M") if session.patient_in_at else "—" }}</dd>
+    <dt class="col-sm-3">Procedure Start</dt>
+    <dd class="col-sm-9">{{ session.procedure_start_at.strftime("%Y-%m-%d %H:%M") if session.procedure_start_at else "—" }}</dd>
+    <dt class="col-sm-3">Procedure Finish</dt>
+    <dd class="col-sm-9">{{ session.procedure_finish_at.strftime("%Y-%m-%d %H:%M") if session.procedure_finish_at else "—" }}</dd>
+    <dt class="col-sm-3">Patient Out</dt>
+    <dd class="col-sm-9">{{ session.patient_out_at.strftime("%Y-%m-%d %H:%M") if session.patient_out_at else "—" }}</dd>
+</dl>
+
+<h4>Sedation</h4>
+<p>{{ session.sedation_category.replace("_", " ").title() if session.sedation_category else "Not recorded" }}</p>
+
+<h4>Safety Checklist</h4>
+<ul class="list-unstyled">
+    <li>{% if session.consent_confirmed %}✓{% else %}✗{% endif %} Consent confirmed</li>
+    <li>{% if session.identity_confirmed %}✓{% else %}✗{% endif %} Patient identity confirmed</li>
+    <li>{% if session.indication_confirmed %}✓{% else %}✗{% endif %} Procedure indication confirmed</li>
+    <li>{% if session.anticoagulants_reviewed %}✓{% else %}✗{% endif %} Anticoagulants reviewed</li>
+</ul>
+
+<h4>Room Utilisation</h4>
+{% if occupancy %}
+<table class="table table-sm">
+    <thead><tr><th>Room</th><th>From</th><th>Until</th></tr></thead>
+    <tbody>
+        {% for period in occupancy %}
+        <tr>
+            <td>{{ period.room.name }}</td>
+            <td>{{ period.occupied_from.strftime("%Y-%m-%d %H:%M") }}</td>
+            <td>{{ period.occupied_until.strftime("%Y-%m-%d %H:%M") if period.occupied_until else "Open" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="text-muted">No room occupancy recorded yet. Occupancy is tracked when Patient In is recorded and a room is assigned to the procedure.</p>
+{% endif %}
+
+{% if session.is_active and can('procedure_execution:edit') %}
+<div class="d-flex gap-2 flex-wrap mt-4">
+    <a href="{{ url_for('procedure_execution.edit_team', session_id=session.id) }}" class="btn btn-outline-secondary btn-sm">Edit Team</a>
+    <a href="{{ url_for('procedure_execution.edit_times', session_id=session.id) }}" class="btn btn-outline-secondary btn-sm">Edit Times</a>
+    <a href="{{ url_for('procedure_execution.edit_sedation', session_id=session.id) }}" class="btn btn-outline-secondary btn-sm">Edit Sedation</a>
+    <a href="{{ url_for('procedure_execution.edit_checklist', session_id=session.id) }}" class="btn btn-outline-secondary btn-sm">Edit Checklist</a>
+    <a href="{{ url_for('procedure_execution.set_outcome', session_id=session.id) }}" class="btn btn-outline-success btn-sm">Set Outcome</a>
+    <a href="{{ url_for('procedure_execution.cancel_session', session_id=session.id) }}" class="btn btn-outline-danger btn-sm">Cancel</a>
+</div>
+{% endif %}
+{% endblock %}

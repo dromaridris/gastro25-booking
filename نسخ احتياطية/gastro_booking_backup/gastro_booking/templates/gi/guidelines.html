@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Guidelines{% endblock %}
+{% block content %}
+<h1>Published guidelines</h1>
+<ul>{% for g in guidelines %}<li><a href="{{ url_for('gi_knowledge_detail', object_id=g.id) }}">{{ g.title }}</a> — {{ g.summary }}</li>{% else %}<li class="muted">No published guidelines.</li>{% endfor %}</ul>
+{% endblock %}

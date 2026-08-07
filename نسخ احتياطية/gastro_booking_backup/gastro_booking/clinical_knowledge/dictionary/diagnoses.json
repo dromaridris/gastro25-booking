@@ -1,0 +1,9 @@
+[
+  {"id": "dx-placeholder", "code": "DX_unspecified", "label": "Diagnosis (unspecified placeholder)", "entity_type": "diagnosis", "specialty_tags": ["general"], "schema_version": 1, "revision": 1, "status": "draft", "notes": "Phase 1 stub only. Disease content comes later from guidelines/textbooks, not Bates."},
+  {"id": "dx-biliary-suspect", "code": "DX_biliary_colic_or_cholecystitis_suspect", "label": "Biliary colic / cholecystitis (suspect)", "entity_type": "diagnosis", "specialty_tags": ["gastroenterology", "surgery"], "schema_version": 1, "revision": 1, "status": "draft", "notes": "Reasoning-engine pattern label; not a confirmed diagnosis."},
+  {"id": "dx-peptic-pancreas-suspect", "code": "DX_peptic_or_pancreatitis_suspect", "label": "Peptic disease / pancreatitis (suspect)", "entity_type": "diagnosis", "specialty_tags": ["gastroenterology"], "schema_version": 1, "revision": 1, "status": "draft"},
+  {"id": "dx-appendicitis-suspect", "code": "DX_appendicitis_suspect", "label": "Appendicitis (suspect)", "entity_type": "diagnosis", "specialty_tags": ["surgery", "emergency"], "schema_version": 1, "revision": 1, "status": "draft"},
+  {"id": "dx-obstruction-suspect", "code": "DX_bowel_obstruction_suspect", "label": "Bowel obstruction (suspect)", "entity_type": "diagnosis", "specialty_tags": ["surgery", "emergency"], "schema_version": 1, "revision": 1, "status": "draft"},
+  {"id": "dx-gi-bleed-suspect", "code": "DX_gi_bleeding_suspect", "label": "Gastrointestinal bleeding (suspect)", "entity_type": "diagnosis", "specialty_tags": ["gastroenterology", "emergency"], "schema_version": 1, "revision": 1, "status": "draft"},
+  {"id": "dx-peritonitis-suspect", "code": "DX_peritonitis_suspect", "label": "Peritonitis / acute abdomen (suspect)", "entity_type": "diagnosis", "specialty_tags": ["surgery", "emergency"], "schema_version": 1, "revision": 1, "status": "draft"}
+]

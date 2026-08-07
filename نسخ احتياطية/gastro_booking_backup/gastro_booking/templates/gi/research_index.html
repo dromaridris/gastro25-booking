@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Research registries{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>Research Module</h1>
+    {% include "_module_intro.html" %}
+  </div>
+  <a href="{{ url_for('gi_research_new') }}" class="btn btn--primary btn--sm">New registry</a>
+</section>
+<table class="admin-table"><thead><tr><th>Code</th><th>Title</th><th>Lead</th><th>Enrolled</th><th>Status</th><th>HOD</th><th></th></tr></thead>
+<tbody>{% for r in registries %}<tr>
+<td>{{ r.code }}</td><td>{{ r.title }}</td>
+<td>{{ r.lead_name or '—' }}</td>
+<td>{{ r.enrollment_count or 0 }}</td>
+<td>{{ r.status }}</td><td>{{ r.hod_status or '—' }}</td>
+<td><a href="{{ url_for('gi_research_detail', registry_id=r.id, ward_patient_id=ward_patient_id) if ward_patient_id else url_for('gi_research_detail', registry_id=r.id) }}">Open</a></td></tr>{% else %}<tr><td colspan="7" class="muted">No registries.</td></tr>{% endfor %}</tbody></table>
+{% endblock %}

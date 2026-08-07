@@ -1,0 +1,114 @@
+{
+  "complaint_code": "CC_chest_pain",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Chest pain history structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Characterize with OLDCARTS: onset, location, character, radiation, timing, exacerbating/relieving, severity.",
+        "Cardiac risk screen (exertional pattern, radiation, autonomic symptoms) takes priority before reflux/musculoskeletal causes.",
+        "Never anchor on a benign cause until ACS/PE/dissection red flags are excluded."
+      ],
+      "linked_questions": [
+        "Q000065",
+        "Q000067",
+        "Q000069"
+      ]
+    },
+    {
+      "id": "EDU_red_flags",
+      "title": "Chest pain red flags",
+      "trigger": {
+        "any_sign_present": [
+          "SG_hypotension",
+          "SG_reduced_air_entry",
+          "SG_raised_jvp"
+        ]
+      },
+      "points": [
+        "Hypotension, unequal breath sounds, or raised JVP with chest pain are unstable-until-proven-otherwise findings.",
+        "Escalate early rather than completing the full outpatient-style history first."
+      ]
+    }
+  ],
+  "question_coaching": {
+    "Q000065": {
+      "why_ask": "Character discriminates cardiac (pressure) from pleuritic/tearing causes.",
+      "listen_for": [
+        "Pressure/squeezing",
+        "sharp with breathing",
+        "tearing"
+      ],
+      "think": "Pressure + exertional + radiation → treat as ACS until excluded."
+    },
+    "Q000067": {
+      "why_ask": "Exertional relationship is one of the strongest bedside clues for ischaemic pain.",
+      "listen_for": [
+        "Worse with exertion",
+        "relieved by rest"
+      ],
+      "think": "Exertional pattern raises pre-test probability of ACS regardless of age."
+    },
+    "Q000069": {
+      "why_ask": "Autonomic symptoms (sweating, nausea, sense of doom) often accompany ACS.",
+      "listen_for": [
+        "Diaphoresis",
+        "nausea",
+        "impending doom"
+      ],
+      "think": "Presence alongside chest pain strengthens cardiac concern even with an atypical description."
+    },
+    "Q000038": {
+      "why_ask": "Syncope/near-syncope with chest pain suggests a haemodynamically significant cause.",
+      "listen_for": [
+        "Fainting",
+        "dizziness"
+      ],
+      "think": "Combine with vitals — this is a stop-and-escalate combination."
+    }
+  },
+  "answer_triggers": [
+    {
+      "id": "AT_pressure",
+      "question_id": "Q000065",
+      "title": "Unlocked: pressure/squeezing pattern",
+      "points": [
+        "Treat as ischaemic until proven otherwise.",
+        "Obtain ECG and troponin pathway early."
+      ],
+      "answer_in": [
+        "pressure/squeezing"
+      ]
+    },
+    {
+      "id": "AT_exertional",
+      "question_id": "Q000067",
+      "title": "Unlocked: exertional pattern",
+      "points": [
+        "Reinforces cardiac origin.",
+        "Ask about prior similar exertional episodes (stable angina pattern)."
+      ],
+      "answer_in": [
+        "worse with exertion"
+      ]
+    },
+    {
+      "id": "AT_tearing",
+      "question_id": "Q000065",
+      "title": "Unlocked: tearing quality",
+      "points": [
+        "Tearing/ripping pain radiating to the back raises aortic dissection concern.",
+        "Check for pulse/BP asymmetry between arms."
+      ],
+      "answer_in": [
+        "tearing"
+      ]
+    }
+  ]
+}

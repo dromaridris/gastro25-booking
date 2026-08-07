@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Search · Gastro & Hepatology{% endblock %}
+{% block content %}
+<div class="admin-page">
+  <h1>Search</h1>
+  <p class="muted">Search by patient name, MR Number, or an exact date (YYYY-MM-DD).</p>
+
+  <form method="GET" action="{{ url_for('search_patients') }}" class="settings-form" style="margin-top:14px;">
+    <label style="grid-column: 1 / -1;">Search
+      <input type="text" name="q" value="{{ q }}" placeholder="e.g. Ahmed, MRN-1023, or 2026-08-12" autofocus>
+    </label>
+    <button class="btn btn--primary" type="submit">Search</button>
+  </form>
+
+  {% if q %}
+  <section class="admin-section" style="margin-top:20px;">
+    <h2>Results <span class="badge">{{ results|length }}</span></h2>
+    {% if results %}
+    <div class="admin-table-scroll"><table class="admin-table">
+      <thead>
+        <tr>
+          <th>Patient</th><th>MRN</th><th>Gender / Age</th><th>Procedure</th><th>Date</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in results %}
+        <tr class="{{ 'row-bleeding' if r.is_bleeding }}">
+          <td>{{ r.patient_name }}</td>
+          <td>{{ r.mrn or '—' }}</td>
+          <td>{{ r.gender }} / {{ r.age }}</td>
+          <td>{{ r.procedure_label }}</td>
+          <td>{{ r.appointment_date }}</td>
+          <td>
+            {% if r.procedure_type == 'ercp' %}
+            <a class="btn btn--sm btn--outline" href="{{ url_for('patient_ercp_overview', appointment_id=r.id) }}">Patient Overview</a>
+            {% elif r.procedure_type == 'dilatation' %}
+            <a class="btn btn--sm btn--outline" href="{{ url_for('patient_dilatation_overview', appointment_id=r.id) }}">Patient Overview</a>
+            {% else %}
+            <a class="btn btn--sm btn--outline" href="{{ url_for('print_list', date_str=r.appointment_date) }}" target="_blank" rel="opener">View Day List</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table></div>
+    {% if results|length == 100 %}
+    <p class="muted" style="margin-top:10px;">Showing the first 100 matches — narrow your search for more specific results.</p>
+    {% endif %}
+    {% else %}
+    <p class="muted">No booking matches found for "{{ q }}".</p>
+    {% endif %}
+  </section>
+
+  {% if GI_SEARCH_EXTENDED and (gi_ward_hits or gi_knowledge_hits) %}
+  <section class="admin-section" style="margin-top:20px;">
+    <h2>Ward patients <span class="badge">{{ gi_ward_hits|length }}</span></h2>
+    {% if gi_ward_hits %}
+    <ul>{% for w in gi_ward_hits %}
+      <li><a href="{{ url_for('ward_patient_view', ward_patient_id=w.id) }}">{{ w.patient_name }}</a> — MRN {{ w.mrn or '—' }}</li>
+    {% endfor %}</ul>
+    {% else %}<p class="muted">No ward matches.</p>{% endif %}
+  </section>
+  <section class="admin-section" style="margin-top:20px;">
+    <h2>Knowledge library <span class="badge">{{ gi_knowledge_hits|length }}</span></h2>
+    {% if gi_knowledge_hits %}
+    <ul>{% for k in gi_knowledge_hits %}
+      <li><a href="{{ url_for('gi_knowledge_detail', object_id=k.id) }}">{{ k.title }}</a> ({{ k.object_type }})</li>
+    {% endfor %}</ul>
+    {% else %}<p class="muted">No knowledge matches.</p>{% endif %}
+  </section>
+  {% endif %}
+  {% endif %}
+</div>
+{% endblock %}

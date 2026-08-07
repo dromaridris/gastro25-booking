@@ -1,0 +1,493 @@
+{
+  "schema_version": "1",
+  "template_key": "flex_sig_v2",
+  "label": "Flexible Sigmoidoscopy — Structured Clinical Report",
+  "sections": [
+    {
+      "id": "context",
+      "label": "Clinical Context",
+      "workflow_phase": "WF_CONTEXT",
+      "fields": [
+        {
+          "id": "flex_sig_v2.context.indication_category",
+          "label": "Indication category",
+          "type": "multi_select",
+          "required": true,
+          "default": [],
+          "vocabulary_source": "colonoscopy_indication_category",
+          "workflow_phases": ["WF_CONTEXT"],
+          "research_flag": true
+        },
+        {
+          "id": "flex_sig_v2.context.indication_detail",
+          "label": "Indication detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_CONTEXT"]
+        },
+        {
+          "id": "flex_sig_v2.context.urgency",
+          "label": "Urgency",
+          "type": "dropdown",
+          "required": true,
+          "default": "",
+          "vocabulary_source": "procedure_urgency",
+          "workflow_phases": ["WF_CONTEXT"]
+        },
+        {
+          "id": "flex_sig_v2.context.consent_obtained",
+          "label": "Consent obtained",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": ["WF_CONTEXT"]
+        }
+      ]
+    },
+    {
+      "id": "procedure",
+      "label": "Procedure",
+      "workflow_phase": "WF_ACCESS",
+      "fields": [
+        {
+          "id": "flex_sig_v2.procedure.sedation_type",
+          "label": "Sedation type",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "sedation_type",
+          "workflow_phases": ["WF_ACCESS"]
+        },
+        {
+          "id": "flex_sig_v2.procedure.scope_type",
+          "label": "Scope type",
+          "type": "dropdown",
+          "default": "",
+          "vocabulary_source": "flex_sig_scope_type",
+          "workflow_phases": ["WF_ACCESS"]
+        },
+        {
+          "id": "flex_sig_v2.procedure.scope_limit_reached",
+          "label": "Scope limit reached",
+          "type": "dropdown",
+          "required": true,
+          "default": "",
+          "vocabulary_source": "flex_sig_scope_limit",
+          "workflow_phases": ["WF_ACCESS"],
+          "qi_flag": true,
+          "qi_mapping": { "metric_key": "scope_limit_reached", "operator": "not_empty", "value": null }
+        },
+        {
+          "id": "flex_sig_v2.procedure.prep_regimen",
+          "label": "Bowel preparation regimen",
+          "type": "dropdown",
+          "default": "",
+          "vocabulary_source": "bowel_prep_regimen",
+          "workflow_phases": ["WF_ACCESS"]
+        },
+        {
+          "id": "flex_sig_v2.procedure.limited_exam",
+          "label": "Limited examination",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_ACCESS"]
+        },
+        {
+          "id": "flex_sig_v2.procedure.limited_exam_reason",
+          "label": "Reason for limited examination",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_ACCESS"],
+          "visibility": {
+            "when": "field",
+            "field_id": "flex_sig_v2.procedure.limited_exam",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        }
+      ]
+    },
+    {
+      "id": "findings",
+      "label": "Findings",
+      "workflow_phase": "WF_IMAGING",
+      "fields": [
+        {
+          "id": "flex_sig_v2.findings.descending_normal",
+          "label": "Descending colon — normal",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"]
+        },
+        {
+          "id": "flex_sig_v2.findings.descending_findings",
+          "label": "Descending colon — findings",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "colonic_finding_type",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "flex_sig_v2.findings.descending_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "flex_sig_v2.findings.descending_detail",
+          "label": "Descending colon — detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "flex_sig_v2.findings.descending_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "flex_sig_v2.findings.sigmoid_normal",
+          "label": "Sigmoid colon — normal",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"]
+        },
+        {
+          "id": "flex_sig_v2.findings.sigmoid_findings",
+          "label": "Sigmoid colon — findings",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "colonic_finding_type",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "flex_sig_v2.findings.sigmoid_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "flex_sig_v2.findings.sigmoid_detail",
+          "label": "Sigmoid colon — detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "flex_sig_v2.findings.sigmoid_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "flex_sig_v2.findings.rectum_normal",
+          "label": "Rectum — normal",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"]
+        },
+        {
+          "id": "flex_sig_v2.findings.rectum_findings",
+          "label": "Rectum — findings",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "colonic_finding_type",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "flex_sig_v2.findings.rectum_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "flex_sig_v2.findings.rectum_detail",
+          "label": "Rectum — detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "flex_sig_v2.findings.rectum_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        }
+      ]
+    },
+    {
+      "id": "interventions",
+      "label": "Interventions",
+      "workflow_phase": "WF_THERAPY",
+      "fields": [
+        {
+          "id": "flex_sig_v2.interventions.interventions",
+          "label": "Interventions",
+          "type": "repeatable_group",
+          "default": [],
+          "min_rows": 0,
+          "workflow_phases": ["WF_THERAPY"],
+          "fields": [
+            { "id": "intervention_type", "label": "Intervention type", "type": "dropdown", "vocabulary_source": "colonoscopy_intervention_type" },
+            { "id": "success", "label": "Success", "type": "yes_no" },
+            { "id": "details", "label": "Details", "type": "text" }
+          ],
+          "narrative_binding": {
+            "mode": "list",
+            "field_id": "flex_sig_v2.interventions.interventions",
+            "item_template": "{index}. {intervention_type} — success: {success}; {details}",
+            "empty_text": "No therapeutic interventions recorded."
+          }
+        }
+      ]
+    },
+    {
+      "id": "closure",
+      "label": "Closure",
+      "workflow_phase": "WF_CLOSURE",
+      "fields": [
+        {
+          "id": "flex_sig_v2.closure.procedure_completed",
+          "label": "Procedure completed as planned",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": ["WF_CLOSURE"],
+          "qi_flag": true,
+          "qi_mapping": { "metric_key": "procedure_completed", "operator": "equals", "value": "Yes" }
+        },
+        {
+          "id": "flex_sig_v2.closure.immediate_complication",
+          "label": "Immediate complication",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": ["WF_CLOSURE"],
+          "qi_flag": true,
+          "qi_mapping": { "metric_key": "immediate_complication", "operator": "equals", "value": "Yes" }
+        },
+        {
+          "id": "flex_sig_v2.closure.complication_types",
+          "label": "Complication type(s)",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "standard_complication_type",
+          "workflow_phases": ["WF_CLOSURE"],
+          "visibility": {
+            "when": "field",
+            "field_id": "flex_sig_v2.closure.immediate_complication",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "flex_sig_v2.closure.complication_detail",
+          "label": "Complication detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_CLOSURE"],
+          "visibility": {
+            "when": "field",
+            "field_id": "flex_sig_v2.closure.immediate_complication",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "flex_sig_v2.closure.specimens_sent",
+          "label": "Specimens sent to histology",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_CLOSURE"]
+        },
+        {
+          "id": "flex_sig_v2.closure.specimen_details",
+          "label": "Specimen details",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_CLOSURE"],
+          "visibility": {
+            "when": "field",
+            "field_id": "flex_sig_v2.closure.specimens_sent",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        }
+      ]
+    },
+    {
+      "id": "synthesis",
+      "label": "Synthesis",
+      "workflow_phase": "WF_SYNTHESIS",
+      "fields": [
+        {
+          "id": "flex_sig_v2.synthesis.impression_primary",
+          "label": "Primary impression",
+          "type": "long_text",
+          "required": true,
+          "default": "",
+          "workflow_phases": ["WF_SYNTHESIS"]
+        },
+        {
+          "id": "flex_sig_v2.synthesis.clinical_plan",
+          "label": "Recommendations / clinical plan",
+          "type": "long_text",
+          "required": true,
+          "default": "",
+          "workflow_phases": ["WF_SYNTHESIS"]
+        },
+        {
+          "id": "flex_sig_v2.synthesis.surveillance_interval",
+          "label": "Surveillance interval",
+          "type": "dropdown",
+          "default": "",
+          "vocabulary_source": "surveillance_interval",
+          "workflow_phases": ["WF_SYNTHESIS"]
+        },
+        {
+          "id": "flex_sig_v2.synthesis.addendum_text",
+          "label": "Addendum",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_SYNTHESIS"]
+        }
+      ]
+    }
+  ],
+  "components": {
+    "timeline": [
+      { "key": "scope_insertion", "label": "Scope inserted" },
+      { "key": "scope_removal", "label": "Scope removed" }
+    ]
+  },
+  "section_narratives": [
+    {
+      "section": "clinical_indication",
+      "intro": "Clinical indication for flexible sigmoidoscopy:",
+      "bindings": [
+        { "mode": "literal", "field_id": "flex_sig_v2.context.indication_category", "label": "Category" },
+        { "mode": "literal", "field_id": "flex_sig_v2.context.indication_detail", "label": "Detail" },
+        { "mode": "sentence", "field_id": "flex_sig_v2.context.urgency", "template": "Urgency: {value}." },
+        { "mode": "sentence", "field_id": "flex_sig_v2.context.consent_obtained", "template": "Consent obtained: {value}." }
+      ]
+    },
+    {
+      "section": "procedure_description",
+      "intro": "Flexible sigmoidoscopy was performed under appropriate sedation and monitoring.",
+      "bindings": [
+        { "mode": "literal", "field_id": "flex_sig_v2.procedure.sedation_type", "label": "Sedation" },
+        { "mode": "sentence", "field_id": "flex_sig_v2.procedure.scope_type", "template": "Scope: {value}." },
+        { "mode": "sentence", "field_id": "flex_sig_v2.procedure.scope_limit_reached", "template": "Scope limit reached: {value}." },
+        { "mode": "sentence", "field_id": "flex_sig_v2.procedure.prep_regimen", "template": "Bowel prep regimen: {value}." },
+        { "mode": "sentence", "field_id": "flex_sig_v2.procedure.limited_exam", "template": "Limited examination: {value}." },
+        { "mode": "sentence", "field_id": "flex_sig_v2.procedure.limited_exam_reason", "template": "Reason for limited exam: {value}." }
+      ]
+    },
+    {
+      "section": "findings",
+      "intro": "Sigmoidoscopic findings:",
+      "bindings": [
+        { "mode": "sentence", "field_id": "flex_sig_v2.findings.descending_normal", "template": "Descending colon: {value} (normal)." },
+        { "mode": "literal", "field_id": "flex_sig_v2.findings.descending_findings", "label": "Descending colon findings" },
+        { "mode": "sentence", "field_id": "flex_sig_v2.findings.descending_detail", "template": "Descending colon detail: {value}." },
+        { "mode": "sentence", "field_id": "flex_sig_v2.findings.sigmoid_normal", "template": "Sigmoid colon: {value} (normal)." },
+        { "mode": "literal", "field_id": "flex_sig_v2.findings.sigmoid_findings", "label": "Sigmoid colon findings" },
+        { "mode": "sentence", "field_id": "flex_sig_v2.findings.sigmoid_detail", "template": "Sigmoid colon detail: {value}." },
+        { "mode": "sentence", "field_id": "flex_sig_v2.findings.rectum_normal", "template": "Rectum: {value} (normal)." },
+        { "mode": "literal", "field_id": "flex_sig_v2.findings.rectum_findings", "label": "Rectum findings" },
+        { "mode": "sentence", "field_id": "flex_sig_v2.findings.rectum_detail", "template": "Rectum detail: {value}." },
+        {
+          "mode": "list",
+          "field_id": "flex_sig_v2.interventions.interventions",
+          "item_template": "{index}. {intervention_type} — success: {success}; {details}",
+          "empty_text": "\nNo therapeutic interventions recorded."
+        }
+      ]
+    },
+    {
+      "section": "impression",
+      "bindings": [
+        { "mode": "sentence", "field_id": "flex_sig_v2.synthesis.impression_primary", "template": "Impression:\n{value}" }
+      ]
+    },
+    {
+      "section": "recommendations",
+      "intro": "Recommendations / plan:",
+      "bindings": [
+        { "mode": "literal", "field_id": "flex_sig_v2.synthesis.clinical_plan", "label": "" },
+        { "mode": "sentence", "field_id": "flex_sig_v2.synthesis.surveillance_interval", "template": "Surveillance interval: {value}." },
+        { "mode": "sentence", "field_id": "flex_sig_v2.synthesis.addendum_text", "template": "Addendum:\n{value}" }
+      ]
+    },
+    {
+      "section": "complications",
+      "intro": "Complications and closure:",
+      "bindings": [
+        { "mode": "sentence", "field_id": "flex_sig_v2.closure.procedure_completed", "template": "Procedure completed as planned: {value}." },
+        { "mode": "sentence", "field_id": "flex_sig_v2.closure.immediate_complication", "template": "Immediate complication: {value}." },
+        { "mode": "literal", "field_id": "flex_sig_v2.closure.complication_types", "label": "Complication type(s)" },
+        { "mode": "sentence", "field_id": "flex_sig_v2.closure.complication_detail", "template": "Complication detail: {value}." },
+        { "mode": "sentence", "field_id": "flex_sig_v2.closure.specimens_sent", "template": "Specimens sent to histology: {value}." },
+        { "mode": "sentence", "field_id": "flex_sig_v2.closure.specimen_details", "template": "Specimen details: {value}." }
+      ]
+    }
+  ],
+  "workflow": {
+    "states": ["WF_CONTEXT", "WF_ACCESS", "WF_IMAGING", "WF_THERAPY", "WF_CLOSURE", "WF_SYNTHESIS", "WF_REVIEW", "WF_FINALIZE"],
+    "transitions": {
+      "WF_CONTEXT": ["WF_ACCESS"],
+      "WF_ACCESS": ["WF_CONTEXT", "WF_IMAGING"],
+      "WF_IMAGING": ["WF_ACCESS", "WF_THERAPY"],
+      "WF_THERAPY": ["WF_IMAGING", "WF_CLOSURE"],
+      "WF_CLOSURE": ["WF_THERAPY", "WF_SYNTHESIS"],
+      "WF_SYNTHESIS": ["WF_CLOSURE", "WF_REVIEW"],
+      "WF_REVIEW": ["WF_SYNTHESIS", "WF_FINALIZE"],
+      "WF_FINALIZE": ["WF_REVIEW"]
+    }
+  },
+  "validation": [
+    { "id": "V_FLEX_INDICATION", "severity": "error", "message": "Indication category is required before finalize.", "rule": { "type": "field_present", "field_id": "flex_sig_v2.context.indication_category" } },
+    { "id": "V_FLEX_URGENCY", "severity": "error", "message": "Urgency is required before finalize.", "rule": { "type": "field_present", "field_id": "flex_sig_v2.context.urgency" } },
+    { "id": "V_FLEX_CONSENT", "severity": "error", "message": "Consent outcome must be documented before finalize.", "rule": { "type": "field_in", "field_id": "flex_sig_v2.context.consent_obtained", "values": ["Yes", "No"] } },
+    { "id": "V_FLEX_SCOPE_LIMIT", "severity": "error", "message": "Scope limit reached must be documented before finalize.", "rule": { "type": "field_present", "field_id": "flex_sig_v2.procedure.scope_limit_reached" } },
+    { "id": "V_FLEX_COMPLETED", "severity": "error", "message": "Procedure completion status is required before finalize.", "rule": { "type": "field_present", "field_id": "flex_sig_v2.closure.procedure_completed" } },
+    { "id": "V_FLEX_COMPLICATION", "severity": "error", "message": "Immediate complication outcome must be documented before finalize.", "rule": { "type": "field_present", "field_id": "flex_sig_v2.closure.immediate_complication" } },
+    { "id": "V_FLEX_IMPRESSION", "severity": "error", "message": "Primary impression is required before finalize.", "rule": { "type": "field_nonempty", "field_id": "flex_sig_v2.synthesis.impression_primary" } },
+    { "id": "V_FLEX_PLAN", "severity": "error", "message": "Clinical plan / recommendations are required before finalize.", "rule": { "type": "field_nonempty", "field_id": "flex_sig_v2.synthesis.clinical_plan" } },
+    {
+      "id": "V_FLEX_COMPLICATION_DETAIL",
+      "severity": "warning",
+      "message": "Immediate complication recorded — specify complication type(s).",
+      "rule": {
+        "type": "when_field_equals",
+        "field_id": "flex_sig_v2.closure.immediate_complication",
+        "value": "Yes",
+        "then": { "type": "list_nonempty", "field_id": "flex_sig_v2.closure.complication_types" }
+      }
+    }
+  ],
+  "quick_fill": {
+    "normal_diagnostic": {
+      "label": "Normal diagnostic flexible sigmoidoscopy",
+      "values": {
+        "flex_sig_v2.context.indication_category": ["symptoms"],
+        "flex_sig_v2.context.urgency": "elective",
+        "flex_sig_v2.context.consent_obtained": "Yes",
+        "flex_sig_v2.procedure.scope_limit_reached": "sigmoid",
+        "flex_sig_v2.procedure.limited_exam": "No",
+        "flex_sig_v2.findings.descending_normal": "Yes",
+        "flex_sig_v2.findings.sigmoid_normal": "Yes",
+        "flex_sig_v2.findings.rectum_normal": "Yes",
+        "flex_sig_v2.closure.procedure_completed": "Yes",
+        "flex_sig_v2.closure.immediate_complication": "No",
+        "flex_sig_v2.synthesis.impression_primary": "Normal flexible sigmoidoscopy. No significant abnormality identified.",
+        "flex_sig_v2.synthesis.clinical_plan": "Routine clinical follow-up as indicated."
+      }
+    }
+  },
+  "qi": [
+    { "metric_key": "scope_limit_reached", "label": "Scope limit documented" },
+    { "metric_key": "immediate_complication", "label": "Immediate complication" },
+    { "metric_key": "procedure_completed", "label": "Procedure completed" }
+  ]
+}

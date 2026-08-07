@@ -1,0 +1,69 @@
+{
+  "complaint_code": "CC_abdominal_pain",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Investigation framework — names, urgency, indications. No result interpretation.",
+  "bundles": [
+    {
+      "id": "IXB_abd_pain_baseline",
+      "label": "Baseline abdominal pain workup",
+      "urgency": "routine",
+      "when": {"always_if_complaint": true},
+      "investigations": ["IX_cbc", "IX_basic_metabolic_panel", "IX_liver_panel"]
+    },
+    {
+      "id": "IXB_ruq",
+      "label": "RUQ / biliary focus",
+      "urgency": "urgent",
+      "when": {
+        "any": [
+          {"question_id": "Q000042", "op": "eq", "value": "RUQ"},
+          {"question_id": "Q000026", "op": "truthy"},
+          {"pattern_id": "PAT_ruq_biliary"}
+        ]
+      },
+      "investigations": ["IX_abdominal_ultrasound", "IX_liver_panel"]
+    },
+    {
+      "id": "IXB_epigastric",
+      "label": "Epigastric / pancreatitis / ulcer focus",
+      "urgency": "urgent",
+      "when": {
+        "any": [
+          {"question_id": "Q000042", "op": "eq", "value": "Epigastric"},
+          {"pattern_id": "PAT_epigastric_ulcer_pancreas"}
+        ]
+      },
+      "investigations": ["IX_lipase", "IX_amylase"]
+    },
+    {
+      "id": "IXB_bleed",
+      "label": "Suspected GI bleeding",
+      "urgency": "emergency",
+      "when": {
+        "any": [
+          {"question_id": "Q000033", "op": "truthy"},
+          {"question_id": "Q000034", "op": "truthy"},
+          {"question_id": "Q000035", "op": "truthy"},
+          {"pattern_id": "PAT_gi_bleed"}
+        ]
+      },
+      "investigations": ["IX_cbc", "IX_coagulation_panel", "IX_upper_endoscopy"],
+      "referral_hint": "Urgent endoscopy / resuscitation pathway"
+    },
+    {
+      "id": "IXB_acute_abdomen",
+      "label": "Acute abdomen / peritonitis",
+      "urgency": "emergency",
+      "when": {
+        "any": [
+          {"pattern_id": "PAT_peritonitis"},
+          {"pattern_id": "PAT_obstruction"},
+          {"sign_code": "SG_peritoneal_signs", "op": "present"}
+        ]
+      },
+      "investigations": ["IX_ct_abdomen", "IX_cbc", "IX_coagulation_panel"],
+      "referral_hint": "Urgent surgical review"
+    }
+  ]
+}

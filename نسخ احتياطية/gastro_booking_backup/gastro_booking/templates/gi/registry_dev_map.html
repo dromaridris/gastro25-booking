@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}GI Registry Map (Developer){% endblock %}
+{% block content %}
+<div class="page-compact">
+<h1>Developer module map</h1>
+<p class="muted">Internal architecture inventory for developers only — not part of the clinical workflow.</p>
+<p><a href="{{ url_for('gi_registry_dashboard') }}">← Clinical GI Registry</a></p>
+<div class="admin-table-scroll">
+<table class="admin-table compact-table"><thead><tr><th>Branch</th><th>GI modules</th><th>G25 owner</th><th>Route</th><th>Status</th></tr></thead>
+<tbody>
+{% for b in branches %}
+<tr>
+  <td>{{ b.title }}</td>
+  <td class="muted-sm">{{ b.gi_modules|join(', ') if b.gi_modules else '—' }}</td>
+  <td class="muted-sm">{{ b.g25_owner }}</td>
+  <td>{{ b.route_prefix }}</td>
+  <td>{{ b.status }}</td>
+</tr>
+{% endfor %}
+</tbody></table>
+</div>
+<section class="admin-section compact-section">
+  <h2>GI module inventory</h2>
+  <ul class="module-columns">{% for name, ok in modules|dictsort %}<li>{{ name }} {% if ok %}✓{% else %}✗{% endif %}</li>{% endfor %}</ul>
+</section>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{{ user.full_name }} — Staff profile{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('gi_governance_logbook') }}">← Logbook</a></p>
+<h1>{{ user.full_name }}</h1>
+<p class="muted">{{ user.role|replace('_',' ') }} · @{{ user.username }}</p>
+<p>Activities (30d): {{ summary.total_activities }} · Active days: {{ summary.active_days }}
+{% if summary.avg_evaluation_score %} · Avg CanMEDS: {{ summary.avg_evaluation_score }}/5 ({{ summary.evaluation_count }} evals){% endif %}</p>
+<table class="admin-table"><thead><tr><th>Activity</th><th>MRN / Patient</th><th>Date</th><th></th></tr></thead>
+<tbody>{% for e in entries %}
+<tr>
+  <td>{{ e.title }}</td><td>{{ e.mrn or '' }} {{ e.patient_name or e.wp_name or '' }}</td>
+  <td>{{ e.created_at[:16] if e.created_at else '' }}</td>
+  <td><a href="{{ url_for('gi_logbook_evaluate', entry_id=e.id) }}">Evaluate</a></td>
+</tr>{% else %}<tr><td colspan="4" class="muted">No activity.</td></tr>{% endfor %}</tbody></table>
+{% endblock %}

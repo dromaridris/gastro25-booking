@@ -1,0 +1,8 @@
+{% extends "email/base.html" %}
+{% block email_body %}
+<h1 style="font-size:20px;color:{{ branding.primary_color }};margin:0 0 12px;">{{ notification_title }}</h1>
+<p>{{ notification_body }}</p>
+{% if action_url %}
+<p><a href="{{ action_url }}" style="color:{{ branding.accent_color }};">View details</a></p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,19 @@
+{% if alerts %}
+<div class="card mb-4 border-warning">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <strong>Operational Alerts</strong>
+        <a href="{{ url_for('dept_ops.alerts') }}" class="btn btn-sm btn-outline-warning">View all ({{ alerts|length }})</a>
+    </div>
+    <ul class="list-group list-group-flush">
+    {% for a in alerts[:6] %}
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+            <div>
+                <span class="badge {% if a.severity == 'high' %}bg-danger{% elif a.severity == 'medium' %}bg-warning text-dark{% else %}bg-secondary{% endif %} me-2">{{ a.severity }}</span>
+                {{ a.title }}
+                <small class="text-muted d-block">{{ a.detail }}</small>
+            </div>
+        </li>
+    {% endfor %}
+    </ul>
+</div>
+{% endif %}

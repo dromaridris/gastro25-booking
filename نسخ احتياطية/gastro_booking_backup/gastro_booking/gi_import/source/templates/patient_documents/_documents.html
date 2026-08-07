@@ -1,0 +1,24 @@
+{% if can('patient_document:view') %}
+<hr>
+<div class="d-flex justify-content-between align-items-center mb-2">
+  <h4>Documents</h4>
+</div>
+<ul class="list-group list-group-flush mb-2">
+{% for doc in documents %}
+  <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+    <span>{{ doc.title }} <small class="text-muted">({{ doc.category }})</small></span>
+    <a href="{{ url_for('core.serve_file', key=doc.storage_key) }}" target="_blank" class="btn btn-outline-secondary btn-sm">Open</a>
+  </li>
+{% else %}
+  <li class="list-group-item text-muted px-0">No documents uploaded.</li>
+{% endfor %}
+</ul>
+{% if can('patient_document:upload') and not patient.is_archived %}
+<form method="POST" action="{{ url_for('patient_documents.upload', patient_id=patient.id) }}" enctype="multipart/form-data" class="row g-2">
+  <div class="col-md-4"><input name="title" class="form-control form-control-sm" placeholder="Title" required></div>
+  <div class="col-md-3"><input name="file" type="file" class="form-control form-control-sm" required></div>
+  <div class="col-md-2"><select name="category" class="form-select form-select-sm"><option value="general">General</option><option value="referral">Referral</option><option value="consent">Consent</option></select></div>
+  <div class="col-md-2"><button class="btn btn-primary btn-sm w-100">Upload</button></div>
+</form>
+{% endif %}
+{% endif %}

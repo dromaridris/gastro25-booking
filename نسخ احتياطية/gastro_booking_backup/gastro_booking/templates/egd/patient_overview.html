@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}Patient EGD Overview · {{ appt.patient_name }}{% endblock %}
+
+{% block content %}
+
+<div class="admin-page">
+
+  <div class="ercp-header no-print">
+
+    <div>
+
+      <h1>Patient EGD Overview — {{ appt.patient_name }}</h1>
+
+      <p class="muted">
+
+        MRN {{ mrn or '—' }} · {{ appt.gender }} / {{ appt.age }}y ·
+
+        {{ sessions|length }} EGD session{{ 's' if sessions|length != 1 }}
+
+      </p>
+
+    </div>
+
+  </div>
+
+
+
+  {% if not has_linked_history %}
+
+  <div class="holiday-banner no-print">
+
+    ⚠ No MRN on file — only this session is shown. Add MRN on the booking to link patient history.
+
+  </div>
+
+  {% endif %}
+
+
+
+  <section class="admin-section">
+
+    <h2>Longitudinal Timeline</h2>
+
+    <div class="timeline">
+
+      {% for event in timeline_events %}
+
+        {% if event.type == 'session' %}
+
+        <div class="timeline-item timeline-item--session">
+
+          <div class="timeline-dot timeline-dot--session"></div>
+
+          <div class="timeline-card timeline-card--session">
+
+            <div class="timeline-card-head">
+
+              <span class="timeline-date">{{ event.date }}</span>
+
+              <span class="badge">EGD Session {{ event.session_number }}</span>
+
+              {% if event.status %}
+
+              <span class="ercp-status-badge ercp-status-{{ event.status }}">{{ 'Finalized' if event.status == 'finalized' else 'Draft' }}</span>
+
+              {% endif %}
+
+            </div>
+
+            {% if event.indication %}<p class="followup-field"><strong>Indication:</strong> {{ event.indication }}</p>{% endif %}
+
+            {% if event.endoscopist_name %}<p class="followup-field"><strong>Endoscopist:</strong> {{ event.endoscopist_name }}</p>{% endif %}
+
+            <a class="btn btn--sm btn--outline no-print" href="{{ url_for('upper_gi_report_view', appointment_id=event.appointment_id) }}">Open Report</a>
+
+          </div>
+
+        </div>
+
+        {% else %}
+
+        <div class="timeline-item timeline-item--followup">
+
+          <div class="timeline-dot timeline-dot--followup"></div>
+
+          <div class="timeline-card timeline-card--followup">
+
+            <div class="timeline-card-head">
+
+              <span class="timeline-date">{{ event.date }}</span>
+
+              <span class="badge badge--muted">Follow-up · Session {{ event.session_number }}</span>
+
+              {% if event.followup.clinical_status %}<span class="followup-tag">{{ event.followup.clinical_status }}</span>{% endif %}
+
+              {% if event.followup.outcome %}<span class="followup-tag followup-tag--outcome">{{ event.followup.outcome }}</span>{% endif %}
+
+            </div>
+
+            {% if event.followup.clinical_notes %}<p class="followup-field"><strong>Clinical Notes:</strong> {{ event.followup.clinical_notes }}</p>{% endif %}
+
+            {% if event.followup.histopathology_result %}<p class="followup-field"><strong>Histopathology:</strong> {{ event.followup.histopathology_result }}</p>{% endif %}
+
+          </div>
+
+        </div>
+
+        {% endif %}
+
+      {% else %}
+
+      <p class="muted">No EGD history recorded yet.</p>
+
+      {% endfor %}
+
+    </div>
+
+  </section>
+
+
+
+  {% for s in sessions %}
+
+  <section class="admin-section">
+
+    <h2>
+
+      EGD Session {{ s.session_number }}
+
+      <span class="badge">{{ s.appointment.appointment_date }}</span>
+
+      {% if s.report and s.report.status %}
+
+      <span class="ercp-status-badge ercp-status-{{ s.report.status }}">{{ 'Finalized' if s.report.status == 'finalized' else 'Draft' }}</span>
+
+      {% endif %}
+
+    </h2>
+
+    {% if s.report %}
+
+    <div style="margin-top:10px;" class="no-print">
+
+      <a class="btn btn--sm btn--outline" href="{{ url_for('upper_gi_report_view', appointment_id=s.appointment.id) }}">Open Report</a>
+
+      <button type="button" class="btn btn--sm btn--outline" onclick="openFollowupModalForNew({{ s.report.id }})">+ Add Follow-up</button>
+
+    </div>
+
+    <h3 style="margin-top:18px;font-size:14px;">Follow-up Records</h3>
+
+    <div class="timeline" id="followupTimeline-{{ s.report.id }}">Loading…</div>
+
+    {% else %}
+
+    <a class="btn btn--sm btn--primary" href="{{ url_for('upper_gi_report_view', appointment_id=s.appointment.id) }}">Start report</a>
+
+    {% endif %}
+
+  </section>
+
+  {% endfor %}
+
+</div>
+
+
+
+{% include "_structured_followup_include.html" %}
+
+{% endblock %}
+
+
+
+{% block scripts %}
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+<script>
+
+  setFollowupEndpoints({
+
+    list: (id) => `/api/upper-gi/${id}/followups`,
+
+    item: (id) => `/api/upper-gi-followup/${id}`,
+
+  });
+
+  initFollowupModal(refreshAllFollowupTimelines);
+
+  {% for s in sessions %}{% if s.report %}registerFollowupTimeline({{ s.report.id }});{% endif %}{% endfor %}
+
+</script>
+
+{% endblock %}
+

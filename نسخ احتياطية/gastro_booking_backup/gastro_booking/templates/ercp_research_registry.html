@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}ERCP Research Registry · Gastro & Hepatology{% endblock %}
+{% block content %}
+<div class="stats-page">
+  <h1>ERCP Research Registry</h1>
+  <p class="muted">
+    One row per ERCP session, built for research and future publications — separate from the
+    operational Statistics page. Everything below is retrieved fresh from the ERCP reports and
+    research data already on file; nothing is duplicated or stored separately for this view.
+  </p>
+
+  <form method="GET" class="settings-form stats-form">
+    <label>Start Date
+      <input type="date" name="start" value="{{ start }}" required>
+    </label>
+    <label>End Date
+      <input type="date" name="end" value="{{ end }}" required>
+    </label>
+    <button class="btn btn--primary" type="submit">Run Query</button>
+  </form>
+
+  {% if error %}
+  <div class="flash flash--error" style="margin-top:16px;">{{ error }}</div>
+  {% endif %}
+
+  {% if rows is not none %}
+  <section class="admin-section" style="margin-top:20px;">
+    <h2>Registry <span class="badge">{{ rows|length }}</span></h2>
+    <p class="muted" style="margin-bottom:10px;">
+      "Sessions" shows a patient's total ERCP session count across their <em>entire</em> history
+      (not just this date range) — used to identify patients with multiple ERCP sessions on record.
+    </p>
+    <a class="btn btn--outline" href="{{ url_for('ercp_research_registry_export', start=start, end=end) }}" style="margin-bottom:14px; display:inline-block;">Download .xlsx (all research variables)</a>
+
+    <div class="admin-table-scroll"><table class="admin-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Session</th>
+          <th>Sessions (Patient)</th>
+          <th>Patient</th>
+          <th>MRN</th>
+          <th>Age/Gender</th>
+          <th>Indication</th>
+          <th>Endoscopist</th>
+          <th>Ampullary Appearance</th>
+          <th>Cannulation Outcome</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for entry in rows %}
+        {% set a = entry.appointment %}
+        {% set r = entry.report %}
+        <tr>
+          <td>{{ a.appointment_date }}</td>
+          <td>Session {{ entry.session_number }}</td>
+          <td>
+            {% if entry.has_multiple_sessions %}
+            <span class="followup-tag followup-tag--outcome">{{ entry.total_sessions_for_patient }} sessions</span>
+            {% else %}—{% endif %}
+          </td>
+          <td>{{ a.patient_name }}</td>
+          <td>{{ a.mrn or '—' }}</td>
+          <td>{{ a.gender }} / {{ a.age }}</td>
+          <td>{{ r.indication if r else '—' }}</td>
+          <td>{{ entry.endoscopist_name or '—' }}</td>
+          <td>{{ (entry.research.ampullary_appearance if entry.research else '') or '—' }}</td>
+          <td>{{ (entry.research.cannulation_outcome if entry.research else '') or '—' }}</td>
+          <td>
+            {% if r %}
+            <span class="ercp-status-badge ercp-status-{{ r.status }}">{{ 'Finalized' if r.status == 'finalized' else 'Draft' }}</span>
+            {% else %}
+            <span class="muted">Not started</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if r %}<a class="btn btn--sm btn--outline" href="{{ url_for('ercp_report_view', appointment_id=a.id) }}">Open</a>{% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="12" class="muted">No ERCP sessions in this date range.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table></div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

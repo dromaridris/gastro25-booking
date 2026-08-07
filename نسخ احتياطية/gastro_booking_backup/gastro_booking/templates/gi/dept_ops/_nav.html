@@ -1,0 +1,11 @@
+<nav class="subnav" style="margin-bottom:1rem;display:flex;flex-wrap:wrap;gap:0.5rem;">
+  <a href="{{ url_for('dept_ops_home') }}" class="btn btn--sm {{ 'btn--primary' if request.endpoint == 'dept_ops_home' else 'btn--outline' }}">Dashboard</a>
+  <a href="{{ url_for('dept_ops_rooms') }}" class="btn btn--sm {{ 'btn--primary' if request.endpoint == 'dept_ops_rooms' else 'btn--outline' }}">Rooms</a>
+  <a href="{{ url_for('dept_ops_scopes') }}" class="btn btn--sm {{ 'btn--primary' if request.endpoint in ('dept_ops_scopes','dept_ops_scope_detail') else 'btn--outline' }}">Scopes</a>
+  <a href="{{ url_for('dept_ops_reprocessing') }}" class="btn btn--sm {{ 'btn--primary' if request.endpoint == 'dept_ops_reprocessing' else 'btn--outline' }}">Reprocessing</a>
+  <a href="{{ url_for('dept_ops_consumables') }}" class="btn btn--sm {{ 'btn--primary' if request.endpoint == 'dept_ops_consumables' else 'btn--outline' }}">Consumables</a>
+  <a href="{{ url_for('dept_ops_waiting_list') }}" class="btn btn--sm {{ 'btn--primary' if request.endpoint == 'dept_ops_waiting_list' else 'btn--outline' }}">Waiting list</a>
+  <a href="{{ url_for('dept_ops_roster') }}" class="btn btn--sm {{ 'btn--primary' if request.endpoint == 'dept_ops_roster' else 'btn--outline' }}">Unit roster</a>
+  <a href="{{ url_for('dept_ops_announcements') }}" class="btn btn--sm {{ 'btn--primary' if request.endpoint == 'dept_ops_announcements' else 'btn--outline' }}">Announcements</a>
+  <a href="{{ url_for('dept_ops_messages') }}" class="btn btn--sm {{ 'btn--primary' if request.endpoint == 'dept_ops_messages' else 'btn--outline' }}">Messages</a>
+</nav>

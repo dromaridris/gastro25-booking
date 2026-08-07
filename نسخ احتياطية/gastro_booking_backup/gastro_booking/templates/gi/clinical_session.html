@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %}History session {{ sess.id }}{% endblock %}
+{% block content %}
+{% from 'gi/_back.html' import back_link %}
+{{ back_link(back_url) }}
+
+<section class="dash-head">
+  <div>
+    <h1>History session #{{ sess.id }}</h1>
+    <p class="muted">{{ sess.chief_complaint or sess.complaint_code or 'Select complaint below' }}</p>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <a class="btn btn--outline btn--sm" href="{{ url_for('gi_clinical_cds', session_id=sess.id) }}">CDS &amp; Plan</a>
+    <a class="btn btn--outline btn--sm" href="{{ url_for('gi_investigations', session_id=sess.id) }}">Order investigations</a>
+    <a class="btn btn--outline btn--sm" href="{{ url_for('gi_scores', session_id=sess.id) }}">Scores</a>
+    {% if narrative %}
+    <a class="btn btn--primary btn--sm" href="{{ url_for('gi_clinical_print', session_id=sess.id) }}">Print note</a>
+    {% endif %}
+  </div>
+</section>
+
+{% if not sess.complaint_code %}
+<section class="admin-section">
+  <h2>Select chief complaint</h2>
+  <form method="POST" action="{{ url_for('gi_clinical_set_complaint', session_id=sess.id) }}" class="settings-form">
+    <label>Complaint<select name="complaint_code" required>
+      {% for c in complaints %}<option value="{{ c.code }}">{{ c.name }}</option>{% endfor %}
+    </select></label>
+    <button class="btn btn--primary" type="submit">Set complaint</button>
+  </form>
+</section>
+{% endif %}
+
+{% if questions %}
+<section class="admin-section">
+  <h2>Next questions (adaptive)</h2>
+  {% for q in questions %}
+  <form method="POST" action="{{ url_for('gi_clinical_save_answer', session_id=sess.id) }}" class="settings-form" style="margin-bottom:12px;">
+    <input type="hidden" name="question_key" value="{{ q.code }}">
+    <label>{{ q.prompt }}{% if q.is_exclusion %} <span class="badge">Red flag</span>{% endif %}
+      {% if q.answer_type == 'boolean' %}
+      <select name="answer_text" required>
+        {% if q.choices %}{% for ch in q.choices %}<option value="{{ ch }}">{{ ch }}</option>{% endfor %}
+        {% else %}<option value="yes">Yes</option><option value="no">No</option>{% endif %}
+      </select>
+      {% elif q.choices %}
+      <select name="answer_text" required>
+        <option value="" disabled selected>— select —</option>
+        {% for ch in q.choices %}<option value="{{ ch }}">{{ ch }}</option>{% endfor %}
+      </select>
+      {% else %}
+      <input name="answer_text" required placeholder="e.g. 3 days, moderate, associated nausea">
+      {% endif %}
+    </label>
+    {% if q.help_text %}
+    <details class="question-coach" style="margin:6px 0 0;font-size:12px;">
+      <summary class="muted" style="cursor:pointer;">Why this question?</summary>
+      <p class="muted" style="margin:4px 0 0;">{{ q.help_text }}</p>
+    </details>
+    {% endif %}
+    <button class="btn btn--sm btn--primary" type="submit">Save</button>
+  </form>
+  {% endfor %}
+</section>
+{% elif sess.complaint_code and interview_complete %}
+<section class="admin-section">
+  <p class="muted">All adaptive questions answered for this complaint.</p>
+</section>
+{% endif %}
+
+{% if differential %}
+<section class="admin-section">
+  <h2>CDS preview <span class="muted" style="font-size:13px;font-weight:normal;">(not included in generated history)</span></h2>
+  <ul>{% for d in differential.differentials[:8] %}<li>{{ d.title }} — {{ d.summary }}</li>{% else %}<li class="muted">Answer more questions or select chief complaint.</li>{% endfor %}</ul>
+  {% if differential.red_flags %}
+  <p><strong>Red flags:</strong> {{ differential.red_flags|join('; ') }}</p>
+  {% endif %}
+</section>
+{% endif %}
+
+<section class="admin-section">
+  <h2>Physical examination (free text)</h2>
+  <form method="POST" action="{{ url_for('gi_clinical_save_examination', session_id=sess.id) }}" class="settings-form">
+    <label>Examination findings
+      <textarea name="examination_text" rows="6" placeholder="General: alert, not distressed&#10;Abdomen: soft, non-tender, no organomegaly&#10;Other: ...">{{ examination_text }}</textarea>
+    </label>
+    <button class="btn btn--outline" type="submit">Save examination</button>
+  </form>
+</section>
+
+<section class="admin-section">
+  <h2>Generate history narrative</h2>
+  <p class="muted">Builds consultant-style HPI from saved answers and examination. Assessment and plan remain on the CDS page.</p>
+  {% if interview_complete or answers|length > 3 %}
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+    <form method="POST" action="{{ url_for('gi_clinical_generate_note', session_id=sess.id) }}" style="margin:0;">
+      <button class="btn btn--primary" type="submit">Generate history</button>
+    </form>
+    {% if narrative %}
+    <a class="btn btn--outline" href="{{ url_for('gi_clinical_print', session_id=sess.id) }}">Print</a>
+    {% endif %}
+  </div>
+  {% else %}
+  <p class="muted">Answer chief complaint questions first, then generate.</p>
+  {% endif %}
+
+  {% if narrative %}
+  <div style="margin-top:20px;border:1px solid var(--line);border-radius:8px;padding:16px;background:var(--surface, #fafafa);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3 style="margin:0;font-size:15px;">Generated history</h3>
+      <span class="muted" style="font-size:12px;">{{ narrative.generated_at or 'Saved' }}</span>
+    </div>
+    {% if narrative_sections %}
+      {% for key in ['hpi','relevant_negatives','past_medical_history','surgical_history','drug_history','allergy_history','family_history','social_history','physical_examination'] %}
+        {% if narrative_sections.get(key) %}
+        <article style="margin-bottom:14px;">
+          <strong style="font-size:13px;display:block;margin-bottom:4px;">{{ section_labels.get(key, key|replace('_',' ')|title) }}</strong>
+          <p style="white-space:pre-line;margin:0;line-height:1.55;">{{ narrative_sections[key] }}</p>
+        </article>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      <p style="white-space:pre-line;margin:0;line-height:1.55;">{{ narrative.narrative_text }}</p>
+    {% endif %}
+  </div>
+  {% endif %}
+</section>
+
+<section class="admin-section">
+  <h2>Answers recorded ({{ answers|length }})</h2>
+  <ul>{% for a in answers %}<li><strong>{{ a.question_key }}</strong>: {{ a.answer_text }}</li>{% else %}<li class="muted">None yet.</li>{% endfor %}</ul>
+</section>
+
+<section class="admin-section">
+  <h2>Medications</h2>
+  <form method="POST" action="{{ url_for('gi_clinical_add_medication', session_id=sess.id) }}" class="settings-form">
+    <label>Drug<input name="drug_name" required placeholder="e.g. Omeprazole"></label>
+    <label>Dose<input name="dose" placeholder="e.g. 40mg"></label>
+    <label>Frequency<input name="frequency" placeholder="e.g. OD"></label>
+    <button class="btn btn--outline" type="submit">Add</button>
+  </form>
+  <ul>{% for m in medications %}<li>{{ m.drug_name }} {{ m.dose }} {{ m.frequency }}</li>{% endfor %}</ul>
+</section>
+{% endblock %}

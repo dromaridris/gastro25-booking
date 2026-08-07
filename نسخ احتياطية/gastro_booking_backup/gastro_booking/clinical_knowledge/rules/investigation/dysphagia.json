@@ -1,0 +1,20 @@
+{
+  "complaint_code": "CC_dysphagia",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Starter investigation framework for CC_dysphagia. Names/urgency/indications only.",
+  "bundles": [
+    {
+      "id": "IXB_dys_endo",
+      "label": "Dysphagia endoscopy",
+      "urgency": "urgent",
+      "when": {
+        "always_if_complaint": true
+      },
+      "investigations": [
+        "IX_upper_endoscopy"
+      ],
+      "referral_hint": "Urgent endoscopy if progressive dysphagia or alarms"
+    }
+  ]
+}

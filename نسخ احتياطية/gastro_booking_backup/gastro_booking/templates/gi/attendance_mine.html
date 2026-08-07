@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}My attendance{% endblock %}
+{% block content %}
+<h1>My attendance — {{ year }}-{{ '%02d'|format(month) }}</h1>
+<p class="muted">Present = any clinical or academic activity recorded on the platform.</p>
+<table class="admin-table"><thead><tr><th>Date</th><th>Status</th><th>Activities</th></tr></thead>
+<tbody>{% for r in rows %}
+<tr><td>{{ r.attendance_date }}</td><td>{{ r.status|title }}</td><td>{{ r.activity_count }}</td></tr>
+{% else %}<tr><td colspan="3" class="muted">No records — activity will mark you present automatically.</td></tr>{% endfor %}</tbody></table>
+{% endblock %}

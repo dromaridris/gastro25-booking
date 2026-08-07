@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "revision": 3,
+  "complaints": [
+    {
+      "complaint_code": "CC_abdominal_pain",
+      "history_template": "templates/history/abdominal_pain.json",
+      "name": "Abdominal pain history"
+    },
+    {
+      "complaint_code": "CC_abdominal_distention",
+      "history_template": "templates/history/abdominal_distention.json",
+      "name": "Abdominal distention / swelling history"
+    },
+    {
+      "complaint_code": "CC_heartburn",
+      "history_template": "templates/history/heartburn.json",
+      "name": "Heartburn history"
+    },
+    {
+      "complaint_code": "CC_dysphagia",
+      "history_template": "templates/history/dysphagia.json",
+      "name": "Dysphagia history"
+    },
+    {
+      "complaint_code": "CC_vomiting",
+      "history_template": "templates/history/vomiting.json",
+      "name": "Vomiting / nausea history"
+    },
+    {
+      "complaint_code": "CC_hematemesis",
+      "history_template": "templates/history/hematemesis.json",
+      "name": "Blood in vomitus (hematemesis) history"
+    },
+    {
+      "complaint_code": "CC_melena",
+      "history_template": "templates/history/melena.json",
+      "name": "Black tarry stools (melena) history"
+    },
+    {
+      "complaint_code": "CC_hematochezia",
+      "history_template": "templates/history/hematochezia.json",
+      "name": "Rectal bleeding (hematochezia) history"
+    },
+    {
+      "complaint_code": "CC_diarrhea",
+      "history_template": "templates/history/diarrhea.json",
+      "name": "Diarrhea history"
+    },
+    {
+      "complaint_code": "CC_constipation",
+      "history_template": "templates/history/constipation.json",
+      "name": "Constipation history"
+    },
+    {
+      "complaint_code": "CC_anorexia",
+      "history_template": "templates/history/anorexia.json",
+      "name": "Loss of appetite / early satiety history"
+    },
+    {
+      "complaint_code": "CC_food_intolerance",
+      "history_template": "templates/history/food_intolerance.json",
+      "name": "Food-triggered symptoms history"
+    },
+    {
+      "complaint_code": "CC_anal_pain",
+      "history_template": "templates/history/anal_pain.json",
+      "name": "Anal / perianal symptoms history"
+    },
+    {
+      "complaint_code": "CC_fecal_incontinence",
+      "history_template": "templates/history/fecal_incontinence.json",
+      "name": "Fecal incontinence history"
+    },
+    {
+      "complaint_code": "CC_jaundice",
+      "history_template": "templates/history/jaundice.json",
+      "name": "Jaundice history"
+    },
+    {
+      "complaint_code": "CC_pruritus",
+      "history_template": "templates/history/pruritus.json",
+      "name": "Itching (pruritus) history"
+    },
+    {
+      "complaint_code": "CC_flank_pain",
+      "history_template": "templates/history/flank_pain.json",
+      "name": "Flank pain history"
+    },
+    {
+      "complaint_code": "CC_dysuria",
+      "history_template": "templates/history/dysuria.json",
+      "name": "Painful / difficult urination history"
+    },
+    {
+      "complaint_code": "CC_hematuria",
+      "history_template": "templates/history/hematuria.json",
+      "name": "Blood in urine (hematuria) history"
+    },
+    {
+      "complaint_code": "CC_weight_loss",
+      "history_template": "templates/history/weight_loss.json",
+      "name": "Unintentional weight loss history"
+    },
+    {
+      "complaint_code": "CC_weight_gain",
+      "history_template": "templates/history/weight_gain.json",
+      "name": "Weight gain history"
+    },
+    {
+      "complaint_code": "CC_fever",
+      "history_template": "templates/history/fever.json",
+      "name": "Fever history"
+    },
+    {
+      "complaint_code": "CC_fatigue",
+      "history_template": "templates/history/fatigue.json",
+      "name": "Fatigue / low energy history"
+    },
+    {
+      "complaint_code": "CC_chest_pain",
+      "history_template": "templates/history/chest_pain.json",
+      "name": "Chest pain history"
+    },
+    {
+      "complaint_code": "CC_dyspnea",
+      "history_template": "templates/history/dyspnea.json",
+      "name": "Dyspnea / shortness of breath history"
+    },
+    {
+      "complaint_code": "CC_cough",
+      "history_template": "templates/history/cough.json",
+      "name": "Cough history"
+    },
+    {
+      "complaint_code": "CC_hemoptysis",
+      "history_template": "templates/history/hemoptysis.json",
+      "name": "Coughing blood (hemoptysis) history"
+    },
+    {
+      "complaint_code": "CC_palpitations",
+      "history_template": "templates/history/palpitations.json",
+      "name": "Palpitations history"
+    },
+    {
+      "complaint_code": "CC_edema",
+      "history_template": "templates/history/edema.json",
+      "name": "Leg / body swelling (edema) history"
+    },
+    {
+      "complaint_code": "CC_syncope",
+      "history_template": "templates/history/syncope.json",
+      "name": "Fainting / loss of consciousness history"
+    },
+    {
+      "complaint_code": "CC_dizziness",
+      "history_template": "templates/history/dizziness.json",
+      "name": "Dizziness / vertigo / lightheadedness history"
+    },
+    {
+      "complaint_code": "CC_headache",
+      "history_template": "templates/history/headache.json",
+      "name": "Headache history"
+    },
+    {
+      "complaint_code": "CC_back_pain",
+      "history_template": "templates/history/back_pain.json",
+      "name": "Back pain history"
+    }
+  ],
+  "design_note": "Chief complaints are Bates-style patient symptoms only. Near-duplicates belong in synonyms[] or associated/red-flag questions. Never list diagnoses/syndromes (UGIB, LGIB, GERD, ascites, portal hypertension, cholecystitis, pancreatitis, UTI, heart failure, IBS, etc.) as complaint codes."
+}

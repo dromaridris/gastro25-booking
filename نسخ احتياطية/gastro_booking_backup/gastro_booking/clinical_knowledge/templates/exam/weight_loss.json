@@ -1,0 +1,75 @@
+{
+  "id": "ET_weight_loss",
+  "complaint_code": "CC_weight_loss",
+  "name": "Unintentional weight loss physical examination",
+  "source": {
+    "work": "Bates' Guide to Physical Examination and History Taking",
+    "note": "Exam organization only; findings recorded against dictionary sign codes."
+  },
+  "systems": [
+    {
+      "key": "general",
+      "title": "General appearance & vitals",
+      "finding_ids": [
+        "SG_tachycardia",
+        "SG_hypotension",
+        "SG_fever",
+        "SG_pallor",
+        "SG_dehydration"
+      ],
+      "checklist": [
+        "General distress / toxic appearance",
+        "Vital signs (HR, BP, RR, SpO2, temperature)",
+        "Hydration / mucous membranes",
+        "Pallor / colour"
+      ]
+    },
+    {
+      "key": "nutrition",
+      "title": "Nutritional / general status",
+      "finding_ids": [
+        "SG_pallor",
+        "SG_dehydration"
+      ],
+      "checklist": [
+        "Muscle wasting / temporal wasting",
+        "Skin/hair changes",
+        "BMI if available"
+      ]
+    },
+    {
+      "key": "lymph_thyroid",
+      "title": "Lymph nodes & thyroid",
+      "finding_ids": [
+        "SG_lymphadenopathy",
+        "SG_neck_mass"
+      ],
+      "checklist": [
+        "Cervical / supraclavicular / axillary / inguinal nodes",
+        "Thyroid examination"
+      ]
+    },
+    {
+      "key": "abdomen",
+      "title": "Abdomen",
+      "finding_ids": [
+        "SG_hepatomegaly",
+        "SG_splenomegaly",
+        "SG_abdominal_mass",
+        "SG_ascites"
+      ],
+      "checklist": [
+        "Organomegaly",
+        "Masses",
+        "Ascites"
+      ]
+    }
+  ],
+  "priority_findings": [
+    "SG_abdominal_mass",
+    "SG_lymphadenopathy"
+  ],
+  "schema_version": 1,
+  "revision": 1,
+  "status": "active"
+}

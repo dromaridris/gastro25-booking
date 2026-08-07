@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Discharge Summary{% endblock %}
+{% block content %}
+<h2>Discharge Summary</h2>
+<p>Encounter #{{ encounter.id }} — {{ encounter.patient.full_name }}</p>
+<p class="text-muted">Generate AI-assisted documentation via the Documentation Intelligence module.</p>
+<a href="{{ doc_ai_url }}" class="btn btn-primary btn-sm">Open Documentation AI</a>
+{% if can('clinical_document:print') %}
+<a href="{{ url_for('clinical_documents.certificate_print', patient_id=encounter.patient_id) }}" class="btn btn-outline-secondary btn-sm ms-2">Certificate</a>
+<a href="{{ url_for('clinical_documents.letter_print', patient_id=encounter.patient_id) }}" class="btn btn-outline-secondary btn-sm">Letter</a>
+{% endif %}
+{% endblock %}

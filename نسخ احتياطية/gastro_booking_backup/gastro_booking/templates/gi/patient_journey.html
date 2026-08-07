@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Patient journey — {{ patient.patient_name }}{% endblock %}
+{% block content %}
+{% from 'gi/_back.html' import back_link %}
+{{ back_link(back_url) }}
+<div class="page-compact">
+{% include 'gi/_patient_topbar.html' %}
+<h1>Patient journey — {{ patient.patient_name }}</h1>
+<p class="muted">MRN {{ patient.mrn or '—' }} · Full timeline for research &amp; follow-up</p>
+
+<section class="admin-section compact-section">
+  <h2>Timeline</h2>
+  {% for e in events %}
+  <article class="timeline-item-card">
+    <strong>{{ e.title }}</strong>
+    <span class="muted muted-sm"> · {{ e.event_type|replace('_',' ') }} · {{ e.event_at[:16] if e.event_at else '' }}</span>
+    {% if e.author_name %}<span class="muted muted-sm"> · {{ e.author_name }}</span>{% endif %}
+  </article>
+  {% else %}<p class="muted">No journey events yet — clinical activity will populate this timeline.</p>{% endfor %}
+</section>
+
+<section class="admin-section compact-section">
+  <h2>Lab results</h2>
+  <form method="POST" action="{{ url_for('gi_patient_add_lab', ward_patient_id=patient.id) }}" class="settings-form">
+    <label>Test<input name="test_name" required placeholder="Hb, INR, etc."></label>
+    <label>Result<input name="result_value" required></label>
+    <label>Unit<input name="result_unit" placeholder="g/dL"></label>
+    <button class="btn btn--outline" type="submit">Record lab</button>
+  </form>
+  <div class="admin-table-scroll">
+  <table class="admin-table compact-table"><thead><tr><th>Test</th><th>Result</th><th>Date</th></tr></thead>
+  <tbody>{% for l in labs %}<tr><td>{{ l.test_name }}</td><td>{{ l.result_value }} {{ l.result_unit or '' }}</td><td>{{ l.recorded_at[:16] if l.recorded_at else '' }}</td></tr>
+  {% else %}<tr><td colspan="3" class="muted">No labs recorded.</td></tr>{% endfor %}</tbody></table>
+  </div>
+</section>
+</div>
+{% endblock %}

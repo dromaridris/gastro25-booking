@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}{% if template %}{% if writes_frozen %}View{% else %}Edit{% endif %}{% else %}New{% endif %} History Template{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('gi_history_templates') }}">← History Templates</a></p>
+{% if writes_frozen %}
+<div class="compact-card" style="margin-bottom:14px;border-left:3px solid #b45309;padding-left:12px;">
+  <p style="margin:0;"><strong>Writes frozen.</strong> Canonical Bates history is Clinical Intelligence /
+    <code>clinical_knowledge/</code>. This page is read-only. Override: <code>GASTRO_ALLOW_LEGACY_HISTORY_WRITES=1</code>.</p>
+</div>
+{% endif %}
+<h1>{% if template %}{% if writes_frozen %}View{% else %}Edit{% endif %}: {{ template.disease_name }}{% else %}New history template{% endif %}</h1>
+
+<form method="POST" class="settings-form admin-section" {% if writes_frozen %}onsubmit="return false;"{% endif %}>
+  <input type="hidden" name="action" value="save">
+  <fieldset {% if writes_frozen %}disabled{% endif %} style="border:0;padding:0;margin:0;">
+  <label>Disease code <span class="muted">(matches complaint code in workflow, e.g. upper_gi_bleed)</span>
+    <input name="disease_code" required value="{{ template.disease_code if template else '' }}">
+  </label>
+  <label>Disease name<input name="disease_name" required value="{{ template.disease_name if template else '' }}"></label>
+  <label>Symptoms<textarea name="symptoms" rows="3" placeholder="One per line">{{ symptoms_text }}</textarea></label>
+  <label>Red flags<textarea name="red_flags" rows="3" placeholder="One per line">{{ red_flags_text }}</textarea></label>
+  <label>Risk factors<textarea name="risk_factors" rows="3">{{ risk_factors_text }}</textarea></label>
+  <label>Important positive findings<textarea name="positive_findings" rows="3">{{ positive_text }}</textarea></label>
+  <label>Pertinent negatives<textarea name="negative_findings" rows="3">{{ negative_text }}</textarea></label>
+  <label>Important exclusions<textarea name="exclusions" rows="3">{{ exclusions_text }}</textarea></label>
+  {% if not writes_frozen %}
+  <button class="btn btn--primary" type="submit">Save template</button>
+  {% endif %}
+  </fieldset>
+</form>
+
+{% if template %}
+<section class="admin-section">
+  <h2>Interview questions</h2>
+  <p class="muted">These appear automatically when this disease is selected in the clinical workflow.</p>
+  <table class="admin-table compact-table">
+    <thead><tr><th>Key</th><th>Question</th><th>Type</th><th>Flags</th><th></th></tr></thead>
+    <tbody>
+      {% for q in questions %}
+      <tr>
+        <td><code>{{ q.question_key }}</code></td>
+        <td>{{ q.prompt }}</td>
+        <td>{{ q.answer_type }}</td>
+        <td>{% if q.is_red_flag %}Red flag{% endif %}{% if q.is_exclusion %} Exclusion{% endif %}</td>
+        <td>
+          {% if not writes_frozen %}
+          <form method="POST" style="display:inline;">
+            <input type="hidden" name="action" value="delete_question">
+            <input type="hidden" name="question_id" value="{{ q.id }}">
+            <button class="btn btn--sm btn--outline" type="submit">Remove</button>
+          </form>
+          {% else %}—{% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="muted">No questions yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if not writes_frozen %}
+  <form method="POST" class="settings-form" style="margin-top:16px;">
+    <input type="hidden" name="action" value="add_question">
+    <label>Question key<input name="question_key" required placeholder="melena"></label>
+    <label>Prompt<input name="prompt" required placeholder="History of melena?"></label>
+    <label>Answer type<select name="answer_type"><option value="boolean">Yes / No</option><option value="text">Free text</option><option value="choice">Choice list</option></select></label>
+    <label>Choices <span class="muted">(comma-separated, for choice type)</span><input name="choices" placeholder="yes, no, unknown"></label>
+    <label>Sort order<input name="sort_order" type="number" value="0"></label>
+    <label><input type="checkbox" name="is_red_flag"> Red flag question</label>
+    <label><input type="checkbox" name="is_exclusion"> Exclusion / safety question</label>
+    <button class="btn btn--primary btn--sm" type="submit">Add question</button>
+  </form>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}

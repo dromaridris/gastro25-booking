@@ -1,0 +1,58 @@
+{
+  "id": "ET_heartburn",
+  "complaint_code": "CC_heartburn",
+  "name": "Heartburn / reflux physical examination",
+  "source": {
+    "work": "Bates' Guide to Physical Examination and History Taking",
+    "note": "Exam organization only; findings recorded against dictionary sign codes."
+  },
+  "systems": [
+    {
+      "key": "general",
+      "title": "General appearance & vitals",
+      "finding_ids": [
+        "SG_tachycardia",
+        "SG_hypotension",
+        "SG_fever",
+        "SG_pallor",
+        "SG_dehydration"
+      ],
+      "checklist": [
+        "General distress / toxic appearance",
+        "Vital signs (HR, BP, RR, SpO2, temperature)",
+        "Hydration / mucous membranes",
+        "Pallor / colour"
+      ]
+    },
+    {
+      "key": "abdomen",
+      "title": "Abdomen",
+      "finding_ids": [
+        "SG_guarding",
+        "SG_abdominal_mass"
+      ],
+      "checklist": [
+        "Epigastric tenderness",
+        "Masses (alarm feature)"
+      ]
+    },
+    {
+      "key": "oropharynx_chest",
+      "title": "Oropharynx & chest",
+      "finding_ids": [
+        "SG_oral_thrush"
+      ],
+      "checklist": [
+        "Dental erosion",
+        "Oropharyngeal inspection",
+        "Chest wall tenderness (differential)"
+      ]
+    }
+  ],
+  "priority_findings": [
+    "SG_abdominal_mass"
+  ],
+  "schema_version": 1,
+  "revision": 1,
+  "status": "active"
+}

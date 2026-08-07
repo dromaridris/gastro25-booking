@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Knowledge · CKP{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>Clinical Knowledge Platform</h1>
+    <p class="muted">Phase 1 foundation · specialty-agnostic entities &amp; relationships</p>
+  </div>
+  <a class="btn" href="{{ url_for('ckp_encounter_home') }}">Encounters</a>
+</section>
+<section class="admin-section">
+  <h2>Domains</h2>
+  <ul>{% for d in domains %}<li><strong>{{ d.code }}</strong> — {{ d.label }}</li>{% else %}<li class="muted">None</li>{% endfor %}</ul>
+  <form method="POST" action="{{ url_for('ckp_seed_demo') }}">
+    <button class="btn btn--primary" type="submit">Seed / refresh GI demo pack</button>
+  </form>
+</section>
+<section class="admin-section">
+  <h2>Releases</h2>
+  <ul>{% for r in releases %}<li>{{ r.code }} · {{ r.status }} · {{ r.label }}</li>{% endfor %}</ul>
+</section>
+<section class="admin-section">
+  <h2>Validation</h2>
+  <pre>{{ validation }}</pre>
+</section>
+{% endblock %}

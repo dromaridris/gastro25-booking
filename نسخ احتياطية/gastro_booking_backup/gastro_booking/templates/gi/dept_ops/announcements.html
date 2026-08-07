@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Announcements{% endblock %}
+{% block content %}
+<h1>Department announcements</h1>
+{% include "gi/dept_ops/_nav.html" %}
+
+{% if can_manage %}
+<section class="admin-section compact-section">
+  <h2>Publish</h2>
+  <form method="POST">
+    <label>Title <input name="title" required style="width:100%;max-width:32rem;"></label>
+    <label>Category <select name="category">{% for c in categories %}<option value="{{ c }}">{{ c }}</option>{% endfor %}</select></label>
+    <label>Body<br><textarea name="body" rows="4" required style="width:100%;max-width:32rem;"></textarea></label>
+    <button class="btn btn--primary" type="submit">Publish</button>
+  </form>
+</section>
+{% endif %}
+
+<section class="admin-section compact-section">
+  {% for a in announcements %}
+  <article style="margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border,#ddd);">
+    <h2 class="h5">{{ a.title }} <span class="muted">({{ a.category }})</span></h2>
+    <p class="muted">{{ a.created_at }}{% if a.author_name %} · {{ a.author_name }}{% endif %}</p>
+    <p>{{ a.body }}</p>
+  </article>
+  {% else %}
+  <p class="muted">No announcements yet.</p>
+  {% endfor %}
+</section>
+{% endblock %}

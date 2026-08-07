@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}M&M Cases{% endblock %}
+{% block content %}
+<h1>Mortality & Morbidity</h1>
+{% if can('governance:mm_participate') %}
+<form method="POST" action="{{ url_for('clinical_governance.create_mm_case') }}" class="mb-4">
+    <textarea name="case_summary" class="form-control mb-2" placeholder="Case summary" required></textarea>
+    <input name="presentation_date" type="date" class="form-control form-control-sm w-auto d-inline">
+    <button class="btn btn-primary btn-sm">Add case</button>
+</form>
+{% endif %}
+<table class="table table-sm"><thead><tr><th>Date</th><th>Summary</th><th>Status</th><th></th></tr></thead>
+<tbody>{% for c in cases %}<tr><td>{{ c.presentation_date or '—' }}</td><td>{{ c.case_summary[:80] }}</td><td>{{ c.status }}</td>
+<td><a href="{{ url_for('clinical_governance.mm_detail', case_id=c.id) }}">View</a></td></tr>{% else %}<tr><td colspan="4" class="text-muted">No cases.</td></tr>{% endfor %}</tbody></table>
+{% endblock %}

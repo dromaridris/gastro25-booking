@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}History Session #{{ session.id }}{% endblock %}
+{% block extra_head %}
+<meta name="csrf-token" content="{{ csrf_token() }}">
+{% endblock %}
+{% block content %}
+<h2>Clinical History Session</h2>
+<span class="badge bg-secondary">{{ session.status.replace('_', ' ').title() }}</span>
+{% if session.chief_complaint_code %}
+<span class="badge bg-info text-dark">{{ session.chief_complaint_code.replace('hist.', '').replace('_', ' ').title() }}</span>
+{% endif %}
+
+<div class="mt-3 mb-3 d-flex flex-wrap gap-2">
+    {% if can('history:document') and session.status != 'completed' %}
+        <a href="{{ url_for('clinical_history.interview', session_id=session.id) }}" class="btn btn-outline-primary btn-sm">Continue interview</a>
+        <a href="{{ url_for('clinical_history.narrative_review', session_id=session.id) }}" class="btn btn-outline-secondary btn-sm">Edit narrative</a>
+    {% endif %}
+    {% if can('history:confirm_diagnosis') and session.status == 'completed' and not session.confirmed_diagnosis_code %}
+        <a href="{{ url_for('clinical_history.confirm_diagnosis', session_id=session.id) }}" class="btn btn-success btn-sm">Confirm diagnosis</a>
+    {% endif %}
+    {% if session.confirmed_diagnosis_code %}
+        <a href="{{ url_for('clinical_history.teaching_mode', session_id=session.id) }}" class="btn btn-outline-info btn-sm">Teaching mode</a>
+    {% endif %}
+    {% if encounter.patient %}
+    <a href="{{ url_for('patients.view_patient', patient_id=encounter.patient_id) }}" class="btn btn-outline-primary btn-sm">Back to patient</a>
+    {% endif %}
+    <a href="{{ url_for('encounters.view_encounter', encounter_id=encounter.id) }}" class="btn btn-outline-secondary btn-sm">Encounter hub</a>
+</div>
+
+{% for key, label in section_labels.items() %}
+{% set n = narratives.get(key) %}
+{% if n and n.display_text %}
+<h5>{{ label }}</h5>
+<p class="border rounded p-3 bg-light">{{ n.display_text }}</p>
+{% endif %}
+{% endfor %}
+
+{% if differential %}
+<hr>
+<h5>Clinical considerations</h5>
+<ul>
+    {% for d in differential %}
+    <li>{{ d.name }} — <em>{{ d.consideration_level.replace('_', ' ') }}</em></li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+{% if management %}
+<hr>
+<h5>Management support</h5>
+<p><strong>{{ management.summary }}</strong></p>
+{% if management.principles %}<p>{{ management.principles }}</p>{% endif %}
+{% if management.scores %}<p class="small"><strong>Scores:</strong> {{ management.scores }}</p>{% endif %}
+{% if management.red_flags %}<p class="small text-danger"><strong>Red flags:</strong> {{ management.red_flags }}</p>{% endif %}
+{% if management.follow_up %}<p class="small"><strong>Follow-up:</strong> {{ management.follow_up }}</p>{% endif %}
+{% if management.knowledge_topic_key %}
+<p class="small text-muted">Knowledge Library topic: {{ management.knowledge_topic_key }} (content when KL module is available)</p>
+{% endif %}
+{% endif %}
+
+{% if suggestions %}
+<hr>
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+    <h5 class="mb-0">Investigation suggestions</h5>
+    {% if can('history:document') %}
+    <button type="button" class="btn btn-sm btn-success" id="giAcceptAllSuggestions">Accept all suggested tests</button>
+    {% endif %}
+</div>
+<p class="small text-muted">Click Accept on each test — the row turns green with a tick. No page reload needed.</p>
+<table class="table table-sm gi-suggestion-table" data-session-id="{{ session.id }}">
+    <thead><tr><th>Code</th><th>Tier</th><th>Reason</th><th></th></tr></thead>
+    <tbody>
+        {% for s in suggestions %}
+        <tr data-investigation-code="{{ s.investigation_code }}"
+            class="{% if s.is_accepted %}gi-suggestion-accepted{% elif s.is_dismissed %}gi-suggestion-dismissed{% else %}gi-suggestion-pending{% endif %}">
+            <td>{{ s.investigation_code }}</td>
+            <td>{{ s.tier }}</td>
+            <td>{{ s.reason_text or '—' }}</td>
+            <td class="gi-suggestion-actions">
+                {% if s.is_accepted %}
+                    <span class="badge bg-success gi-suggestion-badge">✓ Accepted</span>
+                {% elif s.is_dismissed %}
+                    <span class="badge bg-secondary gi-suggestion-badge">Dismissed</span>
+                {% elif can('history:document') %}
+                <button type="button" class="btn btn-outline-success btn-sm"
+                        data-suggestion-action="accept"
+                        data-investigation-code="{{ s.investigation_code }}">Accept</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm"
+                        data-suggestion-action="dismiss"
+                        data-investigation-code="{{ s.investigation_code }}">Dismiss</button>
+                {% else %}
+                    <span class="text-muted">—</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if session.status == 'completed' and not session.confirmed_diagnosis_code %}
+<p class="text-muted small mt-3">You do not need to confirm a diagnosis now. Use <strong>Back to patient</strong> to continue other work.</p>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/clinical-history.js') }}"></script>
+{% endblock %}

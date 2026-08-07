@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Daily Appointment Limit — {{ target.full_name }}{% endblock %}
+{% block content %}
+<h2>Daily Appointment Limit: {{ target.full_name }}</h2>
+<p class="text-muted">
+    Current limit:
+    {% if target.daily_appointment_limit is none %}Unlimited{% else %}{{ target.daily_appointment_limit }} per day{% endif %}.
+    Only counts appointments this user CREATES each day — editing, rescheduling, checking in, or
+    cancelling an existing appointment never counts against it.
+</p>
+<form method="POST" class="col-md-4">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        {{ form.daily_appointment_limit.label(class="form-label") }}
+        {{ form.daily_appointment_limit(class="form-control") }}
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+</form>
+{% endblock %}

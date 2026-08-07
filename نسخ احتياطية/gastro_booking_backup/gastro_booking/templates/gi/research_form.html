@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}New research registry{% endblock %}
+{% block content %}
+<h1>New research registry</h1>
+<form method="POST" class="settings-form">
+  <label>Code<input name="code" required></label>
+  <label>Title<input name="title" required></label>
+  <label>Principal investigator<input name="pi_name"></label>
+  <label>Description<textarea name="description" rows="4"></textarea></label>
+  <button class="btn btn--primary" type="submit">Create</button>
+</form>
+{% endblock %}

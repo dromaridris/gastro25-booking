@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Research dashboard{% endblock %}
+{% block content %}
+<h1>{{ registry.title }} — Analytics</h1>
+<p class="muted">{{ registry.code }}</p>
+<div class="day-modal-grid">
+  <div class="admin-section"><strong>{{ analytics.enrollment_count }}</strong><br>Enrollments</div>
+  <div class="admin-section"><strong>{{ analytics.variable_count }}</strong><br>Variables</div>
+  <div class="admin-section"><strong>{{ analytics.completeness_pct }}%</strong><br>Data completeness</div>
+</div>
+<p>
+  <a class="btn btn--outline btn--sm" href="{{ url_for('gi_research_export', registry_id=registry.id) }}">Export CSV</a>
+  <a class="btn btn--outline btn--sm" href="{{ url_for('gi_research_detail', registry_id=registry.id) }}">Registry detail</a>
+</p>
+<h2>Recent enrollments</h2>
+<ul>{% for e in enrollments[:10] %}<li>{{ e.ward_patient_name or e.mrn or 'Patient' }} — {{ e.enrolled_at }}</li>{% endfor %}</ul>
+{% endblock %}

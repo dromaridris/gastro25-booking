@@ -1,0 +1,131 @@
+{
+  "complaint_code": "CC_abdominal_pain",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Procedure indications / prep / risks from dictionary codes + complaint context. No full procedure reporting.",
+  "suggestions": [
+    {
+      "id": "PROC_egd_bleed",
+      "procedure_code": "PR_egd",
+      "when": {
+        "any": [
+          {"pattern_id": "PAT_gi_bleed"},
+          {"question_id": "Q000033", "op": "truthy"},
+          {"question_id": "Q000034", "op": "truthy"}
+        ]
+      },
+      "urgency": "emergency",
+      "indications": [
+        "Suspected upper GI bleeding",
+        "Hematemesis or melena with abdominal pain context"
+      ],
+      "prep": [
+        "ABC / resuscitation first",
+        "NBM",
+        "Review anticoagulants / coags when available"
+      ],
+      "risks": [
+        "Aspiration",
+        "Bleeding",
+        "Perforation",
+        "Cardiopulmonary events"
+      ],
+      "gi_booking_hint": "upper_gi"
+    },
+    {
+      "id": "PROC_egd_ulcer",
+      "procedure_code": "PR_egd",
+      "when": {
+        "any": [
+          {"pattern_id": "PAT_epigastric_ulcer_pancreas"},
+          {"question_id": "Q000042", "op": "eq", "value": "Epigastric"}
+        ]
+      },
+      "urgency": "urgent",
+      "indications": [
+        "Epigastric pain with alarm features or suspected peptic disease"
+      ],
+      "prep": [
+        "NBM per local protocol",
+        "Document allergies and anticoagulation"
+      ],
+      "risks": [
+        "Bleeding",
+        "Perforation",
+        "Missed lesion"
+      ],
+      "gi_booking_hint": "upper_gi"
+    },
+    {
+      "id": "PROC_colonoscopy",
+      "procedure_code": "PR_colonoscopy",
+      "when": {
+        "any": [
+          {"question_id": "Q000035", "op": "truthy"},
+          {"question_id": "Q000019", "op": "truthy"}
+        ]
+      },
+      "urgency": "urgent",
+      "indications": [
+        "Hematochezia or alarm features (e.g. weight loss) needing colonic evaluation after acute stabilization"
+      ],
+      "prep": [
+        "Bowel prep when safe",
+        "Exclude acute surgical abdomen first"
+      ],
+      "risks": [
+        "Perforation",
+        "Bleeding",
+        "Prep intolerance"
+      ],
+      "gi_booking_hint": "colonoscopy"
+    },
+    {
+      "id": "PROC_cholecystectomy",
+      "procedure_code": "PR_cholecystectomy",
+      "when": {
+        "any": [
+          {"pattern_id": "PAT_ruq_biliary"}
+        ]
+      },
+      "urgency": "elective_to_urgent",
+      "indications": [
+        "Symptomatic gallstone disease / cholecystitis after confirmation"
+      ],
+      "prep": [
+        "Confirm imaging",
+        "Surgical fitness assessment"
+      ],
+      "risks": [
+        "Bile duct injury",
+        "Bleeding",
+        "Infection",
+        "Conversion to open"
+      ],
+      "gi_booking_hint": null
+    },
+    {
+      "id": "PROC_paracentesis",
+      "procedure_code": "PR_paracentesis",
+      "when": {
+        "any": [
+          {"sign_code": "SG_ascites", "op": "present"}
+        ]
+      },
+      "urgency": "urgent",
+      "indications": [
+        "New/worsening ascites with pain — diagnostic tap to exclude SBP when indicated"
+      ],
+      "prep": [
+        "Ultrasound mark if available",
+        "Check coags/platelets per local policy"
+      ],
+      "risks": [
+        "Bleeding",
+        "Infection",
+        "Bowel perforation"
+      ],
+      "gi_booking_hint": null
+    }
+  ]
+}

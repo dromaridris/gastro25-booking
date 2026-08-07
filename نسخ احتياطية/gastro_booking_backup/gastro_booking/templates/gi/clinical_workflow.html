@@ -1,0 +1,896 @@
+{% extends "base.html" %}
+{% block title %}Clinical workflow · {{ patient.patient_name }}{% endblock %}
+{% block content %}
+<style>
+.symptom-grid{display:grid;gap:8px;max-height:420px;overflow:auto;margin:12px 0}
+.symptom-row{display:grid;grid-template-columns:1fr 160px 70px;gap:8px;align-items:center;padding:8px;border:1px solid var(--border,#ddd);border-radius:6px}
+.symptom-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.question-card{border-left:3px solid var(--accent,#2563eb);padding-left:12px}
+.question-card select,.dq-select{width:100%;max-width:100%;box-sizing:border-box}
+.ue-stage-nav{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 12px;position:sticky;top:56px;z-index:35;background:#fff;padding:6px 4px;border-radius:8px}
+.ue-stage-nav .is-active{font-weight:600;border-color:var(--accent,#2563eb);background:#eff6ff}
+.ue-mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+@media (max-width:760px){
+  .ue-mode-cards{grid-template-columns:1fr}
+  .symptom-row{grid-template-columns:1fr;gap:10px}
+  .symptom-grid{max-height:none}
+}
+.exam-system{margin:12px 0;padding:10px;border:1px solid var(--border,#ddd);border-radius:6px}
+.exam-system-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;cursor:pointer;list-style:none;padding:8px 10px;background:var(--surface-alt,#f4f5f7);border-radius:8px}
+.exam-system-head::-webkit-details-marker{display:none}
+.exam-system-head::before{content:'▸';display:inline-block;margin-inline-end:6px;transition:transform .15s ease}
+details[open]>.exam-system-head::before{transform:rotate(90deg)}
+.exam-system-details{margin-bottom:10px;border:1px solid var(--border,#e2e4e8);border-radius:8px;padding:2px 10px 10px}
+.exam-system-details .exam-system-items{padding-top:4px}
+.exam-normal-opt{font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid #86efac;border-radius:6px;background:#f0fdf4;cursor:pointer}
+.exam-system-items.is-normal{opacity:.45;pointer-events:none}
+.exam-item{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:4px 0;border-bottom:1px solid #f0f0f0}
+.exam-item:last-child{border-bottom:0}
+.exam-clear-item{padding:2px 8px;font-size:11px}
+.exam-note-box{margin-top:12px;padding:12px;border-left:3px solid #059669;background:#f0fdf4;border-radius:0 6px 6px 0}
+.exam-note-editor{width:100%;min-height:220px;box-sizing:border-box;font:inherit;line-height:1.55;background:#fff}
+.ix-catalogue-row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin:8px 0}
+.ix-catalogue-row label{display:flex;flex-direction:column;gap:4px;font-size:13px;flex:1;min-width:200px}
+.ix-catalogue-row select,.ix-catalogue-row input{width:100%;box-sizing:border-box}
+.ix-check-grid{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.ix-check-grid label{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border,#e2e4e8);border-radius:999px;padding:6px 12px;background:#f8f9fb;max-width:100%}
+.ix-check-grid label .muted{white-space:normal}
+.diff-panel{margin-top:16px;padding:12px;border-left:3px solid #059669;background:#f0fdf4}
+.mode-card{padding:16px;border:1px solid var(--border,#ddd);border-radius:8px}
+.mode-card h3{margin:0 0 6px}
+.dq-radios,.dq-yn,.dq-checks{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.dq-radio,.dq-yn__opt,.dq-check{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--border,#ddd);border-radius:6px;cursor:pointer;font-size:13px;background:#fff}
+.dq-radio:has(input:checked),.dq-yn__opt:has(input:checked),.dq-check:has(input:checked){border-color:var(--accent,#2563eb);background:#eff6ff}
+.dq-other{display:block;margin-top:6px}
+.dq-other-input{width:100%;max-width:360px;box-sizing:border-box}
+.dq-numeric{display:flex;align-items:center;gap:8px;margin:8px 0}
+.dq-numeric input{width:120px}
+.dq-date input{margin:8px 0}
+.dq-skip{display:block;margin-top:4px;font-size:12px}
+.dq-comment textarea{width:100%;max-width:480px;box-sizing:border-box}
+.dq-atype{font-size:11px;opacity:.75;margin-left:4px}
+.dq-why{margin:4px 0 6px;font-size:12.5px;line-height:1.35;color:#334155}
+.dq-why-tags{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 8px}
+.dq-tag{font-size:11px;padding:2px 7px;border-radius:4px;border:1px solid transparent}
+.dq-tag--in{background:#ecfdf5;border-color:#a7f3d0;color:#065f46}
+.dq-tag--out{background:#fff7ed;border-color:#fed7aa;color:#9a3412}
+</style>
+{% from 'gi/_back.html' import back_link %}
+{% from 'gi/_decision_question.html' import decision_question_block %}
+{{ back_link(back_url) }}
+
+<div class="page-compact">
+{% include 'gi/_patient_topbar.html' %}
+<section class="dash-head">
+  <div>
+    <h1>{{ patient.patient_name }}</h1>
+    <p class="muted">MRN {{ patient.mrn or '—' }} · Session #{{ session_id }}
+      {% if ue_mode == 'diagnostic' %} · New Diagnostic Encounter
+      {% elif ue_mode == 'known_disease' %} · Known Disease Follow-up / New Problem
+      {% endif %}
+      {% if sess.chief_complaint %} · {{ sess.chief_complaint }}{% endif %}
+    </p>
+  </div>
+  <div class="btn-row">
+    {% if role in ['admin','hod','consultant','specialist','registrar'] %}
+    <a class="btn btn--outline btn--sm" href="{{ url_for('gi_registrar_approvals') }}">Registrar approvals</a>
+    {% endif %}
+    {% if narrative %}<a class="btn btn--outline btn--sm" href="{{ url_for('gi_clinical_print', session_id=session_id) }}">Print</a>{% endif %}
+    {% if ue_mode %}
+    <form method="POST" action="{{ url_for('gi_clinical_workflow', ward_patient_id=patient.id) }}" style="display:inline;margin:0;">
+      <input type="hidden" name="action" value="ue_reset_encounter">
+      <button class="btn btn--outline btn--sm" type="submit" onclick="return confirm('Reset encounter and choose mode again?')">Reset encounter</button>
+    </form>
+    {% endif %}
+  </div>
+</section>
+
+{% if ue_mode and ue_flow %}
+<nav class="ue-stage-nav" aria-label="Encounter stages">
+  {% for st in ue_flow %}
+    {% if st != 'mode_select' %}
+    <form method="POST" action="{{ url_for('gi_clinical_workflow', ward_patient_id=patient.id) }}" style="display:inline;margin:0;">
+      <input type="hidden" name="action" value="ue_goto_stage">
+      <input type="hidden" name="stage" value="{{ st }}">
+      <button type="submit" class="btn btn--sm btn--outline {% if st == ue_stage %}is-active{% endif %}">
+        {{ loop.index0 }}. {{ ue_stage_labels.get(st, st) }}
+      </button>
+    </form>
+    {% endif %}
+  {% endfor %}
+</nav>
+{% else %}
+<nav class="workflow-nav" aria-label="Clinical steps">
+  <a href="#encounter" class="btn btn--sm btn--outline">Start</a>
+  <a href="#history" class="btn btn--sm btn--outline">History</a>
+  <a href="#examination" class="btn btn--sm btn--outline">Examination</a>
+  <a href="#investigations" class="btn btn--sm btn--outline">Investigations</a>
+  <a href="#summary" class="btn btn--sm btn--outline">Summary</a>
+  <a href="#plan" class="btn btn--sm btn--outline">Plan</a>
+</nav>
+{% endif %}
+<p class="muted muted-sm" style="margin-top:4px;">Ward Clinical Workflow is the physician path — history, reasoning, exam, and investigations in one encounter.</p>
+
+<section class="admin-section" id="ai-review-panel" hidden>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+    <h2 style="margin:0;" id="ai-review-title">AI suggestions</h2>
+    <button type="button" class="btn btn--outline btn--sm" onclick="giCloseAiReview()">Close</button>
+  </div>
+  <p class="muted muted-sm" id="ai-review-meta"></p>
+  <div id="ai-review-error" class="muted" style="color:#b91c1c;" hidden></div>
+  <div id="ai-review-list"></div>
+</section>
+
+{# ——— MODE SELECT ——— #}
+{% if not ue_mode or ue_stage == 'mode_select' %}
+<section class="admin-section" id="encounter">
+  <h2>Start clinical encounter</h2>
+  <p class="muted">Choose how this visit is framed. Specialty knowledge (GI first) loads from the knowledge layer — the workflow itself is specialty-agnostic.</p>
+  <div class="ue-mode-cards">
+    <form method="POST" action="{{ url_for('gi_clinical_workflow', ward_patient_id=patient.id) }}" class="mode-card">
+      <input type="hidden" name="action" value="ue_set_mode">
+      <input type="hidden" name="encounter_mode" value="diagnostic">
+      <h3>New Diagnostic Encounter</h3>
+      <p class="muted muted-sm">Undiagnosed presentation. Goal: reach a working diagnosis through staged characterization, differential, and discriminating questions.</p>
+      <button class="btn btn--primary" type="submit">Start diagnostic encounter</button>
+    </form>
+    <form method="POST" action="{{ url_for('gi_clinical_workflow', ward_patient_id=patient.id) }}" class="mode-card">
+      <input type="hidden" name="action" value="ue_set_mode">
+      <input type="hidden" name="encounter_mode" value="known_disease">
+      <h3>Known Disease Follow-up / New Problem</h3>
+      <p class="muted muted-sm">Patient has known disease(s). Capture the <em>current clinical problem</em> (not only complications), then characterize and reason in context.</p>
+      <button class="btn btn--primary" type="submit">Start known-disease encounter</button>
+    </form>
+  </div>
+</section>
+{% endif %}
+
+{# ——— HISTORY / STAGED CONTENT ——— #}
+<section class="admin-section" id="history">
+  <h2>History · {{ ue_stage_label or 'Encounter' }}</h2>
+
+  {% if ue_stage == 'known_diseases' %}
+  <form method="POST" action="{{ url_for('gi_clinical_workflow', ward_patient_id=patient.id) }}" class="settings-form">
+    <input type="hidden" name="action" value="ue_set_known_diseases">
+    <p class="muted">Select known disease(s). Content is seeded from domain knowledge (GI first).</p>
+    <div class="symptom-grid">
+      {% for d in ue_known_diseases %}
+      <label class="symptom-check"><input type="checkbox" name="known_disease_codes" value="{{ d.code }}"
+        {% if d.code in (ue_state.known_disease_codes or []) %}checked{% endif %}> {{ d.label }}</label>
+      {% endfor %}
+    </div>
+    <button class="btn btn--primary" type="submit">Continue — current problem</button>
+  </form>
+  {% endif %}
+
+  {% if ue_stage == 'current_problem' %}
+  <form method="POST" action="{{ url_for('gi_clinical_workflow', ward_patient_id=patient.id) }}" class="settings-form">
+    <input type="hidden" name="action" value="ue_set_current_problems">
+    <p class="muted">What is the <strong>current clinical problem</strong> for this visit?</p>
+    <div class="symptom-grid">
+      {% for p in ue_current_problems %}
+      <label class="symptom-check"><input type="checkbox" name="current_problem_codes" value="{{ p.code }}"
+        {% if p.code in (ue_state.current_problem_codes or []) %}checked{% endif %}> {{ p.label }}</label>
+      {% endfor %}
+    </div>
+    <button class="btn btn--primary" type="submit">Continue — characterize problem</button>
+  </form>
+  {% endif %}
+
+  {% if ue_stage == 'complaints' %}
+  <form method="POST" action="{{ url_for('gi_clinical_workflow', ward_patient_id=patient.id) }}" class="settings-form" id="symptom-form">
+    <input type="hidden" name="action" value="ue_set_complaints">
+    <p class="muted">Stage 1 — Select one or more chief complaints (canonical catalogue). Each will be characterized in turn (MCQ only).</p>
+    <div class="symptom-grid">
+      {% for c in ue_complaints or complaints %}
+      <div class="symptom-row">
+        <label class="symptom-check">
+          <input type="checkbox" name="complaint_codes" value="{{ c.code }}" data-name="{{ c.name }}">
+          {{ c.name }}
+        </label>
+        <label class="symptom-onset">Onset
+          <select name="onset_{{ c.code }}" disabled>
+            <option value="">— when started —</option>
+            <option value="Hours">Hours (acute)</option>
+            <option value="Days">Days (acute)</option>
+            <option value="Weeks">Weeks (subacute)</option>
+            <option value="Months">Months (chronic)</option>
+            <option value="Years">Years (chronic)</option>
+          </select>
+        </label>
+        <label class="symptom-primary">Primary
+          <input type="radio" name="primary_complaint" value="{{ c.code }}" disabled>
+        </label>
+      </div>
+      {% endfor %}
+    </div>
+    <button class="btn btn--primary" type="submit">Start characterization</button>
+  </form>
+  {% endif %}
+
+  {% if symptoms and ue_stage not in ['mode_select', 'complaints', 'known_diseases', 'current_problem'] %}
+  <div class="symptom-chips">
+    {% for s in symptoms %}
+    <span class="badge">{{ s.symptom_name }}{% if s.onset_text %} · {{ s.onset_text }}{% endif %}{% if s.is_primary %} · primary{% endif %}</span>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if ue_stage == 'characterization' and ue_char_queue %}
+  <p class="muted">
+    Stage 2 — Characterizing
+    <strong>{{ ue_char_queue.current_symptom.symptom_name if ue_char_queue.current_symptom else 'complaint' }}</strong>
+    ({{ (ue_char_queue.index or 0) + 1 }} of {{ ue_char_queue.total }})
+    · {{ ue_char_queue.subphase or 'odpara' }} · one Save per section
+  </p>
+  {% if ue_char_queue.questions %}
+    <form method="POST" action="{{ url_for('gi_clinical_workflow', ward_patient_id=patient.id) }}" class="settings-form dq-form dq-section" style="margin-bottom:12px;">
+      <input type="hidden" name="action" value="ue_save_char_section">
+      {% for q in ue_char_queue.questions %}
+        {{ decision_question_block(q) }}
+      {% endfor %}
+      <button class="btn btn--primary" type="submit">Save section</button>
+    </form>
+  {% else %}
+    <form method="POST" action="{{ url_for('gi_clinical_workflow', ward_patient_id=patient.id) }}">
+      <input type="hidden" name="action" value="ue_finish_characterization">
+      <button class="btn btn--primary" type="submit">Continue to initial differential</button>
+    </form>
+  {% endif %}
+  {% endif %}
+
+  {% if ue_stage == 'initial_reasoning' %}
+  <p class="muted">Stage 3 — Initial differential from the reasoning / CDS knowledge layer (not invented by the workflow UI).</p>
+  {% set dx_list = (ue_differential.diagnoses if ue_differential else None) or (differential.diagnoses if differential else []) %}
+  <div class="diff-panel">
+    <h3 class="subsection-title" style="margin-top:0;">Initial differential</h3>
+    {% if dx_list %}
+    <ul class="compact-list">
+      {% for dx in dx_list[:12] %}
+      <li>
+        <strong>{{ dx.name or dx.label }}</strong>
+        {% if dx.confidence %}<span class="badge">{{ dx.confidence }}</span>{% endif %}
+        {% if dx.score is defined %}<span class="muted"> · score {{ '%.2f'|format(dx.score|float) }}</span>{% endif %}
+        {% if dx.from_symptoms %}<span class="muted"> ({{ dx.from_symptoms|join(', ') }})</span>{% endif %}
+        {% if dx.category %}<span class="muted"> · {{ dx.category|replace('_',' ') }}</span>{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="muted">No hypotheses yet — ensure complaints are set and characterization answers are saved.</p>
+    {% endif %}
+  </div>
+  <form method="POST" action="{{ url_for('gi_clinical_workflow', ward_patient_id=patient.id) }}" style="margin-top:12px;">
+    <input type="hidden" name="action" value="ue_confirm_initial_reasoning">
+    <button class="btn btn--primary" type="submit">Continue — discriminating questions</button>
+  </form>
+  {% endif %}
+
+  {% if ue_stage == 'discriminating' %}
+  <p class="muted">Stage 4 — Discriminating questions (one Save for the section). Differential updates when you save — not after every question.</p>
+  {% set dx_list = (ue_differential.diagnoses if ue_differential else None) or [] %}
+  {% if dx_list %}
+  <div class="diff-panel">
+    <h3 class="subsection-title" style="margin-top:0;">Active differential</h3>
+    <ul class="compact-list">
+      {% for dx in dx_list[:8] %}
+      <li><strong>{{ dx.name }}</strong>{% if dx.confidence %} <span class="badge">{{ dx.confidence }}</span>{% endif %}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+  {% if ue_disc_questions %}
+    <form method="POST" action="{{ url_for('gi_clinical_workflow', ward_patient_id=patient.id) }}" class="settings-form dq-form dq-section" style="margin-bottom:12px;">
+      <input type="hidden" name="action" value="ue_save_disc_section">
+      {% for q in ue_disc_questions %}
+        {{ decision_question_block(q) }}
+      {% endfor %}
+      <button class="btn btn--primary" type="submit">Save section &amp; update differential</button>
+    </form>
+  {% else %}
+    <p class="muted">No further discriminating questions — proceed to history summary.</p>
+  {% endif %}
+  <form method="POST" action="{{ url_for('gi_clinical_workflow', ward_patient_id=patient.id) }}" style="margin-top:8px;">
+    <input type="hidden" name="action" value="ue_finish_discriminating">
+    <button class="btn btn--primary" type="submit">Continue — history summary</button>
+  </form>
+  {% endif %}
+
+  {% if ue_stage == 'history_summary' %}
+  <p class="muted">Stage 5 — Generate HPI / structured history with the existing narrative engine (style unchanged).</p>
+  <div class="btn-row" style="margin:0 0 12px;flex-wrap:wrap;gap:8px;">
+    <form method="POST" action="{{ url_for('gi_clinical_generate_note', session_id=session_id) }}" style="margin:0;">
+      <button class="btn btn--primary btn--sm" type="submit">{% if narrative %}Regenerate{% else %}Generate{% endif %} History narrative</button>
+    </form>
+    <form method="POST" action="{{ url_for('gi_clinical_workflow', ward_patient_id=patient.id) }}" style="margin:0;">
+      <input type="hidden" name="action" value="ue_goto_stage">
+      <input type="hidden" name="stage" value="examination">
+      <button class="btn btn--outline btn--sm" type="submit">Continue to examination</button>
+    </form>
+  </div>
+  {% set dx_list = (ue_differential.diagnoses if ue_differential else None) or [] %}
+  {% if dx_list %}
+  <div class="diff-panel">
+    <h3 class="subsection-title" style="margin-top:0;">Active differential</h3>
+    <ul class="compact-list">{% for dx in dx_list[:8] %}<li><strong>{{ dx.name }}</strong>{% if dx.confidence %} · {{ dx.confidence }}{% endif %}</li>{% endfor %}</ul>
+  </div>
+  {% endif %}
+  {% endif %}
+
+  {# Continuous differential sidebar for mid/late stages #}
+  {% if ue_stage in ['characterization','examination','investigations','plan'] and ue_differential and ue_differential.diagnoses %}
+  <div class="diff-panel">
+    <h3 class="subsection-title" style="margin-top:0;">Working differential</h3>
+    <ul class="compact-list">
+      {% for dx in ue_differential.diagnoses[:6] %}
+      <li><strong>{{ dx.name }}</strong>{% if dx.confidence %} <span class="badge">{{ dx.confidence }}</span>{% endif %}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+</section>
+
+<!-- EXAMINATION -->
+<section class="admin-section" id="examination">
+  <h2>Examination</h2>
+  <p class="muted muted-sm">Nothing here is mandatory. Tick only what you actually examined — systems you leave untouched are omitted from the note entirely. Use <strong>Normal examination</strong> when a whole system was normal.</p>
+  <div class="btn-row" style="margin:0 0 10px;flex-wrap:wrap;gap:8px;">
+    <button type="button" class="btn btn--outline btn--sm" id="exam-mark-rest-normal">Mark untouched systems as normal</button>
+    <button type="button" class="btn btn--outline btn--sm" id="exam-clear-all">Clear all</button>
+  </div>
+  <form method="POST" action="{{ url_for('gi_clinical_workflow', ward_patient_id=patient.id) }}" class="settings-form" id="exam-checklist-form">
+    {% set exam_normal = ue_state.exam_normal or [] %}
+    {% for sys in ue_exam_systems or [] %}
+    <div class="exam-system" data-exam-system="{{ sys.key }}">
+      <details class="exam-system-details" {% if sys.key in exam_normal or (ue_state.exam_findings and ue_state.exam_findings.get(sys.key)) %}open{% endif %}>
+      <summary class="exam-system-head">
+        <h3 class="subsection-title" style="margin:0;display:inline;">{{ sys.title }}</h3>
+        <label class="exam-normal-opt" onclick="event.stopPropagation()">
+          <input type="checkbox" name="exam_normal" value="{{ sys.key }}" class="exam-normal-toggle"
+            {% if sys.key in exam_normal %}checked{% endif %}>
+          Normal examination
+        </label>
+      </summary>
+      <div class="exam-system-items {% if sys.key in exam_normal %}is-normal{% endif %}">
+      {% for item in sys['items'] %}
+      <div class="exam-item">
+        <span style="flex:1;min-width:160px;">{{ item }}</span>
+        <label><input type="radio" name="exam__{{ sys.key }}__{{ item }}" value="present"
+          {% if sys.key not in exam_normal and ue_state.exam_findings and ue_state.exam_findings.get(sys.key) and ue_state.exam_findings[sys.key].get(item) == 'present' %}checked{% endif %}> Present</label>
+        <label><input type="radio" name="exam__{{ sys.key }}__{{ item }}" value="absent"
+          {% if sys.key not in exam_normal and ue_state.exam_findings and ue_state.exam_findings.get(sys.key) and ue_state.exam_findings[sys.key].get(item) == 'absent' %}checked{% endif %}> Absent</label>
+        <button type="button" class="btn btn--sm btn--outline exam-clear-item" title="Clear">Clear</button>
+      </div>
+      {% endfor %}
+      </div>
+      </details>
+    </div>
+    {% endfor %}
+    <label>Other findings
+      <textarea name="exam_other" rows="3" placeholder="Free-text additional findings only (optional)…">{{ ue_state.exam_other or '' }}</textarea>
+    </label>
+    <div class="btn-row" style="flex-wrap:wrap;gap:8px;">
+      <button class="btn btn--primary btn--sm" type="submit" name="action" value="ue_save_exam_checklist">Save examination checklist</button>
+      <button class="btn btn--outline btn--sm" type="submit" name="action" value="ue_generate_exam_note">Generate professional examination note</button>
+    </div>
+  </form>
+  {% if examination_text %}
+  <div class="exam-note-box">
+    <h3 class="subsection-title" style="margin-top:0;">Generated examination note</h3>
+    <p class="muted muted-sm">Professional clinical prose generated only from findings you selected. Review and edit before saving.</p>
+    <form method="POST" action="{{ url_for('gi_clinical_workflow', ward_patient_id=patient.id) }}" class="settings-form" style="margin:0;">
+      <textarea name="examination_note" rows="10" class="summary-field exam-note-editor">{{ examination_text }}</textarea>
+      <button class="btn btn--primary btn--sm" type="submit" name="action" value="ue_save_exam_note">Save examination note</button>
+    </form>
+  </div>
+  {% endif %}
+</section>
+
+<!-- INVESTIGATIONS -->
+<section class="admin-section" id="investigations">
+  <h2>Investigations</h2>
+  <div class="btn-row" style="margin:0 0 12px;flex-wrap:wrap;gap:8px;">
+    <a class="btn btn--primary btn--sm" href="{{ url_for('gi_laboratory_patient', ward_patient_id=patient.id) }}">Laboratory</a>
+    <a class="btn btn--outline btn--sm" href="{{ url_for('gi_scores', session_id=session_id) }}">Scores</a>
+    <button type="button" class="btn btn--outline btn--sm" onclick="giRunInterpretation({{ session_id }})">Interpret labs</button>
+  </div>
+
+  <form method="POST" action="{{ url_for('gi_clinical_workflow', ward_patient_id=patient.id) }}" class="settings-form">
+    <input type="hidden" name="action" value="ue_save_ix_checklist">
+    <h3 class="subsection-title">Suggested investigations (checklist)</h3>
+    <div class="ix-check-grid">
+      {% set suggested = (ue_ix.suggested if ue_ix else None) or [] %}
+      {% if suggested %}
+        {% for s in suggested %}
+        <label>
+          <input type="checkbox" name="ix_checked" value="{{ s.name }}"
+            {% if s.name in (ue_state.ix_checked or []) %}checked{% endif %}>
+          <strong>{{ s.name }}</strong>
+          <span class="muted"> — {{ s.rationale }} {% if s.priority %}({{ s.priority }}){% endif %}</span>
+        </label>
+        {% endfor %}
+      {% else %}
+        <p class="muted">Suggestions appear after differential is populated.</p>
+      {% endif %}
+    </div>
+    <button class="btn btn--primary btn--sm" type="submit">Order checked investigations</button>
+  </form>
+
+  <h3 class="subsection-title" style="margin-top:16px;">Order from full catalogue</h3>
+  <p class="muted muted-sm">Any test not in the suggestions above — pick from the list or type a custom order.</p>
+  <form method="POST" action="{{ url_for('gi_investigations', session_id=session_id) }}" class="settings-form" id="ix-catalogue-form">
+    <div class="ix-catalogue-row">
+      <label>Order type
+        <select name="order_type" id="ix-order-type">
+          {% for t, label, items in order_types %}<option value="{{ t }}">{{ label }}</option>{% endfor %}
+        </select>
+      </label>
+      <label>Investigation
+        <select name="item_code" id="ix-item-code">
+          <option value="">— Custom / free text —</option>
+          {% for t, label, items in order_types %}
+          <optgroup label="{{ label }}" data-order-type="{{ t }}">
+            {% for code, name in items %}<option value="{{ code }}" data-order-type="{{ t }}">{{ name }}</option>{% endfor %}
+          </optgroup>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Or custom
+        <input name="custom_item" placeholder="Free-text order">
+      </label>
+      <button class="btn btn--outline btn--sm" type="submit">Submit order</button>
+    </div>
+  </form>
+
+  {% if orders %}
+  <div class="admin-table-scroll" style="margin-top:12px;">
+  <table class="admin-table compact-table"><thead><tr><th>Item</th><th>Type</th><th>Status</th><th>Scheduled</th></tr></thead>
+  <tbody>{% for o in orders %}<tr>
+    <td>{{ o.item_name }}</td><td>{{ o.order_type }}</td>
+    <td>{{ (o.approval_status or 'pending')|replace('_',' ')|title }}</td>
+    <td>{{ o.scheduled_date or '—' }}</td>
+  </tr>{% endfor %}</tbody></table>
+  </div>
+  {% endif %}
+  {% if lab_results %}
+  <h3 class="subsection-title">Lab results</h3>
+  <div class="admin-table-scroll">
+  <table class="admin-table compact-table">
+    <thead><tr><th>Test</th><th>Value</th><th>Ref</th><th>Date</th></tr></thead>
+    <tbody>
+    {% for lab in lab_results %}
+    <tr>
+      <td>{{ lab.test_name or lab.test_code }}</td>
+      <td>{{ lab.result_value }}{% if lab.result_unit %} {{ lab.result_unit }}{% endif %}</td>
+      <td class="muted">{{ lab.reference_range or '—' }}</td>
+      <td>{{ (lab.result_date or lab.recorded_at or '')[:10] or '—' }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% endif %}
+</section>
+
+<!-- SUMMARY -->
+<section class="admin-section" id="summary">
+  <h2>Summary &amp; diagnosis</h2>
+  <p class="muted muted-sm">Existing Generate History narrative style — edit sections, set final diagnosis.</p>
+  <div class="btn-row" style="margin:0 0 12px;flex-wrap:wrap;gap:8px;">
+    <form method="POST" action="{{ url_for('gi_clinical_generate_note', session_id=session_id) }}" style="margin:0;">
+      <button class="btn btn--primary btn--sm" type="submit">{% if narrative %}Regenerate{% else %}Generate{% endif %} History narrative</button>
+    </form>
+    <button type="button" class="btn btn--outline btn--sm" onclick="giRunDocumentation({{ session_id }})">AI note suggestions</button>
+    <button type="button" class="btn btn--outline btn--sm" onclick="giRunJourneySummary({{ session_id }})">Journey summary draft</button>
+  </div>
+  <form method="POST" action="{{ url_for('gi_clinical_workflow', ward_patient_id=patient.id) }}" class="settings-form">
+    <input type="hidden" name="action" value="save_summary">
+    {% set keys = ['hpi','past_medical_history','surgical_history','drug_history','allergy_history','family_history','social_history','physical_examination'] %}
+    {% for key in keys %}
+    <label>{{ section_labels.get(key, key|replace('_',' ')|title) }}
+      <textarea name="section_{{ key }}" rows="4" class="summary-field">{% if key == 'physical_examination' and examination_text %}{{ examination_text }}{% else %}{{ narrative_sections.get(key, '') }}{% endif %}</textarea>
+    </label>
+    {% endfor %}
+    <label>Final diagnosis <span class="muted">(required for plan &amp; research)</span>
+      <input name="final_diagnosis" value="{{ final_diagnosis or narrative_sections.get('final_diagnosis', '') }}" placeholder="e.g. Acute upper GI bleed — peptic ulcer disease" required>
+    </label>
+    <button class="btn btn--primary btn--sm" type="submit">Save summary &amp; diagnosis</button>
+  </form>
+  {% if narrative %}
+  <p class="muted" style="font-size:11px;margin-top:8px;">Last narrative draft {{ narrative.generated_at or '' }}</p>
+  {% endif %}
+</section>
+
+<!-- PLAN -->
+<section class="admin-section" id="plan">
+  <h2>Plan</h2>
+  <p class="muted muted-sm">Requires registrar approval. Based on final diagnosis above.</p>
+  {% if final_diagnosis %}<p><strong>Diagnosis:</strong> {{ final_diagnosis }}</p>{% endif %}
+  <div class="btn-row" style="margin:0 0 12px;flex-wrap:wrap;gap:8px;">
+    <button type="button" class="btn btn--outline btn--sm" onclick="giRunManagementPlan({{ session_id }})">Suggest management</button>
+    <button type="button" class="btn btn--outline btn--sm" onclick="giRunFollowUp({{ session_id }})">Suggest follow-up</button>
+    <a class="btn btn--outline btn--sm" href="{{ url_for('gi_patient_journey', ward_patient_id=patient.id) }}">Patient journey</a>
+  </div>
+  {% if cds_result %}
+  <details style="margin-bottom:12px;font-size:13px;"><summary>CDS reference</summary>
+    <ul>{% for d in cds_result.differentials[:5] %}<li>{{ d.title }}</li>{% endfor %}</ul>
+  </details>
+  {% endif %}
+  <form method="POST" action="{{ url_for('gi_clinical_workflow', ward_patient_id=patient.id) }}" class="settings-form">
+    <input type="hidden" name="action" value="submit_plan">
+    <label>Management plan<textarea name="plan_text" rows="5" required placeholder="Treatment, follow-up, disposition…"></textarea></label>
+    <button class="btn btn--primary btn--sm" type="submit">Submit for registrar approval</button>
+  </form>
+  {% if plans %}
+  {% for p in plans %}
+  <article class="compact-card">
+    <span class="badge">{{ (p.approval_status or 'pending')|replace('_',' ')|title }}</span>
+    <p class="compact-text">{{ p.plan_text }}</p>
+  </article>
+  {% endfor %}
+  {% endif %}
+</section>
+
+<details class="admin-section" style="margin-top:8px;">
+  <summary class="muted">Legacy / advanced (not the primary path)</summary>
+  <p class="muted muted-sm" style="margin-top:8px;">
+    Clinical Intelligence remains available for research/training only — not required for ward care.
+    <a href="{{ url_for('gi_guided_history_ui', ward_patient_id=patient.id) }}">Guided history AI (legacy)</a>
+    {% if role in ['admin','hod','specialist'] %}
+    · <a href="{{ url_for('gi_history_ai_training') }}">History AI Training</a>
+    {% endif %}
+  </p>
+</details>
+</div>
+<script>
+(function () {
+  const panel = () => document.getElementById('ai-review-panel');
+  const listEl = () => document.getElementById('ai-review-list');
+  const titleEl = () => document.getElementById('ai-review-title');
+  const metaEl = () => document.getElementById('ai-review-meta');
+  const errEl = () => document.getElementById('ai-review-error');
+  let reviewItems = [];
+  let reviewKind = '';
+
+  function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  function appendToField(selector, text) {
+    const el = document.querySelector(selector);
+    if (!el || !text) return false;
+    const cur = (el.value || '').trim();
+    el.value = cur ? (cur + '\n' + text) : text;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    return true;
+  }
+
+  function setDiagnosis(text) {
+    const el = document.querySelector('input[name="final_diagnosis"]');
+    if (!el || !text) return false;
+    if (!(el.value || '').trim()) el.value = text;
+    else if (!el.value.includes(text)) el.value = el.value.trim() + '; ' + text;
+    return true;
+  }
+
+  window.giCloseAiReview = function () {
+    panel().hidden = true;
+    reviewItems = [];
+  };
+
+  function showError(msg) {
+    errEl().hidden = false;
+    errEl().textContent = msg || 'Request failed';
+    panel().hidden = false;
+    listEl().innerHTML = '';
+    metaEl().textContent = '';
+    panel().scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function renderReview(kind, title, meta, items) {
+    reviewKind = kind;
+    reviewItems = items.map((it, i) => ({ ...it, _i: i, _dismissed: false }));
+    titleEl().textContent = title;
+    metaEl().textContent = meta || 'Review each suggestion — Accept inserts into the form where sensible; Dismiss hides it.';
+    errEl().hidden = true;
+    panel().hidden = false;
+    paintList();
+    panel().scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function paintList() {
+    const visible = reviewItems.filter(it => !it._dismissed);
+    if (!visible.length) {
+      listEl().innerHTML = reviewItems.length
+        ? '<p class="muted">All suggestions dismissed or accepted.</p>'
+        : '<p class="muted">No suggestions returned.</p>';
+      return;
+    }
+    listEl().innerHTML = visible.map(it => `
+      <article class="compact-card" data-i="${it._i}" style="margin-bottom:8px;">
+        <strong>${escapeHtml(it.title)}</strong>
+        ${it.detail ? `<p class="compact-text muted" style="margin:4px 0;">${escapeHtml(it.detail)}</p>` : ''}
+        <div class="btn-row" style="margin-top:6px;">
+          <button type="button" class="btn btn--primary btn--sm" data-act="accept" data-i="${it._i}">Accept</button>
+          <button type="button" class="btn btn--outline btn--sm" data-act="dismiss" data-i="${it._i}">Dismiss</button>
+        </div>
+      </article>`).join('');
+  }
+
+  listEl()?.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-act]');
+    if (!btn) return;
+    const i = Number(btn.getAttribute('data-i'));
+    const it = reviewItems.find(x => x._i === i);
+    if (!it) return;
+    if (btn.getAttribute('data-act') === 'dismiss') {
+      it._dismissed = true;
+      paintList();
+      return;
+    }
+    let ok = false;
+    if (reviewKind === 'assessment') ok = setDiagnosis(it.acceptText);
+    else if (reviewKind === 'interpretation') ok = appendToField('textarea[name="exam_other"]', it.acceptText)
+      || appendToField('textarea[name="section_physical_examination"]', it.acceptText);
+    else if (reviewKind === 'management') ok = appendToField('textarea[name="plan_text"]', it.acceptText);
+    else if (reviewKind === 'documentation') {
+      if (it.sectionKey) ok = appendToField(`textarea[name="section_${it.sectionKey}"]`, it.acceptText);
+      if (!ok) ok = appendToField('textarea[name="section_hpi"]', it.acceptText);
+    } else if (reviewKind === 'followup' || reviewKind === 'journey') {
+      ok = appendToField('textarea[name="plan_text"]', it.acceptText);
+    }
+    it._dismissed = true;
+    paintList();
+    metaEl().textContent = ok
+      ? 'Accepted into form field — save the relevant section to persist.'
+      : 'Accepted in panel (no matching field found on this page section).';
+  });
+
+  async function giFetchJson(url, opts) {
+    const res = await fetch(url, opts);
+    let data = {};
+    try { data = await res.json(); } catch (_) {}
+    if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+    return data;
+  }
+
+  window.giRunInterpretation = async function (sessionId) {
+    try {
+      const data = await giFetchJson(`/clinical-interpretation/history/${sessionId}/generate`, { method: 'POST' });
+      const items = (data.findings || []).map(f => ({
+        title: f.finding_title || f.title || 'Finding',
+        detail: f.interpretation_text || f.summary || f.severity || '',
+        acceptText: (f.finding_title || '') + (f.interpretation_text ? (': ' + f.interpretation_text) : ''),
+      }));
+      renderReview('interpretation', 'Lab interpretation', `${items.length} finding(s)`, items);
+    } catch (e) { showError(e.message); titleEl().textContent = 'Lab interpretation'; }
+  };
+
+  window.giRunManagementPlan = async function (sessionId) {
+    try {
+      const data = await giFetchJson(`/management-plan/history/${sessionId}/generate`, { method: 'POST' });
+      const items = (data.suggestions || []).map(s => ({
+        title: (s.description || s.title || 'Plan item').slice(0, 120),
+        detail: s.category || s.urgency || '',
+        acceptText: s.description || s.title || '',
+      }));
+      renderReview('management', 'Management AI', `${items.length} suggestion(s)`, items);
+    } catch (e) { showError(e.message); titleEl().textContent = 'Management AI'; }
+  };
+
+  window.giRunDocumentation = async function (sessionId) {
+    try {
+      const data = await giFetchJson(`/documentation-ai/history/${sessionId}/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ template_key: 'doc.admission.gi' }),
+      });
+      const items = (data.sections || []).map(s => ({
+        title: s.section_key || s.name || 'Section',
+        detail: (s.content || s.text || '').slice(0, 280),
+        acceptText: s.content || s.text || '',
+        sectionKey: s.section_key,
+      }));
+      renderReview('documentation', 'Document draft', `${items.length} section(s)`, items);
+    } catch (e) { showError(e.message); titleEl().textContent = 'Document draft'; }
+  };
+
+  window.giRunFollowUp = async function (sessionId) {
+    try {
+      const data = await giFetchJson(`/patient-journey-ai/history/${sessionId}/follow-up`, { method: 'POST' });
+      const plan = data.follow_up_plan || {};
+      const text = [
+        plan.related_condition || 'Follow-up',
+        plan.recommended_interval_text || (plan.recommended_interval_days != null ? (plan.recommended_interval_days + ' days') : ''),
+        plan.notes || plan.rationale || '',
+      ].filter(Boolean).join(' — ');
+      renderReview('followup', 'Follow-up plan', '1 suggestion', [{
+        title: plan.related_condition || 'Follow-up plan',
+        detail: text,
+        acceptText: 'Follow-up: ' + text,
+      }]);
+    } catch (e) { showError(e.message); titleEl().textContent = 'Follow-up plan'; }
+  };
+
+  window.giRunJourneySummary = async function (sessionId) {
+    try {
+      const data = await giFetchJson(`/patient-journey-ai/history/${sessionId}/summary/generate`, { method: 'POST' });
+      const text = (data.summary && data.summary.draft_text) || data.draft_text || '';
+      renderReview('journey', 'Journey summary', 'Draft ready', [{
+        title: 'Journey summary draft',
+        detail: text.slice(0, 400) + (text.length > 400 ? '…' : ''),
+        acceptText: text,
+      }]);
+    } catch (e) { showError(e.message); titleEl().textContent = 'Journey summary'; }
+  };
+})();
+
+document.querySelectorAll('#symptom-form .symptom-check input').forEach(cb => {
+  cb.addEventListener('change', () => {
+    const row = cb.closest('.symptom-row');
+    const onset = row.querySelector('.symptom-onset select');
+    const primary = row.querySelector('.symptom-primary input');
+    if (onset) onset.disabled = !cb.checked;
+    if (primary) { primary.disabled = !cb.checked; if (!cb.checked) primary.checked = false; }
+  });
+});
+document.getElementById('symptom-form')?.addEventListener('submit', e => {
+  const checked = e.target.querySelectorAll('.symptom-check input:checked');
+  if (!checked.length) { e.preventDefault(); alert('Select at least one symptom.'); return; }
+  if (!e.target.querySelector('.symptom-primary input:checked')) {
+    checked[0].closest('.symptom-row').querySelector('.symptom-primary input').checked = true;
+  }
+});
+
+/* Decision-based interview: Other-specify + optional skip (per question block) */
+(function () {
+  function syncOtherBlock(block) {
+    const otherBoxes = block.querySelectorAll('.dq-other');
+    if (!otherBoxes.length) return;
+    otherBoxes.forEach(otherBox => {
+      let show = false;
+      const scope = otherBox.closest('.dq-block') || block;
+      scope.querySelectorAll('.dq-other-trigger').forEach(el => {
+        if ((el.type === 'checkbox' || el.type === 'radio') && el.checked) show = true;
+      });
+      const sel = scope.querySelector('select.dq-select');
+      if (sel && String(sel.value || '').toLowerCase().startsWith('other')) show = true;
+      otherBox.hidden = !show;
+      const inp = otherBox.querySelector('.dq-other-input');
+      if (inp) inp.required = show;
+    });
+  }
+  document.querySelectorAll('form.dq-form').forEach(form => {
+    form.addEventListener('change', (e) => {
+      const block = e.target.closest('.dq-block') || form;
+      syncOtherBlock(block);
+    });
+    form.querySelectorAll('.dq-block').forEach(syncOtherBlock);
+    if (!form.querySelector('.dq-block')) syncOtherBlock(form);
+
+    form.querySelectorAll('.dq-skip-numeric, .dq-skip-date').forEach(skip => {
+      skip.addEventListener('change', () => {
+        const name = skip.getAttribute('data-target');
+        const block = skip.closest('.dq-block') || form;
+        const input = name
+          ? block.querySelector(`input[name="${name}"]`)
+          : block.querySelector('input[type="number"], input[type="date"]');
+        if (!input) return;
+        if (skip.checked) {
+          input.removeAttribute('required');
+          input.value = '';
+          input.disabled = true;
+          let hidden = block.querySelector(`input[name="${input.name}"][type="hidden"]`);
+          if (!hidden) {
+            hidden = document.createElement('input');
+            hidden.type = 'hidden';
+            hidden.name = input.name;
+            block.appendChild(hidden);
+          }
+          hidden.value = 'Not recorded';
+        } else {
+          input.disabled = false;
+          const opt = block.querySelector(`input[name^="optional__"]`);
+          if (!opt) input.setAttribute('required', 'required');
+          const hidden = block.querySelector(`input[name="${input.name}"][type="hidden"]`);
+          if (hidden) hidden.remove();
+        }
+      });
+    });
+  });
+})();
+
+/* Examination: Normal examination per system + clear item */
+(function () {
+  const form = document.getElementById('exam-checklist-form');
+  if (!form) return;
+
+  function setSystemNormal(systemEl, on) {
+    const items = systemEl.querySelector('.exam-system-items');
+    if (!items) return;
+    items.classList.toggle('is-normal', on);
+    if (on) {
+      items.querySelectorAll('input[type="radio"]').forEach(r => { r.checked = false; });
+    }
+  }
+
+  form.querySelectorAll('.exam-normal-toggle').forEach(cb => {
+    const systemEl = cb.closest('.exam-system');
+    setSystemNormal(systemEl, cb.checked);
+    cb.addEventListener('change', () => setSystemNormal(systemEl, cb.checked));
+  });
+
+  form.querySelectorAll('.exam-system-items input[type="radio"]').forEach(r => {
+    r.addEventListener('change', () => {
+      const systemEl = r.closest('.exam-system');
+      const cb = systemEl && systemEl.querySelector('.exam-normal-toggle');
+      if (cb && cb.checked) {
+        cb.checked = false;
+        setSystemNormal(systemEl, false);
+      }
+    });
+  });
+
+  form.querySelectorAll('.exam-clear-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const row = btn.closest('.exam-item');
+      if (!row) return;
+      row.querySelectorAll('input[type="radio"]').forEach(r => { r.checked = false; });
+    });
+  });
+
+  document.getElementById('exam-mark-rest-normal')?.addEventListener('click', () => {
+    form.querySelectorAll('.exam-system').forEach(systemEl => {
+      const cb = systemEl.querySelector('.exam-normal-toggle');
+      if (!cb || cb.checked) return;
+      const touched = systemEl.querySelector('.exam-system-items input[type="radio"]:checked');
+      if (touched) return;
+      cb.checked = true;
+      setSystemNormal(systemEl, true);
+    });
+  });
+
+  document.getElementById('exam-clear-all')?.addEventListener('click', () => {
+    form.querySelectorAll('.exam-system').forEach(systemEl => {
+      const cb = systemEl.querySelector('.exam-normal-toggle');
+      if (cb) cb.checked = false;
+      setSystemNormal(systemEl, false);
+      systemEl.querySelectorAll('input[type="radio"]').forEach(r => { r.checked = false; });
+    });
+  });
+})();
+
+/* Investigations: keep catalogue dropdown in sync with order type */
+(function () {
+  const typeSel = document.getElementById('ix-order-type');
+  const itemSel = document.getElementById('ix-item-code');
+  if (!typeSel || !itemSel) return;
+
+  function filterItems() {
+    const type = typeSel.value;
+    itemSel.querySelectorAll('optgroup').forEach(g => {
+      const match = g.dataset.orderType === type;
+      g.hidden = !match;
+      g.disabled = !match;
+    });
+    const current = itemSel.selectedOptions[0];
+    if (current && current.dataset.orderType && current.dataset.orderType !== type) {
+      itemSel.value = '';
+    }
+  }
+
+  typeSel.addEventListener('change', filterItems);
+  itemSel.addEventListener('change', () => {
+    const opt = itemSel.selectedOptions[0];
+    if (opt && opt.dataset.orderType && opt.dataset.orderType !== typeSel.value) {
+      typeSel.value = opt.dataset.orderType;
+      filterItems();
+      itemSel.value = opt.value;
+    }
+  });
+  filterItems();
+})();
+</script>
+{% endblock %}

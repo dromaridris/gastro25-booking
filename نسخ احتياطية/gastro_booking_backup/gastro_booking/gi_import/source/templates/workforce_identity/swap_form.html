@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Request Duty Swap{% endblock %}
+{% block content %}
+<h1 class="h3">Request Duty Swap</h1>
+<form method="post">{{ form.hidden_tag() }}
+<div class="mb-3">{{ form.original_roster_entry_id.label(class="form-label") }}{{ form.original_roster_entry_id(class="form-control") }}</div>
+<div class="mb-3">{{ form.replacement_user_id.label(class="form-label") }}{{ form.replacement_user_id(class="form-control") }}</div>
+<div class="mb-3">{{ form.requested_roster_entry_id.label(class="form-label") }}{{ form.requested_roster_entry_id(class="form-control") }}</div>
+<div class="mb-3">{{ form.reason.label(class="form-label") }}{{ form.reason(class="form-control", rows=4) }}</div>
+<button type="submit" class="btn btn-primary">Submit Request</button>
+</form>
+{% endblock %}

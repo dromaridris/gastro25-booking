@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}CI Knowledge Admin{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>Knowledge admin</h1>
+    <p class="muted">Importer · validation · evidence version · cache reload</p>
+  </div>
+  <a class="btn btn--outline btn--sm" href="{{ url_for('ci_home') }}">Back</a>
+</section>
+
+<section class="admin-section">
+  <h2>Evidence / version</h2>
+  <div class="compact-card">
+    <p><strong>Knowledge version:</strong> {{ version.knowledge_version }}</p>
+    <p><strong>Manifest revision:</strong> {{ version.manifest_revision }} · phase {{ version.manifest_phase }}</p>
+    <p><strong>Built:</strong> {{ version.built_at }}</p>
+    <p class="muted" style="font-size:12px;">AI: {% if ai.usable %}usable{% else %}offline/disabled{% endif %}</p>
+  </div>
+  <form method="POST" style="display:inline;">
+    <input type="hidden" name="action" value="reload">
+    <button class="btn btn--outline" type="submit">Reload knowledge cache</button>
+  </form>
+  <form method="POST" style="display:inline;margin-left:8px;">
+    <input type="hidden" name="action" value="validate">
+    <button class="btn btn--outline" type="submit">Re-check validation</button>
+  </form>
+</section>
+
+<section class="admin-section">
+  <h2>Tree validation</h2>
+  <p>{% if tree.ok %}<strong>OK</strong>{% else %}<strong>Issues found</strong>{% endif %} — {{ tree.count }} packs</p>
+  <ul>
+    {% for r in tree.reports %}
+    <li>{% if r.ok %}✓{% else %}✗{% endif %} {{ r.path }}
+      {% if r.errors %}<span class="muted">{{ r.errors|join('; ') }}</span>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+
+<section class="admin-section">
+  <h2>Import pack</h2>
+  <p class="muted">Upload JSON; destination relative to clinical_knowledge/ (e.g. templates/history/demo.json).</p>
+  <form method="POST" enctype="multipart/form-data" class="settings-form">
+    <input type="hidden" name="action" value="import">
+    <label>File <input type="file" name="pack_file" accept=".json,application/json" required></label>
+    <label>Destination relative path <input name="dest_relative" required placeholder="templates/history/example.json"></label>
+    <label><input type="checkbox" name="dry_run" value="1" checked> Dry run (validate only)</label>
+    <button class="btn btn--primary" type="submit">Import / validate</button>
+  </form>
+</section>
+
+<section class="admin-section">
+  <h2>Recent knowledge events</h2>
+  {% for e in events %}
+  <div class="compact-card" style="margin-bottom:6px;">
+    <strong>{{ e.event_type }}</strong> · {{ e.created_at }}
+    <div class="muted" style="font-size:12px;">{{ e.payload }}</div>
+  </div>
+  {% else %}
+  <p class="muted">No events yet.</p>
+  {% endfor %}
+</section>
+
+<p class="muted" style="font-size:12px;">CLI: <code>python -m clinical_intelligence.cli validate</code> · <code>python -m clinical_intelligence.cli import PATH --dest REL [--dry-run]</code></p>
+{% endblock %}

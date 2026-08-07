@@ -1,0 +1,44 @@
+{% if branding.logo_layout == 'both' %}
+
+<span class="gi-brand-logos d-flex align-items-center gap-2">
+
+    {% if branding.hospital_logo_url %}
+
+        <img src="{{ branding.hospital_logo_url }}" alt="{{ branding.hospital_name }} logo" class="gi-logo gi-logo-hospital">
+
+    {% endif %}
+
+    {% if branding.department_logo_url %}
+
+        <img src="{{ branding.department_logo_url }}" alt="{{ branding.department_name }} logo" class="gi-logo gi-logo-department">
+
+    {% endif %}
+
+</span>
+
+<span class="gi-brand-label d-none d-md-flex flex-column lh-sm ms-1">
+
+    <span class="gi-brand-hospital">{{ branding.hospital_name }}</span>
+
+    <span class="gi-brand-dept">{{ branding.department_name }}</span>
+
+</span>
+
+{% elif branding.logo_layout == 'hospital' and branding.hospital_logo_url %}
+
+    <img src="{{ branding.hospital_logo_url }}" alt="{{ branding.hospital_name }} logo" class="gi-logo gi-logo-hospital">
+
+    <span class="gi-brand-label d-none d-md-inline gi-brand-hospital ms-1">{{ branding.hospital_name }}</span>
+
+{% elif branding.logo_layout == 'department' and branding.department_logo_url %}
+
+    <img src="{{ branding.department_logo_url }}" alt="{{ branding.department_name }} logo" class="gi-logo gi-logo-department">
+
+    <span class="gi-brand-label d-none d-md-inline gi-brand-dept ms-1">{{ branding.department_name }}</span>
+
+{% else %}
+
+    <span class="gi-brand-text">{{ branding.display_title }}</span>
+
+{% endif %}
+

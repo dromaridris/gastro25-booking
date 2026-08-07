@@ -1,0 +1,13 @@
+{# ERCP-style grid — uploaded images only (no blank placeholders). #}
+{% if print_image_items %}
+<div class="ercp-print-image-grid">
+  {% for item in print_image_items %}
+  <div class="ercp-print-image-cell">
+    <img src="{{ item.url }}" alt="Procedure image {{ item.slot }}">
+    {% if item.caption %}
+    <p class="ercp-print-image-caption">{{ item.caption }}</p>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}

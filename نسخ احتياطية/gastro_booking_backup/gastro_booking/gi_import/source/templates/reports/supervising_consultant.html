@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Supervising Consultant{% endblock %}
+{% block content %}
+<h2>Supervising Consultant</h2>
+<p class="text-muted">Report {{ report.report_number }}</p>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">{{ form.supervising_consultant_id.label(class="form-label") }}{{ form.supervising_consultant_id(class="form-select") }}</div>
+    {{ form.submit(class="btn btn-primary") }}
+    <a href="{{ url_for('reports.view_report', report_id=report.id) }}" class="btn btn-link">Cancel</a>
+</form>
+{% endblock %}

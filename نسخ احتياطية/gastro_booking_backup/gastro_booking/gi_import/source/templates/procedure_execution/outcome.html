@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Set Outcome — Session #{{ session.id }}{% endblock %}
+{% block content %}
+<h2>Set Procedure Outcome — Session #{{ session.id }}</h2>
+<p class="text-muted">This records the execution outcome only — not a medical report.</p>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">{{ form.outcome.label(class="form-label") }}{{ form.outcome(class="form-select") }}</div>
+    {{ form.submit(class="btn btn-success") }}
+    <a href="{{ url_for('procedure_execution.view_session', session_id=session.id) }}" class="btn btn-link">Cancel</a>
+</form>
+{% endblock %}

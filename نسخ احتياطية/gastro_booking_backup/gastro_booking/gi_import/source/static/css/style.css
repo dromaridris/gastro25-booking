@@ -1,0 +1,245 @@
+/* GastroIntelligence — Theme-driven design system (Sprint 8A).
+   All colours come from CSS variables injected by the Theme Engine. */
+
+:root {
+    /* Colour tokens are injected at runtime via theme_css in base.html */
+    --gi-color-primary: #1a5276;
+    --gi-color-secondary: #2874a6;
+    --gi-color-accent: #3498db;
+    --gi-color-bg: #f7f9fb;
+    --gi-color-surface: #ffffff;
+    --gi-color-text: #1a2332;
+    --gi-color-muted: #5c6b7a;
+    --gi-color-nav-bg: #1a5276;
+    --gi-color-nav-text: #ffffff;
+    --gi-color-btn-primary: #1a5276;
+    --gi-color-btn-primary-text: #ffffff;
+    --gi-color-card-border: #d5dee8;
+    --gi-color-footer-bg: #eef2f6;
+    --gi-color-footer-text: #5c6b7a;
+    --gi-color-link: #2874a6;
+    --gi-color-focus-ring: #3498db;
+}
+
+body.gi-app {
+    background-color: var(--gi-color-bg);
+    color: var(--gi-color-text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.gi-navbar {
+    background-color: var(--gi-color-nav-bg) !important;
+    min-height: 3.5rem;
+}
+
+.gi-nav-link,
+.gi-brand,
+.gi-brand-text {
+    color: var(--gi-color-nav-text) !important;
+}
+
+.gi-nav-link:hover,
+.gi-brand:hover {
+    opacity: 0.9;
+}
+
+.navbar-toggler {
+    border-color: var(--gi-color-nav-text);
+}
+
+.navbar-toggler-icon {
+    filter: invert(1);
+}
+
+.gi-footer-platform-link:hover .gi-platform-logo {
+    opacity: 1;
+}
+
+.gi-nav-container {
+    gap: 0.5rem;
+}
+
+.gi-brand {
+    max-width: min(480px, 42vw);
+}
+
+.gi-logo {
+    max-height: 52px;
+    min-height: 32px;
+    width: auto;
+    object-fit: contain;
+}
+
+.gi-logo-department {
+    max-height: 44px;
+}
+
+.gi-brand-text {
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.35;
+}
+
+.gi-card {
+    background: var(--gi-color-surface);
+    border: 1px solid var(--gi-color-card-border);
+    border-radius: 0.5rem;
+}
+
+.gi-btn-primary {
+    background-color: var(--gi-color-btn-primary);
+    border-color: var(--gi-color-btn-primary);
+    color: var(--gi-color-btn-primary-text);
+    min-height: 44px;
+}
+
+.gi-btn-primary:hover,
+.gi-btn-primary:focus {
+    background-color: var(--gi-color-secondary);
+    border-color: var(--gi-color-secondary);
+    color: var(--gi-color-btn-primary-text);
+}
+
+.gi-btn-outline {
+    border-color: var(--gi-color-nav-text);
+    color: var(--gi-color-nav-text);
+    min-height: 44px;
+}
+
+.gi-btn-outline:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+    color: var(--gi-color-nav-text);
+}
+
+.btn-primary {
+    background-color: var(--gi-color-btn-primary);
+    border-color: var(--gi-color-btn-primary);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--gi-color-secondary);
+    border-color: var(--gi-color-secondary);
+}
+
+a {
+    color: var(--gi-color-link);
+}
+
+a:focus-visible,
+.btn:focus-visible,
+.form-control:focus-visible,
+.form-select:focus-visible {
+    outline: 2px solid var(--gi-color-focus-ring);
+    outline-offset: 2px;
+}
+
+.gi-main {
+    flex: 1 0 auto;
+}
+
+.gi-footer {
+    background-color: var(--gi-color-footer-bg);
+    color: var(--gi-color-footer-text);
+    border-top: 1px solid var(--gi-color-card-border);
+    flex-shrink: 0;
+    font-size: 0.875rem;
+}
+
+.gi-footer-inner .row {
+    --bs-gutter-y: 0.5rem;
+}
+
+.gi-brand-logos {
+    min-height: 44px;
+}
+
+.gi-footer-hospital {
+    font-weight: 600;
+    color: var(--gi-color-text);
+}
+
+.gi-footer-powered {
+    color: var(--gi-color-muted);
+}
+
+.gi-footer-link {
+    color: var(--gi-color-muted);
+    text-decoration: none;
+}
+
+.gi-footer-link:hover {
+    color: var(--gi-color-link);
+    text-decoration: underline;
+}
+
+.gi-platform-logo {
+    height: 32px;
+    width: auto;
+    opacity: 0.85;
+    filter: grayscale(10%);
+}
+
+.gi-logo-preview-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 96px;
+    padding: 0.75rem 1rem;
+    background: var(--gi-color-footer-bg);
+    border: 1px dashed var(--gi-color-card-border);
+    border-radius: 0.5rem;
+}
+
+.gi-logo-preview {
+    max-height: 80px;
+    max-width: 220px;
+    width: auto;
+    object-fit: contain;
+}
+
+.gi-setup {
+    background: var(--gi-color-bg);
+}
+
+.gi-setup-header {
+    border-bottom: 1px solid var(--gi-color-card-border);
+    background: var(--gi-color-surface);
+}
+
+.gi-footer-setup {
+    margin-top: auto;
+}
+
+@media (max-width: 767.98px) {
+    .gi-logo {
+        max-height: 40px;
+    }
+
+    .gi-brand-text {
+        font-size: 0.9rem;
+    }
+
+    .gi-brand {
+        max-width: 70vw;
+    }
+}
+
+.gi-about-hero {
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--gi-color-primary) 12%, var(--gi-color-surface)),
+        color-mix(in srgb, var(--gi-color-accent) 8%, var(--gi-color-surface))
+    );
+    border-bottom: 1px solid var(--gi-color-card-border);
+}
+
+.gi-section-title {
+    color: var(--gi-color-primary);
+}
+
+.text-muted {
+    color: var(--gi-color-muted) !important;
+}

@@ -1,0 +1,11 @@
+<div class="{{ signature_class }}">
+  <div class="signature-line"></div>
+  {% if person %}
+  <p class="signature-name">{{ person.full_name }}</p>
+  {% for line in person.title_lines.split('\n') %}
+  <p class="signature-detail">{{ line }}</p>
+  {% endfor %}
+  {% else %}
+  <p class="signature-detail">&nbsp;</p>
+  {% endif %}
+</div>

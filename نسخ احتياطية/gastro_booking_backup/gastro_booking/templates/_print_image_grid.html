@@ -1,0 +1,11 @@
+<div class="ercp-print-image-grid">
+  {% for item in image_slots_data %}
+  <div class="ercp-print-image-cell">
+    {% if item.url %}
+    <img src="{{ item.url }}" alt="ERCP image {{ item.slot }}">
+    {% else %}
+    <div class="ercp-print-image-blank">Image {{ item.slot }}</div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>

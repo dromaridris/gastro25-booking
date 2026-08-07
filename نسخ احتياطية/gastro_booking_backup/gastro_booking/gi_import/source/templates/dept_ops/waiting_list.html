@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Waiting List{% endblock %}
+{% block content %}
+<h1>Waiting List Management</h1>
+<p>Active: {{ active_count }} · Scheduled: {{ scheduled_count }} · Urgent/Emergency: {{ urgent_count }} · Delayed: {{ delayed_count }}</p>
+
+{% if can('dept_ops:waiting_list') %}
+<h2 class="h6">Add to waiting list</h2>
+<form method="POST" action="{{ url_for('dept_ops.add_waiting_list') }}" class="row g-2 mb-4">
+    <div class="col-md-3"><select name="patient_id" class="form-select form-select-sm" required><option value="">Patient</option>{% for p in patients %}<option value="{{ p.id }}">{{ p.full_name }}</option>{% endfor %}</select></div>
+    <div class="col-md-3"><select name="procedure_type_id" class="form-select form-select-sm" required><option value="">Procedure type</option>{% for t in procedure_types %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}</select></div>
+    <div class="col-md-2"><select name="priority" class="form-select form-select-sm"><option value="routine">Routine</option><option value="urgent">Urgent</option><option value="emergency">Emergency</option></select></div>
+    <div class="col-md-2"><input name="scheduled_date" type="date" class="form-control form-control-sm" placeholder="Schedule date"></div>
+    <div class="col-md-2"><button class="btn btn-primary btn-sm">Add</button></div>
+</form>
+{% endif %}
+
+<h2 class="h5">Weekly schedule</h2>
+{% from "dept_ops/_calendar_week.html" import week_grid %}
+{{ week_grid(calendar) }}
+
+<h2 class="h5 mt-4">Active entries</h2>
+<table class="table table-sm">
+    <thead><tr><th>Patient</th><th>Procedure</th><th>Priority</th><th>Listed</th><th>Days waiting</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for e in entries %}
+        <tr class="{% if e.priority in ['urgent','emergency'] %}table-warning{% endif %}">
+            <td>{{ e.patient.full_name if e.patient else e.patient_id }}</td>
+            <td>{{ e.procedure_type.name if e.procedure_type else e.procedure_type_id }}</td>
+            <td>{{ e.priority }}</td>
+            <td>{{ e.listed_at.strftime('%Y-%m-%d') if e.listed_at else '—' }}</td>
+            <td>{{ ((e.listed_at.date() if e.listed_at else none) and (none)) or '—' }}</td>
+            <td>{{ e.status }}</td>
+            <td>
+            {% if can('dept_ops:waiting_list') %}
+            <form method="POST" action="{{ url_for('dept_ops.schedule_waiting_list', entry_id=e.id) }}" class="d-inline-flex gap-1">
+                <input name="scheduled_date" type="date" class="form-control form-control-sm" required>
+                <button class="btn btn-sm btn-outline-primary">Schedule</button>
+            </form>
+            {% endif %}
+            </td>
+        </tr>
+    {% else %}<tr><td colspan="7" class="text-muted">Waiting list empty.</td></tr>{% endfor %}
+    </tbody>
+</table>
+{% endblock %}

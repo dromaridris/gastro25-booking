@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Incidents{% endblock %}
+{% block content %}
+<h1>Incident Reporting</h1>
+{% if can('governance:incident_create') %}<p><a href="{{ url_for('clinical_governance.create_incident') }}" class="btn btn-primary btn-sm">Report incident</a></p>{% endif %}
+<table class="table table-sm"><thead><tr><th>Date</th><th>Category</th><th>Severity</th><th>Status</th><th></th></tr></thead>
+<tbody>{% for i in incidents %}<tr><td>{{ i.incident_date.strftime('%Y-%m-%d') if i.incident_date else '—' }}</td><td>{{ i.category }}</td><td>{{ i.severity }}</td><td>{{ i.status }}</td>
+<td><a href="{{ url_for('clinical_governance.incident_detail', incident_id=i.id) }}">View</a></td></tr>{% else %}<tr><td colspan="5" class="text-muted">No incidents.</td></tr>{% endfor %}</tbody></table>
+{% endblock %}

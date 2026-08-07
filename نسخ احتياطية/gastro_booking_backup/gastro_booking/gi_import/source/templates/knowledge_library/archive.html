@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Archive — {{ record.title }}{% endblock %}
+{% block content %}
+<h2>Archive knowledge object</h2>
+<p>Archiving <strong>{{ record.title }}</strong> (<code>{{ record.stable_id }}</code>). Records are never physically deleted.</p>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">{{ form.reason.label(class="form-label") }}{{ form.reason(class="form-control") }}</div>
+    {{ form.submit(class="btn btn-danger") }}
+    <a href="{{ url_for('knowledge_library.view_object', record_id=record.id) }}" class="btn btn-link">Cancel</a>
+</form>
+{% endblock %}

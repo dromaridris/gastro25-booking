@@ -1,0 +1,26 @@
+{
+  "complaint_code": "CC_edema",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Leg / body swelling (edema) history — structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Edema is swelling — causes include heart, liver, kidney, venous disease. Do not start with 'heart failure' or 'ascites' as the complaint.",
+        "Ask about orthopnea/PND and abdominal swelling to cluster pathways."
+      ],
+      "linked_questions": [
+        "Q000072",
+        "Q000144",
+        "Q000046"
+      ]
+    }
+  ],
+  "question_coaching": {},
+  "answer_triggers": []
+}

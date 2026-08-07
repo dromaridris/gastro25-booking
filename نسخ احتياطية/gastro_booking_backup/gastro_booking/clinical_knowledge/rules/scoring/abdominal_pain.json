@@ -1,0 +1,30 @@
+{
+  "complaint_code": "CC_abdominal_pain",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Explicit scoring rubrics for pattern confidence (data-driven; extends reasoning weights).",
+  "global": {
+    "history_completeness_weight": 0.25,
+    "exam_completeness_weight": 0.2,
+    "pattern_match_weight": 0.55,
+    "red_flag_boost": 0.15,
+    "max_total": 1.0
+  },
+  "completeness": {
+    "history_key_questions": ["Q000001", "Q000003", "Q000042", "Q000033", "Q000034", "Q000035", "Q000045"],
+    "exam_key_signs": ["SG_peritoneal_signs", "SG_guarding", "SG_rebound_tenderness", "SG_murphy_sign"]
+  },
+  "pattern_score_caps": {
+    "PAT_gi_bleed": 1.0,
+    "PAT_peritonitis": 1.0,
+    "PAT_ruq_biliary": 0.95,
+    "PAT_rlq_appendicitis": 0.95,
+    "PAT_obstruction": 0.95,
+    "PAT_epigastric_ulcer_pancreas": 0.9
+  },
+  "bands": [
+    {"id": "low", "max": 0.39, "label": "Low confidence — gather more history/exam"},
+    {"id": "moderate", "max": 0.69, "label": "Moderate — provisional pattern only"},
+    {"id": "high", "max": 1.0, "label": "Higher pattern support - still not a final diagnosis"}
+  ]
+}

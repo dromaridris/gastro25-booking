@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}{{ procedure_label }} Registry{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('gi_registry_dashboard') }}">← GI Clinical Registry</a></p>
+<h1>{{ procedure_label }}</h1>
+
+<div class="gi-registry-hero-stats" style="margin:1rem 0;">
+  <div class="gi-registry-kpi"><span class="gi-registry-kpi-val">{{ hub.stats.total }}</span><span class="gi-registry-kpi-lbl">Total procedures</span></div>
+  <div class="gi-registry-kpi"><span class="gi-registry-kpi-val">{{ hub.stats.today }}</span><span class="gi-registry-kpi-lbl">Today</span></div>
+  <div class="gi-registry-kpi"><span class="gi-registry-kpi-val">{{ hub.stats.week }}</span><span class="gi-registry-kpi-lbl">This week</span></div>
+  <div class="gi-registry-kpi"><span class="gi-registry-kpi-val">{{ hub.stats.month }}</span><span class="gi-registry-kpi-lbl">This month</span></div>
+  <div class="gi-registry-kpi"><span class="gi-registry-kpi-val">{{ hub.stats.pending_reports }}</span><span class="gi-registry-kpi-lbl">Pending reports</span></div>
+  <div class="gi-registry-kpi"><span class="gi-registry-kpi-val">{{ hub.stats.completed_reports }}</span><span class="gi-registry-kpi-lbl">Completed</span></div>
+</div>
+
+<div class="dash-head-actions" style="margin-bottom:1rem;display:flex;flex-wrap:wrap;gap:0.5rem;">
+  <a class="btn btn--outline" href="{{ url_for('dashboard') }}">Today's schedule</a>
+  <a class="btn btn--outline" href="{{ url_for('statistics_view') }}">Statistics</a>
+  <a class="btn btn--outline" href="{{ url_for('search_patients') }}">Patient search</a>
+  {% if hub.card.id == 'ercp' %}
+  <a class="btn btn--primary" href="{{ url_for('ercp_research_registry') }}">ERCP Registry</a>
+  {% elif hub.card.id == 'esophageal_dilatation' %}
+  <a class="btn btn--primary" href="{{ url_for('dilatation_registry') }}">Dilatation Registry</a>
+  {% elif hub.card.id == 'upper_gi' %}
+  <a class="btn btn--primary" href="{{ url_for('upper_gi_research_registry') }}">EGD Registry</a>
+  {% elif hub.card.id == 'colonoscopy' %}
+  <a class="btn btn--primary" href="{{ url_for('colonoscopy_research_registry') }}">Colonoscopy Registry</a>
+  {% endif %}
+</div>
+
+<section class="admin-section compact-section">
+  <h2>Recent procedures</h2>
+  <table class="admin-table compact-table">
+    <thead><tr><th>Date</th><th>Patient</th><th>MRN</th><th>Report</th></tr></thead>
+    <tbody>
+      {% for r in hub.recent %}
+      <tr>
+        <td>{{ r.appointment_date }}</td>
+        <td>{{ r.patient_name }}</td>
+        <td>{{ r.mrn }}</td>
+        <td>{{ r.report_status }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="muted">No procedures recorded yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

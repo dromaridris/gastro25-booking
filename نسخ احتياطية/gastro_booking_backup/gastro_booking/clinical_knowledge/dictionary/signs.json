@@ -1,0 +1,534 @@
+[
+  {
+    "id": "sg-murphy-sign",
+    "code": "SG_murphy_sign",
+    "label": "Murphy sign",
+    "synonyms": [],
+    "entity_type": "sign",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "gastroenterology",
+      "surgery",
+      "emergency"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active",
+    "notes": "Inspiratory arrest during RUQ palpation"
+  },
+  {
+    "id": "sg-rebound-tenderness",
+    "code": "SG_rebound_tenderness",
+    "label": "Rebound tenderness",
+    "synonyms": [],
+    "entity_type": "sign",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "surgery",
+      "emergency",
+      "gastroenterology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sg-guarding",
+    "code": "SG_guarding",
+    "label": "Abdominal guarding",
+    "synonyms": [
+      "Guarding"
+    ],
+    "entity_type": "sign",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "surgery",
+      "emergency"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sg-rigidity",
+    "code": "SG_rigidity",
+    "label": "Abdominal rigidity",
+    "synonyms": [
+      "Board-like abdomen"
+    ],
+    "entity_type": "sign",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "surgery",
+      "emergency"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sg-ascites",
+    "code": "SG_ascites",
+    "label": "Ascites",
+    "synonyms": [
+      "Shifting dullness",
+      "Fluid wave"
+    ],
+    "entity_type": "sign",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "hepatology",
+      "gastroenterology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sg-hepatomegaly",
+    "code": "SG_hepatomegaly",
+    "label": "Hepatomegaly",
+    "synonyms": [],
+    "entity_type": "sign",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "hepatology",
+      "general"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sg-splenomegaly",
+    "code": "SG_splenomegaly",
+    "label": "Splenomegaly",
+    "synonyms": [],
+    "entity_type": "sign",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "hematology",
+      "hepatology",
+      "general"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sg-caput-medusae",
+    "code": "SG_caput_medusae",
+    "label": "Caput medusae",
+    "synonyms": [],
+    "entity_type": "sign",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "hepatology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sg-jaundice",
+    "code": "SG_jaundice",
+    "label": "Jaundice (observed)",
+    "synonyms": [
+      "Icterus"
+    ],
+    "entity_type": "sign",
+    "body_system": "general",
+    "specialty_tags": [
+      "hepatology",
+      "general"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sg-lymphadenopathy",
+    "code": "SG_lymphadenopathy",
+    "label": "Lymphadenopathy",
+    "synonyms": [],
+    "entity_type": "sign",
+    "body_system": "general",
+    "specialty_tags": [
+      "general",
+      "oncology",
+      "infectious_disease"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sg-peritoneal-signs",
+    "code": "SG_peritoneal_signs",
+    "label": "Peritoneal signs",
+    "synonyms": [
+      "Peritonism"
+    ],
+    "entity_type": "sign",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "surgery",
+      "emergency"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sg-tachycardia",
+    "code": "SG_tachycardia",
+    "label": "Tachycardia",
+    "synonyms": [],
+    "entity_type": "sign",
+    "body_system": "cardiovascular",
+    "specialty_tags": [
+      "general",
+      "emergency",
+      "cardiology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sg-hypotension",
+    "code": "SG_hypotension",
+    "label": "Hypotension",
+    "synonyms": [],
+    "entity_type": "sign",
+    "body_system": "cardiovascular",
+    "specialty_tags": [
+      "emergency",
+      "cardiology",
+      "general"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sg-fever",
+    "code": "SG_fever",
+    "label": "Fever (measured)",
+    "synonyms": [],
+    "entity_type": "sign",
+    "body_system": "general",
+    "specialty_tags": [
+      "general",
+      "infectious_disease"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sg-abdominal-mass",
+    "code": "SG_abdominal_mass",
+    "label": "Palpable abdominal mass",
+    "synonyms": [],
+    "entity_type": "sign",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "surgery",
+      "gastroenterology",
+      "oncology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sg-visible-peristalsis",
+    "code": "SG_visible_peristalsis",
+    "label": "Visible peristalsis",
+    "synonyms": [],
+    "entity_type": "sign",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "surgery",
+      "gastroenterology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sg-hernia",
+    "code": "SG_hernia",
+    "label": "Hernia",
+    "synonyms": [],
+    "entity_type": "sign",
+    "body_system": "abdomen",
+    "specialty_tags": [
+      "surgery"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sg-icteric-sclera",
+    "code": "SG_icteric_sclera",
+    "label": "Icteric sclera",
+    "synonyms": [],
+    "entity_type": "sign",
+    "body_system": "eyes",
+    "specialty_tags": [
+      "hepatology",
+      "general"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active"
+  },
+  {
+    "id": "sg-pallor",
+    "code": "SG_pallor",
+    "label": "Pallor",
+    "synonyms": [],
+    "entity_type": "sign",
+    "body_system": "general",
+    "specialty_tags": [
+      "general",
+      "gastroenterology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active",
+    "notes": "Conjunctival/skin pallor suggesting anaemia"
+  },
+  {
+    "id": "sg-dehydration",
+    "code": "SG_dehydration",
+    "label": "Dehydration",
+    "synonyms": [
+      "dry mucous membranes"
+    ],
+    "entity_type": "sign",
+    "body_system": "general",
+    "specialty_tags": [
+      "general"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active",
+    "notes": "Reduced skin turgor / dry mucosae"
+  },
+  {
+    "id": "sg-peripheral-edema",
+    "code": "SG_peripheral_edema",
+    "label": "Peripheral oedema",
+    "synonyms": [
+      "ankle swelling"
+    ],
+    "entity_type": "sign",
+    "body_system": "cardiovascular",
+    "specialty_tags": [
+      "general",
+      "cardiology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active",
+    "notes": "Pitting oedema of lower limbs"
+  },
+  {
+    "id": "sg-raised-jvp",
+    "code": "SG_raised_jvp",
+    "label": "Raised JVP",
+    "synonyms": [
+      "jugular venous distension"
+    ],
+    "entity_type": "sign",
+    "body_system": "cardiovascular",
+    "specialty_tags": [
+      "cardiology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active",
+    "notes": "Elevated jugular venous pressure"
+  },
+  {
+    "id": "sg-cardiac-murmur",
+    "code": "SG_cardiac_murmur",
+    "label": "Cardiac murmur",
+    "synonyms": [],
+    "entity_type": "sign",
+    "body_system": "cardiovascular",
+    "specialty_tags": [
+      "cardiology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active",
+    "notes": "Abnormal heart sound on auscultation"
+  },
+  {
+    "id": "sg-tachypnea",
+    "code": "SG_tachypnea",
+    "label": "Tachypnoea",
+    "synonyms": [],
+    "entity_type": "sign",
+    "body_system": "respiratory",
+    "specialty_tags": [
+      "general",
+      "respiratory"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active",
+    "notes": "Elevated respiratory rate"
+  },
+  {
+    "id": "sg-reduced-air-entry",
+    "code": "SG_reduced_air_entry",
+    "label": "Reduced air entry",
+    "synonyms": [],
+    "entity_type": "sign",
+    "body_system": "respiratory",
+    "specialty_tags": [
+      "respiratory"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active",
+    "notes": "Asymmetric or globally reduced breath sounds"
+  },
+  {
+    "id": "sg-crackles",
+    "code": "SG_crackles",
+    "label": "Crackles",
+    "synonyms": [
+      "crepitations"
+    ],
+    "entity_type": "sign",
+    "body_system": "respiratory",
+    "specialty_tags": [
+      "respiratory"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active",
+    "notes": "Adventitious lung sounds on auscultation"
+  },
+  {
+    "id": "sg-wheeze",
+    "code": "SG_wheeze",
+    "label": "Wheeze",
+    "synonyms": [],
+    "entity_type": "sign",
+    "body_system": "respiratory",
+    "specialty_tags": [
+      "respiratory"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active",
+    "notes": "Musical expiratory/inspiratory lung sound"
+  },
+  {
+    "id": "sg-oral-thrush",
+    "code": "SG_oral_thrush",
+    "label": "Oral thrush",
+    "synonyms": [
+      "oral candidiasis"
+    ],
+    "entity_type": "sign",
+    "body_system": "gastrointestinal",
+    "specialty_tags": [
+      "gastroenterology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active",
+    "notes": "White oral plaques suggesting candidiasis, relevant to dysphagia work-up"
+  },
+  {
+    "id": "sg-oropharyngeal-lesion",
+    "code": "SG_oropharyngeal_lesion",
+    "label": "Oropharyngeal lesion",
+    "synonyms": [],
+    "entity_type": "sign",
+    "body_system": "gastrointestinal",
+    "specialty_tags": [
+      "gastroenterology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active",
+    "notes": "Visible mass/ulcer/stricture sign in oropharynx relevant to dysphagia"
+  },
+  {
+    "id": "sg-neck-mass",
+    "code": "SG_neck_mass",
+    "label": "Neck mass",
+    "synonyms": [],
+    "entity_type": "sign",
+    "body_system": "general",
+    "specialty_tags": [
+      "general",
+      "gastroenterology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active",
+    "notes": "Palpable cervical/thyroid mass"
+  },
+  {
+    "id": "sg-perianal-findings",
+    "code": "SG_perianal_findings",
+    "label": "Perianal findings",
+    "synonyms": [
+      "fissure",
+      "fistula",
+      "haemorrhoids"
+    ],
+    "entity_type": "sign",
+    "body_system": "gastrointestinal",
+    "specialty_tags": [
+      "gastroenterology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active",
+    "notes": "Fissure, fistula, haemorrhoids, or mass on perianal inspection"
+  },
+  {
+    "id": "sg-rectal-mass",
+    "code": "SG_rectal_mass",
+    "label": "Rectal mass on DRE",
+    "synonyms": [],
+    "entity_type": "sign",
+    "body_system": "gastrointestinal",
+    "specialty_tags": [
+      "gastroenterology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active",
+    "notes": "Palpable mass on digital rectal examination"
+  },
+  {
+    "id": "sg-abnormal-stool-colour",
+    "code": "SG_abnormal_stool_colour",
+    "label": "Abnormal stool colour on DRE",
+    "synonyms": [
+      "melena on DRE"
+    ],
+    "entity_type": "sign",
+    "body_system": "gastrointestinal",
+    "specialty_tags": [
+      "gastroenterology"
+    ],
+    "schema_version": 1,
+    "revision": 1,
+    "status": "active",
+    "notes": "Melena / blood / pale stool observed on glove"
+  }
+]

@@ -1,0 +1,69 @@
+<!-- ERCP Follow-up Modal (shared by ercp_report.html and patient_ercp_overview.html) -->
+<div id="followupModal" class="modal-backdrop no-print" hidden>
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="followupModalTitle">Add Follow-up</h2>
+      <button class="modal-close" id="closeFollowupBtn">&times;</button>
+    </div>
+    <form id="followupForm" class="booking-form">
+      <input type="hidden" id="followupReportId">
+      <input type="hidden" id="followupId">
+      <div id="followupError" class="form-error" hidden></div>
+
+      <p class="label-hint">Follow-up records are independent of the procedure report and never modify it — they stay fully editable even after the report has been finalized.</p>
+
+      <label>Follow-up Date
+        <input type="date" id="f_followup_date" required>
+      </label>
+
+      <div class="form-row">
+        <label>Current Clinical Status
+          <select id="f_followup_clinical_status">
+            <option value="">— Select —</option>
+            {% for opt in followup_status_options %}
+            <option value="{{ opt }}">{{ opt }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>Outcome
+          <select id="f_followup_outcome">
+            <option value="">— Select —</option>
+            {% for opt in followup_outcome_options %}
+            <option value="{{ opt }}">{{ opt }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+
+      <label>Clinical Notes
+        <textarea id="f_followup_clinical_notes" rows="3"></textarea>
+      </label>
+
+      <label>Histopathology / Biopsy Result
+        <textarea id="f_followup_histopathology" rows="2"></textarea>
+      </label>
+
+      <div class="form-row">
+        <label>Laboratory Results
+          <textarea id="f_followup_labs" rows="2"></textarea>
+        </label>
+        <label>Imaging Results
+          <textarea id="f_followup_imaging" rows="2"></textarea>
+        </label>
+      </div>
+
+      <label>Management / Plan
+        <textarea id="f_followup_management" rows="2"></textarea>
+      </label>
+
+      <label>Free Notes
+        <textarea id="f_followup_free_notes" rows="2"></textarea>
+      </label>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn--ghost" id="cancelFollowupBtn">Cancel</button>
+        <button type="submit" class="btn btn--primary" id="followupSubmitBtn">Save Follow-up</button>
+      </div>
+    </form>
+  </div>
+</div>

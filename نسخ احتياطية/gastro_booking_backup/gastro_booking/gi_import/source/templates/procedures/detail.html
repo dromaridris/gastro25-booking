@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Procedure — {{ procedure.patient.full_name }}{% endblock %}
+{% block content %}
+{% set can_book = (procedure.procedure_type.requires_special_authorization and can('procedure:special_authorization')) or (not procedure.procedure_type.requires_special_authorization and can('procedure:edit')) %}
+<h2>Procedure <small class="text-muted">#{{ procedure.id }}</small></h2>
+{% if procedure.is_archived %}
+    <span class="badge bg-secondary mb-3">Archived{% if procedure.archive_reason %} — {{ procedure.archive_reason }}{% endif %}</span>
+{% endif %}
+<span class="badge bg-secondary mb-3">{{ procedure.status.replace("_", " ").title() }}</span>
+<span class="badge bg-info text-dark mb-3">{{ procedure.priority.title() }}</span>
+{% if procedure.procedure_type.requires_special_authorization %}<span class="badge bg-warning text-dark mb-3">Special Authorization</span>{% endif %}
+
+<dl class="row">
+    <dt class="col-sm-3">Patient</dt>
+    <dd class="col-sm-9"><a href="{{ url_for('patients.view_patient', patient_id=procedure.patient.id) }}">{{ procedure.patient.full_name }} ({{ procedure.patient.mrn }})</a></dd>
+
+    <dt class="col-sm-3">Appointment</dt>
+    <dd class="col-sm-9"><a href="{{ url_for('appointments.view_appointment', appointment_id=procedure.appointment.id) }}">{{ procedure.appointment.scheduled_at.strftime("%Y-%m-%d %H:%M") }}</a></dd>
+
+    <dt class="col-sm-3">Procedure Type</dt>
+    <dd class="col-sm-9">{{ procedure.procedure_type.name }}</dd>
+
+    <dt class="col-sm-3">Room</dt>
+    <dd class="col-sm-9">{{ procedure.room.name if procedure.room else "Not assigned" }}</dd>
+
+    <dt class="col-sm-3">Endoscopist</dt>
+    <dd class="col-sm-9">{{ procedure.endoscopist.full_name if procedure.endoscopist else "Unassigned" }}</dd>
+
+    <dt class="col-sm-3">Notes</dt><dd class="col-sm-9">{{ procedure.notes or "—" }}</dd>
+</dl>
+
+{% if not procedure.is_archived %}
+<div class="d-flex gap-2 flex-wrap mb-3">
+    {% if procedure.status not in ["finished", "cancelled"] %}
+        {% if can_book %}
+            <a href="{{ url_for('procedures.assign_endoscopist', procedure_id=procedure.id) }}" class="btn btn-outline-secondary btn-sm">Assign Endoscopist</a>
+            <a href="{{ url_for('procedures.change_procedure_type', procedure_id=procedure.id) }}" class="btn btn-outline-secondary btn-sm">Change Type</a>
+            <a href="{{ url_for('procedures.set_priority', procedure_id=procedure.id) }}" class="btn btn-outline-secondary btn-sm">Change Priority</a>
+        {% endif %}
+        {% if can('procedure:workflow') %}
+            <a href="{{ url_for('procedures.assign_room', procedure_id=procedure.id) }}" class="btn btn-outline-secondary btn-sm">Assign Room</a>
+            <a href="{{ url_for('procedures.move_to_waiting_list', procedure_id=procedure.id) }}" class="btn btn-outline-secondary btn-sm">Move to Waiting List</a>
+            <form method="POST" action="{{ url_for('procedures.mark_ready', procedure_id=procedure.id) }}">
+                <button type="submit" class="btn btn-outline-primary btn-sm">Mark Ready</button>
+            </form>
+            <form method="POST" action="{{ url_for('procedures.mark_in_room', procedure_id=procedure.id) }}">
+                <button type="submit" class="btn btn-outline-primary btn-sm">Mark In Room</button>
+            </form>
+            <form method="POST" action="{{ url_for('procedures.mark_finished', procedure_id=procedure.id) }}">
+                <button type="submit" class="btn btn-outline-success btn-sm">Mark Finished</button>
+            </form>
+            <a href="{{ url_for('procedures.cancel_procedure', procedure_id=procedure.id) }}" class="btn btn-outline-danger btn-sm">Cancel</a>
+        {% endif %}
+    {% endif %}
+    {% if can_book %}
+        <a href="{{ url_for('procedures.archive_procedure', procedure_id=procedure.id) }}" class="btn btn-outline-dark btn-sm">Archive</a>
+    {% endif %}
+</div>
+{% elif can_book %}
+<form method="POST" action="{{ url_for('procedures.restore_procedure', procedure_id=procedure.id) }}">
+    <button type="submit" class="btn btn-outline-success btn-sm">Restore</button>
+</form>
+{% endif %}
+{% endblock %}

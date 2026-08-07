@@ -1,0 +1,62 @@
+{
+  "id": "ET_constipation",
+  "complaint_code": "CC_constipation",
+  "name": "Constipation physical examination",
+  "source": {
+    "work": "Bates' Guide to Physical Examination and History Taking",
+    "note": "Exam organization only; findings recorded against dictionary sign codes."
+  },
+  "systems": [
+    {
+      "key": "general",
+      "title": "General appearance & vitals",
+      "finding_ids": [
+        "SG_tachycardia",
+        "SG_hypotension",
+        "SG_fever",
+        "SG_pallor",
+        "SG_dehydration"
+      ],
+      "checklist": [
+        "General distress / toxic appearance",
+        "Vital signs (HR, BP, RR, SpO2, temperature)",
+        "Hydration / mucous membranes",
+        "Pallor / colour"
+      ]
+    },
+    {
+      "key": "abdomen",
+      "title": "Abdomen",
+      "finding_ids": [
+        "SG_abdominal_mass",
+        "SG_hernia",
+        "SG_visible_peristalsis"
+      ],
+      "checklist": [
+        "Distension",
+        "Palpable faecal loading",
+        "Masses",
+        "Hernial orifices"
+      ]
+    },
+    {
+      "key": "perianal",
+      "title": "Perianal & rectal",
+      "finding_ids": [
+        "SG_perianal_findings",
+        "SG_rectal_mass"
+      ],
+      "checklist": [
+        "Perianal inspection (fissure/haemorrhoids)",
+        "Digital rectal exam — tone, mass, impacted stool"
+      ]
+    }
+  ],
+  "priority_findings": [
+    "SG_abdominal_mass",
+    "SG_rectal_mass"
+  ],
+  "schema_version": 1,
+  "revision": 1,
+  "status": "active"
+}

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Today's On-call Team{% endblock %}
+{% block content %}
+<h1 class="h3">Today's On-call Team</h1>
+<p class="text-muted">{{ roster_date }}</p>
+{% for role, names in team_by_role.items() %}
+<div class="mb-3"><strong>{{ role }}:</strong> {{ names | join(', ') }}</div>
+{% else %}<p class="text-muted">No team roster recorded for today.</p>{% endfor %}
+{% endblock %}

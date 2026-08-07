@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Reception Dashboard{% endblock %}
+{% block content %}
+<h1>Reception Dashboard</h1>
+{% include "dept_ops/_alert_centre.html" %}
+<div class="row mb-4">
+    <div class="col-md-3"><div class="card"><div class="card-body"><h6>Today's bookings</h6><p class="fs-4 mb-0">{{ today_bookings|length }}</p></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body"><h6>Waiting patients</h6><p class="fs-4 mb-0">{{ waiting_list.active_count }}</p></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body"><h6>Delayed</h6><p class="fs-4 mb-0">{{ delayed_patients|length }}</p></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body"><h6>Rooms available</h6><p class="fs-4 mb-0">{{ available_rooms|length }}/{{ rooms_total }}</p></div></div></div>
+</div>
+<h2 class="h5">Today's bookings</h2>
+<table class="table table-sm">
+    <thead><tr><th>Time</th><th>Patient</th><th>Status</th></tr></thead>
+    <tbody>{% for b in today_bookings %}
+        <tr><td>{{ b.scheduled_at.strftime('%H:%M') if b.scheduled_at else '—' }}</td><td>{{ b.patient.full_name if b.patient else b.patient_id }}</td><td>{{ b.status }}</td></tr>
+    {% else %}<tr><td colspan="3" class="text-muted">No bookings today.</td></tr>{% endfor %}</tbody>
+</table>
+<h2 class="h5 mt-3">Waiting list delays</h2>
+<ul>{% for e in delayed_patients %}<li>Patient #{{ e.patient_id }} — {{ e.priority }} priority</li>{% else %}<li class="text-muted">No delay alerts.</li>{% endfor %}</ul>
+<h2 class="h5 mt-3">Room availability</h2>
+<ul>{% for r in available_rooms %}<li>{{ r.room.name }} — available</li>{% else %}<li class="text-muted">No rooms available.</li>{% endfor %}</ul>
+{% include "ui/_quick_actions.html" %}
+{% include "ui/_dept_ops_links.html" %}
+{% endblock %}

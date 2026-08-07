@@ -1,0 +1,26 @@
+{
+  "complaint_code": "CC_palpitations",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Palpitations history — structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Palpitations are awareness of heartbeat (Bates) — not 'AF' or 'panic attack' as the complaint.",
+        "Ask about syncope, chest pain, and exertion relation."
+      ],
+      "linked_questions": [
+        "Q000152",
+        "Q000153",
+        "Q000036"
+      ]
+    }
+  ],
+  "question_coaching": {},
+  "answer_triggers": []
+}

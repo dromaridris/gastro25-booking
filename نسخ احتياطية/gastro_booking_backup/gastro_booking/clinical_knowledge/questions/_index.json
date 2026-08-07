@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "revision": 3,
+  "library_file": "library.json",
+  "question_count": 186,
+  "id_range": {
+    "first": "Q000001",
+    "last": "Q000186"
+  },
+  "next_id": 187
+}

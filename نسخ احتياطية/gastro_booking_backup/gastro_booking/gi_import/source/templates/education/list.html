@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Education Activities{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+  <h2>Education Activities</h2>
+  {% if can('education:record') %}<a href="{{ url_for('education.create') }}" class="btn btn-primary btn-sm">+ Record</a>{% endif %}
+</div>
+<table class="table table-sm">
+  <thead><tr><th>Date</th><th>Type</th><th>Title</th><th></th></tr></thead>
+  <tbody>
+  {% for act in activities %}
+    <tr>
+      <td>{{ act.activity_date.strftime("%Y-%m-%d") }}</td>
+      <td>{{ act.activity_type }}</td>
+      <td>{{ act.title }}</td>
+      <td><a href="{{ url_for('education.detail', activity_id=act.id) }}">View</a></td>
+    </tr>
+  {% else %}
+    <tr><td colspan="4" class="text-muted">No activities recorded.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

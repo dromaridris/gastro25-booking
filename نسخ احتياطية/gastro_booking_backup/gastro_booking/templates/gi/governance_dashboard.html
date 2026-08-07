@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Clinical governance{% endblock %}
+{% block content %}
+<div class="page-compact">
+<h1>Clinical governance — HOD dashboard</h1>
+{% include "_module_intro.html" %}
+
+<div class="btn-row">
+  <a class="btn btn--outline btn--sm" href="{{ url_for('gi_governance_logbook') }}">Department logbook</a>
+  <a class="btn btn--outline btn--sm" href="{{ url_for('gi_logbook_export') }}">Export logbook (Excel)</a>
+  <a class="btn btn--outline btn--sm" href="{{ url_for('gi_registrar_approvals') }}">Registrar approvals</a>
+  <a class="btn btn--outline btn--sm" href="{{ url_for('gi_attendance_department') }}">Attendance</a>
+</div>
+
+<div class="btn-row">
+  <a class="btn btn--outline btn--sm" href="{{ url_for('gi_gov_incidents') }}">Incidents</a>
+  <a class="btn btn--outline btn--sm" href="{{ url_for('gi_gov_mm') }}">M&amp;M meetings</a>
+  <a class="btn btn--outline btn--sm" href="{{ url_for('gi_gov_journal_club') }}">Journal club</a>
+  <a class="btn btn--outline btn--sm" href="{{ url_for('gi_gov_audits') }}">Audits</a>
+  <a class="btn btn--outline btn--sm" href="{{ url_for('gi_gov_documents') }}">Documents</a>
+  <a class="btn btn--outline btn--sm" href="{{ url_for('gi_gov_checklists') }}">Checklists</a>
+</div>
+
+{% if kpis %}
+<section class="admin-section compact-section">
+  <h2>Quality indicators</h2>
+  <p class="compact-text">Incidents {{ kpis.open_incidents }} · Audits {{ kpis.pending_audits }} · Pending orders {{ kpis.pending_registrar_orders }}</p>
+</section>
+{% endif %}
+
+<section class="admin-section compact-section">
+  <h2>Staff activity (30 days)</h2>
+  <p class="muted muted-sm">Click a name for full logbook details.</p>
+  <div class="admin-table-scroll">
+  <table class="admin-table compact-table"><thead><tr><th>Doctor</th><th>Role</th><th>Activities</th><th>Active days</th><th>Last activity</th></tr></thead>
+  <tbody>{% for s in trainee_log %}
+  <tr>
+    <td><a href="{{ url_for('gi_staff_profile', user_id=s.user_id) }}">{{ s.full_name }}</a></td>
+    <td>{{ s.role|replace('_',' ') }}</td>
+    <td>{{ s.activity_count }}</td>
+    <td>{{ s.active_days }}</td>
+    <td>{{ s.last_activity[:16] if s.last_activity else '—' }}</td>
+  </tr>{% else %}<tr><td colspan="5" class="muted">No activity recorded yet.</td></tr>{% endfor %}</tbody></table>
+  </div>
+</section>
+</div>
+{% endblock %}

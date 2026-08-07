@@ -1,0 +1,950 @@
+{
+  "schema_version": "1",
+  "template_key": "esd",
+  "label": "ESD — Structured Clinical Report",
+  "sections": [
+    {
+      "id": "context",
+      "label": "Clinical Context",
+      "workflow_phase": "WF_CONTEXT",
+      "fields": [
+        {
+          "id": "esd.context.indication_category",
+          "label": "Indication category",
+          "type": "multi_select",
+          "default": [],
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ],
+          "required": true,
+          "vocabulary_source": "emr_esd_indication_category",
+          "research_flag": true
+        },
+        {
+          "id": "esd.context.indication_detail",
+          "label": "Indication detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ]
+        },
+        {
+          "id": "esd.context.urgency",
+          "label": "Urgency",
+          "type": "dropdown",
+          "default": "",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ],
+          "required": true,
+          "vocabulary_source": "procedure_urgency"
+        },
+        {
+          "id": "esd.context.consent_obtained",
+          "label": "Consent obtained",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ],
+          "required": true
+        },
+        {
+          "id": "esd.context.anticoagulation",
+          "label": "Anticoagulation / antiplatelet therapy",
+          "type": "dropdown",
+          "default": "",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ],
+          "vocabulary_source": "anticoagulation_status"
+        },
+        {
+          "id": "esd.context.anticoagulation_management",
+          "label": "Anticoagulation management",
+          "type": "dropdown",
+          "default": "",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ],
+          "vocabulary_source": "anticoagulation_management",
+          "visibility": {
+            "when": "field",
+            "field_id": "esd.context.anticoagulation",
+            "operator": "not_equals",
+            "value": "none"
+          }
+        },
+        {
+          "id": "esd.context.prior_resection",
+          "label": "Prior EMR / ESD / surgery at site",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ]
+        },
+        {
+          "id": "esd.context.prior_resection_detail",
+          "label": "Prior resection detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "access",
+      "label": "Access & Setup",
+      "workflow_phase": "WF_ACCESS",
+      "fields": [
+        {
+          "id": "esd.access.organ",
+          "label": "Target organ",
+          "type": "dropdown",
+          "default": "",
+          "workflow_phases": [
+            "WF_ACCESS"
+          ],
+          "required": true,
+          "vocabulary_source": "emr_esd_organ",
+          "qi_flag": true,
+          "qi_mapping": {
+            "metric_key": "target_organ",
+            "operator": "not_empty",
+            "value": null
+          }
+        },
+        {
+          "id": "esd.access.sedation_type",
+          "label": "Sedation type",
+          "type": "multi_select",
+          "default": [],
+          "workflow_phases": [
+            "WF_ACCESS"
+          ],
+          "vocabulary_source": "sedation_type"
+        },
+        {
+          "id": "esd.access.scope_type",
+          "label": "Scope type",
+          "type": "dropdown",
+          "default": "",
+          "workflow_phases": [
+            "WF_ACCESS"
+          ],
+          "vocabulary_source": "emr_esd_scope_type"
+        },
+        {
+          "id": "esd.access.cap_used",
+          "label": "Distal attachment cap used",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_ACCESS"
+          ]
+        },
+        {
+          "id": "esd.access.anticoagulation_held",
+          "label": "Anticoagulation held per protocol",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_ACCESS"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lesion",
+      "label": "Lesion Assessment",
+      "workflow_phase": "WF_IMAGING",
+      "fields": [
+        {
+          "id": "esd.lesion.segment",
+          "label": "Anatomical segment",
+          "type": "dropdown",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "required": true,
+          "vocabulary_source": "emr_esd_segment"
+        },
+        {
+          "id": "esd.lesion.location_detail",
+          "label": "Location detail (cm from landmark)",
+          "type": "text",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ]
+        },
+        {
+          "id": "esd.lesion.size_mm",
+          "label": "Lesion size (mm)",
+          "type": "text",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "required": true,
+          "qi_flag": true,
+          "qi_mapping": {
+            "metric_key": "lesion_size_mm",
+            "operator": "not_empty",
+            "value": null
+          }
+        },
+        {
+          "id": "esd.lesion.paris_morphology",
+          "label": "Paris morphology",
+          "type": "dropdown",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "vocabulary_source": "paris_morphology"
+        },
+        {
+          "id": "esd.lesion.nice_classification",
+          "label": "NICE classification",
+          "type": "dropdown",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "vocabulary_source": "nice_classification"
+        },
+        {
+          "id": "esd.lesion.jnet_classification",
+          "label": "JNET classification",
+          "type": "dropdown",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "vocabulary_source": "jnet_classification"
+        },
+        {
+          "id": "esd.lesion.tattoo_placed",
+          "label": "Tattoo placed",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ]
+        },
+        {
+          "id": "esd.lesion.lifting_assessment",
+          "label": "Submucosal lifting assessment",
+          "type": "dropdown",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "vocabulary_source": "lifting_assessment"
+        },
+        {
+          "id": "esd.lesion.lesion_description",
+          "label": "Lesion description",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "resection",
+      "label": "ESD Technique",
+      "workflow_phase": "WF_THERAPY",
+      "fields": [
+        {
+          "id": "esd.resection.marking_method",
+          "label": "Lesion marking method",
+          "type": "dropdown",
+          "default": "",
+          "workflow_phases": [
+            "WF_THERAPY"
+          ],
+          "vocabulary_source": "esd_marking_method"
+        },
+        {
+          "id": "esd.resection.lift_solution",
+          "label": "Submucosal lift solution",
+          "type": "dropdown",
+          "default": "",
+          "workflow_phases": [
+            "WF_THERAPY"
+          ],
+          "vocabulary_source": "lift_solution"
+        },
+        {
+          "id": "esd.resection.knife_type",
+          "label": "Dissection knife",
+          "type": "dropdown",
+          "default": "",
+          "workflow_phases": [
+            "WF_THERAPY"
+          ],
+          "required": true,
+          "vocabulary_source": "esd_knife_type"
+        },
+        {
+          "id": "esd.resection.dissection_plane",
+          "label": "Dissection plane",
+          "type": "dropdown",
+          "default": "",
+          "workflow_phases": [
+            "WF_THERAPY"
+          ],
+          "vocabulary_source": "esd_dissection_plane"
+        },
+        {
+          "id": "esd.resection.en_bloc",
+          "label": "En-bloc resection",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_THERAPY"
+          ],
+          "required": true,
+          "qi_flag": true,
+          "qi_mapping": {
+            "metric_key": "en_bloc_resection",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "esd.resection.r0_resection",
+          "label": "R0 resection (macroscopic)",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_THERAPY"
+          ],
+          "qi_flag": true,
+          "qi_mapping": {
+            "metric_key": "r0_resection",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "esd.resection.curative_resection_expected",
+          "label": "Curative resection expected",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_THERAPY"
+          ]
+        },
+        {
+          "id": "esd.resection.muscularis_exposure",
+          "label": "Muscularis propria exposure",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_THERAPY"
+          ]
+        },
+        {
+          "id": "esd.resection.defect_size_mm",
+          "label": "Mucosal defect size (mm)",
+          "type": "text",
+          "default": "",
+          "workflow_phases": [
+            "WF_THERAPY"
+          ]
+        },
+        {
+          "id": "esd.resection.closure_method",
+          "label": "Defect closure method",
+          "type": "dropdown",
+          "default": "",
+          "workflow_phases": [
+            "WF_THERAPY"
+          ],
+          "vocabulary_source": "defect_closure_method"
+        },
+        {
+          "id": "esd.resection.clips_count",
+          "label": "Clips / devices applied (count)",
+          "type": "text",
+          "default": "",
+          "workflow_phases": [
+            "WF_THERAPY"
+          ]
+        },
+        {
+          "id": "esd.resection.procedure_time_min",
+          "label": "Procedure time (minutes)",
+          "type": "text",
+          "default": "",
+          "workflow_phases": [
+            "WF_THERAPY"
+          ]
+        },
+        {
+          "id": "esd.resection.technique_notes",
+          "label": "Technique notes",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_THERAPY"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "closure",
+      "label": "Closure",
+      "workflow_phase": "WF_CLOSURE",
+      "fields": [
+        {
+          "id": "esd.closure.procedure_completed",
+          "label": "Procedure completed as planned",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ],
+          "required": true,
+          "qi_flag": true,
+          "qi_mapping": {
+            "metric_key": "procedure_completed",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "esd.closure.immediate_complication",
+          "label": "Immediate complication",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ],
+          "required": true,
+          "qi_flag": true,
+          "qi_mapping": {
+            "metric_key": "immediate_complication",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "esd.closure.complication_types",
+          "label": "Complication type(s)",
+          "type": "multi_select",
+          "default": [],
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ],
+          "vocabulary_source": "resection_complication_type",
+          "visibility": {
+            "when": "field",
+            "field_id": "esd.closure.immediate_complication",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "esd.closure.complication_detail",
+          "label": "Complication detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "esd.closure.immediate_complication",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "esd.closure.hemostasis_required",
+          "label": "Hemostasis required",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ]
+        },
+        {
+          "id": "esd.closure.hemostasis_method",
+          "label": "Hemostasis method",
+          "type": "dropdown",
+          "default": "",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ],
+          "vocabulary_source": "hemostasis_method",
+          "visibility": {
+            "when": "field",
+            "field_id": "esd.closure.hemostasis_required",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "esd.closure.specimens_sent",
+          "label": "Specimens sent to histology",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ]
+        },
+        {
+          "id": "esd.closure.specimen_details",
+          "label": "Specimen details (jars / orientation)",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "esd.closure.specimens_sent",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        }
+      ]
+    },
+    {
+      "id": "synthesis",
+      "label": "Synthesis",
+      "workflow_phase": "WF_SYNTHESIS",
+      "fields": [
+        {
+          "id": "esd.synthesis.impression_primary",
+          "label": "Primary impression",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_SYNTHESIS"
+          ],
+          "required": true
+        },
+        {
+          "id": "esd.synthesis.histology_expected",
+          "label": "Expected histology",
+          "type": "dropdown",
+          "default": "",
+          "workflow_phases": [
+            "WF_SYNTHESIS"
+          ],
+          "vocabulary_source": "expected_histology"
+        },
+        {
+          "id": "esd.synthesis.r_status_intraop",
+          "label": "Resection margin status (intra-procedure assessment)",
+          "type": "dropdown",
+          "default": "",
+          "workflow_phases": [
+            "WF_SYNTHESIS"
+          ],
+          "vocabulary_source": "r_resection_status"
+        },
+        {
+          "id": "esd.synthesis.surveillance_interval",
+          "label": "Surveillance interval",
+          "type": "dropdown",
+          "default": "",
+          "workflow_phases": [
+            "WF_SYNTHESIS"
+          ],
+          "vocabulary_source": "surveillance_interval"
+        },
+        {
+          "id": "esd.synthesis.delayed_perforation_counseling",
+          "label": "Delayed perforation counseling documented",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_SYNTHESIS"
+          ]
+        },
+        {
+          "id": "esd.synthesis.clinical_plan",
+          "label": "Recommendations / clinical plan",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_SYNTHESIS"
+          ],
+          "required": true
+        },
+        {
+          "id": "esd.synthesis.addendum_text",
+          "label": "Addendum",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_SYNTHESIS"
+          ]
+        }
+      ]
+    }
+  ],
+  "components": {
+    "timeline": [
+      {
+        "key": "scope_insertion",
+        "label": "Scope inserted"
+      },
+      {
+        "key": "marking_completed",
+        "label": "Lesion marking completed"
+      },
+      {
+        "key": "submucosal_injection",
+        "label": "Submucosal injection"
+      },
+      {
+        "key": "dissection_started",
+        "label": "Dissection started"
+      },
+      {
+        "key": "resection_completed",
+        "label": "Resection completed"
+      },
+      {
+        "key": "defect_closure",
+        "label": "Defect closure"
+      },
+      {
+        "key": "scope_removal",
+        "label": "Scope removed"
+      }
+    ]
+  },
+  "section_narratives": [
+    {
+      "section": "clinical_indication",
+      "intro": "Clinical indication:",
+      "bindings": [
+        {
+          "mode": "literal",
+          "field_id": "esd.context.indication_category",
+          "label": "Category"
+        },
+        {
+          "mode": "literal",
+          "field_id": "esd.context.indication_detail",
+          "label": "Detail"
+        },
+        {
+          "mode": "sentence",
+          "field_id": "esd.context.urgency",
+          "template": "Urgency: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "esd.context.consent_obtained",
+          "template": "Consent obtained: {value}."
+        }
+      ]
+    },
+    {
+      "section": "procedure_description",
+      "intro": "ESD — technique summary:",
+      "bindings": [
+        {
+          "mode": "sentence",
+          "field_id": "esd.access.organ",
+          "template": "Target organ: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "esd.lesion.segment",
+          "template": "Segment: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "esd.lesion.size_mm",
+          "template": "Lesion size: {value} mm."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "esd.lesion.paris_morphology",
+          "template": "Paris morphology: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "esd.resection.en_bloc",
+          "template": "En-bloc resection: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "esd.resection.technique_notes",
+          "template": "Technique notes: {value}."
+        }
+      ]
+    },
+    {
+      "section": "findings",
+      "intro": "Lesion assessment:",
+      "bindings": [
+        {
+          "mode": "literal",
+          "field_id": "esd.lesion.lesion_description",
+          "label": ""
+        },
+        {
+          "mode": "sentence",
+          "field_id": "esd.lesion.nice_classification",
+          "template": "NICE: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "esd.lesion.jnet_classification",
+          "template": "JNET: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "esd.lesion.lifting_assessment",
+          "template": "Lifting: {value}."
+        }
+      ]
+    },
+    {
+      "section": "impression",
+      "bindings": [
+        {
+          "mode": "sentence",
+          "field_id": "esd.synthesis.impression_primary",
+          "template": "Impression:\n{value}"
+        }
+      ]
+    },
+    {
+      "section": "recommendations",
+      "intro": "Recommendations / plan:",
+      "bindings": [
+        {
+          "mode": "literal",
+          "field_id": "esd.synthesis.clinical_plan",
+          "label": ""
+        },
+        {
+          "mode": "sentence",
+          "field_id": "esd.synthesis.surveillance_interval",
+          "template": "Surveillance: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "esd.synthesis.addendum_text",
+          "template": "Addendum:\n{value}"
+        }
+      ]
+    },
+    {
+      "section": "complications",
+      "intro": "Complications and closure:",
+      "bindings": [
+        {
+          "mode": "sentence",
+          "field_id": "esd.closure.procedure_completed",
+          "template": "Procedure completed as planned: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "esd.closure.immediate_complication",
+          "template": "Immediate complication: {value}."
+        },
+        {
+          "mode": "literal",
+          "field_id": "esd.closure.complication_types",
+          "label": "Complication type(s)"
+        },
+        {
+          "mode": "sentence",
+          "field_id": "esd.closure.complication_detail",
+          "template": "Complication detail: {value}."
+        }
+      ]
+    }
+  ],
+  "workflow": {
+    "states": [
+      "WF_CONTEXT",
+      "WF_ACCESS",
+      "WF_IMAGING",
+      "WF_THERAPY",
+      "WF_CLOSURE",
+      "WF_SYNTHESIS",
+      "WF_REVIEW",
+      "WF_FINALIZE"
+    ],
+    "transitions": {
+      "WF_CONTEXT": [
+        "WF_ACCESS"
+      ],
+      "WF_ACCESS": [
+        "WF_CONTEXT",
+        "WF_IMAGING"
+      ],
+      "WF_IMAGING": [
+        "WF_ACCESS",
+        "WF_THERAPY"
+      ],
+      "WF_THERAPY": [
+        "WF_IMAGING",
+        "WF_CLOSURE"
+      ],
+      "WF_CLOSURE": [
+        "WF_THERAPY",
+        "WF_SYNTHESIS"
+      ],
+      "WF_SYNTHESIS": [
+        "WF_CLOSURE",
+        "WF_REVIEW"
+      ],
+      "WF_REVIEW": [
+        "WF_SYNTHESIS",
+        "WF_FINALIZE"
+      ],
+      "WF_FINALIZE": [
+        "WF_REVIEW"
+      ]
+    }
+  },
+  "validation": [
+    {
+      "id": "V_ESD_INDICATION",
+      "severity": "error",
+      "message": "Indication category is required before finalize.",
+      "rule": {
+        "type": "field_present",
+        "field_id": "esd.context.indication_category"
+      }
+    },
+    {
+      "id": "V_ESD_URGENCY",
+      "severity": "error",
+      "message": "Urgency is required before finalize.",
+      "rule": {
+        "type": "field_present",
+        "field_id": "esd.context.urgency"
+      }
+    },
+    {
+      "id": "V_ESD_CONSENT",
+      "severity": "error",
+      "message": "Consent outcome must be documented before finalize.",
+      "rule": {
+        "type": "field_in",
+        "field_id": "esd.context.consent_obtained",
+        "values": [
+          "Yes",
+          "No"
+        ]
+      }
+    },
+    {
+      "id": "V_ESD_ORGAN",
+      "severity": "error",
+      "message": "Target organ must be documented before finalize.",
+      "rule": {
+        "type": "field_present",
+        "field_id": "esd.access.organ"
+      }
+    },
+    {
+      "id": "V_ESD_LESION_SIZE",
+      "severity": "error",
+      "message": "Lesion size must be documented before finalize.",
+      "rule": {
+        "type": "field_nonempty",
+        "field_id": "esd.lesion.size_mm"
+      }
+    },
+    {
+      "id": "V_ESD_EN_BLOC",
+      "severity": "error",
+      "message": "En-bloc resection outcome must be documented before finalize.",
+      "rule": {
+        "type": "field_present",
+        "field_id": "esd.resection.en_bloc"
+      }
+    },
+    {
+      "id": "V_ESD_COMPLETED",
+      "severity": "error",
+      "message": "Procedure completion status is required before finalize.",
+      "rule": {
+        "type": "field_present",
+        "field_id": "esd.closure.procedure_completed"
+      }
+    },
+    {
+      "id": "V_ESD_COMPLICATION",
+      "severity": "error",
+      "message": "Immediate complication outcome must be documented before finalize.",
+      "rule": {
+        "type": "field_present",
+        "field_id": "esd.closure.immediate_complication"
+      }
+    },
+    {
+      "id": "V_ESD_IMPRESSION",
+      "severity": "error",
+      "message": "Primary impression is required before finalize.",
+      "rule": {
+        "type": "field_nonempty",
+        "field_id": "esd.synthesis.impression_primary"
+      }
+    },
+    {
+      "id": "V_ESD_PLAN",
+      "severity": "error",
+      "message": "Clinical plan / recommendations are required before finalize.",
+      "rule": {
+        "type": "field_nonempty",
+        "field_id": "esd.synthesis.clinical_plan"
+      }
+    },
+    {
+      "id": "V_ESD_KNIFE",
+      "severity": "error",
+      "message": "Dissection knife must be documented before finalize.",
+      "rule": {
+        "type": "field_present",
+        "field_id": "esd.resection.knife_type"
+      }
+    }
+  ],
+  "quick_fill": {
+    "normal_diagnostic": {
+      "label": "Complete EMR/ESD pathway (example)",
+      "description": "Pre-fill a typical therapeutic resection case for review.",
+      "fields": {
+        "esd.context.indication_category": [
+          "resection_lgd"
+        ],
+        "esd.context.urgency": "elective",
+        "esd.context.consent_obtained": "Yes",
+        "esd.access.organ": "colon",
+        "esd.lesion.segment": "sigmoid",
+        "esd.lesion.size_mm": "15",
+        "esd.lesion.paris_morphology": "0_isa",
+        "esd.resection.en_bloc": "Yes",
+        "esd.closure.procedure_completed": "Yes",
+        "esd.closure.immediate_complication": "No",
+        "esd.synthesis.impression_primary": "Lesion resected endoscopically.",
+        "esd.synthesis.clinical_plan": "Await histology. Follow-up as per surveillance interval."
+      }
+    }
+  }
+}

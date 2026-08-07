@@ -1,0 +1,120 @@
+{
+  "complaint_code": "CC_melena",
+  "schema_version": 1,
+  "revision": 1,
+  "min_history_answers_for_dx": 5,
+  "min_confidence_to_list_dx": 0.45,
+  "description": "Starter reasoning pack for CC_melena (practical, not Sleisenger-complete).",
+  "patterns": [
+    {
+      "id": "PAT_mel_ugib",
+      "label": "True melena / upper GI source",
+      "diagnosis_code": "DX_ugib_melena_suspect",
+      "diagnosis_label": "Upper GI bleed with melena (suspect)",
+      "weight_sum_required": 1.5,
+      "criteria": [
+        {
+          "kind": "answer",
+          "question_id": "Q000112",
+          "op": "in",
+          "value": [
+            "Sticky / tar-like (true melena character)"
+          ],
+          "weight": 1.3,
+          "finding": "Tarry sticky stool"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000033",
+          "op": "truthy",
+          "weight": 0.9,
+          "finding": "Hematemesis"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000038",
+          "op": "truthy",
+          "weight": 0.7,
+          "finding": "Presyncope"
+        },
+        {
+          "kind": "exam",
+          "sign_code": "SG_pallor",
+          "op": "present",
+          "weight": 0.6,
+          "finding": "Pallor"
+        }
+      ],
+      "suggested_questions": [
+        "Q000033",
+        "Q000038",
+        "Q000053"
+      ],
+      "suggested_exam": [
+        "SG_hypotension",
+        "SG_tachycardia",
+        "SG_pallor"
+      ],
+      "suggested_investigations": [
+        "IX_cbc",
+        "IX_coagulation_panel",
+        "IX_upper_endoscopy"
+      ]
+    },
+    {
+      "id": "PAT_mel_hemodynamic",
+      "label": "Melena with hemodynamic concern",
+      "diagnosis_code": "DX_significant_gi_bleed_suspect",
+      "diagnosis_label": "Significant GI bleed (suspect)",
+      "weight_sum_required": 1.4,
+      "criteria": [
+        {
+          "kind": "exam",
+          "sign_code": "SG_hypotension",
+          "op": "present",
+          "weight": 1.2,
+          "finding": "Hypotension"
+        },
+        {
+          "kind": "exam",
+          "sign_code": "SG_tachycardia",
+          "op": "present",
+          "weight": 0.8,
+          "finding": "Tachycardia"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000038",
+          "op": "truthy",
+          "weight": 0.7,
+          "finding": "Dizziness/fainting"
+        }
+      ],
+      "suggested_questions": [
+        "Q000033",
+        "Q000035"
+      ],
+      "suggested_exam": [
+        "SG_hypotension",
+        "SG_tachycardia"
+      ],
+      "suggested_investigations": [
+        "IX_cbc",
+        "IX_coagulation_panel",
+        "IX_upper_endoscopy"
+      ]
+    }
+  ],
+  "missing_info_rules": [
+    {
+      "id": "need_melena_character",
+      "if_unanswered": [
+        "Q000112"
+      ],
+      "message": "Clarify true melena vs dark stool",
+      "next_questions": [
+        "Q000112"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Endoscopy rooms{% endblock %}
+{% block content %}
+<h1>Endoscopy rooms</h1>
+{% include "gi/dept_ops/_nav.html" %}
+
+{% if can_manage %}
+<section class="admin-section compact-section">
+  <h2>Add room</h2>
+  <form method="POST" class="form-grid">
+    <input type="hidden" name="action" value="create">
+    <label>Name <input name="name" required></label>
+    <label>Type
+      <select name="room_type">{% for t in room_types %}<option value="{{ t }}">{{ t }}</option>{% endfor %}</select>
+    </label>
+    <button class="btn btn--primary" type="submit">Create</button>
+  </form>
+</section>
+{% endif %}
+
+<section class="admin-section compact-section">
+  <table class="admin-table compact-table">
+    <thead><tr><th>Room</th><th>Type</th><th>Status</th><th>Notes</th>{% if can_manage %}<th>Update</th>{% endif %}</tr></thead>
+    <tbody>
+      {% for r in rooms %}
+      <tr>
+        <td>{{ r.name }}</td>
+        <td>{{ r.room_type }}</td>
+        <td>{{ r.status }}</td>
+        <td>{{ r.status_notes or '—' }}</td>
+        {% if can_manage %}
+        <td>
+          <form method="POST" style="display:flex;gap:0.25rem;flex-wrap:wrap;">
+            <input type="hidden" name="action" value="status">
+            <input type="hidden" name="room_id" value="{{ r.id }}">
+            <select name="status">{% for s in room_statuses %}<option value="{{ s }}" {% if s == r.status %}selected{% endif %}>{{ s }}</option>{% endfor %}</select>
+            <input name="notes" placeholder="Notes" size="12">
+            <button class="btn btn--sm btn--outline" type="submit">Save</button>
+          </form>
+        </td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

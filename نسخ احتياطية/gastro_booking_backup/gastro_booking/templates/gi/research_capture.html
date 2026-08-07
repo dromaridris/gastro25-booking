@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Capture · {{ registry.title }}{% endblock %}
+{% block content %}
+<h1>Research data capture</h1>
+{% include "_module_intro.html" %}
+<p class="muted">Enrollment #{{ enrollment.id }} · {{ registry.title }} — research-only, not clinical documentation.</p>
+<form method="POST" class="settings-form">
+  {% for v in variables %}
+  {% set key = v.code or v.name %}
+  {% set val = payload.get(key, '') %}
+  <label>{{ v.name }}{% if v.required %} *{% endif %}
+    {% if v.var_type == 'boolean' %}
+    <select name="var_{{ v.id }}" {% if v.required %}required{% endif %}>
+      <option value="">—</option>
+      <option value="yes" {% if val|lower in ['yes','true','1'] %}selected{% endif %}>Yes</option>
+      <option value="no" {% if val|lower in ['no','false','0'] %}selected{% endif %}>No</option>
+    </select>
+    {% elif v.var_type == 'choice' %}
+    <select name="var_{{ v.id }}" {% if v.required %}required{% endif %}>
+      <option value="">—</option>
+      {% for opt in v.options_list %}
+      <option value="{{ opt }}" {% if val == opt %}selected{% endif %}>{{ opt }}</option>
+      {% endfor %}
+    </select>
+    {% elif v.var_type == 'number' %}
+    <input type="number" step="any" name="var_{{ v.id }}" value="{{ val }}" {% if v.required %}required{% endif %}>
+    {% elif v.var_type == 'date' %}
+    <input type="date" name="var_{{ v.id }}" value="{{ val }}" {% if v.required %}required{% endif %}>
+    {% else %}
+    <input name="var_{{ v.id }}" value="{{ val }}" {% if v.required %}required{% endif %}>
+    {% endif %}
+  </label>
+  {% else %}
+  <p class="muted">No approved variables yet — add or approve variables on the registry page first.</p>
+  {% endfor %}
+  {% if variables %}<button class="btn btn--primary" type="submit">Save research data</button>{% endif %}
+</form>
+<form method="POST" action="{{ url_for('gi_research_sync_enrollment', enrollment_id=enrollment.id) }}" style="margin-top:12px;">
+  <button class="btn btn--outline btn--sm" type="submit">Sync labs, journey &amp; procedure data</button>
+</form>
+<p><a href="{{ url_for('gi_research_detail', registry_id=registry.id) }}">← Back to registry</a></p>
+{% endblock %}

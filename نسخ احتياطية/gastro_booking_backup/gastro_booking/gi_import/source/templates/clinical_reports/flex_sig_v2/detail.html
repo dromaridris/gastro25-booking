@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}{{ template_label }} — {{ report.report_number }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h1>{{ template_label }}</h1>
+            <p class="text-muted mb-0">{{ report.report_number }} · {{ header.patient_name }} · {{ header.procedure_type }}</p>
+        </div>
+        <div>
+            <span class="badge bg-info">{{ phase_labels.get(workflow_state, workflow_state) }}</span>
+            <span class="badge bg-secondary">{{ report.status }}</span>
+        </div>
+    </div>
+
+    {% include "clinical_reports/flex_sig_v2/_workflow_nav.html" %}
+
+    {% if validation_findings %}
+    <div class="alert alert-warning">
+        <strong>Validation</strong>
+        <ul class="mb-2">
+            {% for f in validation_findings %}
+            <li>[{{ f.severity }}] {{ f.message }}</li>
+            {% endfor %}
+        </ul>
+        {% if report.is_editable and can('report:draft') %}
+        {% set warnings = validation_findings | selectattr('severity', 'equalto', 'warning') | list %}
+        {% if warnings %}
+        <form method="post" action="{{ url_for('clinical_reports.acknowledge_validation', report_id=report.id) }}">
+            {% for f in warnings %}
+            <input type="hidden" name="rule_id" value="{{ f.rule_id }}">
+            {% endfor %}
+            <button type="submit" class="btn btn-sm btn-outline-warning">Acknowledge warnings</button>
+        </form>
+        {% endif %}
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-8">
+            {% if report.is_editable and can('report:draft') %}
+            <div class="card mb-3">
+                <div class="card-header">Structured data</div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2 mb-2">
+                        {% for state in editable_phase_states %}
+                        <a href="{{ url_for('clinical_reports.edit_phase', report_id=report.id, phase_state=state) }}"
+                           class="btn btn-sm {% if state == workflow_state %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+                            {{ phase_labels.get(state, state) }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    <a class="btn btn-outline-primary btn-sm" href="{{ url_for('clinical_reports.edit_timeline', report_id=report.id) }}">Edit timeline</a>
+                </div>
+            </div>
+            {% endif %}
+
+            {% include "clinical_reports/_images_panel.html" %}
+
+            {% if report.is_editable and can('report:draft') and next_states %}
+            <div class="card mb-3">
+                <div class="card-header">Current phase: {{ phase_labels.get(workflow_state, workflow_state) }}</div>
+                <div class="card-body">
+                    <form method="post" action="{{ url_for('clinical_reports.transition', report_id=report.id) }}" class="d-inline">
+                        {% for ns in next_states %}
+                        <button type="submit" name="to_state" value="{{ ns }}" class="btn btn-outline-secondary btn-sm ms-1">
+                            → {{ phase_labels.get(ns, ns) }}
+                        </button>
+                        {% endfor %}
+                    </form>
+                </div>
+            </div>
+            {% elif report.is_editable and not can('report:draft') %}
+            <div class="alert alert-info">You have view-only access to this structured report.</div>
+            {% endif %}
+
+            {% for key, label in section_labels.items() %}
+            <div class="card mb-2">
+                <div class="card-header py-2">{{ label }}</div>
+                <div class="card-body"><pre class="mb-0 small">{{ sections[key].content or '—' }}</pre></div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="col-lg-4">
+            {% if report.is_editable and can('report:draft') and quick_fill_profiles %}
+            <div class="card mb-3">
+                <div class="card-header">Quick Fill</div>
+                <div class="card-body">
+                    {% for key, profile in quick_fill_profiles.items() %}
+                    <form method="post" action="{{ url_for('clinical_reports.quick_fill', report_id=report.id) }}" class="mb-2">
+                        <input type="hidden" name="profile_key" value="{{ key }}">
+                        <button type="submit" class="btn btn-outline-primary btn-sm w-100">{{ profile.label }}</button>
+                    </form>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if timeline_defs and timeline_by_key %}
+            <div class="card mb-3">
+                <div class="card-header">Timeline</div>
+                <ul class="list-group list-group-flush">
+                    {% for event_def in timeline_defs %}
+                    {% set ev = timeline_by_key.get(event_def.key) %}
+                    {% if ev and ev.occurred_at %}
+                    <li class="list-group-item small">
+                        <strong>{{ event_def.label }}</strong>
+                        <br>{{ ev.occurred_at.strftime('%H:%M') }}
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <div class="card mb-3">
+                <div class="card-header">QI Indicators</div>
+                <ul class="list-group list-group-flush">
+                    {% for mk, mv in metrics.items() %}
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>{{ qi_labels.get(mk, mk.replace('_', ' ').title()) }}</span>
+                        <span>{{ mv }}</span>
+                    </li>
+                    {% else %}
+                    <li class="list-group-item text-muted">No metrics computed yet.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header">Actions</div>
+                <div class="card-body d-grid gap-2">
+                    {% if report.is_editable and can('report:draft') %}
+                    <form method="post" action="{{ url_for('clinical_reports.regenerate', report_id=report.id) }}">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm w-100">Regenerate narrative</button>
+                    </form>
+                    {% elif report.status == 'finalized' and can('report:sign') %}
+                    <form method="post" action="{{ url_for('clinical_reports.lock_report', report_id=report.id) }}">
+                        <button type="submit" class="btn btn-warning btn-sm w-100">Lock</button>
+                    </form>
+                    {% elif report.status == 'locked' and can('report:sign') %}
+                    <form method="post" action="{{ url_for('clinical_reports.unlock_report', report_id=report.id) }}">
+                        <button type="submit" class="btn btn-outline-warning btn-sm w-100">Unlock</button>
+                    </form>
+                    {% endif %}
+                    <a class="btn btn-outline-dark btn-sm" href="{{ url_for('clinical_reports.print_report', report_id=report.id) }}" target="_blank">Print</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

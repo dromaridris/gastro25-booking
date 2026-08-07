@@ -1,0 +1,55 @@
+{
+  "complaint_code": "CC_abdominal_pain",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Management framework — disposition, urgency, referral. No drug prescriptions.",
+  "actions": [
+    {
+      "id": "MGT_stabilize_bleed",
+      "label": "Stabilize and escalate for GI bleeding",
+      "urgency": "emergency",
+      "when": {"any_pattern": ["PAT_gi_bleed"]},
+      "steps": [
+        "ABC / hemodynamic assessment",
+        "Urgent senior / GI bleed pathway notification",
+        "NBM pending endoscopy decision"
+      ],
+      "referral": "Gastroenterology / endoscopy on-call"
+    },
+    {
+      "id": "MGT_surgical_review",
+      "label": "Urgent surgical review",
+      "urgency": "emergency",
+      "when": {"any_pattern": ["PAT_peritonitis", "PAT_obstruction", "PAT_rlq_appendicitis"]},
+      "steps": [
+        "Keep NBM",
+        "IV access / fluid status review",
+        "Document serial abdominal exams"
+      ],
+      "referral": "General surgery"
+    },
+    {
+      "id": "MGT_biliary_pathway",
+      "label": "Biliary pathway",
+      "urgency": "urgent",
+      "when": {"any_pattern": ["PAT_ruq_biliary"]},
+      "steps": [
+        "Arrange RUQ ultrasound if not done",
+        "Monitor for cholangitis features (fever + jaundice + pain)"
+      ],
+      "referral": "Gastroenterology / surgery as local pathway"
+    },
+    {
+      "id": "MGT_routine_followup",
+      "label": "Outpatient / ward workup",
+      "urgency": "routine",
+      "when": {"default_if_no_emergency": true},
+      "steps": [
+        "Complete outstanding history red flags",
+        "Document exam",
+        "Baseline labs per investigation framework"
+      ],
+      "referral": null
+    }
+  ]
+}

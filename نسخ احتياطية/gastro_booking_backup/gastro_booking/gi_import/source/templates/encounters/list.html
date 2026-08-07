@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Open Encounters — GastroIntelligence{% endblock %}
+{% block content %}
+<h2>Open Encounters</h2>
+<table class="table table-sm">
+    <thead>
+        <tr><th>Started</th><th>Patient</th><th>Type</th><th>Summary</th><th></th></tr>
+    </thead>
+    <tbody>
+        {% for e in encounters %}
+        <tr>
+            <td>{{ e.started_at.strftime("%Y-%m-%d %H:%M") }}</td>
+            <td>
+                <a href="{{ url_for('patients.view_patient', patient_id=e.patient_id) }}">
+                    {{ e.patient.full_name if e.patient else e.patient_id }}
+                </a>
+            </td>
+            <td>{{ e.encounter_type.replace("_", " ").title() }}</td>
+            <td>{{ e.summary or "—" }}</td>
+            <td><a href="{{ url_for('encounters.view_encounter', encounter_id=e.id) }}">Open</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="text-muted">No open encounters.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

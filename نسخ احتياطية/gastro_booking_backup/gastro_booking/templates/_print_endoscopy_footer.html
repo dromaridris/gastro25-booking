@@ -1,0 +1,25 @@
+{# Footer: endoscopist far left, QR centred, spacer aligns with image column on right. #}
+<div class="print-endoscopy-footer">
+  <div class="print-footer-signature">
+    {% set signature_class = 'print-signature print-signature--footer' %}
+    {% set person = endoscopist %}
+    {% include "_print_signature_block.html" %}
+  </div>
+
+  {% if qr_data_uri or qr_fallback_url %}
+  <div class="print-footer-qr">
+    <div class="ercp-qr-box">
+      {% if qr_data_uri %}
+      <img src="{{ qr_data_uri }}" alt="QR code" class="ercp-qr-img">
+      {% else %}
+      <img src="{{ qr_fallback_url }}" alt="QR code" class="ercp-qr-img" crossorigin="anonymous">
+      {% endif %}
+      <p class="ercp-qr-caption">{{ codes_caption|default('Scan to open report') }}</p>
+    </div>
+  </div>
+  {% else %}
+  <div class="print-footer-qr print-footer-qr--missing" aria-hidden="true"></div>
+  {% endif %}
+
+  <div class="print-footer-rail-spacer" aria-hidden="true"></div>
+</div>

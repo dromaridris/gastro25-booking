@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% from "ui/macros.html" import page_header %}
+
+{% block title %}Clinical guidelines (admin) — {{ branding.display_title }}{% endblock %}
+
+{% block content %}
+{% set header_actions %}
+<a href="{{ url_for('knowledge_library.create_object') }}" class="btn gi-btn-primary btn-sm">Upload guideline file</a>
+{% endset %}
+
+{{ page_header(
+    "Clinical guidelines",
+    subtitle="For department administrators only. Clinical recommendations run in the background during patient care — this screen is for uploading and maintaining source files.",
+    breadcrumbs=[("Guidelines", none)],
+    actions=header_actions
+) }}
+
+<div class="alert alert-info gi-card mb-4" role="status">
+    Doctors and nurses do <strong>not</strong> need to open this page during routine clinical work.
+    Recommendations are applied automatically inside clinical workflows.
+</div>
+
+<h2 class="h5 mb-3">Loaded guideline topics ({{ guideline_topics|length }})</h2>
+{% if guideline_topics %}
+<div class="list-group mb-4">
+    {% for topic in guideline_topics %}
+    <div class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+            <div class="fw-semibold">{{ topic.title }}</div>
+            <div class="small text-muted">{{ topic.slug.replace('_', ' ') }}</div>
+        </div>
+        <a href="{{ url_for('knowledge_library.list_objects', object_type='guideline') }}" class="btn btn-outline-secondary btn-sm">Manage files</a>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">No guideline topics found in the knowledge library folder yet.</p>
+{% endif %}
+
+<p class="small text-muted mb-0">
+    Need the technical registry? <a href="{{ url_for('knowledge_library.list_objects') }}">Open full knowledge object list</a> (administrators only).
+</p>
+{% endblock %}

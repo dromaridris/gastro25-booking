@@ -1,0 +1,11 @@
+{% macro ci_nav(enc, ci_tabs, active) %}
+<div class="btn-row" style="display:flex;gap:8px;flex-wrap:wrap;">
+  <a class="btn btn--sm {{ 'btn--primary' if active=='history' else 'btn--outline' }}" href="{{ ci_tabs.history }}">History</a>
+  <a class="btn btn--sm {{ 'btn--primary' if active=='exam' else 'btn--outline' }}" href="{{ ci_tabs.exam }}">Exam</a>
+  <a class="btn btn--sm {{ 'btn--primary' if active=='ix' else 'btn--outline' }}" href="{{ ci_tabs.ix }}">IX</a>
+  <a class="btn btn--sm {{ 'btn--primary' if active=='consult' else 'btn--outline' }}" href="{{ ci_tabs.consult }}">Consult</a>
+  <a class="btn btn--sm {{ 'btn--primary' if active=='teach' else 'btn--outline' }}" href="{{ ci_tabs.teach }}">Teach</a>
+  <a class="btn btn--sm {{ 'btn--primary' if active=='research' else 'btn--outline' }}" href="{{ ci_tabs.research }}">Research</a>
+  <a class="btn btn--sm btn--ghost" href="{{ url_for('ci_home') }}">All</a>
+</div>
+{% endmacro %}

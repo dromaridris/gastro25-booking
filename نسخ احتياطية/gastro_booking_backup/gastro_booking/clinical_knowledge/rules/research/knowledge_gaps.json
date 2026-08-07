@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Research hypotheses / knowledge-gap templates derived from encounters or missing packs.",
+  "gap_checks": [
+    {
+      "id": "GAP_exam_pack_missing",
+      "kind": "knowledge_gap",
+      "when": "exam_template_missing",
+      "title": "Missing exam template for complaint",
+      "hypothesis_template": "Does adding a Bates-aligned exam pack for {complaint_code} improve documentation completeness?",
+      "priority": "high"
+    },
+    {
+      "id": "GAP_reasoning_pack_missing",
+      "kind": "knowledge_gap",
+      "when": "reasoning_pack_missing",
+      "title": "Missing reasoning rule pack",
+      "hypothesis_template": "Can specialty-neutral pattern rules for {complaint_code} be seeded from guideline summaries without disease extraction from Bates?",
+      "priority": "high"
+    },
+    {
+      "id": "GAP_low_confidence",
+      "kind": "encounter_gap",
+      "when": "max_pattern_confidence_below",
+      "threshold": 0.45,
+      "title": "Low pattern confidence after substantial history",
+      "hypothesis_template": "Which additional history/exam items most lift confidence for {complaint_code} encounters with max confidence < 0.45?",
+      "priority": "medium"
+    },
+    {
+      "id": "GAP_red_flag_positive",
+      "kind": "encounter_signal",
+      "when": "urgency_emergency",
+      "title": "Emergency stop-rule triggered",
+      "hypothesis_template": "What is the time-to-escalation distribution when stop-rules fire for {complaint_code}?",
+      "priority": "medium"
+    }
+  ],
+  "question_bank": [
+    {
+      "id": "RQ_region_dx_concordance",
+      "title": "Pain region vs final pathway concordance",
+      "applies_to_complaints": ["CC_abdominal_pain"],
+      "prompt": "Among CI abdominal pain encounters, how often does Q000042 region match the eventual investigation/procedure pathway?"
+    },
+    {
+      "id": "RQ_murphy_us",
+      "title": "Murphy sign and ultrasound yield",
+      "applies_to_complaints": ["CC_abdominal_pain"],
+      "prompt": "What is the association between documented Murphy sign and biliary ultrasound positive flags in interpretation packs?"
+    }
+  ]
+}

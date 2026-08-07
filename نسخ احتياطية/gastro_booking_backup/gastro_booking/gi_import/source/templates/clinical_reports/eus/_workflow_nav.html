@@ -1,0 +1,18 @@
+<nav class="nav nav-pills flex-wrap mb-3">
+    {% for state in workflow_states %}
+    {% if state != 'WF_FINALIZE' %}
+    {% set is_active = state == workflow_state %}
+    {% set is_complete = workflow_states.index(state) < workflow_states.index(workflow_state) %}
+    {% if report.is_editable and state in editable_phase_states and can('report:draft') %}
+    <a class="nav-link {% if is_active %}active{% elif is_complete %}text-success{% endif %} py-1 px-2 small"
+       href="{{ url_for('clinical_reports.edit_phase', report_id=report.id, phase_state=state) }}">
+        {{ phase_labels.get(state, state) }}
+    </a>
+    {% else %}
+    <span class="nav-link {% if is_active %}active{% elif is_complete %}text-success{% else %}disabled{% endif %} py-1 px-2 small">
+        {{ phase_labels.get(state, state) }}
+    </span>
+    {% endif %}
+    {% endif %}
+    {% endfor %}
+</nav>

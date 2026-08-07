@@ -1,0 +1,68 @@
+{
+  "id": "ET_vomiting",
+  "complaint_code": "CC_vomiting",
+  "name": "Vomiting / nausea physical examination",
+  "source": {
+    "work": "Bates' Guide to Physical Examination and History Taking",
+    "note": "Exam organization only; findings recorded against dictionary sign codes."
+  },
+  "systems": [
+    {
+      "key": "general",
+      "title": "General appearance & vitals",
+      "finding_ids": [
+        "SG_tachycardia",
+        "SG_hypotension",
+        "SG_fever",
+        "SG_pallor",
+        "SG_dehydration"
+      ],
+      "checklist": [
+        "General distress / toxic appearance",
+        "Vital signs (HR, BP, RR, SpO2, temperature)",
+        "Hydration / mucous membranes",
+        "Pallor / colour"
+      ]
+    },
+    {
+      "key": "abdomen",
+      "title": "Abdomen",
+      "finding_ids": [
+        "SG_guarding",
+        "SG_rigidity",
+        "SG_rebound_tenderness",
+        "SG_visible_peristalsis",
+        "SG_abdominal_mass",
+        "SG_hernia"
+      ],
+      "checklist": [
+        "Distension",
+        "Visible peristalsis (obstruction)",
+        "Tenderness / peritonism",
+        "Bowel sounds (tinkling vs absent)",
+        "Hernial orifices"
+      ]
+    },
+    {
+      "key": "hydration",
+      "title": "Hydration & metabolic status",
+      "finding_ids": [
+        "SG_dehydration",
+        "SG_hypotension",
+        "SG_tachycardia"
+      ],
+      "checklist": [
+        "Skin turgor / mucous membranes",
+        "Postural blood pressure"
+      ]
+    }
+  ],
+  "priority_findings": [
+    "SG_rigidity",
+    "SG_rebound_tenderness",
+    "SG_hypotension"
+  ],
+  "schema_version": 1,
+  "revision": 1,
+  "status": "active"
+}

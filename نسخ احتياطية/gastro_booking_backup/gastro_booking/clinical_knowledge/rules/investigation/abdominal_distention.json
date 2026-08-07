@@ -1,0 +1,58 @@
+{
+  "complaint_code": "CC_abdominal_distention",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Starter investigation framework for CC_abdominal_distention. Names/urgency/indications only.",
+  "bundles": [
+    {
+      "id": "IXB_dist_baseline",
+      "label": "Distention baseline",
+      "urgency": "urgent",
+      "when": {
+        "always_if_complaint": true
+      },
+      "investigations": [
+        "IX_cbc",
+        "IX_liver_panel",
+        "IX_basic_metabolic_panel"
+      ]
+    },
+    {
+      "id": "IXB_dist_ascites",
+      "label": "Ascites workup",
+      "urgency": "urgent",
+      "when": {
+        "any": [
+          {
+            "pattern_id": "PAT_dist_ascites"
+          },
+          {
+            "sign_code": "SG_ascites",
+            "op": "present"
+          }
+        ]
+      },
+      "investigations": [
+        "IX_abdominal_ultrasound",
+        "IX_liver_panel",
+        "IX_coagulation_panel"
+      ]
+    },
+    {
+      "id": "IXB_dist_obstruction",
+      "label": "Obstruction imaging",
+      "urgency": "emergency",
+      "when": {
+        "any": [
+          {
+            "pattern_id": "PAT_dist_obstruction"
+          }
+        ]
+      },
+      "investigations": [
+        "IX_ct_abdomen"
+      ],
+      "referral_hint": "Urgent surgical review"
+    }
+  ]
+}

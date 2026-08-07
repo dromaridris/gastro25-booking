@@ -1,0 +1,74 @@
+/* Branded login experience — Sprint 8B */
+
+.gi-login-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow-x: hidden;
+    font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+}
+
+.gi-login-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background:
+        radial-gradient(ellipse 70% 60% at 20% 10%, rgba(255, 255, 255, 0.12), transparent 55%),
+        linear-gradient(135deg, color-mix(in srgb, var(--gi-color-primary) 92%, #000) 0%, color-mix(in srgb, var(--gi-color-secondary) 80%, #000) 50%, color-mix(in srgb, var(--gi-color-accent) 65%, #000) 100%);
+}
+
+.gi-login-main {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+}
+
+.gi-login-card {
+    width: 100%;
+    max-width: 440px;
+    background: color-mix(in srgb, var(--gi-color-surface) 96%, transparent);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 1rem;
+    box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.22);
+    backdrop-filter: blur(16px);
+}
+
+.gi-login-card h1 {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.gi-login-logo {
+    max-height: 72px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.12));
+}
+
+.gi-login-footer {
+    position: relative;
+    z-index: 1;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.8125rem;
+}
+
+.gi-login-footer .gi-platform-logo {
+    filter: brightness(1.2);
+    opacity: 0.9;
+    height: 28px;
+}
+
+@media (max-width: 575.98px) {
+    .gi-login-card {
+        border-radius: 0.5rem;
+    }
+
+    .gi-login-logo {
+        max-height: 44px;
+    }
+}

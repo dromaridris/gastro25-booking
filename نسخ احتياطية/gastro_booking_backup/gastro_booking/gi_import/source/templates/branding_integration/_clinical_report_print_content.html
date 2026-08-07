@@ -1,0 +1,59 @@
+<header class="mb-4">
+    <h1 class="h3 mb-1">{{ template_label }}</h1>
+    <p class="text-muted small mb-3">Clinical report · {{ report.status.title() }}</p>
+    <dl class="row mb-0">
+        <dt class="col-sm-3">Report Number</dt><dd class="col-sm-9">{{ header.report_number }}</dd>
+        <dt class="col-sm-3">Patient</dt><dd class="col-sm-9">{{ header.patient_name }} ({{ header.patient_mrn }})</dd>
+        <dt class="col-sm-3">Procedure</dt><dd class="col-sm-9">{{ header.procedure_type }}</dd>
+        <dt class="col-sm-3">Procedure Date</dt>
+        <dd class="col-sm-9">{{ header.procedure_date.strftime("%Y-%m-%d %H:%M") if header.procedure_date else "—" }}</dd>
+        <dt class="col-sm-3">Room</dt><dd class="col-sm-9">{{ header.room }}</dd>
+        <dt class="col-sm-3">Endoscopist</dt><dd class="col-sm-9">{{ header.endoscopist }}</dd>
+        <dt class="col-sm-3">Team</dt><dd class="col-sm-9">{{ header.team_summary }}</dd>
+        <dt class="col-sm-3">Sedation</dt><dd class="col-sm-9">{{ header.sedation_category }}</dd>
+        <dt class="col-sm-3">Report Author</dt><dd class="col-sm-9">{{ header.author }}</dd>
+        <dt class="col-sm-3">Supervising Consultant</dt><dd class="col-sm-9">{{ header.supervising_consultant }}</dd>
+    </dl>
+</header>
+
+{% for key, label in section_labels.items() %}
+<section class="gi-print-section report-section">
+    <h3>{{ label }}</h3>
+    <pre>{{ sections[key].content if sections.get(key) and sections[key].content else "—" }}</pre>
+</section>
+{% endfor %}
+
+{% if has_timeline_times %}
+<section class="gi-print-section report-section">
+    <h3>Procedure Timeline</h3>
+    <table class="table table-sm timeline-table">
+        <thead><tr><th>Time</th><th>Event</th></tr></thead>
+        <tbody>
+            {% for event_def in timeline_defs %}
+            {% set ev = timeline_by_key.get(event_def.key) %}
+            {% if ev and ev.occurred_at %}
+            <tr><td>{{ ev.occurred_at.strftime('%H:%M') }}</td><td>{{ event_def.label }}</td></tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endif %}
+
+{% if metrics %}
+<section class="internal-section">
+    <h3>Quality Indicators <span class="text-muted fw-normal">(internal)</span></h3>
+    <table class="table table-sm timeline-table">
+        <thead><tr><th>Indicator</th><th>Value</th></tr></thead>
+        <tbody>
+            {% for mk, label in qi_labels.items() %}
+            {% set raw = metrics.get(mk) %}
+            <tr>
+                <td>{{ label }}</td>
+                <td>{%- if raw == 'True' -%}Yes{%- elif raw == 'False' -%}No{%- elif raw is not none -%}{{ raw }}{%- else -%}—{%- endif -%}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endif %}

@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% from 'clinical_intelligence/_nav.html' import ci_nav %}
+{% block title %}Investigations · encounter {{ enc.id }}{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>Investigations &amp; interpretation</h1>
+    <p class="muted">#{{ enc.id }} · categorical results only (no invented numbers)</p>
+  </div>
+  {{ ci_nav(enc, ci_tabs, 'ix') }}
+</section>
+
+<section class="admin-section">
+  <h2>Suggested investigations</h2>
+  {% if result.investigations.entries %}
+  <ul>
+    {% for item in result.investigations.entries %}
+    <li>[{{ item.urgency }}] {{ item.label }}
+      {% if item.gi_overlay %}<span class="muted">— {{ item.gi_overlay.hint }}</span>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="muted">No suggestions yet — complete history/exam patterns.</p>
+  {% endif %}
+</section>
+
+<section class="admin-section">
+  <h2>Record categorical result</h2>
+  <form method="POST" class="settings-form">
+    <label>Investigation
+      <select name="investigation_code" required id="ixCode">
+        <option value="">—</option>
+        {% for code, labels in vocab.items() %}
+        <option value="{{ code }}">{{ code }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Result label
+      <select name="result_label" required id="ixResult">
+        <option value="">Select investigation first</option>
+      </select>
+    </label>
+    <label>Note <input name="note" placeholder="Optional"></label>
+    <button class="btn btn--primary" type="submit">Save result</button>
+  </form>
+</section>
+
+<script>
+const vocab = {{ vocab|tojson }};
+const codeSel = document.getElementById('ixCode');
+const resSel = document.getElementById('ixResult');
+function refill() {
+  const code = codeSel.value;
+  resSel.innerHTML = '';
+  const labels = vocab[code] || [];
+  if (!labels.length) {
+    resSel.innerHTML = '<option value="">No vocab</option>';
+    return;
+  }
+  labels.forEach(l => {
+    const o = document.createElement('option');
+    o.value = l; o.textContent = l;
+    resSel.appendChild(o);
+  });
+}
+codeSel.addEventListener('change', refill);
+</script>
+
+{% if saved %}
+<section class="admin-section">
+  <h2>Saved categorical results</h2>
+  <ul>{% for r in saved %}<li>{{ r.investigation_code }} = <em>{{ r.result_label }}</em>{% if r.note %} ({{ r.note }}){% endif %}</li>{% endfor %}</ul>
+</section>
+{% endif %}
+
+{% if ward_labs %}
+<section class="admin-section">
+  <h2>Ward laboratory results (auto)</h2>
+  <p class="muted muted-sm">From Laboratory module via linked ward patient — numeric values; enter categorical labels above for interpretation rules.</p>
+  <div class="admin-table-scroll">
+  <table class="admin-table compact-table">
+    <thead><tr><th>Test</th><th>Value</th><th>Ref</th><th>Date</th></tr></thead>
+    <tbody>
+    {% for lab in ward_labs %}
+    <tr>
+      <td>{{ lab.test_name or lab.test_code }}</td>
+      <td>{{ lab.result_value }}{% if lab.result_unit %} {{ lab.result_unit }}{% endif %}</td>
+      <td class="muted">{{ lab.reference_range or '—' }}</td>
+      <td>{{ (lab.result_date or lab.recorded_at or '')[:10] or '—' }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+{% elif enc.ward_patient_id %}
+<p class="muted">No ward lab results yet for this patient.</p>
+{% endif %}
+
+<section class="admin-section">
+  <h2>Interpretation flags</h2>
+  {% if result.interpretation.entries %}
+  {% for item in result.interpretation.entries %}
+    {% if item.ok %}
+      {% for interp in item.interpretations %}
+      <div class="compact-card" style="margin-bottom:8px;">
+        <strong>{{ item.label }}</strong> = {{ item.result }}
+        <div>{{ interp.message }}</div>
+        {% if interp.next_steps %}<ul>{% for s in interp.next_steps %}<li>{{ s }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+      {% else %}
+      <p class="muted">{{ item.label }} = {{ item.result }} — no matching rule.</p>
+      {% endfor %}
+    {% else %}
+      <p class="muted">{{ item.error }}</p>
+    {% endif %}
+  {% endfor %}
+  {% else %}
+  <p class="muted">No results interpreted yet.</p>
+  {% endif %}
+</section>
+
+{% if result.procedures.entries %}
+<section class="admin-section">
+  <h2>Procedure considerations</h2>
+  {% for p in result.procedures.entries %}
+  <div class="compact-card" style="margin-bottom:8px;">
+    <strong>[{{ p.urgency }}] {{ p.label }}</strong>
+    {% if p.gi_overlay %}<div class="muted">{{ p.gi_overlay.hint }}</div>{% endif %}
+    <p style="font-size:13px;"><strong>Indications:</strong> {{ p.indications|join('; ') }}</p>
+    <p style="font-size:13px;"><strong>Prep:</strong> {{ p.prep|join('; ') }}</p>
+    <p style="font-size:13px;"><strong>Risks:</strong> {{ p.risks|join('; ') }}</p>
+  </div>
+  {% endfor %}
+</section>
+{% endif %}
+{% endblock %}

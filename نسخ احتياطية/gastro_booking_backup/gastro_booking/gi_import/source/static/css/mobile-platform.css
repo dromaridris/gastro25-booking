@@ -1,0 +1,67 @@
+/* Mobile platform — tables, cards, FAB */
+
+@media (max-width: 767.98px) {
+  .table-responsive .table thead { display: none; }
+  .table-responsive .table tr {
+    display: block;
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--gi-border, #dee2e6);
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+  }
+  .table-responsive .table td {
+    display: flex;
+    justify-content: space-between;
+    border: none;
+    padding: 0.25rem 0;
+  }
+  .table-responsive .table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    margin-right: 0.5rem;
+    color: var(--gi-muted, #6c757d);
+  }
+  .gi-bed-card { min-height: 7rem; }
+}
+
+.gi-fab {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  z-index: 1040;
+}
+
+.gi-fab-toggle {
+  width: 3rem;
+  height: 3rem;
+  font-size: 1.5rem;
+  line-height: 1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.gi-fab-menu {
+  position: absolute;
+  bottom: 3.5rem;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 9rem;
+}
+
+.gi-fab-menu[hidden] { display: none !important; }
+
+.gi-pharma-banner {
+  background: var(--gi-surface-alt, #f8f9fa);
+  border: 1px solid var(--gi-border, #dee2e6);
+}
+
+.gi-pharma-slide {
+  background: linear-gradient(135deg, rgba(var(--gi-primary-rgb, 26, 82, 118), 0.06), transparent);
+}
+
+.gi-global-search { max-width: 20rem; }
+
+@media (max-width: 991.98px) {
+  .gi-global-search { max-width: 100%; width: 100%; margin-bottom: 0.5rem; }
+}

@@ -1,0 +1,183 @@
+{
+  "complaint_code": "CC_hematemesis",
+  "schema_version": 1,
+  "revision": 1,
+  "min_history_answers_for_dx": 6,
+  "min_confidence_to_list_dx": 0.45,
+  "description": "Starter reasoning pack for CC_hematemesis (practical, not Sleisenger-complete).",
+  "patterns": [
+    {
+      "id": "PAT_hem_variceal_risk",
+      "label": "Variceal / portal hypertension risk bleed",
+      "diagnosis_code": "DX_variceal_bleed_suspect",
+      "diagnosis_label": "Variceal bleeding (suspect)",
+      "weight_sum_required": 1.8,
+      "criteria": [
+        {
+          "kind": "answer",
+          "question_id": "Q000033",
+          "op": "truthy",
+          "weight": 0.8,
+          "finding": "Hematemesis confirmed"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000109",
+          "op": "in",
+          "value": [
+            "About a cup",
+            "More than a cup / continuous"
+          ],
+          "weight": 1.0,
+          "finding": "Large-volume hematemesis"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000038",
+          "op": "truthy",
+          "weight": 0.7,
+          "finding": "Syncope/dizziness"
+        },
+        {
+          "kind": "exam",
+          "sign_code": "SG_hypotension",
+          "op": "present",
+          "weight": 1.0,
+          "finding": "Hypotension"
+        },
+        {
+          "kind": "exam",
+          "sign_code": "SG_tachycardia",
+          "op": "present",
+          "weight": 0.6,
+          "finding": "Tachycardia"
+        }
+      ],
+      "suggested_questions": [
+        "Q000034",
+        "Q000038",
+        "Q000096"
+      ],
+      "suggested_exam": [
+        "SG_hypotension",
+        "SG_tachycardia",
+        "SG_pallor"
+      ],
+      "suggested_investigations": [
+        "IX_cbc",
+        "IX_coagulation_panel",
+        "IX_upper_endoscopy",
+        "IX_liver_panel"
+      ]
+    },
+    {
+      "id": "PAT_hem_ulcer_pud",
+      "label": "Peptic ulcer / non-variceal UGIB pattern",
+      "diagnosis_code": "DX_pud_ugib_suspect",
+      "diagnosis_label": "Peptic ulcer UGIB (suspect)",
+      "weight_sum_required": 1.6,
+      "criteria": [
+        {
+          "kind": "answer",
+          "question_id": "Q000108",
+          "op": "in",
+          "value": [
+            "Bright red blood",
+            "Dark / coffee-ground material"
+          ],
+          "weight": 1.0,
+          "finding": "Bloody or coffee-ground emesis"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000034",
+          "op": "truthy",
+          "weight": 0.9,
+          "finding": "Melena"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000042",
+          "op": "eq",
+          "value": "Epigastric",
+          "weight": 0.6,
+          "finding": "Epigastric pain"
+        }
+      ],
+      "suggested_questions": [
+        "Q000034",
+        "Q000053",
+        "Q000038"
+      ],
+      "suggested_exam": [
+        "SG_pallor",
+        "SG_tachycardia"
+      ],
+      "suggested_investigations": [
+        "IX_cbc",
+        "IX_coagulation_panel",
+        "IX_upper_endoscopy"
+      ]
+    },
+    {
+      "id": "PAT_hem_mallory_weiss",
+      "label": "Mallory-Weiss / retching-first pattern",
+      "diagnosis_code": "DX_mallory_weiss_suspect",
+      "diagnosis_label": "Mallory-Weiss tear (suspect)",
+      "weight_sum_required": 1.5,
+      "criteria": [
+        {
+          "kind": "answer",
+          "question_id": "Q000110",
+          "op": "truthy",
+          "weight": 1.4,
+          "finding": "Retching before blood"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000108",
+          "op": "eq",
+          "value": "Bright red blood",
+          "weight": 0.6,
+          "finding": "Bright red hematemesis"
+        }
+      ],
+      "suggested_questions": [
+        "Q000109",
+        "Q000038"
+      ],
+      "suggested_exam": [
+        "SG_tachycardia"
+      ],
+      "suggested_investigations": [
+        "IX_cbc",
+        "IX_upper_endoscopy"
+      ]
+    }
+  ],
+  "missing_info_rules": [
+    {
+      "id": "need_volume",
+      "if_unanswered": [
+        "Q000109"
+      ],
+      "message": "Estimate volume of hematemesis",
+      "next_questions": [
+        "Q000109"
+      ]
+    },
+    {
+      "id": "need_hemodynamics",
+      "if_exam_missing_any": [
+        "SG_hypotension",
+        "SG_tachycardia"
+      ],
+      "message": "Document vitals / shock signs",
+      "next_exam": [
+        "SG_hypotension",
+        "SG_tachycardia",
+        "SG_pallor"
+      ]
+    }
+  ]
+}

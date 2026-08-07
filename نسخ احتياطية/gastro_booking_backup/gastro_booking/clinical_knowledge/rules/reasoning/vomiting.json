@@ -1,0 +1,144 @@
+{
+  "complaint_code": "CC_vomiting",
+  "schema_version": 1,
+  "revision": 1,
+  "min_history_answers_for_dx": 5,
+  "min_confidence_to_list_dx": 0.45,
+  "description": "Starter reasoning pack for CC_vomiting (practical, not Sleisenger-complete).",
+  "patterns": [
+    {
+      "id": "PAT_vom_obstruction",
+      "label": "Obstruction / ileus pattern",
+      "diagnosis_code": "DX_obstruction_vomiting_suspect",
+      "diagnosis_label": "Bowel obstruction (suspect)",
+      "weight_sum_required": 1.6,
+      "criteria": [
+        {
+          "kind": "answer",
+          "question_id": "Q000022",
+          "op": "truthy",
+          "weight": 0.7,
+          "finding": "Vomiting"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000045",
+          "op": "truthy",
+          "weight": 1.2,
+          "finding": "Inability to pass stool/gas"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000025",
+          "op": "truthy",
+          "weight": 0.6,
+          "finding": "Distention"
+        },
+        {
+          "kind": "exam",
+          "sign_code": "SG_visible_peristalsis",
+          "op": "present",
+          "weight": 0.7,
+          "finding": "Visible peristalsis"
+        }
+      ],
+      "suggested_questions": [
+        "Q000033",
+        "Q000073"
+      ],
+      "suggested_exam": [
+        "SG_rigidity",
+        "SG_rebound_tenderness",
+        "SG_visible_peristalsis"
+      ],
+      "suggested_investigations": [
+        "IX_ct_abdomen",
+        "IX_cbc",
+        "IX_basic_metabolic_panel"
+      ]
+    },
+    {
+      "id": "PAT_vom_bleed",
+      "label": "Vomiting with GI bleed alarms",
+      "diagnosis_code": "DX_vomiting_with_bleed_suspect",
+      "diagnosis_label": "Vomiting with GI bleeding (suspect)",
+      "weight_sum_required": 1.3,
+      "criteria": [
+        {
+          "kind": "answer",
+          "question_id": "Q000033",
+          "op": "truthy",
+          "weight": 1.4,
+          "finding": "Hematemesis"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000034",
+          "op": "truthy",
+          "weight": 1.0,
+          "finding": "Melena"
+        }
+      ],
+      "suggested_questions": [
+        "Q000038",
+        "Q000077"
+      ],
+      "suggested_exam": [
+        "SG_hypotension",
+        "SG_pallor"
+      ],
+      "suggested_investigations": [
+        "IX_cbc",
+        "IX_upper_endoscopy",
+        "IX_coagulation_panel"
+      ]
+    },
+    {
+      "id": "PAT_vom_dehydration",
+      "label": "Dehydration from protracted vomiting",
+      "diagnosis_code": "DX_vomiting_dehydration_suspect",
+      "diagnosis_label": "Dehydration from vomiting (suspect)",
+      "weight_sum_required": 1.2,
+      "criteria": [
+        {
+          "kind": "answer",
+          "question_id": "Q000075",
+          "op": "truthy",
+          "weight": 1.1,
+          "finding": "Dehydration symptoms"
+        },
+        {
+          "kind": "exam",
+          "sign_code": "SG_hypotension",
+          "op": "present",
+          "weight": 0.8,
+          "finding": "Hypotension"
+        }
+      ],
+      "suggested_questions": [
+        "Q000074"
+      ],
+      "suggested_exam": [
+        "SG_hypotension"
+      ],
+      "suggested_investigations": [
+        "IX_basic_metabolic_panel",
+        "IX_cbc"
+      ]
+    }
+  ],
+  "missing_info_rules": [
+    {
+      "id": "need_bleed_screen",
+      "if_unanswered_any": [
+        "Q000033",
+        "Q000077"
+      ],
+      "message": "Screen for hematemesis",
+      "next_questions": [
+        "Q000033",
+        "Q000077"
+      ]
+    }
+  ]
+}

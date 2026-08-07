@@ -1,0 +1,146 @@
+{
+  "complaint_code": "CC_abdominal_distention",
+  "schema_version": 1,
+  "revision": 1,
+  "min_history_answers_for_dx": 5,
+  "min_confidence_to_list_dx": 0.45,
+  "description": "Starter reasoning pack for CC_abdominal_distention (practical, not Sleisenger-complete).",
+  "patterns": [
+    {
+      "id": "PAT_dist_ascites",
+      "label": "Ascites / portal hypertension pattern",
+      "diagnosis_code": "DX_ascites_suspect",
+      "diagnosis_label": "Ascites (suspect)",
+      "weight_sum_required": 1.5,
+      "criteria": [
+        {
+          "kind": "answer",
+          "question_id": "Q000025",
+          "op": "truthy",
+          "weight": 0.7,
+          "finding": "Distention"
+        },
+        {
+          "kind": "exam",
+          "sign_code": "SG_ascites",
+          "op": "present",
+          "weight": 1.3,
+          "finding": "Ascites signs"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000026",
+          "op": "truthy",
+          "weight": 0.5,
+          "finding": "Jaundice"
+        }
+      ],
+      "suggested_questions": [
+        "Q000026",
+        "Q000034",
+        "Q000115"
+      ],
+      "suggested_exam": [
+        "SG_ascites",
+        "SG_jaundice"
+      ],
+      "suggested_investigations": [
+        "IX_liver_panel",
+        "IX_abdominal_ultrasound",
+        "IX_coagulation_panel"
+      ]
+    },
+    {
+      "id": "PAT_dist_obstruction",
+      "label": "Acute distention / obstruction",
+      "diagnosis_code": "DX_distention_obstruction_suspect",
+      "diagnosis_label": "Obstruction with distention (suspect)",
+      "weight_sum_required": 1.6,
+      "criteria": [
+        {
+          "kind": "answer",
+          "question_id": "Q000045",
+          "op": "truthy",
+          "weight": 1.2,
+          "finding": "Obstipation"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000022",
+          "op": "truthy",
+          "weight": 0.6,
+          "finding": "Vomiting"
+        },
+        {
+          "kind": "exam",
+          "sign_code": "SG_visible_peristalsis",
+          "op": "present",
+          "weight": 0.7,
+          "finding": "Visible peristalsis"
+        }
+      ],
+      "suggested_questions": [
+        "Q000073",
+        "Q000033",
+        "Q000115"
+      ],
+      "suggested_exam": [
+        "SG_rigidity",
+        "SG_rebound_tenderness"
+      ],
+      "suggested_investigations": [
+        "IX_ct_abdomen",
+        "IX_cbc",
+        "IX_basic_metabolic_panel"
+      ]
+    },
+    {
+      "id": "PAT_dist_mass",
+      "label": "Mass / organomegaly concern",
+      "diagnosis_code": "DX_abdominal_mass_suspect",
+      "diagnosis_label": "Abdominal mass (suspect)",
+      "weight_sum_required": 1.2,
+      "criteria": [
+        {
+          "kind": "exam",
+          "sign_code": "SG_abdominal_mass",
+          "op": "present",
+          "weight": 1.4,
+          "finding": "Palpable mass"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000019",
+          "op": "truthy",
+          "weight": 0.5,
+          "finding": "Weight loss"
+        }
+      ],
+      "suggested_questions": [
+        "Q000019",
+        "Q000026"
+      ],
+      "suggested_exam": [
+        "SG_abdominal_mass",
+        "SG_ascites"
+      ],
+      "suggested_investigations": [
+        "IX_ct_abdomen",
+        "IX_cbc",
+        "IX_liver_panel"
+      ]
+    }
+  ],
+  "missing_info_rules": [
+    {
+      "id": "need_tempo",
+      "if_unanswered": [
+        "Q000115"
+      ],
+      "message": "Ask how quickly abdomen enlarged",
+      "next_questions": [
+        "Q000115"
+      ]
+    }
+  ]
+}

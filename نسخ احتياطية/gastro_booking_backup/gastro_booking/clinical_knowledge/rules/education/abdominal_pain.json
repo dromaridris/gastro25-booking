@@ -1,0 +1,193 @@
+{
+  "complaint_code": "CC_abdominal_pain",
+  "schema_version": 1,
+  "revision": 2,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_oldcarts",
+      "title": "Abdominal pain history structure",
+      "trigger": {"always": true},
+      "points": [
+        "Characterize pain with location, onset, character, radiation, timing, exacerbating/relieving factors, severity.",
+        "Always screen GI bleed and obstruction red flags early.",
+        "Region (RUQ/RLQ/epigastric) narrows the first differential branch."
+      ],
+      "linked_questions": ["Q000042", "Q000003", "Q000004", "Q000033"]
+    },
+    {
+      "id": "EDU_murphy",
+      "title": "Murphy sign teaching",
+      "trigger": {"any_sign_present": ["SG_murphy_sign"], "any_pattern": ["PAT_ruq_biliary"]},
+      "points": [
+        "Murphy sign: inspiratory arrest during RUQ palpation suggests gallbladder inflammation.",
+        "Positive Murphy + RUQ pain → prioritize biliary ultrasound pathway.",
+        "Absence of Murphy does not exclude biliary disease."
+      ],
+      "linked_diagnoses": ["DX_biliary_colic_or_cholecystitis_suspect"]
+    },
+    {
+      "id": "EDU_peritonitis",
+      "title": "Peritoneal signs",
+      "trigger": {"any_sign_present": ["SG_peritoneal_signs", "SG_rigidity", "SG_rebound_tenderness"]},
+      "points": [
+        "Guarding, rigidity, and rebound suggest peritoneal irritation — treat as acute abdomen until proven otherwise.",
+        "Do not delay surgical review for prolonged outpatient workup.",
+        "Keep NBM and document serial exams."
+      ],
+      "linked_diagnoses": ["DX_peritonitis_suspect"]
+    },
+    {
+      "id": "EDU_gi_bleed",
+      "title": "GI bleeding basics",
+      "trigger": {"any_pattern": ["PAT_gi_bleed"]},
+      "points": [
+        "Hematemesis/melena → upper bleed until proven otherwise; hematochezia may be brisk upper or lower.",
+        "Resuscitation precedes definitive endoscopy.",
+        "Use existing EGD documentation module when endoscopy is performed."
+      ],
+      "linked_diagnoses": ["DX_gi_bleeding_suspect"],
+      "linked_questions": ["Q000033", "Q000034", "Q000035"]
+    },
+    {
+      "id": "EDU_appendicitis",
+      "title": "Appendicitis pattern",
+      "trigger": {"any_pattern": ["PAT_rlq_appendicitis"]},
+      "points": [
+        "RLQ pain + anorexia/nausea/fever is a classic teaching cluster — still confirm with exam/imaging.",
+        "Rebound/guarding raise urgency for surgical review."
+      ],
+      "linked_diagnoses": ["DX_appendicitis_suspect"],
+      "linked_questions": ["Q000042", "Q000021", "Q000022"]
+    }
+  ],
+  "question_coaching": {
+    "Q000001": {
+      "why_ask": "Capture the patient's words — it anchors the whole HPI and avoids premature labeling.",
+      "listen_for": ["Pain vs discomfort", "Duration in their words", "What brought them today"],
+      "think": "Quote briefly; then structure with SOCRATES/OLDCARTS."
+    },
+    "Q000002": {
+      "why_ask": "Time course separates acute abdomen from chronic/recurrent pain.",
+      "listen_for": ["Hours vs days vs months", "Sudden clock-time onset"],
+      "think": "Hours + severe → escalate red-flag and surgical thinking early."
+    },
+    "Q000003": {
+      "why_ask": "Sudden vs gradual onset changes the first differential branch.",
+      "listen_for": ["Sudden at a moment", "Built over days"],
+      "think": "Sudden severe → perforation, ischemia, colic, rupture on the shortlist."
+    },
+    "Q000004": {
+      "why_ask": "Location is the first anatomic filter for abdominal pain.",
+      "listen_for": ["RUQ", "RLQ", "epigastric", "diffuse", "flank"],
+      "think": "Point with one finger if possible; diffuse pain widens the differential."
+    },
+    "Q000005": {
+      "why_ask": "Radiation patterns are classic teaching clues (biliary → scapula; pancreatic → back).",
+      "listen_for": ["Back", "shoulder", "groin", "chest"],
+      "think": "Radiation does not prove a diagnosis — it prioritizes the next questions."
+    },
+    "Q000006": {
+      "why_ask": "Character (colicky vs constant vs burning) guides visceral vs peritoneal thinking.",
+      "listen_for": ["Colicky waves", "Constant", "Burning", "Tearing"],
+      "think": "Colic → hollow viscus spasm/obstruction; constant + guarding → inflammation."
+    },
+    "Q000042": {
+      "why_ask": "Region mapping is the fastest way to teach differential branching.",
+      "listen_for": ["RUQ", "LUQ", "RLQ", "LLQ", "epigastric", "periumbilical", "diffuse"],
+      "think": "RUQ→biliary; RLQ→appendix/gyn; epigastric→peptic/pancreas; diffuse→obstruction/peritonitis."
+    },
+    "Q000033": {
+      "why_ask": "GI bleed screening is a must-not-miss red flag in every abdominal pain HPI.",
+      "listen_for": ["Hematemesis", "coffee-ground", "melena", "hematochezia"],
+      "think": "Any bleed + instability → resuscitate first; endoscopy pathway next."
+    },
+    "Q000034": {
+      "why_ask": "Vomiting blood vs coffee-ground separates acuity of upper GI bleed.",
+      "listen_for": ["Fresh blood", "coffee ground"],
+      "think": "Pair with hemodynamic status and melena questions."
+    },
+    "Q000035": {
+      "why_ask": "Black stools vs bright red blood redirects upper vs lower bleed thinking.",
+      "listen_for": ["Melena", "hematochezia", "occult"],
+      "think": "Brisk upper bleed can present as hematochezia — do not dismiss."
+    },
+    "Q000045": {
+      "why_ask": "Weight loss with pain raises alarm for malignancy, malabsorption, or chronic inflammation.",
+      "listen_for": ["Unintentional loss", "appetite change"],
+      "think": "Document amount/timeframe; link to red-flag workup later."
+    },
+    "Q000021": {
+      "why_ask": "Anorexia + RLQ pain is a classic appendicitis teaching cluster.",
+      "listen_for": ["Cannot eat", "nausea with anorexia"],
+      "think": "Combine with migration of pain and fever — still confirm on exam."
+    },
+    "Q000022": {
+      "why_ask": "Nausea/vomiting accompany many acute abdomen patterns but help urgency triage.",
+      "listen_for": ["Bilious", "feculent", "inability to keep fluids"],
+      "think": "Feculent/bilious vomiting raises obstruction concern."
+    },
+    "Q000073": {
+      "why_ask": "Syncope/collapse with abdominal pain → bleed, rupture, or sepsis until proven otherwise.",
+      "listen_for": ["Faint", "near-syncope", "diaphoresis"],
+      "think": "Stop and escalate — this is a stop-rule mindset question."
+    }
+  },
+  "answer_triggers": [
+    {
+      "id": "AT_ruq",
+      "question_id": "Q000042",
+      "answer_contains_any": ["ruq", "right upper"],
+      "title": "Unlocked: RUQ branch",
+      "points": [
+        "Think biliary colic / cholecystitis / hepatitis / pneumonia referred.",
+        "Next history: fatty-food trigger, radiation to scapula, fever, dark urine/jaundice.",
+        "Exam later: Murphy sign teaching applies."
+      ]
+    },
+    {
+      "id": "AT_rlq",
+      "question_id": "Q000042",
+      "answer_contains_any": ["rlq", "right lower"],
+      "title": "Unlocked: RLQ branch",
+      "points": [
+        "Think appendicitis, mesenteric adenitis, gyn causes, ureteric stone.",
+        "Ask anorexia, nausea, fever, migration from periumbilical.",
+        "Exam later: rebound / Rovsing / psoas teaching."
+      ]
+    },
+    {
+      "id": "AT_epigastric",
+      "question_id": "Q000042",
+      "answer_contains_any": ["epigastric", "epigastr"],
+      "title": "Unlocked: epigastric branch",
+      "points": [
+        "Think peptic ulcer, pancreatitis, gastritis, sometimes ACS referred.",
+        "Ask NSAID/alcohol use, radiation to back, vomiting.",
+        "Bleed questions remain mandatory even if pain seems ‘ulcer-like’."
+      ]
+    },
+    {
+      "id": "AT_sudden",
+      "question_id": "Q000003",
+      "answer_in": ["sudden"],
+      "title": "Unlocked: sudden-onset mindset",
+      "points": [
+        "Sudden severe pain → perforation, ischemia, rupture, biliary/renal colic.",
+        "Prioritize red flags and exam for peritonitis.",
+        "Do not spend the whole interview on chronic background yet."
+      ]
+    },
+    {
+      "id": "AT_bleed_yes",
+      "question_id": "Q000033",
+      "answer_in": ["yes"],
+      "title": "Unlocked: GI bleed pathway",
+      "points": [
+        "Resuscitation and risk stratification before detailed chronic history.",
+        "Clarify hematemesis vs melena vs hematochezia.",
+        "Endoscopy pathway — educational link to your GI module later."
+      ]
+    }
+  ]
+}

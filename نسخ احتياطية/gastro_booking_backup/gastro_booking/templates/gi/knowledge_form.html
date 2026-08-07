@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}New knowledge object{% endblock %}
+{% block content %}
+<h1>New knowledge object</h1>
+<form method="POST" class="settings-form">
+  <label>Slug<input name="slug" required></label>
+  <label>Title<input name="title" required></label>
+  <label>Type<select name="object_type"><option>concept</option><option>condition</option><option>symptom</option><option>guideline</option><option>score</option></select></label>
+  <label>Summary<textarea name="summary" rows="3"></textarea></label>
+  <button class="btn btn--primary" type="submit">Create draft</button>
+</form>
+{% endblock %}

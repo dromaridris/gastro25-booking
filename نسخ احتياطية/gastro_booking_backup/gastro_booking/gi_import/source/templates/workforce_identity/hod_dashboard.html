@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Training accounts{% endblock %}
+{% block content %}
+<div class="gi-page-header mb-4">
+    <h1 class="h3 mb-1">Training accounts</h1>
+    <p class="text-muted mb-0">Set account expiry dates and assign a clinical supervisor for each trainee or house officer.</p>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="card gi-card"><div class="card-body"><div class="text-muted small">Active training accounts</div><div class="h4">{{ active_trainees|length }}</div></div></div></div>
+    <div class="col-md-3"><div class="card gi-card"><div class="card-body"><div class="text-muted small">Expiring this week</div><div class="h4">{{ expiring_this_week|length }}</div></div></div></div>
+    <div class="col-md-3"><div class="card gi-card"><div class="card-body"><div class="text-muted small">Expired accounts</div><div class="h4">{{ expired_accounts }}</div></div></div></div>
+    <div class="col-md-3"><div class="card gi-card"><div class="card-body"><div class="text-muted small">Pending invitations</div><div class="h4">{{ pending_invitations }}</div></div></div></div>
+</div>
+
+<div class="d-flex gap-2 mb-4">
+    <a class="btn btn-primary btn-sm" href="{{ url_for('workforce_identity.create_invitation') }}">Invite trainee or house officer</a>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('workforce_identity.list_invitations') }}">View invitations</a>
+</div>
+
+<h2 class="h5">Training accounts — expiry &amp; supervisor</h2>
+<p class="small text-muted">House officer accounts are usually short (e.g. 3 months). Postgraduate trainee accounts may run longer (e.g. 1 year). Assign a consultant or HoD as clinical supervisor.</p>
+{% if not supervisors %}
+<div class="alert alert-warning">No consultants found in this department. Supervisors are listed from consultant and HoD accounts — re-run demo seed or check user department assignment.</div>
+{% endif %}
+
+{% if active_trainees %}
+<div class="table-responsive">
+<table class="table table-sm align-middle">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Start</th>
+            <th>Expires</th>
+            <th>Clinical supervisor</th>
+            <th>Set period</th>
+            <th>Extend expiry</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for record in active_trainees %}
+        {% set u = record.user %}
+        <tr>
+            <td>{{ u.full_name if u else '—' }}</td>
+            <td>{{ u.role.name if u and u.role else '—' }}</td>
+            <td>{{ record.start_date }}</td>
+            <td>
+                {{ record.expiry_date }}
+                {% if record in expiring_this_week %}<span class="badge bg-warning text-dark ms-1">Soon</span>{% endif %}
+            </td>
+            <td>
+                <form method="post" action="{{ url_for('workforce_identity.assign_supervisor', user_id=u.id) }}" class="d-flex gap-1">
+                    <select name="supervisor_user_id" class="form-select form-select-sm">
+                        <option value="">— Not assigned —</option>
+                        {% for sup in supervisors %}
+                        <option value="{{ sup.id }}" {% if u.clinical_supervisor_id == sup.id %}selected{% endif %}>{{ sup.full_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
+                </form>
+            </td>
+            <td>
+                <form method="post" action="{{ url_for('workforce_identity.set_account_period', user_id=u.id) }}" class="row g-1">
+                    <div class="col-auto"><input type="date" name="start_date" value="{{ record.start_date }}" class="form-control form-control-sm" required></div>
+                    <div class="col-auto"><input type="date" name="expiry_date" value="{{ record.expiry_date }}" class="form-control form-control-sm" required></div>
+                    <div class="col-auto"><button type="submit" class="btn btn-sm btn-outline-secondary">Update</button></div>
+                </form>
+            </td>
+            <td>
+                <form method="post" action="{{ url_for('workforce_identity.extend_account', user_id=u.id) }}" class="d-flex gap-1">
+                    <input type="date" name="new_expiry_date" value="{{ record.expiry_date }}" class="form-control form-control-sm" required>
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">Extend</button>
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+{% else %}
+<div class="alert alert-info">
+    No training accounts with an expiry date yet.
+    Use the section below or <strong>Invite trainee or house officer</strong> for new accounts.
+</div>
+{% endif %}
+
+{% if unconfigured_training_users %}
+<h2 class="h5 mt-4">Accounts needing an expiry date</h2>
+<p class="small text-muted">These users have a trainee or house officer role but no account period yet.</p>
+<div class="table-responsive">
+<table class="table table-sm align-middle">
+    <thead><tr><th>Name</th><th>Role</th><th>Clinical supervisor</th><th>Set start &amp; expiry</th></tr></thead>
+    <tbody>
+    {% for u in unconfigured_training_users %}
+        <tr>
+            <td>{{ u.full_name }}</td>
+            <td>{{ u.role.name if u.role else '—' }}</td>
+            <td>
+                <form method="post" action="{{ url_for('workforce_identity.assign_supervisor', user_id=u.id) }}" class="d-flex gap-1">
+                    <select name="supervisor_user_id" class="form-select form-select-sm">
+                        <option value="">— Not assigned —</option>
+                        {% for sup in supervisors %}
+                        <option value="{{ sup.id }}" {% if u.clinical_supervisor_id == sup.id %}selected{% endif %}>{{ sup.full_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
+                </form>
+            </td>
+            <td>
+                <form method="post" action="{{ url_for('workforce_identity.set_account_period', user_id=u.id) }}" class="d-flex gap-1">
+                    <input type="date" name="start_date" class="form-control form-control-sm" required>
+                    <input type="date" name="expiry_date" class="form-control form-control-sm" required>
+                    <button type="submit" class="btn btn-sm btn-primary">Set period</button>
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endif %}
+
+<h2 class="h5 mt-4">Today's on-call team</h2>
+{% for role, names in today_team.team_by_role.items() %}
+<div><strong>{{ role }}:</strong> {{ names | join(', ') if names else '—' }}</div>
+{% endfor %}
+
+<h2 class="h5 mt-4">Pending duty swap requests</h2>
+<p>{{ pending_swaps|length }} awaiting approval</p>
+{% endblock %}

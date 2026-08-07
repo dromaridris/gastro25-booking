@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Data Export{% endblock %}
+{% block content %}
+<h2>Data Exchange</h2>
+<div class="card mb-4"><div class="card-body">
+  <h5>Export Patients</h5>
+  <form method="POST" action="{{ url_for('data_exchange.export_patients') }}" class="d-flex gap-2">
+    <select name="format" class="form-select form-select-sm w-auto"><option value="csv">CSV</option><option value="json">JSON</option></select>
+    <button class="btn btn-primary btn-sm">Run Export</button>
+  </form>
+</div></div>
+<h5>Recent Jobs</h5>
+<table class="table table-sm">
+  <thead><tr><th>When</th><th>Type</th><th>Format</th><th>Status</th><th>Records</th></tr></thead>
+  <tbody>
+  {% for job in jobs %}
+    <tr>
+      <td>{{ job.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+      <td>{{ job.job_type }}</td>
+      <td>{{ job.format }}</td>
+      <td>{{ job.status }}</td>
+      <td>{{ job.record_count or "—" }}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5" class="text-muted">No jobs yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,22 @@
+<header class="gi-print-header">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div class="gi-print-header-logos d-flex align-items-center flex-wrap">
+            {% if branding.hospital_logo_url %}
+                <img src="{{ branding.hospital_logo_url }}" alt="{{ branding.hospital_name }} logo">
+            {% endif %}
+            {% if branding.department_logo_url %}
+                <img src="{{ branding.department_logo_url }}" alt="{{ branding.department_name }} logo">
+            {% endif %}
+            <div>
+                <div class="gi-print-hospital">{{ branding.hospital_name }}</div>
+                <div class="gi-print-dept">{{ branding.department_name }}</div>
+                {% if branding.slogan %}
+                    <div class="small text-muted">{{ branding.slogan }}</div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="text-end small text-muted">
+            {% block print_header_meta %}{% endblock %}
+        </div>
+    </div>
+</header>

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Incident #{{ incident.id }}{% endblock %}
+{% block content %}
+<h1>Incident #{{ incident.id }}</h1>
+<p><strong>{{ incident.category }}</strong> · {{ incident.severity }} · {{ incident.status }}</p>
+<p>{{ incident.description }}</p>
+{% if incident.root_cause %}<p><strong>Root cause:</strong> {{ incident.root_cause }}</p>{% endif %}
+{% if can('governance:incident_review') %}
+<form method="POST" action="{{ url_for('clinical_governance.review_incident', incident_id=incident.id) }}" class="mt-4">
+    <div class="mb-2"><textarea name="root_cause" class="form-control" placeholder="Root cause">{{ incident.root_cause or '' }}</textarea></div>
+    <div class="mb-2"><textarea name="corrective_action" class="form-control" placeholder="Corrective action">{{ incident.corrective_action or '' }}</textarea></div>
+    <div class="mb-2"><textarea name="preventive_action" class="form-control" placeholder="Preventive action">{{ incident.preventive_action or '' }}</textarea></div>
+    <select name="status" class="form-select w-auto d-inline"><option value="under_review">Under review</option><option value="closed">Closed</option></select>
+    <button class="btn btn-primary btn-sm">Update</button>
+</form>
+{% endif %}
+{% endblock %}

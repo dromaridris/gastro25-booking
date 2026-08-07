@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Encounter #{{ encounter.id }} — GastroIntelligence{% endblock %}
+{% block content %}
+<h2>
+    Clinical Encounter
+    <small class="text-muted">#{{ encounter.id }}</small>
+    <span class="badge bg-{{ 'success' if encounter.is_open else 'secondary' }}">
+        {{ encounter.status.title() }}
+    </span>
+</h2>
+
+<p>
+    Patient:
+    <a href="{{ url_for('patients.view_patient', patient_id=encounter.patient_id) }}">
+        {{ encounter.patient.full_name if encounter.patient else encounter.patient_id }}
+    </a>
+    · {{ encounter.encounter_type.replace("_", " ").title() }}
+    · started {{ encounter.started_at.strftime("%Y-%m-%d %H:%M") }}
+</p>
+{% if encounter.summary %}<p class="text-muted">{{ encounter.summary }}</p>{% endif %}
+
+<div class="d-flex flex-wrap gap-2 mb-4">
+    {% if can('investigation:request') and encounter.is_open %}
+        <a href="{{ url_for('investigations.new_lab_order', encounter_id=encounter.id) }}" class="btn btn-primary btn-sm">+ Lab order</a>
+        <a href="{{ url_for('investigations.new_imaging_order', encounter_id=encounter.id) }}" class="btn btn-outline-primary btn-sm">+ Imaging order</a>
+    {% endif %}
+    {% if can('investigation:result_enter') and encounter.is_open %}
+        <a href="{{ url_for('investigations.new_lab_results', encounter_id=encounter.id) }}" class="btn btn-outline-secondary btn-sm">Enter lab results</a>
+        <a href="{{ url_for('investigations.new_imaging_study', encounter_id=encounter.id) }}" class="btn btn-outline-secondary btn-sm">Enter imaging</a>
+    {% endif %}
+    {% if can('medication:view') %}
+        <a href="{{ url_for('medications.list_encounter_medications', encounter_id=encounter.id) }}" class="btn btn-outline-secondary btn-sm">Medications</a>
+    {% endif %}
+    {% if can('history:view') %}
+        <a href="{{ url_for('clinical_history.encounter_hub', encounter_id=encounter.id) }}" class="btn btn-outline-secondary btn-sm">Clinical History</a>
+    {% endif %}
+    {% if can('encounter:create') and encounter.is_open %}
+        <form method="POST" action="{{ url_for('encounters.close_encounter', encounter_id=encounter.id) }}" class="d-inline">
+            <button type="submit" class="btn btn-outline-danger btn-sm">Close encounter</button>
+        </form>
+    {% endif %}
+</div>
+
+<h4>Investigation Orders</h4>
+<table class="table table-sm">
+    <thead><tr><th>When</th><th>Kind</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+        {% for o in orders %}
+        <tr>
+            <td>{{ o.ordered_at.strftime("%Y-%m-%d %H:%M") }}</td>
+            <td>{{ o.order_kind.title() }}{% if o.panel %} — {{ o.panel.name }}{% endif %}</td>
+            <td><span class="badge bg-secondary">{{ o.status.replace("_", " ").title() }}</span></td>
+            <td><a href="{{ url_for('investigations.view_order', order_id=o.id) }}">View</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="text-muted">No orders for this encounter.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

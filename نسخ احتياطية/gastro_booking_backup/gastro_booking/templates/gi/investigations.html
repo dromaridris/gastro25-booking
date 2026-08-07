@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Investigations{% endblock %}
+{% block content %}
+{% from 'gi/_back.html' import back_link %}
+{{ back_link(back_url) }}
+
+<h1>Investigations &amp; procedures · session {{ sess.id }}</h1>
+<p class="muted">CDS suggestions below. Choose from dropdowns or type a custom order — sent to House Officer.</p>
+
+<section class="admin-section">
+  <h2>Place order</h2>
+  <form method="POST" class="settings-form">
+    <label>Category
+      <select name="order_type" id="orderType">
+        {% for key, label, items in order_types %}<option value="{{ key }}">{{ label }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Common test / procedure
+      <select name="item_code" id="itemCode">
+        {% for key, label, items in order_types %}
+          {% for code, name in items %}
+          <option value="{{ code }}" data-order-type="{{ key }}">{{ label }}: {{ name }}</option>
+          {% endfor %}
+        {% endfor %}
+      </select>
+    </label>
+    <label>Custom order (if not in list)
+      <input name="custom_item" placeholder="e.g. CT chest with contrast, stool culture">
+    </label>
+    <button class="btn btn--primary" type="submit">Send order → House Officer</button>
+  </form>
+</section>
+
+<script>
+(function() {
+  var typeSel = document.getElementById('orderType');
+  var itemSel = document.getElementById('itemCode');
+  function filterItems() {
+    var t = typeSel.value;
+    Array.prototype.forEach.call(itemSel.options, function(opt) {
+      opt.hidden = opt.dataset.orderType !== t;
+    });
+    for (var i = 0; i < itemSel.options.length; i++) {
+      if (!itemSel.options[i].hidden) { itemSel.selectedIndex = i; break; }
+    }
+  }
+  typeSel.addEventListener('change', filterItems);
+  filterItems();
+})();
+</script>
+
+<section class="admin-section">
+  <h2>CDS suggestions</h2>
+  <ul>{% for s in suggestions %}<li>{{ s.name }} ({{ s.priority }}) — {{ s.rationale or '' }}</li>{% else %}<li class="muted">Complete history + open CDS page to populate suggestions.</li>{% endfor %}</ul>
+</section>
+
+<section class="admin-section">
+  <h2>Your orders</h2>
+  <table class="admin-table"><thead><tr><th>Item</th><th>Type</th><th>Status</th></tr></thead>
+  <tbody>{% for o in orders %}<tr><td>{{ o.item_name }}</td><td>{{ o.order_type }}</td><td>{{ o.status }}</td></tr>{% else %}<tr><td colspan="3" class="muted">No orders placed.</td></tr>{% endfor %}</tbody></table>
+</section>
+{% endblock %}

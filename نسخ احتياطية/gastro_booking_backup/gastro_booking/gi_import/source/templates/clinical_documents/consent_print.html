@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Consent — Print</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/print.css') }}"></head>
+<body class="print-page">
+<h1>{{ record.template.title if record.template else 'Consent Form' }}</h1>
+<p><strong>Patient:</strong> {{ record.patient.full_name }} ({{ record.patient.mrn }})</p>
+<div>{{ record.rendered_html|safe }}</div>
+{% if record.signed_at %}
+<p>Signed: {{ record.signed_at.strftime("%Y-%m-%d %H:%M") }}{% if record.witness_name %} — Witness: {{ record.witness_name }}{% endif %}</p>
+{% endif %}
+<script>window.print()</script>
+</body></html>

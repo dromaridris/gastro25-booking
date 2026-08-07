@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "revision": 1,
+  "knowledge_version": "1.4.0",
+  "phase_coverage": "1-16",
+  "built_at": "2026-08-03",
+  "provenance": {
+    "history_templates": {
+      "source": "Bates' Guide to Physical Examination and History Taking",
+      "use": "History structure and exam organization only"
+    },
+    "reasoning_patterns": {
+      "source": "Internal pattern rule packs",
+      "use": "Data-driven suspects; not confirmed diagnoses",
+      "note": "Expand from guidelines/textbooks in later evidence cycles"
+    },
+    "dictionary": {
+      "source": "clinical_knowledge/dictionary",
+      "use": "Canonical entity codes"
+    }
+  },
+  "packs": [
+    {"path": "manifest.json", "kind": "manifest"},
+    {"path": "dictionary/_index.json", "kind": "dictionary_index"},
+    {"path": "questions/library.json", "kind": "question_library"},
+    {"path": "templates/history/", "kind": "history_templates"},
+    {"path": "templates/exam/", "kind": "exam_templates"},
+    {"path": "rules/", "kind": "rule_packs"},
+    {"path": "evidence/registry.json", "kind": "evidence_registry"}
+  ],
+  "reload_policy": {
+    "invalidate_on_import": true,
+    "cache": "lru_in_process"
+  }
+}

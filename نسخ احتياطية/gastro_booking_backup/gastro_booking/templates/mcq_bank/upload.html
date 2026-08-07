@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Upload — MCQ Bank{% endblock %}
+{% block content %}
+<div class="admin-page mcq-page">
+  <a class="back-link" href="{{ url_for('mcqbank_admin_dashboard') }}">← Back</a>
+  <h1>Upload a book</h1>
+  <form method="post" enctype="multipart/form-data" class="compact-form mcq-form">
+    <div class="form-row">
+      <label>Book name</label>
+      <input class="compact-input" name="book_name" required placeholder="e.g. DDSEP 10">
+    </div>
+    <div class="form-row">
+      <label>File (PDF)</label>
+      <input type="file" name="file" accept=".pdf,.txt" required>
+    </div>
+    <button class="btn btn--primary">Start Extraction</button>
+  </form>
+</div>
+{% endblock %}

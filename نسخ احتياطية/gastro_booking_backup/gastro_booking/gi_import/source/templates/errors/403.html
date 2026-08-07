@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% from "ui/macros.html" import empty_state, back_link %}
+
+{% block title %}Access Denied — {{ branding.display_title }}{% endblock %}
+
+{% block content %}
+<div class="gi-card p-5 text-center mx-auto" style="max-width: 32rem;">
+    {{ empty_state("Access Denied", "You don't have permission to view this page. This attempt has been recorded in the audit log.", icon="🔒") }}
+    <a href="{{ url_for('core.dashboard') }}" class="btn gi-btn-primary">Back to Dashboard</a>
+</div>
+{% endblock %}

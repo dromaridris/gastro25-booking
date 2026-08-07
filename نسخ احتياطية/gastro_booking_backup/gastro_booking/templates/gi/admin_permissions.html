@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Roster permissions{% endblock %}
+{% block content %}
+<h1>Roster manager permissions</h1>
+<p class="muted">Admin assigns separate accounts for Trainee roster vs House Officer roster management.</p>
+<p><a href="{{ url_for('gi_governance_dashboard') }}">← Governance</a></p>
+
+<form method="POST" class="settings-form admin-section">
+  <input type="hidden" name="action" value="grant">
+  <label>User<select name="user_id" required>{% for u in users %}<option value="{{ u.id }}">{{ u.full_name }} ({{ u.username }})</option>{% endfor %}</select></label>
+  <label>Permission<select name="permission_code">{% for p in permissions %}<option value="{{ p }}">{{ permission_labels[p] }}</option>{% endfor %}</select></label>
+  <button class="btn btn--primary" type="submit">Grant permission</button>
+</form>
+
+<h2>Current grants</h2>
+<table class="admin-table"><thead><tr><th>User</th><th>Permission</th><th>Granted</th><th></th></tr></thead>
+<tbody>{% for g in grants %}
+<tr><td>{{ g.full_name }} (@{{ g.username }})</td><td>{{ permission_labels.get(g.permission_code, g.permission_code) }}</td><td>{{ g.granted_at[:10] if g.granted_at else '' }}</td>
+<td><form method="POST"><input type="hidden" name="action" value="revoke"><input type="hidden" name="user_id" value="{{ g.user_id }}"><input type="hidden" name="permission_code" value="{{ g.permission_code }}"><button class="btn btn--sm btn--ghost" type="submit">Revoke</button></form></td></tr>
+{% else %}<tr><td colspan="4" class="muted">No roster permissions assigned yet.</td></tr>{% endfor %}</tbody></table>
+{% endblock %}

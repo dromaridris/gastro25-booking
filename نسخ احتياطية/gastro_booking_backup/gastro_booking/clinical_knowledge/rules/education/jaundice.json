@@ -1,0 +1,93 @@
+{
+  "complaint_code": "CC_jaundice",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Jaundice history structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Painless vs painful onset, and the presence of pale stools with dark urine, are the fastest way to branch obstructive vs hepatocellular causes.",
+        "Always ask about alcohol use, known liver disease, and hepatotoxic medications.",
+        "Pruritus and pale stools point toward cholestasis / obstruction."
+      ],
+      "linked_questions": [
+        "Q000062",
+        "Q000064",
+        "Q000063"
+      ]
+    },
+    {
+      "id": "EDU_obstruction",
+      "title": "Obstructive pattern",
+      "trigger": {
+        "any_sign_present": [
+          "SG_jaundice",
+          "SG_hepatomegaly"
+        ]
+      },
+      "points": [
+        "Painless jaundice with pale stools and dark urine suggests biliary obstruction — consider malignant obstruction in older patients (Courvoisier's law).",
+        "Fever plus RUQ pain plus jaundice (Charcot's triad) suggests ascending cholangitis — this is urgent."
+      ]
+    }
+  ],
+  "question_coaching": {
+    "Q000062": {
+      "why_ask": "Whether jaundice began with pain/fever or painlessly is the single most useful branching question.",
+      "listen_for": [
+        "Painless",
+        "preceded by pain",
+        "preceded by fever"
+      ],
+      "think": "Painless progressive jaundice in an older patient raises malignant biliary obstruction on the differential."
+    },
+    "Q000064": {
+      "why_ask": "Pale stool + dark urine together indicates conjugated (obstructive/cholestatic) hyperbilirubinaemia.",
+      "listen_for": [
+        "Both present together vs isolated dark urine"
+      ],
+      "think": "This combination should prioritise an obstructive work-up (ultrasound, LFTs pattern)."
+    },
+    "Q000063": {
+      "why_ask": "Alcohol use and known liver disease materially change the pre-test probability of hepatocellular causes.",
+      "listen_for": [
+        "Quantity/duration of alcohol",
+        "known hepatitis",
+        "hepatotoxic drugs"
+      ],
+      "think": "Document quantity and duration precisely — this affects both differential and counselling."
+    }
+  },
+  "answer_triggers": [
+    {
+      "id": "AT_painless",
+      "question_id": "Q000062",
+      "title": "Unlocked: painless jaundice branch",
+      "points": [
+        "Consider malignant biliary obstruction, especially in older patients.",
+        "Check for a palpable non-tender gallbladder (Courvoisier's law) on exam."
+      ],
+      "answer_contains_any": [
+        "painless",
+        "without"
+      ]
+    },
+    {
+      "id": "AT_pale_dark",
+      "question_id": "Q000064",
+      "title": "Unlocked: cholestatic pattern",
+      "points": [
+        "Supports an obstructive/cholestatic process over pure haemolysis.",
+        "Prioritise abdominal ultrasound for biliary dilatation."
+      ],
+      "answer_in": [
+        "yes"
+      ]
+    }
+  ]
+}

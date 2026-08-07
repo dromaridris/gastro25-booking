@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Assign research project{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('gi_research_index') }}">← Research</a></p>
+<h1>Assign research project (HOD)</h1>
+{% include "_module_intro.html" %}
+<form method="POST" class="settings-form admin-section compact-section">
+  <label>Project code<input name="code" required placeholder="e.g. VAR-BLEED-2026"></label>
+  <label>Research title<input name="title" required></label>
+  <label>Description<textarea name="description" rows="4"></textarea></label>
+  <label>Research lead <span class="label-hint">@username</span>
+    <input name="lead_usernames" class="user-mention-input" required placeholder="@lead"></label>
+  <label>Team members <span class="label-hint">@user1,@user2</span>
+    <input name="team_usernames" class="user-mention-input" placeholder="@omar,@abdulsamad"></label>
+  <button class="btn btn--primary" type="submit">Assign project</button>
+</form>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/user_mentions.js') }}"></script>{% endblock %}

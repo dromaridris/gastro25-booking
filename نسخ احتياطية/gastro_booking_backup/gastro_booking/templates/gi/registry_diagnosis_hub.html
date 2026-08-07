@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{{ hub.group.name }} Registry{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('gi_registry_dashboard') }}">← GI Clinical Registry</a></p>
+<h1>{{ hub.group.name }}</h1>
+
+<div class="gi-registry-hero-stats" style="margin:1rem 0;">
+  <div class="gi-registry-kpi"><span class="gi-registry-kpi-val">{{ hub.stats.total_patients }}</span><span class="gi-registry-kpi-lbl">Patients in registry</span></div>
+  {% for st in hub.stats.subtypes %}
+  <div class="gi-registry-kpi"><span class="gi-registry-kpi-val">{{ st.value }}</span><span class="gi-registry-kpi-lbl">{{ st.label }}</span></div>
+  {% endfor %}
+</div>
+
+<section class="admin-section compact-section">
+  <h2>Clinical encounters</h2>
+  <table class="admin-table compact-table">
+    <thead><tr><th>Date</th><th>Patient</th><th>MRN</th><th>Diagnosis / complaint</th><th></th></tr></thead>
+    <tbody>
+      {% for s in hub.sessions %}
+      <tr>
+        <td>{{ s.created_at[:10] if s.created_at else '—' }}</td>
+        <td>{{ s.patient_name or '—' }}</td>
+        <td>{{ s.mrn or '—' }}</td>
+        <td>{{ s.final_diagnosis or s.chief_complaint or '—' }}</td>
+        <td>
+          {% if s.ward_patient_id %}
+          <a href="{{ url_for('gi_clinical_workflow', ward_patient_id=s.ward_patient_id) }}">Open</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="muted">No matching encounters — counts update as clinical histories are documented.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

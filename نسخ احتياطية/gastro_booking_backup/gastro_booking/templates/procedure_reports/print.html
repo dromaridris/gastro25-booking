@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Print · {{ procedure_label }}{% endblock %}
+{% block content %}
+<div class="no-print" style="margin-bottom:16px;">
+  <button onclick="window.print()" class="btn btn--primary">Print</button>
+</div>
+<div class="print-area" style="max-width:800px;margin:0 auto;line-height:1.55;">
+  <header style="text-align:center;margin-bottom:20px;">
+    <strong>JPMC — Department of Gastroenterology</strong><br>
+    <span>{{ procedure_label }} Report</span>
+  </header>
+  <p><strong>Patient:</strong> {{ appt.patient_name }} &nbsp; <strong>MRN:</strong> {{ appt.mrn or '—' }}</p>
+  <p><strong>Date:</strong> {{ appt.appointment_date }} &nbsp; <strong>Status:</strong> {{ report.status|title }}</p>
+  <hr>
+  <pre style="white-space:pre-wrap;font-family:inherit;">{{ note_text }}</pre>
+</div>
+{% endblock %}

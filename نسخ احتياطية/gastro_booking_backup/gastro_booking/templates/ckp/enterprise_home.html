@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Enterprise · CKP{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>Enterprise foundations</h1>
+    <p class="muted">Tenant {{ tenant.code }} · multi-hospital ready stubs</p>
+  </div>
+  <a class="btn" href="{{ url_for('ckp_enterprise_search') }}">Search</a>
+</section>
+<section class="admin-section">
+  <h2>Observability</h2>
+  <pre>{{ obs }}</pre>
+  <p>Admin permissions: {{ perms_admin|join(', ') }}</p>
+</section>
+<section class="admin-section">
+  <h2>Departments</h2>
+  <ul>{% for d in departments %}<li>{{ d.code }} — {{ d.label }}</li>{% endfor %}</ul>
+</section>
+<section class="admin-section">
+  <h2>Integration endpoints (stubs + health)</h2>
+  <ul>
+    {% for i in integrations %}
+    <li>{{ i.system_kind }} · {{ i.label }} · status {{ i.status }}
+      <form method="POST" action="{{ url_for('ckp_integration_health', endpoint_id=i.id) }}" style="display:inline;">
+        <button class="btn" type="submit">Health check</button>
+      </form>
+      <span class="muted">{{ i.health }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  <p class="muted">Live PACS/LIS/etc. require hospital credentials — adapters implement the contract.</p>
+</section>
+<section class="admin-section">
+  <h2>Jobs</h2>
+  <form method="POST" action="{{ url_for('ckp_job_enqueue') }}" class="settings-form" style="display:inline;">
+    <input name="job_type" value="demo_job">
+    <input name="note" placeholder="note">
+    <button class="btn" type="submit">Enqueue</button>
+  </form>
+  <form method="POST" action="{{ url_for('ckp_job_process') }}" style="display:inline;">
+    <button class="btn btn--primary" type="submit">Process next</button>
+  </form>
+</section>
+<section class="admin-section">
+  <h2>Notifications</h2>
+  <form method="POST" action="{{ url_for('ckp_notify') }}" class="settings-form">
+    <input name="title" placeholder="title" required>
+    <input name="body" placeholder="body">
+    <input name="recipient" placeholder="recipient">
+    <button class="btn" type="submit">Send</button>
+  </form>
+</section>
+{% endblock %}

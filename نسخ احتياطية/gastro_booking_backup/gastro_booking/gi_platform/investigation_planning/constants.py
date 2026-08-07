@@ -1,0 +1,45 @@
+"""Investigation Planning constants — Gastro25."""
+
+from __future__ import annotations
+
+CATEGORY_LABORATORY = 'laboratory'
+CATEGORY_IMAGING = 'imaging'
+CATEGORY_ENDOSCOPY = 'endoscopy'
+CATEGORY_FUNCTIONAL = 'functional'
+CATEGORY_OTHER = 'other'
+
+ALL_INVESTIGATION_CATEGORIES = (
+    CATEGORY_LABORATORY, CATEGORY_IMAGING, CATEGORY_ENDOSCOPY, CATEGORY_FUNCTIONAL, CATEGORY_OTHER,
+)
+
+PRIORITY_ESSENTIAL = 'essential'
+PRIORITY_RECOMMENDED = 'recommended'
+PRIORITY_OPTIONAL = 'optional'
+
+GROUP_INITIAL = 'initial_assessment'
+GROUP_CONFIRM = 'confirm_diagnosis'
+GROUP_EXCLUDE = 'exclude_alternatives'
+GROUP_SEVERITY = 'severity_assessment'
+GROUP_MONITORING = 'monitoring'
+
+WORKUP_GROUP_ORDER = (
+    GROUP_INITIAL, GROUP_CONFIRM, GROUP_EXCLUDE, GROUP_SEVERITY, GROUP_MONITORING,
+)
+
+PLAN_STATUS_DRAFT = 'draft'
+PLAN_STATUS_REVIEWED = 'reviewed'
+PLAN_STATUS_APPROVED = 'approved'
+PLAN_STATUS_MODIFIED = 'modified'
+PLAN_STATUS_REJECTED = 'rejected'
+
+SUGGESTION_STATUS_SUGGESTED = 'suggested'
+DECISION_ACCEPTED = 'accepted'
+DECISION_REJECTED = 'rejected'
+DECISION_MODIFIED = 'modified'
+DECISION_MANUAL = 'manual'
+
+AUDIT_PREFIX = 'investigation_planning'
+
+CONFIDENCE_HIGH = 'high'
+CONFIDENCE_MEDIUM = 'medium'
+CONFIDENCE_LOW = 'low'

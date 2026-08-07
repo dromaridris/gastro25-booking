@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://clinical-intelligence.local/schemas/dictionary_entity.schema.json",
+  "title": "ClinicalDictionaryEntity",
+  "type": "object",
+  "required": ["id", "code", "label", "entity_type", "schema_version"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "code": { "type": "string", "pattern": "^[A-Z]{2}_[a-z0-9_]+$" },
+    "label": { "type": "string" },
+    "synonyms": { "type": "array", "items": { "type": "string" } },
+    "entity_type": {
+      "type": "string",
+      "enum": [
+        "symptom", "sign", "risk_factor", "past_medical_history",
+        "past_surgical_history", "drug", "allergy", "family_history",
+        "social_history", "investigation", "diagnosis", "procedure", "complication"
+      ]
+    },
+    "body_system": { "type": "string" },
+    "category": { "type": "string" },
+    "specialty_tags": { "type": "array", "items": { "type": "string" } },
+    "schema_version": { "type": "integer", "minimum": 1 },
+    "revision": { "type": "integer", "minimum": 1 },
+    "status": { "type": "string", "enum": ["draft", "active", "deprecated"] },
+    "notes": { "type": "string" }
+  },
+  "additionalProperties": true
+}

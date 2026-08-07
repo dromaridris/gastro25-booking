@@ -1,0 +1,90 @@
+{
+  "complaint_code": "CC_diarrhea",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Diarrhoea history structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Acute (<2 weeks, usually infectious) vs chronic (>4 weeks, broader differential including IBD/malabsorption) is the key first branch.",
+        "Blood/mucus, nocturnal symptoms, and weight loss point away from simple functional diarrhoea toward an organic cause.",
+        "Travel, food exposure, and recent antibiotics are essential for the infectious/C. difficile differential."
+      ],
+      "linked_questions": [
+        "Q000091",
+        "Q000051",
+        "Q000053"
+      ]
+    },
+    {
+      "id": "EDU_alarm",
+      "title": "Diarrhoea alarm features",
+      "trigger": {
+        "any_sign_present": [
+          "SG_dehydration",
+          "SG_abnormal_stool_colour"
+        ]
+      },
+      "points": [
+        "Nocturnal diarrhoea, blood/mucus, weight loss, or dehydration are alarm features that separate organic disease (e.g. IBD) from functional causes.",
+        "Significant dehydration or systemic toxicity warrants urgent fluid resuscitation."
+      ]
+    }
+  ],
+  "question_coaching": {
+    "Q000091": {
+      "why_ask": "Duration beyond a few weeks reframes the differential toward chronic/organic causes such as IBD.",
+      "listen_for": [
+        "Weeks vs months",
+        "persistent vs relapsing-remitting"
+      ],
+      "think": "Chronic bloody diarrhoea with weight loss should prompt colonoscopic evaluation."
+    },
+    "Q000051": {
+      "why_ask": "Diarrhoea that wakes the patient from sleep is a classic organic (non-functional) red flag.",
+      "listen_for": [
+        "Wakes from sleep vs only during the day"
+      ],
+      "think": "Nocturnal symptoms are rarely explained by irritable bowel syndrome alone."
+    },
+    "Q000052": {
+      "why_ask": "Recent antibiotic exposure raises concern for C. difficile-associated diarrhoea.",
+      "listen_for": [
+        "Which antibiotic",
+        "how recently"
+      ],
+      "think": "This should prompt stool testing for C. difficile toxin when clinically appropriate."
+    }
+  },
+  "answer_triggers": [
+    {
+      "id": "AT_nocturnal",
+      "question_id": "Q000051",
+      "title": "Unlocked: nocturnal diarrhoea",
+      "points": [
+        "Organic cause more likely than functional (e.g. IBS).",
+        "Prioritise inflammatory markers and consider colonoscopy."
+      ],
+      "answer_in": [
+        "yes"
+      ]
+    },
+    {
+      "id": "AT_chronic",
+      "question_id": "Q000091",
+      "title": "Unlocked: chronic course",
+      "points": [
+        "Broaden differential to IBD, malabsorption, and endocrine causes.",
+        "Screen weight loss and nocturnal symptoms together."
+      ],
+      "answer_in": [
+        "yes"
+      ]
+    }
+  ]
+}

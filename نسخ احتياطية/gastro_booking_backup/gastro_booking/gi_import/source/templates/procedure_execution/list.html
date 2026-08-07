@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Execution Sessions{% endblock %}
+{% block content %}
+<h2>Procedure Execution Sessions</h2>
+<p class="text-muted">Start a session from a procedure using
+    <code>/procedure-sessions/for-procedure/&lt;procedure_id&gt;</code>
+    or open an existing session below.</p>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Session</th>
+            <th>Patient</th>
+            <th>Procedure</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for session in sessions %}
+        <tr>
+            <td>#{{ session.id }}</td>
+            <td>{{ session.patient.full_name }} ({{ session.patient.mrn }})</td>
+            <td>{{ session.procedure.procedure_type.name }}</td>
+            <td>
+                {% if session.is_cancelled %}
+                    <span class="badge bg-danger">Cancelled</span>
+                {% elif session.outcome %}
+                    <span class="badge bg-success">{{ session.outcome.title() }}</span>
+                {% else %}
+                    <span class="badge bg-primary">In Progress</span>
+                {% endif %}
+            </td>
+            <td><a href="{{ url_for('procedure_execution.view_session', session_id=session.id) }}">Open</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="text-muted">No execution sessions yet.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

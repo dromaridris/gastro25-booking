@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Search{% if q %}: {{ q }}{% endif %}{% endblock %}
+{% block content %}
+<h2>Search</h2>
+{% include "ui/_global_search.html" %}
+{% if q %}
+<h4 class="mt-4">Patients</h4>
+<ul>{% for r in results.patients %}<li><a href="{{ r.url }}">{{ r.label }}</a></li>{% else %}<li class="text-muted">None</li>{% endfor %}</ul>
+<h4>Appointments</h4>
+<ul>{% for r in results.appointments %}<li><a href="{{ r.url }}">{{ r.label }}</a></li>{% else %}<li class="text-muted">None</li>{% endfor %}</ul>
+<h4>Procedures</h4>
+<ul>{% for r in results.procedures %}<li><a href="{{ r.url }}">{{ r.label }}</a></li>{% else %}<li class="text-muted">None</li>{% endfor %}</ul>
+{% endif %}
+{% endblock %}

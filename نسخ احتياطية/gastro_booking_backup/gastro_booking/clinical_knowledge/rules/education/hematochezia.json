@@ -1,0 +1,52 @@
+{
+  "complaint_code": "CC_hematochezia",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Rectal bleeding — history structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Hematochezia is a symptom (red/maroon blood per rectum), not automatically 'lower GI bleed'.",
+        "Blood only on paper often points to anorectal sources; mixed or large-volume maroon blood may be colonic or brisk upper source.",
+        "Always ask about haemodynamic instability and concurrent melena/hematemesis — massive upper bleeding can present this way.",
+        "Do not label UGIB/LGIB in the complaint picker; those labels belong to later reasoning."
+      ],
+      "linked_questions": [
+        "Q000114",
+        "Q000113",
+        "Q000038",
+        "Q000034"
+      ]
+    }
+  ],
+  "question_coaching": {
+    "Q000113": {
+      "why_ask": "Surface/paper blood vs mixed-through stool changes the likely source.",
+      "listen_for": [
+        "Toilet paper only",
+        "mixed throughout",
+        "large separate volume"
+      ],
+      "think": "Paper streaks → hemorrhoid/fissure more likely; large maroon volume → proximal or brisk bleed."
+    }
+  },
+  "answer_triggers": [
+    {
+      "id": "AT_paper_only",
+      "question_id": "Q000113",
+      "title": "Unlocked: possible anorectal source",
+      "points": [
+        "Blood only on paper often reflects hemorrhoids or fissure — still examine.",
+        "Large volume or instability overrides a 'benign anorectal' assumption."
+      ],
+      "answer_in": [
+        "Only on toilet paper / dripping into the bowl"
+      ]
+    }
+  ]
+}

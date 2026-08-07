@@ -1,0 +1,755 @@
+{
+  "schema_version": "1",
+  "template_key": "ercp",
+  "label": "ERCP Structured Clinical Report",
+  "sections": [
+    {
+      "id": "context",
+      "label": "Clinical Context",
+      "workflow_phase": "WF_CONTEXT",
+      "fields": [
+        {
+          "id": "ercp.context.indication_category",
+          "label": "Indication category",
+          "type": "multi_select",
+          "required": true,
+          "default": [],
+          "vocabulary_source": "ercp_indication_category",
+          "workflow_phases": ["WF_CONTEXT"],
+          "research_flag": true
+        },
+        {
+          "id": "ercp.context.indication_detail",
+          "label": "Indication detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_CONTEXT"]
+        },
+        {
+          "id": "ercp.context.ercp_urgency",
+          "label": "Urgency",
+          "type": "dropdown",
+          "required": true,
+          "default": "",
+          "vocabulary_source": "ercp_urgency",
+          "workflow_phases": ["WF_CONTEXT"]
+        },
+        {
+          "id": "ercp.context.ascending_cholangitis_suspected",
+          "label": "Ascending cholangitis suspected",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_CONTEXT"]
+        },
+        {
+          "id": "ercp.context.prophylactic_antibiotics",
+          "label": "Prophylactic antibiotics",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_CONTEXT"]
+        },
+        {
+          "id": "ercp.context.antibiotic_agent",
+          "label": "Antibiotic agent",
+          "type": "text",
+          "default": "",
+          "workflow_phases": ["WF_CONTEXT"],
+          "visibility": {
+            "when": "field",
+            "field_id": "ercp.context.prophylactic_antibiotics",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        }
+      ]
+    },
+    {
+      "id": "access",
+      "label": "Access & Cannulation",
+      "workflow_phase": "WF_ACCESS",
+      "fields": [
+        {
+          "id": "ercp.access.ampulla_identified",
+          "label": "Ampulla identified",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": ["WF_ACCESS"]
+        },
+        {
+          "id": "ercp.access.cannulation_method",
+          "label": "Cannulation method(s)",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "cannulation_method",
+          "workflow_phases": ["WF_ACCESS"]
+        },
+        {
+          "id": "ercp.access.cannulation_success",
+          "label": "Biliary cannulation successful",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": ["WF_ACCESS"],
+          "qi_flag": true,
+          "qi_mapping": { "metric_key": "cannulation_success", "operator": "equals", "value": "Yes" }
+        },
+        {
+          "id": "ercp.access.difficult_cannulation",
+          "label": "Difficult cannulation",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_ACCESS"]
+        },
+        {
+          "id": "ercp.access.precut_performed",
+          "label": "Precut performed",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_ACCESS"]
+        },
+        {
+          "id": "ercp.access.pep_prophylaxis",
+          "label": "PEP prophylaxis",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "pep_prophylaxis",
+          "workflow_phases": ["WF_ACCESS"]
+        }
+      ]
+    },
+    {
+      "id": "imaging",
+      "label": "Imaging",
+      "workflow_phase": "WF_IMAGING",
+      "fields": [
+        {
+          "id": "ercp.imaging.cholangiography_performed",
+          "label": "Cholangiography performed",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"]
+        },
+        {
+          "id": "ercp.imaging.cbd_diameter_mm",
+          "label": "CBD diameter",
+          "type": "measurement",
+          "unit": "mm",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"],
+          "research_flag": true,
+          "narrative_binding": {
+            "mode": "sentence",
+            "template": "CBD diameter {value}.",
+            "field_id": "ercp.imaging.cbd_diameter_mm"
+          }
+        },
+        {
+          "id": "ercp.imaging.filling_defects",
+          "label": "Filling defects",
+          "type": "text",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"]
+        },
+        {
+          "id": "ercp.imaging.stone_burden",
+          "label": "Stone burden",
+          "type": "dropdown",
+          "default": "",
+          "vocabulary_source": "stone_burden",
+          "workflow_phases": ["WF_IMAGING"]
+        },
+        {
+          "id": "ercp.imaging.stricture_present",
+          "label": "Stricture present",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"]
+        },
+        {
+          "id": "ercp.imaging.pancreatography_performed",
+          "label": "Pancreatography performed",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"]
+        },
+        {
+          "id": "ercp.imaging.pancreatic_duct_findings",
+          "label": "Pancreatic duct findings",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"]
+        }
+      ]
+    },
+    {
+      "id": "therapy",
+      "label": "Therapy",
+      "workflow_phase": "WF_THERAPY",
+      "fields": [
+        {
+          "id": "ercp.therapy.interventions",
+          "label": "Interventions",
+          "type": "repeatable_group",
+          "default": [],
+          "min_rows": 0,
+          "workflow_phases": ["WF_THERAPY"],
+          "fields": [
+            {
+              "id": "intervention_type",
+              "label": "Intervention type",
+              "type": "dropdown",
+              "vocabulary_source": "intervention_type"
+            },
+            {
+              "id": "success",
+              "label": "Success",
+              "type": "yes_no"
+            },
+            {
+              "id": "details",
+              "label": "Details",
+              "type": "text"
+            }
+          ],
+          "narrative_binding": {
+            "mode": "list",
+            "field_id": "ercp.therapy.interventions",
+            "item_template": "{index}. {intervention_type} — success: {success}; {details}",
+            "empty_text": "No therapeutic interventions recorded."
+          }
+        }
+      ]
+    },
+    {
+      "id": "closure",
+      "label": "Closure & Complications",
+      "workflow_phase": "WF_CLOSURE",
+      "fields": [
+        {
+          "id": "ercp.closure.procedure_completed",
+          "label": "Procedure completed as planned",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": ["WF_CLOSURE"]
+        },
+        {
+          "id": "ercp.closure.clearance_achieved",
+          "label": "Biliary clearance achieved",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_CLOSURE"],
+          "qi_flag": true,
+          "qi_mapping": { "metric_key": "complete_biliary_clearance", "operator": "equals", "value": "Yes" }
+        },
+        {
+          "id": "ercp.closure.fluoroscopy_used",
+          "label": "Fluoroscopy used",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_CLOSURE"]
+        },
+        {
+          "id": "ercp.closure.immediate_complication",
+          "label": "Immediate complication",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": ["WF_CLOSURE"],
+          "qi_flag": true,
+          "qi_mapping": { "metric_key": "immediate_complication", "operator": "equals", "value": "Yes" }
+        },
+        {
+          "id": "ercp.closure.complication_types",
+          "label": "Complication type(s)",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "complication_type",
+          "workflow_phases": ["WF_CLOSURE"],
+          "visibility": {
+            "when": "field",
+            "field_id": "ercp.closure.immediate_complication",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "ercp.closure.pep_suspected",
+          "label": "PEP suspected",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_CLOSURE"],
+          "qi_flag": true,
+          "qi_mapping": { "metric_key": "pep_suspected", "operator": "equals", "value": "Yes" }
+        }
+      ]
+    },
+    {
+      "id": "synthesis",
+      "label": "Synthesis",
+      "workflow_phase": "WF_SYNTHESIS",
+      "fields": [
+        {
+          "id": "ercp.synthesis.impression_primary",
+          "label": "Primary impression",
+          "type": "long_text",
+          "required": true,
+          "default": "",
+          "workflow_phases": ["WF_SYNTHESIS"]
+        },
+        {
+          "id": "ercp.synthesis.clinical_plan",
+          "label": "Clinical plan / recommendations",
+          "type": "long_text",
+          "required": true,
+          "default": "",
+          "workflow_phases": ["WF_SYNTHESIS"]
+        },
+        {
+          "id": "ercp.synthesis.repeat_ercp_planned",
+          "label": "Repeat ERCP planned",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_SYNTHESIS"]
+        },
+        {
+          "id": "ercp.synthesis.addendum_text",
+          "label": "Addendum",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_SYNTHESIS"]
+        }
+      ]
+    }
+  ],
+  "components": {
+    "timeline": [
+      { "key": "scope_insertion", "label": "Scope insertion" },
+      { "key": "ampulla_identified", "label": "Ampulla identified" },
+      { "key": "cannulation_success", "label": "Biliary cannulation" },
+      { "key": "cholangiography", "label": "Cholangiography" },
+      { "key": "sphincterotomy", "label": "Sphincterotomy" },
+      { "key": "stone_extraction", "label": "Stone extraction" },
+      { "key": "stent_placement", "label": "Stent placement" },
+      { "key": "scope_removal", "label": "Scope removal" }
+    ]
+  },
+  "section_narratives": [
+    {
+      "section": "clinical_indication",
+      "intro": "Clinical indication for ERCP:",
+      "bindings": [
+        {
+          "mode": "literal",
+          "field_id": "ercp.context.indication_category",
+          "label": "Category"
+        },
+        {
+          "mode": "literal",
+          "field_id": "ercp.context.indication_detail",
+          "label": "Detail"
+        },
+        {
+          "mode": "sentence",
+          "field_id": "ercp.context.ercp_urgency",
+          "template": "Urgency: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "ercp.context.ascending_cholangitis_suspected",
+          "template": "Ascending cholangitis suspected: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "ercp.context.prophylactic_antibiotics",
+          "template": "Prophylactic antibiotics: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "ercp.context.antibiotic_agent",
+          "template": "Antibiotic agent: {value}."
+        }
+      ]
+    },
+    {
+      "section": "procedure_description",
+      "intro": "ERCP was performed under appropriate sedation and monitoring.",
+      "bindings": [
+        {
+          "mode": "sentence",
+          "field_id": "ercp.access.ampulla_identified",
+          "template": "Ampulla identified: {value}."
+        },
+        {
+          "mode": "literal",
+          "field_id": "ercp.access.cannulation_method",
+          "label": "Cannulation method(s)"
+        },
+        {
+          "mode": "sentence",
+          "field_id": "ercp.access.cannulation_success",
+          "template": "Biliary cannulation: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "ercp.access.difficult_cannulation",
+          "template": "Difficult cannulation: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "ercp.access.precut_performed",
+          "template": "Precut sphincterotomy: {value}."
+        },
+        {
+          "mode": "literal",
+          "field_id": "ercp.access.pep_prophylaxis",
+          "label": "PEP prophylaxis"
+        },
+        {
+          "mode": "sentence",
+          "field_id": "ercp.imaging.cholangiography_performed",
+          "template": "Cholangiography performed: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "ercp.imaging.pancreatography_performed",
+          "template": "Pancreatography performed: {value}."
+        }
+      ]
+    },
+    {
+      "section": "findings",
+      "intro": "Biliary imaging findings:",
+      "bindings": [
+        {
+          "mode": "sentence",
+          "field_id": "ercp.imaging.cbd_diameter_mm",
+          "template": "CBD diameter: {value} mm."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "ercp.imaging.filling_defects",
+          "template": "Filling defects: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "ercp.imaging.stone_burden",
+          "template": "Stone burden: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "ercp.imaging.stricture_present",
+          "template": "Biliary stricture: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "ercp.imaging.pancreatic_duct_findings",
+          "template": "Pancreatic duct: {value}."
+        },
+        {
+          "mode": "list",
+          "field_id": "ercp.therapy.interventions",
+          "item_template": "{index}. {intervention_type} — success: {success}; {details}",
+          "empty_text": "\nNo therapeutic interventions recorded."
+        }
+      ]
+    },
+    {
+      "section": "impression",
+      "bindings": [
+        {
+          "mode": "sentence",
+          "field_id": "ercp.synthesis.impression_primary",
+          "template": "Impression:\n{value}"
+        }
+      ]
+    },
+    {
+      "section": "recommendations",
+      "intro": "Recommendations / plan:",
+      "bindings": [
+        {
+          "mode": "literal",
+          "field_id": "ercp.synthesis.clinical_plan",
+          "label": ""
+        },
+        {
+          "mode": "sentence",
+          "field_id": "ercp.synthesis.repeat_ercp_planned",
+          "template": "Repeat ERCP planned: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "ercp.synthesis.addendum_text",
+          "template": "Addendum:\n{value}"
+        }
+      ]
+    },
+    {
+      "section": "complications",
+      "intro": "Complications and closure:",
+      "bindings": [
+        {
+          "mode": "sentence",
+          "field_id": "ercp.closure.immediate_complication",
+          "template": "Immediate complication: {value}."
+        },
+        {
+          "mode": "literal",
+          "field_id": "ercp.closure.complication_types",
+          "label": "Complication type(s)"
+        },
+        {
+          "mode": "sentence",
+          "field_id": "ercp.closure.pep_suspected",
+          "template": "Post-ERCP pancreatitis suspected: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "ercp.closure.fluoroscopy_used",
+          "template": "Fluoroscopy used: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "ercp.closure.clearance_achieved",
+          "template": "Biliary clearance achieved: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "ercp.closure.procedure_completed",
+          "template": "Procedure completed as planned: {value}."
+        }
+      ]
+    }
+  ],
+  "workflow": {
+    "states": [
+      "WF_CONTEXT",
+      "WF_ACCESS",
+      "WF_IMAGING",
+      "WF_THERAPY",
+      "WF_CLOSURE",
+      "WF_SYNTHESIS",
+      "WF_REVIEW",
+      "WF_FINALIZE"
+    ],
+    "transitions": {
+      "WF_CONTEXT": ["WF_ACCESS"],
+      "WF_ACCESS": ["WF_CONTEXT", "WF_IMAGING"],
+      "WF_IMAGING": ["WF_ACCESS", "WF_THERAPY"],
+      "WF_THERAPY": ["WF_IMAGING", "WF_CLOSURE"],
+      "WF_CLOSURE": ["WF_THERAPY", "WF_SYNTHESIS"],
+      "WF_SYNTHESIS": ["WF_CLOSURE", "WF_REVIEW"],
+      "WF_REVIEW": ["WF_SYNTHESIS", "WF_FINALIZE"],
+      "WF_FINALIZE": ["WF_REVIEW"]
+    }
+  },
+  "validation": [
+    {
+      "id": "V_CANNULATION",
+      "severity": "error",
+      "message": "Biliary cannulation outcome must be documented before finalize.",
+      "rule": { "type": "field_present", "field_id": "ercp.access.cannulation_success" }
+    },
+    {
+      "id": "V_IMPRESSION",
+      "severity": "error",
+      "message": "Primary impression is required before finalize.",
+      "rule": { "type": "field_nonempty", "field_id": "ercp.synthesis.impression_primary" }
+    },
+    {
+      "id": "V_INDICATION",
+      "severity": "error",
+      "message": "Indication category is required before finalize.",
+      "rule": { "type": "field_present", "field_id": "ercp.context.indication_category" }
+    },
+    {
+      "id": "V_URGENCY",
+      "severity": "error",
+      "message": "ERCP urgency is required before finalize.",
+      "rule": { "type": "field_present", "field_id": "ercp.context.ercp_urgency" }
+    },
+    {
+      "id": "V_AMPULLA",
+      "severity": "error",
+      "message": "Ampulla identification must be documented before finalize.",
+      "rule": { "type": "field_present", "field_id": "ercp.access.ampulla_identified" }
+    },
+    {
+      "id": "V_CHOLANGIOGRAPHY",
+      "severity": "error",
+      "message": "Cholangiography outcome must be documented before finalize.",
+      "rule": { "type": "field_present", "field_id": "ercp.imaging.cholangiography_performed" }
+    },
+    {
+      "id": "V_PROCEDURE_COMPLETED",
+      "severity": "error",
+      "message": "Procedure completion status is required before finalize.",
+      "rule": { "type": "field_present", "field_id": "ercp.closure.procedure_completed" }
+    },
+    {
+      "id": "V_IMMEDIATE_COMPLICATION",
+      "severity": "error",
+      "message": "Immediate complication outcome must be documented before finalize.",
+      "rule": { "type": "field_present", "field_id": "ercp.closure.immediate_complication" }
+    },
+    {
+      "id": "V_CLINICAL_PLAN",
+      "severity": "error",
+      "message": "Clinical plan / recommendations are required before finalize.",
+      "rule": { "type": "field_nonempty", "field_id": "ercp.synthesis.clinical_plan" }
+    },
+    {
+      "id": "V_CHOLANGITIS_ABX",
+      "severity": "warning",
+      "message": "Ascending cholangitis suspected — document antibiotic prophylaxis decision.",
+      "rule": {
+        "type": "when_field_equals",
+        "field_id": "ercp.context.ascending_cholangitis_suspected",
+        "value": "Yes",
+        "then": {
+          "type": "field_in",
+          "field_id": "ercp.context.prophylactic_antibiotics",
+          "values": ["Yes", "No"]
+        }
+      }
+    },
+    {
+      "id": "V_ANTIBIOTIC_AGENT",
+      "severity": "warning",
+      "message": "Prophylactic antibiotics given — document antibiotic agent.",
+      "rule": {
+        "type": "when_field_equals",
+        "field_id": "ercp.context.prophylactic_antibiotics",
+        "value": "Yes",
+        "then": { "type": "field_nonempty", "field_id": "ercp.context.antibiotic_agent" }
+      }
+    },
+    {
+      "id": "V_COMPLICATION_DETAIL",
+      "severity": "warning",
+      "message": "Immediate complication recorded — specify complication type(s).",
+      "rule": {
+        "type": "when_field_equals",
+        "field_id": "ercp.closure.immediate_complication",
+        "value": "Yes",
+        "then": { "type": "list_nonempty", "field_id": "ercp.closure.complication_types" }
+      }
+    }
+  ],
+  "quick_fill": {
+    "normal_diagnostic": {
+      "label": "Normal diagnostic ERCP",
+      "values": {
+        "ercp.context.indication_category": ["other"],
+        "ercp.context.ercp_urgency": "elective",
+        "ercp.access.ampulla_identified": "Yes",
+        "ercp.access.cannulation_success": "Yes",
+        "ercp.access.difficult_cannulation": "No",
+        "ercp.access.precut_performed": "No",
+        "ercp.imaging.cholangiography_performed": "Yes",
+        "ercp.imaging.filling_defects": "None",
+        "ercp.imaging.stricture_present": "No",
+        "ercp.closure.procedure_completed": "Yes",
+        "ercp.closure.immediate_complication": "No",
+        "ercp.closure.pep_suspected": "No",
+        "ercp.synthesis.impression_primary": "Normal cholangiogram. No biliary obstruction identified.",
+        "ercp.synthesis.clinical_plan": "Routine clinical follow-up as indicated."
+      }
+    },
+    "cbd_stones": {
+      "label": "CBD stones — therapeutic pathway",
+      "values": {
+        "ercp.context.indication_category": ["choledocholithiasis"],
+        "ercp.context.ercp_urgency": "urgent",
+        "ercp.imaging.cholangiography_performed": "Yes",
+        "ercp.imaging.filling_defects": "Present",
+        "ercp.imaging.stone_burden": "moderate",
+        "ercp.therapy.interventions": [
+          { "intervention_type": "sphincterotomy", "success": "Yes", "details": "" },
+          { "intervention_type": "stone_extraction", "success": "Yes", "details": "" }
+        ],
+        "ercp.closure.clearance_achieved": "Yes",
+        "ercp.closure.procedure_completed": "Yes",
+        "ercp.closure.immediate_complication": "No"
+      }
+    },
+    "biliary_stricture_stent": {
+      "label": "Biliary stricture — stent placement",
+      "values": {
+        "ercp.context.indication_category": ["biliary_stricture"],
+        "ercp.context.ercp_urgency": "elective",
+        "ercp.access.ampulla_identified": "Yes",
+        "ercp.access.cannulation_success": "Yes",
+        "ercp.access.difficult_cannulation": "No",
+        "ercp.imaging.cholangiography_performed": "Yes",
+        "ercp.imaging.stricture_present": "Yes",
+        "ercp.therapy.interventions": [
+          { "intervention_type": "balloon_dilation", "success": "Yes", "details": "Stricture dilated" },
+          { "intervention_type": "biliary_stent", "success": "Yes", "details": "Plastic biliary stent placed" }
+        ],
+        "ercp.closure.procedure_completed": "Yes",
+        "ercp.closure.clearance_achieved": "No",
+        "ercp.closure.immediate_complication": "No",
+        "ercp.closure.pep_suspected": "No",
+        "ercp.synthesis.impression_primary": "Biliary stricture identified. Stricture dilated and biliary stent placed.",
+        "ercp.synthesis.clinical_plan": "Monitor for stent dysfunction. Plan stent exchange per clinical pathway."
+      }
+    },
+    "acute_cholangitis": {
+      "label": "Acute cholangitis — urgent drainage",
+      "values": {
+        "ercp.context.indication_category": ["choledocholithiasis"],
+        "ercp.context.ercp_urgency": "emergency",
+        "ercp.context.ascending_cholangitis_suspected": "Yes",
+        "ercp.context.prophylactic_antibiotics": "Yes",
+        "ercp.context.antibiotic_agent": "Piperacillin-tazobactam",
+        "ercp.access.ampulla_identified": "Yes",
+        "ercp.access.cannulation_success": "Yes",
+        "ercp.access.difficult_cannulation": "No",
+        "ercp.access.pep_prophylaxis": ["rectal_indomethacin"],
+        "ercp.imaging.cholangiography_performed": "Yes",
+        "ercp.imaging.filling_defects": "Present",
+        "ercp.imaging.stone_burden": "moderate",
+        "ercp.therapy.interventions": [
+          { "intervention_type": "sphincterotomy", "success": "Yes", "details": "" },
+          { "intervention_type": "stone_extraction", "success": "Yes", "details": "Purulent bile drained" }
+        ],
+        "ercp.closure.clearance_achieved": "Yes",
+        "ercp.closure.procedure_completed": "Yes",
+        "ercp.closure.immediate_complication": "No",
+        "ercp.closure.pep_suspected": "No",
+        "ercp.synthesis.impression_primary": "Acute cholangitis. Successful biliary drainage achieved.",
+        "ercp.synthesis.clinical_plan": "Continue IV antibiotics. Monitor clinically. Repeat imaging or ERCP if incomplete drainage suspected."
+      }
+    },
+    "malignant_obstruction_stent": {
+      "label": "Malignant obstruction — stent & cytology",
+      "values": {
+        "ercp.context.indication_category": ["malignant_obstruction"],
+        "ercp.context.ercp_urgency": "urgent",
+        "ercp.access.ampulla_identified": "Yes",
+        "ercp.access.cannulation_success": "Yes",
+        "ercp.imaging.cholangiography_performed": "Yes",
+        "ercp.imaging.stricture_present": "Yes",
+        "ercp.therapy.interventions": [
+          { "intervention_type": "brush_cytology", "success": "Yes", "details": "Brushings obtained" },
+          { "intervention_type": "biliary_stent", "success": "Yes", "details": "Uncovered metal or plastic stent per plan" }
+        ],
+        "ercp.closure.procedure_completed": "Yes",
+        "ercp.closure.clearance_achieved": "Yes",
+        "ercp.closure.immediate_complication": "No",
+        "ercp.synthesis.impression_primary": "Malignant-appearing biliary stricture. Biliary stent placed for drainage. Brush cytology obtained.",
+        "ercp.synthesis.clinical_plan": "Await cytology. Oncology and surgical review. Stent surveillance per pathway."
+      }
+    }
+  },
+  "qi": [
+    { "metric_key": "cannulation_success", "label": "Biliary cannulation successful" },
+    { "metric_key": "complete_biliary_clearance", "label": "Complete biliary clearance" },
+    { "metric_key": "immediate_complication", "label": "Immediate complication occurred" },
+    { "metric_key": "pep_suspected", "label": "PEP suspected" }
+  ]
+}

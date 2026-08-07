@@ -1,0 +1,62 @@
+{
+  "complaint_code": "CC_abdominal_distention",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Abdominal distention — history structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Distention means the abdomen is enlarged — causes include gas, fluid (ascites), mass/tumour, organomegaly, constipation/obstruction, obesity, and pregnancy.",
+        "Do not start with 'ascites' or 'portal hypertension' as the complaint. Those are exam/differential labels reached after the story and signs.",
+        "Tempo + fluctuation (meals/gas vs steady) + associated jaundice/leg oedema/confusion/obstipation split the major pathways.",
+        "Patient impression (gas vs fluid vs lump) is useful but never definitive — confirm on examination."
+      ],
+      "linked_questions": [
+        "Q000115",
+        "Q000116",
+        "Q000117",
+        "Q000045",
+        "Q000118"
+      ]
+    }
+  ],
+  "question_coaching": {
+    "Q000117": {
+      "why_ask": "Patients often sense gas vs fluid vs lump; it guides exam focus without naming a disease.",
+      "listen_for": [
+        "Gas",
+        "water/fluid",
+        "hard lump"
+      ],
+      "think": "Gas → tympany; fluid → shifting dullness; mass → focal dullness/palpable lesion."
+    },
+    "Q000045": {
+      "why_ask": "Inability to pass stool or gas with distention raises obstruction concern.",
+      "listen_for": [
+        "No flatus",
+        "no stool",
+        "vomiting"
+      ],
+      "think": "Obstipation + distention → surgical/obstruction pathway."
+    }
+  },
+  "answer_triggers": [
+    {
+      "id": "AT_obstipation",
+      "question_id": "Q000045",
+      "title": "Unlocked: possible obstruction pattern",
+      "points": [
+        "Distention with obstipation needs urgent surgical assessment.",
+        "Do not assume ascites until obstruction and mass are considered."
+      ],
+      "answer_in": [
+        "yes"
+      ]
+    }
+  ]
+}

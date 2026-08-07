@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}{{ obj.title }}{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>{{ obj.title }}</h1>
+    <p class="muted">{{ obj.slug }} · {{ obj.object_type }} · {{ obj.status }}</p>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    {% if obj.status == 'review' %}
+    <a href="{{ url_for('gi_knowledge_review') }}" class="btn btn--outline btn--sm">Review queue</a>
+    {% endif %}
+    <a href="{{ url_for('gi_knowledge_index') }}" class="btn btn--outline btn--sm">← Library</a>
+  </div>
+</section>
+
+{% if obj.status == 'review' %}
+<div class="flash flash--success" style="margin-bottom:16px;">
+  This object is <strong>awaiting review</strong> and is not published yet. Open
+  <a href="{{ url_for('gi_knowledge_review') }}">Review queue</a> to approve and publish.
+</div>
+{% elif obj.status == 'published' %}
+<div class="flash flash--success" style="margin-bottom:16px;">
+  Published — available in the Knowledge Library.
+</div>
+{% endif %}
+
+{% if obj.summary %}<p>{{ obj.summary }}</p>{% endif %}
+
+{% if imported_body and imported_body.imported_text %}
+<section class="admin-section" style="margin:16px 0;">
+  <h2 style="margin-top:0;font-size:16px;">Extracted document text</h2>
+  <p class="muted" style="font-size:13px;">
+    Method: {{ imported_body.extraction_method or 'unknown' }}
+    {% if imported_body.page_count %} · {{ imported_body.page_count }} page(s){% endif %}
+  </p>
+  <pre class="import-text-preview" style="max-height:420px;overflow:auto;white-space:pre-wrap;font-size:13px;line-height:1.5;padding:12px;background:var(--surface-2,#f8f8f8);border-radius:8px;">{{ imported_body.imported_text[:12000] }}{% if imported_body.imported_text|length > 12000 %}…{% endif %}</pre>
+</section>
+{% endif %}
+
+{% if provenance %}
+<section class="admin-section" style="margin:16px 0;">
+  <h2 style="margin-top:0;font-size:16px;">Import source</h2>
+  <ul style="margin:0;padding-left:18px;">
+    {% for p in provenance %}
+    <li>
+      {{ p.source_type|replace('_',' ') }}
+      {% if p.source_filename %} — <strong>{{ p.source_filename }}</strong>{% endif %}
+      {% if p.notes %}<br><span class="muted" style="font-size:13px;">{{ p.notes }}</span>{% endif %}
+      {% if has_import_file and p.source_type == 'pdf_import' and p.import_job_id %}
+      · <a href="{{ url_for('gi_import_download', job_id=p.import_job_id) }}">Download PDF</a>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+{% if has_full_access() or current_user.role == 'specialist' %}
+<form method="POST" action="{{ url_for('gi_knowledge_status', object_id=obj.id) }}" style="margin:12px 0;">
+  <select name="status">
+    {% for s in ['draft','review','published','archived'] %}<option value="{{ s }}" {% if obj.status==s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+  </select>
+  <button class="btn btn--sm btn--primary" type="submit">Update status</button>
+</form>
+{% endif %}
+
+{% if has_full_access() %}
+<form method="POST" action="{{ url_for('gi_knowledge_delete', object_id=obj.id) }}" style="margin:12px 0;"
+      onsubmit="return confirm('Permanently delete “{{ obj.title|e }}”? This cannot be undone.');">
+  <button class="btn btn--sm btn--ghost" type="submit" style="color:var(--danger,#b91c1c);">Delete permanently</button>
+</form>
+{% endif %}
+
+<h2>Linked knowledge</h2>
+<ul>{% for l in links %}<li>{{ l.link_type }} → {{ l.target_title }}</li>{% else %}<li class="muted">No links.</li>{% endfor %}</ul>
+{% endblock %}

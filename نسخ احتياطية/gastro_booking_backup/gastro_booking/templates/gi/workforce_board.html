@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}My tasks{% endblock %}
+{% block content %}
+<h1>My tasks</h1>
+{% include "_module_intro.html" %}
+<p class="muted">Personal items where you are <strong>@mentioned</strong> — not ward department tasks (those stay on the patient file).</p>
+
+{% if upcoming_presentations %}
+<section class="admin-section compact-section">
+  <h2>Presentations this week</h2>
+  <p class="muted">Who is presenting M&amp;M or journal club — today and the next 7 days.</p>
+  <table class="admin-table compact-table">
+    <thead><tr><th>Session</th><th>Date</th><th>Presenter(s)</th><th>Route</th></tr></thead>
+    <tbody>
+      {% for p in upcoming_presentations %}
+      <tr>
+        <td>
+          {% if p.source_module == 'mm' %}
+          <strong>M&amp;M</strong><br>
+          <span class="muted">{{ p.title[:80] }}{% if p.title|length > 80 %}…{% endif %}</span>
+          {% else %}
+          <strong>Journal club</strong><br>
+          <span class="muted">{{ p.title }}</span>
+          {% endif %}
+        </td>
+        <td>{{ p.session_date }}</td>
+        <td>{{ p.presenter_usernames or '—' }}</td>
+        <td>{{ p.training_route or '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+
+{% if training_assignments %}
+<section class="admin-section compact-section">
+  <h2>My presentations</h2>
+  <p class="muted">You were @mentioned as presenter — mark done when finished.</p>
+  <table class="admin-table compact-table">
+    <thead><tr><th>Assignment</th><th>Date</th><th>Route</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      {% for a in training_assignments %}
+      <tr>
+        <td>
+          <strong>{{ a.title }}</strong>
+          {% if a.details %}<br><span class="muted">{{ a.details[:100] }}{% if a.details|length > 100 %}…{% endif %}</span>{% endif %}
+        </td>
+        <td>{{ a.session_date or '—' }}</td>
+        <td>{{ a.training_route or '—' }}</td>
+        <td>{{ a.status }}</td>
+        <td>
+          {% if a.status != 'done' %}
+          <form method="POST" action="{{ url_for('gi_training_assignment_status', assignment_id=a.id) }}" style="display:inline;">
+            <button class="btn btn--sm btn--outline" type="submit">Done</button>
+          </form>
+          {% endif %}
+          {% if can_delete_task %}
+          <form method="POST" action="{{ url_for('gi_training_assignment_delete', assignment_id=a.id) }}" style="display:inline;" onsubmit="return confirm('Remove this assignment?');">
+            <button class="btn btn--sm btn--outline" type="submit">Delete</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+
+{% if quiz_assignments %}
+<section class="admin-section compact-section">
+  <h2>My quizzes</h2>
+  <p class="muted">Quizzes assigned to you from the MCQ Bank.</p>
+  <table class="admin-table compact-table">
+    <thead><tr><th>Quiz</th><th>Questions</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      {% for q in quiz_assignments %}
+      <tr>
+        <td>
+          <strong>{{ q.title }}</strong>
+          {% if q.score_correct is not none and q.status == 'done' %}
+          <br><span class="muted">Score {{ q.score_correct }}/{{ q.score_total }}</span>
+          {% endif %}
+        </td>
+        <td>{{ q.question_count }}</td>
+        <td>{{ q.status }}</td>
+        <td>
+          {% if q.status != 'done' %}
+          <a class="btn btn--sm btn--primary" href="{{ url_for('mcqbank_take_quiz', quiz_id=q.quiz_id) }}">Start</a>
+          {% else %}
+          <a class="btn btn--sm btn--outline" href="{{ url_for('mcqbank_take_quiz', quiz_id=q.quiz_id) }}">Review</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+
+{% if research_projects %}
+<section class="admin-section compact-section">
+  <h2>My research projects</h2>
+  <ul class="compact-list">
+    {% for p in research_projects %}
+    <li>
+      <a href="{{ url_for('gi_research_detail', registry_id=p.id) }}">{{ p.title }}</a>
+      <span class="muted"> · {{ p.code }} · {{ p.status }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+{% if mention_assignments %}
+<section class="admin-section compact-section">
+  <h2>@Mentions</h2>
+  <p class="muted">Someone @mentioned you — open the linked task or mark done when addressed.</p>
+  <table class="admin-table compact-table">
+    <thead><tr><th>Context</th><th>Details</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      {% for a in mention_assignments %}
+      <tr>
+        <td><strong>{{ a.title }}</strong></td>
+        <td>{% if a.details %}<span class="muted">{{ a.details[:120] }}{% if a.details|length > 120 %}…{% endif %}</span>{% else %}—{% endif %}</td>
+        <td>{{ a.status }}</td>
+        <td>
+          {% if a.status != 'done' %}
+          <form method="POST" action="{{ url_for('gi_training_assignment_status', assignment_id=a.id) }}" style="display:inline;">
+            <button class="btn btn--sm btn--outline" type="submit">Done</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+
+{% if not training_assignments and not mention_assignments and not research_projects and not upcoming_presentations and not quiz_assignments %}
+<p class="muted">No personal @-mention tasks right now. Ward tasks for inpatients are on each patient's file.</p>
+{% endif %}
+{% endblock %}

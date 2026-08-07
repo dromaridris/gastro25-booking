@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}GI Clinical Registry{% endblock %}
+{% block content %}
+<div class="gi-registry-page">
+  <header class="gi-registry-hero">
+    <div>
+      <h1>GI Clinical Registry</h1>
+      {% include "_module_intro.html" %}
+      <p class="muted">Department-wide overview of patients, procedures, disease registries, and clinical modules.</p>
+    </div>
+    <div class="gi-registry-hero-stats">
+      <div class="gi-registry-kpi"><span class="gi-registry-kpi-val">{{ summary.total_patients }}</span><span class="gi-registry-kpi-lbl">Patients</span></div>
+      <div class="gi-registry-kpi"><span class="gi-registry-kpi-val">{{ summary.appointments_today }}</span><span class="gi-registry-kpi-lbl">Today</span></div>
+      <div class="gi-registry-kpi"><span class="gi-registry-kpi-val">{{ summary.active_admissions }}</span><span class="gi-registry-kpi-lbl">In ward</span></div>
+      <div class="gi-registry-kpi"><span class="gi-registry-kpi-val">{{ summary.ercp_total }}</span><span class="gi-registry-kpi-lbl">ERCP (all time)</span></div>
+    </div>
+  </header>
+
+  <form method="GET" class="gi-registry-filters no-print">
+    <span class="muted">Quick filter:</span>
+    {% for p, label in [('all','All time'),('today','Today'),('week','This week'),('month','This month'),('year','This year')] %}
+    <button type="submit" name="period" value="{{ p }}" class="btn btn--sm {{ 'btn--primary' if period == p else 'btn--outline' }}">{{ label }}</button>
+    {% endfor %}
+  </form>
+
+  {% for cat_key, cat_label in categories.items() %}
+  {% set section_cards = cards|selectattr('category', 'equalto', cat_key)|list %}
+  {% if section_cards %}
+  <section class="gi-registry-section" {% if cat_key == 'custom' %}id="diagnoses"{% endif %}>
+    <h2 class="gi-registry-section-title">{{ cat_label }}</h2>
+    <div class="gi-registry-grid">
+      {% for card in section_cards %}
+      {% set href = url_for(card.endpoint) if card.get('endpoint')
+         else url_for('gi_registry_procedure_hub', procedure_key=card.id) if card.card_type == 'procedure'
+         else url_for('gi_registry_diagnosis_hub', code=card.id) if card.card_type == 'disease'
+         else url_for('search_patients') %}
+      <a href="{{ href }}" class="gi-registry-card gi-registry-card--{{ card.card_type }}">
+        <div class="gi-registry-card-head">
+          <span class="gi-registry-card-icon" aria-hidden="true">{{ card.icon }}</span>
+          <h3>{{ card.title }}</h3>
+        </div>
+        {% if card.get('description') %}
+        <p class="gi-registry-card-desc muted">{{ card.description }}</p>
+        {% endif %}
+        <dl class="gi-registry-metrics">
+          {% if card.card_type == 'core' %}
+            {% for k, v in card.stats.items() %}
+            <div><dt>{{ k|replace('_',' ')|title }}</dt><dd>{{ v }}</dd></div>
+            {% endfor %}
+          {% elif card.card_type == 'procedure' %}
+            <div><dt>Total</dt><dd>{{ card.stats.total }}</dd></div>
+            <div><dt>Today</dt><dd>{{ card.stats.today }}</dd></div>
+            <div><dt>This week</dt><dd>{{ card.stats.week }}</dd></div>
+            <div><dt>This month</dt><dd>{{ card.stats.month }}</dd></div>
+            <div><dt>Pending reports</dt><dd>{{ card.stats.pending_reports }}</dd></div>
+            <div><dt>Completed</dt><dd>{{ card.stats.completed_reports }}</dd></div>
+            {% if card.id == 'ercp' %}
+            <div><dt>Under follow-up</dt><dd>{{ card.stats.patients_under_followup }}</dd></div>
+            <div><dt>Repeat scheduled</dt><dd>{{ card.stats.repeat_scheduled }}</dd></div>
+            {% endif %}
+          {% elif card.card_type == 'disease' %}
+            <div><dt>Total patients</dt><dd>{{ card.stats.total_patients }}</dd></div>
+            {% for st in card.stats.subtypes[:4] %}
+            <div><dt>{{ st.label }}</dt><dd>{{ st.value }}</dd></div>
+            {% endfor %}
+          {% elif card.card_type == 'module' %}
+            {% for k, v in card.stats.items() %}
+            <div><dt>{{ k|replace('_',' ')|title }}</dt><dd>{{ v }}</dd></div>
+            {% endfor %}
+          {% endif %}
+        </dl>
+        <span class="gi-registry-card-cta">Open registry →</span>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+  {% endfor %}
+
+  {% if can_manage_diagnoses %}
+  <section class="admin-section compact-section" id="diagnoses">
+    <h2>Add diagnosis registry card</h2>
+    <p class="muted">Consultants and HOD can add new disease cards — they also appear automatically from History Templates.</p>
+    <form method="POST" action="{{ url_for('gi_registry_add_diagnosis') }}" class="form-grid">
+      <label>Diagnosis name <input name="disease_name" required placeholder="e.g. Celiac Disease"></label>
+      <label>Code (optional) <input name="disease_code" placeholder="celiac_disease"></label>
+      <button class="btn btn--primary" type="submit">Add registry card</button>
+    </form>
+  </section>
+  {% endif %}
+
+  {% if recent %}
+  <section class="admin-section compact-section">
+    <h2>Recent activity</h2>
+    <ul class="gi-registry-activity">
+      {% for item in recent %}
+      <li>
+        <span class="gi-registry-activity-when">{{ item.when_at }}</span>
+        <strong>{{ item.label }}</strong>
+        <span class="muted">{{ item.detail }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

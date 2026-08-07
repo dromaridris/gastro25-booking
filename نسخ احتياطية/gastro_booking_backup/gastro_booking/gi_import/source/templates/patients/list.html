@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% from "ui/macros.html" import page_header, search_panel, data_table_wrapper, table_empty_row %}
+
+{% block title %}Patients — {{ branding.display_title }}{% endblock %}
+
+{% block content %}
+{% if can('patient:edit') %}
+{% set header_actions %}
+<a href="{{ url_for('patients.create_patient') }}" class="btn gi-btn-primary btn-sm">+ New Patient</a>
+{% endset %}
+{% else %}
+{% set header_actions = none %}
+{% endif %}
+
+{{ page_header("Patients", subtitle="Search and manage patient records.", breadcrumbs=[("Patients", none)], actions=header_actions) }}
+
+{{ search_panel(form_action=url_for('patients.list_patients'), placeholder="Search by name or MRN", query=query or "",
+    search_key="patient_search", suggestions="Patient name, MRN, or partial match") }}
+
+{% call data_table_wrapper('table-striped') %}
+    <thead>
+        <tr>
+            <th scope="col">MRN</th>
+            <th scope="col">Name</th>
+            <th scope="col">Date of Birth</th>
+            <th scope="col">Phone</th>
+            <th scope="col"><span class="visually-hidden">Actions</span></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in patients %}
+        <tr>
+            <td><code>{{ p.mrn }}</code></td>
+            <td>{{ p.full_name }}</td>
+            <td>{{ p.date_of_birth.strftime("%Y-%m-%d") }}</td>
+            <td>{{ p.phone or "—" }}</td>
+            <td><a href="{{ url_for('patients.view_patient', patient_id=p.id) }}" class="btn btn-outline-primary btn-sm">View</a></td>
+        </tr>
+        {% else %}
+        {{ table_empty_row(5, "No patients found", "Register a new patient or adjust your search terms.") }}
+        {% endfor %}
+    </tbody>
+{% endcall %}
+{% endblock %}

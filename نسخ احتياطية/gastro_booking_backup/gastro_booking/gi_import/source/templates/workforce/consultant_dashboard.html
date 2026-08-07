@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Consultant Worklist{% endblock %}
+{% block content %}
+<div class="gi-page-header mb-4">
+    <p class="gi-eyebrow mb-1">Specialist</p>
+    <h1 class="gi-page-title h2 mb-1">Today's worklist</h1>
+    <p class="gi-page-subtitle text-muted mb-0">Reports, supervision, and your scheduled procedures.</p>
+</div>
+
+{% include "ui/_quick_actions.html" %}
+
+<div class="row g-3">
+    <div class="col-lg-4">
+        <div class="gi-card p-3 h-100">
+            <h2 class="h6">Pending reports ({{ pending_reports|length }})</h2>
+            <ul class="list-unstyled mb-0 small">
+            {% for r in pending_reports %}
+                <li class="mb-2">{{ r.report_number }} — patient {{ r.patient_id }}</li>
+            {% else %}
+                <li class="text-muted">No draft reports.</li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="gi-card p-3 h-100">
+            <h2 class="h6">Today's procedures ({{ today_procedures|length }})</h2>
+            <ul class="list-unstyled mb-0 small">
+            {% for p in today_procedures %}
+                <li class="mb-2"><a href="{{ url_for('procedures.view_procedure', procedure_id=p.id) }}">Procedure #{{ p.id }}</a> — {{ p.status.replace('_', ' ').title() }}</li>
+            {% else %}
+                <li class="text-muted">No procedures assigned to you today.</li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="gi-card p-3 h-100">
+            <h2 class="h6">Portfolio</h2>
+            <p class="small text-muted mb-2">Training supervision entries waiting for review may appear here.</p>
+            <a href="{{ url_for('workforce.portfolio') }}" class="btn btn-outline-primary btn-sm">Open my portfolio</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

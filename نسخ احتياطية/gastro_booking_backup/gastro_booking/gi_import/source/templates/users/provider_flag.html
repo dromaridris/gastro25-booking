@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Provider Eligibility — {{ target.full_name }}{% endblock %}
+{% block content %}
+<h2>Provider Eligibility: {{ target.full_name }}</h2>
+<p class="text-muted">
+    Controls whether this user appears in the provider dropdown when booking an appointment.
+    Deliberately independent of role or permissions — set this explicitly for anyone who should
+    be bookable on the appointment schedule.
+</p>
+<form method="POST" class="col-md-4">
+    {{ form.hidden_tag() }}
+    <div class="form-check mb-3">
+        {{ form.is_provider(class="form-check-input") }}
+        {{ form.is_provider.label(class="form-check-label") }}
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+</form>
+{% endblock %}

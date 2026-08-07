@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}New Consult Request{% endblock %}
+{% block content %}
+<h2>New Consult Request</h2>
+<form method="POST">
+  <div class="mb-3"><label class="form-label">Patient ID</label><input name="patient_id" type="number" class="form-control" required></div>
+  <div class="mb-3"><label class="form-label">Specialty</label><input name="specialty" class="form-control" required></div>
+  <div class="mb-3"><label class="form-label">Urgency</label>
+    <select name="urgency" class="form-select"><option value="routine">Routine</option><option value="urgent">Urgent</option></select>
+  </div>
+  <div class="mb-3"><label class="form-label">Clinical question</label><textarea name="clinical_question" class="form-control" rows="4" required></textarea></div>
+  <button class="btn btn-primary">Submit</button>
+</form>
+{% endblock %}

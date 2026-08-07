@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://clinical-intelligence.local/schemas/shared_question.schema.json",
+  "title": "SharedQuestion",
+  "type": "object",
+  "required": ["id", "prompt", "answer_type", "schema_version"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^Q[0-9]{6}$" },
+    "prompt": { "type": "string" },
+    "answer_type": {
+      "type": "string",
+      "enum": ["text", "boolean", "choice", "multi_choice", "number", "scale", "duration", "date"]
+    },
+    "choices": { "type": "array", "items": { "type": "string" } },
+    "bates_domain": {
+      "type": "string",
+      "enum": ["HPI", "symptom_characteristics", "associated_symptoms", "risk_factors", "PMH", "PSH", "drugs", "allergies", "FH", "SH", "ROS", "red_flags"]
+    },
+    "dedupe_key": { "type": "string" },
+    "priority_default": { "type": "string", "enum": ["emergency", "high", "routine", "low"] },
+    "schema_version": { "type": "integer" },
+    "revision": { "type": "integer" },
+    "status": { "type": "string", "enum": ["draft", "active", "deprecated"] },
+    "specialty_tags": { "type": "array", "items": { "type": "string" } }
+  },
+  "additionalProperties": false
+}

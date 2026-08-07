@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}New consult request{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <h1>New consult request</h1>
+  <a href="{{ url_for('gi_consult_requests') }}" class="btn btn--outline btn--sm">← List</a>
+</section>
+<form method="post" class="settings-form admin-section">
+  <label>Patient
+    <select name="ward_patient_id" required>
+      <option value="">— Select —</option>
+      {% for p in patients %}
+      <option value="{{ p.id }}" {{ 'selected' if ward_patient_id == p.id }}>{{ p.patient_name }} ({{ p.mrn or '—' }})</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>Specialty<input name="specialty" required placeholder="Hepatology, Surgery…"></label>
+  <label>Urgency
+    <select name="urgency">
+      {% for u in urgency_choices %}<option value="{{ u }}">{{ u|title }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Clinical question<textarea name="clinical_question" rows="5" required></textarea></label>
+  <button class="btn btn--primary" type="submit">Submit request</button>
+</form>
+{% endblock %}

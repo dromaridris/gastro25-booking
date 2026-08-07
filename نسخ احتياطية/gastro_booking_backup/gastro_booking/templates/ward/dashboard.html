@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+{% block title %}Ward · Gastro & Hepatology{% endblock %}
+{% block content %}
+<section class="ward-topbar">
+  <div class="ward-topbar-main">
+    <h1>Ward Dashboard</h1>
+    <span class="muted ward-topbar-sub">Gastroenterology Ward 25</span>
+  </div>
+  {% if ward %}
+  <div class="ward-topbar-stats">
+    <span class="ward-stat"><strong>{{ stats.occupied }}</strong>/{{ stats.total }} occupied</span>
+    <span class="ward-stat"><strong>{{ stats.available }}</strong> free</span>
+    <span class="ward-stat"><strong>{{ stats.occupancy_pct }}%</strong></span>
+    <span class="ward-stat muted">+{{ stats.extra or 0 }} extra</span>
+  </div>
+  <div class="ward-topbar-actions">
+    <a href="{{ url_for('ward_analytics', ward_id=ward.id) }}" class="btn btn--outline btn--sm">Analytics</a>
+    <button type="button" class="btn btn--outline btn--sm" onclick="openTransferModal()">Transfer</button>
+    <form method="post" action="{{ url_for('ward_add_extra_bed') }}" style="display:inline;">
+      <input type="hidden" name="ward_id" value="{{ ward.id }}">
+      <button type="submit" class="btn btn--outline btn--sm">+ Extra bed</button>
+    </form>
+  </div>
+  {% endif %}
+</section>
+
+{% if wards|length > 1 %}
+<form method="get" class="settings-form ward-ward-select">
+  <label>Ward<select name="ward_id" onchange="this.form.submit()">{% for w in wards %}
+    <option value="{{ w.id }}" {% if ward and w.id == ward.id %}selected{% endif %}>{{ w.name }}</option>{% endfor %}
+  </select></label>
+</form>
+{% endif %}
+
+{% if ward %}
+<section class="admin-section">
+  <h2>Bed board</h2>
+  <div class="admin-table-scroll">
+    <table class="admin-table compact-table">
+      <thead><tr><th>Bed</th><th>Type</th><th>Status</th><th>Patient</th><th>MRN</th><th>Discharge readiness</th><th></th></tr></thead>
+      <tbody>
+        {% for b in beds %}
+        <tr>
+          <td>{{ b.label }}</td>
+          <td>{{ b.bed_kind|capitalize }}</td>
+          <td>{{ b.status|capitalize }}</td>
+          <td>{% if b.ward_patient_id %}<a href="{{ url_for('ward_patient_view', ward_patient_id=b.ward_patient_id) }}">{{ b.patient_name }}</a>{% else %}—{% endif %}</td>
+          <td>{{ b.mrn or '—' }}</td>
+          <td>
+            {% if b.ward_patient_id and discharge_checklists.get(b.ward_patient_id) %}
+              {% set cl = discharge_checklists[b.ward_patient_id] %}
+              <span class="muted muted-sm" title="Final diagnosis / approved plan / discharge summary">
+                {% if cl.has_final_diagnosis %}✓ Dx{% else %}○ Dx{% endif %}
+                · {% if cl.has_approved_plan %}✓ Plan{% else %}○ Plan{% endif %}
+                · {% if cl.has_summary %}✓ Summary{% else %}○ Summary{% endif %}
+              </span>
+            {% else %}—{% endif %}
+          </td>
+          <td>
+            {% if b.status in ['available','reserved'] %}
+            <button type="button" class="btn btn--sm btn--primary" onclick="openAdmitModal({{ b.id }}, '{{ b.label|e }}')">Admit</button>
+            {% elif b.ward_patient_id %}
+            <button type="button" class="btn btn--sm btn--outline"
+              onclick='openDischargeModal({{ b.id }}, {{ b.ward_patient_id }}, {{ b.patient_name|tojson }}, {{ discharge_checklists.get(b.ward_patient_id)|tojson }})'>Discharge</button>
+            <button type="button" class="btn btn--sm btn--outline"
+              onclick="openTransferModal({{ b.id }}, {{ b.patient_name|tojson }})">Move</button>
+            {% elif b.status == 'cleaning' %}
+            <form method="post" action="{{ url_for('ward_bed_ready', bed_id=b.id) }}" style="display:inline">
+              <button type="submit" class="btn btn--sm btn--primary">Ready</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
+
+<div class="modal-backdrop" id="admitModalBackdrop" hidden>
+  <div class="modal"><div class="modal-head"><h3>Admit — <span id="admitBedLabel"></span></h3></div>
+  <form method="post" action="{{ url_for('ward_admit') }}" class="settings-form" id="admitForm">
+    <input type="hidden" name="bed_id" id="admitBedId">
+    <label>Patient name<input required name="patient_name"></label>
+    <label>MRN <span class="muted muted-sm">(recommended — links booking appointments)</span>
+      <input name="mrn" id="admitMrn" placeholder="Hospital MRN">
+    </label>
+    <label class="muted muted-sm">If no MRN yet — reason to skip
+      <input name="mrn_skip_reason" id="admitMrnSkip" placeholder="e.g. ER admission, MRN pending">
+    </label>
+    <label>Age<input name="age"></label>
+    <label>Gender<input name="gender"></label>
+    <div class="modal-actions"><button type="button" class="btn btn--outline" onclick="closeAdmitModal()">Cancel</button>
+    <button type="submit" class="btn btn--primary">Admit</button></div>
+  </form></div>
+</div>
+
+<div class="modal-backdrop" id="dischargeModalBackdrop" hidden>
+  <div class="modal"><div class="modal-head"><h3>Discharge — <span id="dischargePatientName"></span></h3></div>
+  <form method="post" action="{{ url_for('ward_discharge') }}" class="settings-form" id="dischargeForm">
+    <input type="hidden" name="bed_id" id="dischargeBedId">
+    <div id="dischargeChecklist" class="compact-card" style="margin-bottom:12px;font-size:13px;"></div>
+    <label>Outcome<select name="outcome" id="dischargeOutcome" required>{% for code, label in discharge_outcomes %}
+      <option value="{{ code }}">{{ label }}</option>{% endfor %}
+    </select></label>
+    <label>Notes<textarea name="notes" rows="2"></textarea></label>
+    <label><input type="checkbox" name="override" value="1" id="dischargeOverride"> Override summary requirement</label>
+    <label>Override / exception reason
+      <input name="override_reason" id="dischargeOverrideReason" placeholder="Required for LAMA/DOR/expired without summary, or override">
+    </label>
+    <p class="muted muted-sm" id="dischargeGateHint"></p>
+    <div class="modal-actions"><button type="button" class="btn btn--outline" onclick="closeDischargeModal()">Cancel</button>
+    <button type="submit" class="btn btn--primary" id="dischargeSubmitBtn">Confirm discharge</button></div>
+  </form></div>
+</div>
+
+<div class="modal-backdrop" id="transferModalBackdrop" hidden>
+  <div class="modal"><div class="modal-head"><h3>Transfer bed</h3></div>
+  <form method="post" action="{{ url_for('ward_transfer') }}" class="settings-form" id="transferForm">
+    <label>From bed (occupied)
+      <select name="from_bed_id" id="transferFromBed" required>
+        <option value="">— select —</option>
+        {% for b in beds if b.ward_patient_id %}
+        <option value="{{ b.id }}">{{ b.label }} — {{ b.patient_name }}{% if b.mrn %} ({{ b.mrn }}){% endif %}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>To bed (available)
+      <select name="to_bed_id" id="transferToBed" required>
+        <option value="">— select —</option>
+        {% for b in beds if b.status in ['available','reserved'] %}
+        <option value="{{ b.id }}">{{ b.label }} ({{ b.status }})</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Notes<textarea name="notes" rows="2"></textarea></label>
+    <div class="modal-actions"><button type="button" class="btn btn--outline" onclick="closeTransferModal()">Cancel</button>
+    <button type="submit" class="btn btn--primary">Confirm transfer</button></div>
+  </form></div>
+</div>
+
+<script>
+const OVERRIDE_OUTCOMES = new Set(['lama', 'dor', 'expired']);
+
+function openAdmitModal(bedId, label) {
+  document.getElementById('admitBedId').value = bedId;
+  document.getElementById('admitBedLabel').textContent = label;
+  document.getElementById('admitModalBackdrop').hidden = false;
+}
+function closeAdmitModal() { document.getElementById('admitModalBackdrop').hidden = true; }
+
+document.getElementById('admitForm')?.addEventListener('submit', function (e) {
+  const mrn = (document.getElementById('admitMrn').value || '').trim();
+  const skip = (document.getElementById('admitMrnSkip').value || '').trim();
+  if (!mrn && !skip) {
+    e.preventDefault();
+    alert('Enter an MRN, or a reason to admit without MRN.');
+  }
+});
+
+function checklistHtml(cl) {
+  if (!cl) return '<p class="muted">No checklist data.</p>';
+  const row = (ok, label, detail) =>
+    `<div>${ok ? '✓' : '○'} <strong>${label}</strong>${detail ? ' — <span class="muted">' + detail + '</span>' : ''}</div>`;
+  return [
+    row(cl.has_final_diagnosis, 'Final diagnosis', cl.final_diagnosis || 'missing'),
+    row(cl.has_approved_plan, 'Approved management plan', cl.plan_status || 'none'),
+    row(cl.has_summary, 'Discharge summary', cl.has_summary ? 'on file' : 'required'),
+  ].join('');
+}
+
+function updateDischargeGateUI() {
+  const cl = window._dischargeChecklist || {};
+  const outcome = document.getElementById('dischargeOutcome').value;
+  const override = document.getElementById('dischargeOverride').checked;
+  const reason = (document.getElementById('dischargeOverrideReason').value || '').trim();
+  const hint = document.getElementById('dischargeGateHint');
+  const btn = document.getElementById('dischargeSubmitBtn');
+  const needsSummary = !cl.has_summary;
+  const canOverride = override || OVERRIDE_OUTCOMES.has(outcome);
+  if (!needsSummary) {
+    hint.textContent = 'Discharge summary on file — ready for routine discharge.';
+    btn.disabled = false;
+    return;
+  }
+  if (canOverride && reason) {
+    hint.textContent = 'Proceeding without summary using override / exception reason.';
+    btn.disabled = false;
+    return;
+  }
+  if (canOverride && !reason) {
+    hint.textContent = 'Summary missing — enter an override / exception reason to continue.';
+    btn.disabled = true;
+    return;
+  }
+  hint.textContent = 'Summary required. Save on patient page, or use LAMA/DOR/Expired (or override) with a reason.';
+  btn.disabled = true;
+}
+
+function openDischargeModal(bedId, wardPatientId, name, checklist) {
+  document.getElementById('dischargeBedId').value = bedId;
+  document.getElementById('dischargePatientName').textContent = name;
+  window._dischargeChecklist = checklist || {};
+  document.getElementById('dischargeChecklist').innerHTML =
+    '<strong>Discharge checklist</strong>' + checklistHtml(checklist);
+  document.getElementById('dischargeOverride').checked = false;
+  document.getElementById('dischargeOverrideReason').value = '';
+  document.getElementById('dischargeOutcome').value = 'discharged';
+  updateDischargeGateUI();
+  document.getElementById('dischargeModalBackdrop').hidden = false;
+}
+function closeDischargeModal() { document.getElementById('dischargeModalBackdrop').hidden = true; }
+
+['dischargeOutcome', 'dischargeOverride', 'dischargeOverrideReason'].forEach(id => {
+  document.getElementById(id)?.addEventListener('change', updateDischargeGateUI);
+  document.getElementById(id)?.addEventListener('input', updateDischargeGateUI);
+});
+
+function openTransferModal(fromBedId, patientName) {
+  const sel = document.getElementById('transferFromBed');
+  if (fromBedId) sel.value = String(fromBedId);
+  document.getElementById('transferModalBackdrop').hidden = false;
+}
+function closeTransferModal() { document.getElementById('transferModalBackdrop').hidden = true; }
+
+document.getElementById('transferForm')?.addEventListener('submit', function (e) {
+  const from = document.getElementById('transferFromBed').value;
+  const to = document.getElementById('transferToBed').value;
+  if (!from || !to) { e.preventDefault(); alert('Select source and destination beds.'); return; }
+  if (from === to) { e.preventDefault(); alert('Source and destination must differ.'); }
+});
+</script>
+{% endblock %}

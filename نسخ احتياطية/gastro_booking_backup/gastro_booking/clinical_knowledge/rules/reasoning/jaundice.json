@@ -1,0 +1,175 @@
+{
+  "complaint_code": "CC_jaundice",
+  "schema_version": 1,
+  "revision": 1,
+  "min_history_answers_for_dx": 6,
+  "min_confidence_to_list_dx": 0.45,
+  "description": "Starter reasoning pack for CC_jaundice (practical, not Sleisenger-complete).",
+  "patterns": [
+    {
+      "id": "PAT_jaundice_obstructive",
+      "label": "Obstructive / cholestatic pattern",
+      "diagnosis_code": "DX_obstructive_jaundice_suspect",
+      "diagnosis_label": "Obstructive jaundice (suspect)",
+      "weight_sum_required": 1.6,
+      "criteria": [
+        {
+          "kind": "answer",
+          "question_id": "Q000026",
+          "op": "truthy",
+          "weight": 0.8,
+          "finding": "Jaundice"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000064",
+          "op": "truthy",
+          "weight": 1.2,
+          "finding": "Pale stools + dark urine"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000042",
+          "op": "eq",
+          "value": "RUQ",
+          "weight": 0.7,
+          "finding": "RUQ pain"
+        },
+        {
+          "kind": "exam",
+          "sign_code": "SG_jaundice",
+          "op": "present",
+          "weight": 0.6,
+          "finding": "Clinical jaundice"
+        }
+      ],
+      "suggested_questions": [
+        "Q000017",
+        "Q000074"
+      ],
+      "suggested_exam": [
+        "SG_jaundice",
+        "SG_murphy_sign",
+        "SG_abdominal_mass"
+      ],
+      "suggested_investigations": [
+        "IX_liver_panel",
+        "IX_abdominal_ultrasound",
+        "IX_cbc"
+      ]
+    },
+    {
+      "id": "PAT_jaundice_hepatitic",
+      "label": "Hepatocellular / acute hepatitis pattern",
+      "diagnosis_code": "DX_hepatitis_jaundice_suspect",
+      "diagnosis_label": "Hepatocellular jaundice (suspect)",
+      "weight_sum_required": 1.5,
+      "criteria": [
+        {
+          "kind": "answer",
+          "question_id": "Q000017",
+          "op": "truthy",
+          "weight": 0.7,
+          "finding": "Fever"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000021",
+          "op": "truthy",
+          "weight": 0.4,
+          "finding": "Nausea"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000074",
+          "op": "truthy",
+          "weight": 1.0,
+          "finding": "Altered mental status"
+        },
+        {
+          "kind": "exam",
+          "sign_code": "SG_jaundice",
+          "op": "present",
+          "weight": 0.6,
+          "finding": "Jaundice"
+        }
+      ],
+      "suggested_questions": [
+        "Q000064",
+        "Q000096"
+      ],
+      "suggested_exam": [
+        "SG_jaundice",
+        "SG_ascites"
+      ],
+      "suggested_investigations": [
+        "IX_liver_panel",
+        "IX_coagulation_panel",
+        "IX_cbc"
+      ]
+    },
+    {
+      "id": "PAT_jaundice_cholangitis",
+      "label": "Ascending cholangitis concern",
+      "diagnosis_code": "DX_cholangitis_suspect",
+      "diagnosis_label": "Cholangitis (suspect)",
+      "weight_sum_required": 1.8,
+      "criteria": [
+        {
+          "kind": "answer",
+          "question_id": "Q000026",
+          "op": "truthy",
+          "weight": 0.7,
+          "finding": "Jaundice"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000017",
+          "op": "truthy",
+          "weight": 0.9,
+          "finding": "Fever"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000042",
+          "op": "eq",
+          "value": "RUQ",
+          "weight": 0.8,
+          "finding": "RUQ pain"
+        },
+        {
+          "kind": "exam",
+          "sign_code": "SG_murphy_sign",
+          "op": "present",
+          "weight": 0.7,
+          "finding": "Murphy / RUQ tenderness"
+        }
+      ],
+      "suggested_questions": [
+        "Q000064",
+        "Q000074"
+      ],
+      "suggested_exam": [
+        "SG_jaundice",
+        "SG_murphy_sign"
+      ],
+      "suggested_investigations": [
+        "IX_liver_panel",
+        "IX_cbc",
+        "IX_abdominal_ultrasound"
+      ]
+    }
+  ],
+  "missing_info_rules": [
+    {
+      "id": "need_stool_urine",
+      "if_unanswered": [
+        "Q000064"
+      ],
+      "message": "Ask about pale stools / dark urine",
+      "next_questions": [
+        "Q000064"
+      ]
+    }
+  ]
+}

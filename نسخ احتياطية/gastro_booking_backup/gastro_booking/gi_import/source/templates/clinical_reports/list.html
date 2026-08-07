@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% from "ui/macros.html" import page_header, data_table_wrapper, table_empty_row, status_badge, empty_state %}
+
+{% block title %}Clinical Reports — {{ branding.display_title }}{% endblock %}
+
+{% block content %}
+{{ page_header("Structured Clinical Reports", subtitle="ERCP and structured clinical reporting workflows.", breadcrumbs=[("Clinical Reports", none)]) }}
+
+{% if reports %}
+{% call data_table_wrapper('table-striped') %}
+    <thead>
+        <tr>
+            <th scope="col">Report #</th>
+            <th scope="col">Patient</th>
+            <th scope="col">Procedure</th>
+            <th scope="col">Status</th>
+            <th scope="col"><span class="visually-hidden">Actions</span></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for report in reports %}
+        <tr>
+            <td>{{ report.report_number }}</td>
+            <td>{{ report.patient.full_name if report.patient else '—' }}</td>
+            <td>{{ report.procedure.procedure_type.name if report.procedure and report.procedure.procedure_type else '—' }}</td>
+            <td>{{ status_badge(report.status, "gi-badge-muted") }}</td>
+            <td><a class="btn btn-sm gi-btn-primary" href="{{ url_for('clinical_reports.view_report', report_id=report.id) }}">Open</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+{% endcall %}
+{% else %}
+{{ empty_state("No structured clinical reports yet", "These reports are created after advanced procedures such as ERCP are completed.") }}
+{% endif %}
+{% endblock %}

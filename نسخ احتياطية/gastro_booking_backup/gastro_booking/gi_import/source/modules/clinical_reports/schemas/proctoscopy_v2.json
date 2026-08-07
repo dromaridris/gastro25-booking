@@ -1,0 +1,394 @@
+{
+  "schema_version": "1",
+  "template_key": "proctoscopy_v2",
+  "label": "Proctoscopy — Structured Clinical Report",
+  "sections": [
+    {
+      "id": "context",
+      "label": "Clinical Context",
+      "workflow_phase": "WF_CONTEXT",
+      "fields": [
+        {
+          "id": "proctoscopy_v2.context.indication_category",
+          "label": "Indication category",
+          "type": "multi_select",
+          "required": true,
+          "default": [],
+          "vocabulary_source": "proctoscopy_indication_category",
+          "workflow_phases": ["WF_CONTEXT"],
+          "research_flag": true
+        },
+        {
+          "id": "proctoscopy_v2.context.indication_detail",
+          "label": "Indication detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_CONTEXT"]
+        },
+        {
+          "id": "proctoscopy_v2.context.urgency",
+          "label": "Urgency",
+          "type": "dropdown",
+          "required": true,
+          "default": "",
+          "vocabulary_source": "procedure_urgency",
+          "workflow_phases": ["WF_CONTEXT"]
+        },
+        {
+          "id": "proctoscopy_v2.context.consent_obtained",
+          "label": "Consent obtained",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": ["WF_CONTEXT"]
+        }
+      ]
+    },
+    {
+      "id": "procedure",
+      "label": "Procedure",
+      "workflow_phase": "WF_ACCESS",
+      "fields": [
+        {
+          "id": "proctoscopy_v2.procedure.scope_type",
+          "label": "Scope type",
+          "type": "dropdown",
+          "default": "",
+          "vocabulary_source": "proctoscopy_scope_type",
+          "workflow_phases": ["WF_ACCESS"]
+        },
+        {
+          "id": "proctoscopy_v2.procedure.exam_completed",
+          "label": "Examination completed as planned",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": ["WF_ACCESS"],
+          "qi_flag": true,
+          "qi_mapping": { "metric_key": "exam_completed", "operator": "equals", "value": "Yes" }
+        },
+        {
+          "id": "proctoscopy_v2.procedure.limited_exam",
+          "label": "Limited examination",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_ACCESS"]
+        },
+        {
+          "id": "proctoscopy_v2.procedure.limited_exam_reason",
+          "label": "Reason for limited examination",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_ACCESS"],
+          "visibility": {
+            "when": "field",
+            "field_id": "proctoscopy_v2.procedure.limited_exam",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        }
+      ]
+    },
+    {
+      "id": "findings",
+      "label": "Findings",
+      "workflow_phase": "WF_IMAGING",
+      "fields": [
+        {
+          "id": "proctoscopy_v2.findings.rectum_normal",
+          "label": "Rectum — normal",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"]
+        },
+        {
+          "id": "proctoscopy_v2.findings.rectum_findings",
+          "label": "Rectum — findings",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "colonic_finding_type",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "proctoscopy_v2.findings.rectum_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "proctoscopy_v2.findings.rectum_detail",
+          "label": "Rectum — detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "proctoscopy_v2.findings.rectum_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "proctoscopy_v2.findings.anus_normal",
+          "label": "Anus — normal",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"]
+        },
+        {
+          "id": "proctoscopy_v2.findings.anus_findings",
+          "label": "Anus — findings",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "colonic_finding_type",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "proctoscopy_v2.findings.anus_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "proctoscopy_v2.findings.anus_detail",
+          "label": "Anus — detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_IMAGING"],
+          "visibility": {
+            "when": "field",
+            "field_id": "proctoscopy_v2.findings.anus_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        }
+      ]
+    },
+    {
+      "id": "interventions",
+      "label": "Interventions",
+      "workflow_phase": "WF_THERAPY",
+      "fields": [
+        {
+          "id": "proctoscopy_v2.interventions.interventions",
+          "label": "Interventions",
+          "type": "repeatable_group",
+          "default": [],
+          "min_rows": 0,
+          "workflow_phases": ["WF_THERAPY"],
+          "fields": [
+            { "id": "intervention_type", "label": "Intervention type", "type": "dropdown", "vocabulary_source": "proctoscopy_intervention_type" },
+            { "id": "success", "label": "Success", "type": "yes_no" },
+            { "id": "details", "label": "Details", "type": "text" }
+          ],
+          "narrative_binding": {
+            "mode": "list",
+            "field_id": "proctoscopy_v2.interventions.interventions",
+            "item_template": "{index}. {intervention_type} — success: {success}; {details}",
+            "empty_text": "No therapeutic interventions recorded."
+          }
+        }
+      ]
+    },
+    {
+      "id": "closure",
+      "label": "Closure",
+      "workflow_phase": "WF_CLOSURE",
+      "fields": [
+        {
+          "id": "proctoscopy_v2.closure.procedure_completed",
+          "label": "Procedure completed as planned",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": ["WF_CLOSURE"],
+          "qi_flag": true,
+          "qi_mapping": { "metric_key": "procedure_completed", "operator": "equals", "value": "Yes" }
+        },
+        {
+          "id": "proctoscopy_v2.closure.immediate_complication",
+          "label": "Immediate complication",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": ["WF_CLOSURE"],
+          "qi_flag": true,
+          "qi_mapping": { "metric_key": "immediate_complication", "operator": "equals", "value": "Yes" }
+        },
+        {
+          "id": "proctoscopy_v2.closure.complication_types",
+          "label": "Complication type(s)",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "standard_complication_type",
+          "workflow_phases": ["WF_CLOSURE"],
+          "visibility": {
+            "when": "field",
+            "field_id": "proctoscopy_v2.closure.immediate_complication",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "proctoscopy_v2.closure.complication_detail",
+          "label": "Complication detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_CLOSURE"],
+          "visibility": {
+            "when": "field",
+            "field_id": "proctoscopy_v2.closure.immediate_complication",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        }
+      ]
+    },
+    {
+      "id": "synthesis",
+      "label": "Synthesis",
+      "workflow_phase": "WF_SYNTHESIS",
+      "fields": [
+        {
+          "id": "proctoscopy_v2.synthesis.impression_primary",
+          "label": "Primary impression",
+          "type": "long_text",
+          "required": true,
+          "default": "",
+          "workflow_phases": ["WF_SYNTHESIS"]
+        },
+        {
+          "id": "proctoscopy_v2.synthesis.clinical_plan",
+          "label": "Recommendations / clinical plan",
+          "type": "long_text",
+          "required": true,
+          "default": "",
+          "workflow_phases": ["WF_SYNTHESIS"]
+        },
+        {
+          "id": "proctoscopy_v2.synthesis.addendum_text",
+          "label": "Addendum",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": ["WF_SYNTHESIS"]
+        }
+      ]
+    }
+  ],
+  "components": {
+    "timeline": [
+      { "key": "scope_insertion", "label": "Scope inserted" },
+      { "key": "scope_removal", "label": "Scope removed" }
+    ]
+  },
+  "section_narratives": [
+    {
+      "section": "clinical_indication",
+      "intro": "Clinical indication for proctoscopy:",
+      "bindings": [
+        { "mode": "literal", "field_id": "proctoscopy_v2.context.indication_category", "label": "Category" },
+        { "mode": "literal", "field_id": "proctoscopy_v2.context.indication_detail", "label": "Detail" },
+        { "mode": "sentence", "field_id": "proctoscopy_v2.context.urgency", "template": "Urgency: {value}." },
+        { "mode": "sentence", "field_id": "proctoscopy_v2.context.consent_obtained", "template": "Consent obtained: {value}." }
+      ]
+    },
+    {
+      "section": "procedure_description",
+      "intro": "Proctoscopy was performed.",
+      "bindings": [
+        { "mode": "sentence", "field_id": "proctoscopy_v2.procedure.scope_type", "template": "Scope: {value}." },
+        { "mode": "sentence", "field_id": "proctoscopy_v2.procedure.exam_completed", "template": "Examination completed as planned: {value}." },
+        { "mode": "sentence", "field_id": "proctoscopy_v2.procedure.limited_exam", "template": "Limited examination: {value}." },
+        { "mode": "sentence", "field_id": "proctoscopy_v2.procedure.limited_exam_reason", "template": "Reason for limited exam: {value}." }
+      ]
+    },
+    {
+      "section": "findings",
+      "intro": "Proctoscopic findings:",
+      "bindings": [
+        { "mode": "sentence", "field_id": "proctoscopy_v2.findings.rectum_normal", "template": "Rectum: {value} (normal)." },
+        { "mode": "literal", "field_id": "proctoscopy_v2.findings.rectum_findings", "label": "Rectum findings" },
+        { "mode": "sentence", "field_id": "proctoscopy_v2.findings.rectum_detail", "template": "Rectum detail: {value}." },
+        { "mode": "sentence", "field_id": "proctoscopy_v2.findings.anus_normal", "template": "Anus: {value} (normal)." },
+        { "mode": "literal", "field_id": "proctoscopy_v2.findings.anus_findings", "label": "Anus findings" },
+        { "mode": "sentence", "field_id": "proctoscopy_v2.findings.anus_detail", "template": "Anus detail: {value}." },
+        {
+          "mode": "list",
+          "field_id": "proctoscopy_v2.interventions.interventions",
+          "item_template": "{index}. {intervention_type} — success: {success}; {details}",
+          "empty_text": "\nNo therapeutic interventions recorded."
+        }
+      ]
+    },
+    {
+      "section": "impression",
+      "bindings": [
+        { "mode": "sentence", "field_id": "proctoscopy_v2.synthesis.impression_primary", "template": "Impression:\n{value}" }
+      ]
+    },
+    {
+      "section": "recommendations",
+      "intro": "Recommendations / plan:",
+      "bindings": [
+        { "mode": "literal", "field_id": "proctoscopy_v2.synthesis.clinical_plan", "label": "" },
+        { "mode": "sentence", "field_id": "proctoscopy_v2.synthesis.addendum_text", "template": "Addendum:\n{value}" }
+      ]
+    },
+    {
+      "section": "complications",
+      "intro": "Complications and closure:",
+      "bindings": [
+        { "mode": "sentence", "field_id": "proctoscopy_v2.closure.procedure_completed", "template": "Procedure completed as planned: {value}." },
+        { "mode": "sentence", "field_id": "proctoscopy_v2.closure.immediate_complication", "template": "Immediate complication: {value}." },
+        { "mode": "literal", "field_id": "proctoscopy_v2.closure.complication_types", "label": "Complication type(s)" },
+        { "mode": "sentence", "field_id": "proctoscopy_v2.closure.complication_detail", "template": "Complication detail: {value}." }
+      ]
+    }
+  ],
+  "workflow": {
+    "states": ["WF_CONTEXT", "WF_ACCESS", "WF_IMAGING", "WF_THERAPY", "WF_CLOSURE", "WF_SYNTHESIS", "WF_REVIEW", "WF_FINALIZE"],
+    "transitions": {
+      "WF_CONTEXT": ["WF_ACCESS"],
+      "WF_ACCESS": ["WF_CONTEXT", "WF_IMAGING"],
+      "WF_IMAGING": ["WF_ACCESS", "WF_THERAPY"],
+      "WF_THERAPY": ["WF_IMAGING", "WF_CLOSURE"],
+      "WF_CLOSURE": ["WF_THERAPY", "WF_SYNTHESIS"],
+      "WF_SYNTHESIS": ["WF_CLOSURE", "WF_REVIEW"],
+      "WF_REVIEW": ["WF_SYNTHESIS", "WF_FINALIZE"],
+      "WF_FINALIZE": ["WF_REVIEW"]
+    }
+  },
+  "validation": [
+    { "id": "V_PROC_INDICATION", "severity": "error", "message": "Indication category is required before finalize.", "rule": { "type": "field_present", "field_id": "proctoscopy_v2.context.indication_category" } },
+    { "id": "V_PROC_URGENCY", "severity": "error", "message": "Urgency is required before finalize.", "rule": { "type": "field_present", "field_id": "proctoscopy_v2.context.urgency" } },
+    { "id": "V_PROC_CONSENT", "severity": "error", "message": "Consent outcome must be documented before finalize.", "rule": { "type": "field_in", "field_id": "proctoscopy_v2.context.consent_obtained", "values": ["Yes", "No"] } },
+    { "id": "V_PROC_EXAM", "severity": "error", "message": "Examination completion must be documented before finalize.", "rule": { "type": "field_present", "field_id": "proctoscopy_v2.procedure.exam_completed" } },
+    { "id": "V_PROC_COMPLETED", "severity": "error", "message": "Procedure completion status is required before finalize.", "rule": { "type": "field_present", "field_id": "proctoscopy_v2.closure.procedure_completed" } },
+    { "id": "V_PROC_COMPLICATION", "severity": "error", "message": "Immediate complication outcome must be documented before finalize.", "rule": { "type": "field_present", "field_id": "proctoscopy_v2.closure.immediate_complication" } },
+    { "id": "V_PROC_IMPRESSION", "severity": "error", "message": "Primary impression is required before finalize.", "rule": { "type": "field_nonempty", "field_id": "proctoscopy_v2.synthesis.impression_primary" } },
+    { "id": "V_PROC_PLAN", "severity": "error", "message": "Clinical plan / recommendations are required before finalize.", "rule": { "type": "field_nonempty", "field_id": "proctoscopy_v2.synthesis.clinical_plan" } }
+  ],
+  "quick_fill": {
+    "normal_diagnostic": {
+      "label": "Normal diagnostic proctoscopy",
+      "values": {
+        "proctoscopy_v2.context.indication_category": ["rectal_bleeding"],
+        "proctoscopy_v2.context.urgency": "elective",
+        "proctoscopy_v2.context.consent_obtained": "Yes",
+        "proctoscopy_v2.procedure.exam_completed": "Yes",
+        "proctoscopy_v2.procedure.limited_exam": "No",
+        "proctoscopy_v2.findings.rectum_normal": "Yes",
+        "proctoscopy_v2.findings.anus_normal": "Yes",
+        "proctoscopy_v2.closure.procedure_completed": "Yes",
+        "proctoscopy_v2.closure.immediate_complication": "No",
+        "proctoscopy_v2.synthesis.impression_primary": "Normal proctoscopy. No significant abnormality identified.",
+        "proctoscopy_v2.synthesis.clinical_plan": "Routine clinical follow-up as indicated."
+      }
+    }
+  },
+  "qi": [
+    { "metric_key": "exam_completed", "label": "Examination completed" },
+    { "metric_key": "immediate_complication", "label": "Immediate complication" },
+    { "metric_key": "procedure_completed", "label": "Procedure completed" }
+  ]
+}

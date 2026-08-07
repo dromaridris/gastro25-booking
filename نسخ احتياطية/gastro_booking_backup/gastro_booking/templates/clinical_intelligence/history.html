@@ -1,0 +1,378 @@
+{% extends "base.html" %}
+{% from 'clinical_intelligence/_nav.html' import ci_nav %}
+{% block title %}History flowchart · encounter {{ enc.id }}{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>History flowchart</h1>
+    <p class="muted">#{{ enc.id }} · {{ enc.complaint_code }}{% if enc.patient_label %} · {{ enc.patient_label }}{% endif %}
+      · click a branch to answer · educational hints unlock as you go</p>
+  </div>
+  {{ ci_nav(enc, ci_tabs, 'history') }}
+</section>
+
+<div id="ci-history-app"
+     class="ci-hist"
+     data-state-url="{{ history_api.state }}"
+     data-answer-url="{{ history_api.answer }}"
+     data-initial='{{ {"board": board, "coach": coach, "exam_url": ci_tabs.exam}|tojson }}'>
+
+  <div class="ci-hist__top compact-card">
+    <div class="ci-hist__progress-wrap">
+      <div class="ci-hist__progress-bar"><span id="ci-hist-bar" style="width:{{ board.progress_pct }}%"></span></div>
+      <div class="muted" id="ci-hist-meta">
+        {{ board.progress_pct }}% · answered {{ board.answered_count }} · pending {{ board.pending_count }}
+        {% if enc.urgency_flag %}<span class="badge">{{ enc.urgency_flag }}</span>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div id="ci-hist-stops" class="ci-hist__stops" hidden></div>
+
+  <div class="ci-hist__layout">
+    <div class="ci-hist__main">
+      {# Stage stepper #}
+      <nav class="ci-flow-stages" id="ci-flow-stages" aria-label="History stages"></nav>
+
+      {# Answer path trail #}
+      <div class="ci-flow-trail" id="ci-flow-trail" hidden></div>
+
+      {# Main flowchart decision #}
+      <div class="ci-flowchart admin-section" id="ci-flowchart">
+        <div class="ci-fc__spine">
+          <div class="ci-fc__connector" aria-hidden="true"></div>
+          <div class="ci-fc__decision" id="ci-fc-decision"></div>
+          <div class="ci-fc__connector ci-fc__connector--down" aria-hidden="true"></div>
+          <div class="ci-fc__next" id="ci-fc-next"></div>
+        </div>
+      </div>
+
+      <div id="ci-hist-done" class="admin-section" hidden>
+        <p>Flowchart complete for this template.</p>
+        <a class="btn btn--primary" id="ci-hist-exam-link" href="{{ ci_tabs.exam }}">Continue to examination</a>
+      </div>
+
+      <details class="ci-flow-map admin-section">
+        <summary>Full question map (jump anywhere)</summary>
+        <div id="ci-hist-board" class="ci-hist__board"></div>
+      </details>
+    </div>
+
+    <aside class="ci-hist__coach admin-section" id="ci-hist-coach" aria-label="Passive learning">
+      <h2>Learn while you ask</h2>
+      <p class="muted" style="font-size:12px;">Passive teaching — not orders.</p>
+      <div id="ci-hist-coach-body"></div>
+    </aside>
+  </div>
+</div>
+
+<script>
+(function () {
+  var root = document.getElementById('ci-history-app');
+  if (!root) return;
+  var stateUrl = root.dataset.stateUrl;
+  var answerUrl = root.dataset.answerUrl;
+  var payload = JSON.parse(root.dataset.initial || '{}');
+  var saving = false;
+
+  function esc(s) {
+    var d = document.createElement('div');
+    d.textContent = s == null ? '' : String(s);
+    return d.innerHTML;
+  }
+
+  function findNode(board, qid) {
+    if (!board || !board.sections) return null;
+    for (var i = 0; i < board.sections.length; i++) {
+      var nodes = board.sections[i].nodes || [];
+      for (var j = 0; j < nodes.length; j++) {
+        if (nodes[j].id === qid) return nodes[j];
+      }
+    }
+    return null;
+  }
+
+  function renderCoach(coach) {
+    var el = document.getElementById('ci-hist-coach-body');
+    if (!el) return;
+    if (!coach || !coach.available) {
+      el.innerHTML = '<p class="muted">No education pack for this complaint yet.</p>';
+      return;
+    }
+    var html = '';
+    if (coach.focus_prompt) {
+      html += '<div class="ci-coach__q"><strong>Now on this node</strong><p>' + esc(coach.focus_prompt) + '</p>';
+      if (coach.bates_domain) html += '<span class="badge">' + esc(coach.bates_domain) + '</span>';
+      html += '</div>';
+    }
+    var c = coach.coaching;
+    if (c) {
+      html += '<div class="ci-coach__block"><h3>Why ask this</h3><p>' + esc(c.why_ask || '') + '</p></div>';
+      if (c.listen_for && c.listen_for.length) {
+        html += '<div class="ci-coach__block"><h3>Listen for</h3><ul>';
+        c.listen_for.forEach(function (x) { html += '<li>' + esc(x) + '</li>'; });
+        html += '</ul></div>';
+      }
+      if (c.think) {
+        html += '<div class="ci-coach__block ci-coach__think"><h3>Think</h3><p>' + esc(c.think) + '</p></div>';
+      }
+    }
+    if (coach.unlocked && coach.unlocked.length) {
+      html += '<div class="ci-coach__block ci-coach__unlock"><h3>Branch unlocked</h3>';
+      coach.unlocked.forEach(function (u) {
+        html += '<div class="ci-coach__unlock-item"><strong>' + esc(u.title) + '</strong><ul>';
+        (u.points || []).forEach(function (p) { html += '<li>' + esc(p) + '</li>'; });
+        html += '</ul></div>';
+      });
+      html += '</div>';
+    }
+    if (coach.focus_modules && coach.focus_modules.length) {
+      coach.focus_modules.forEach(function (m) {
+        html += '<div class="ci-coach__block"><h3>' + esc(m.title) + '</h3><ul>';
+        (m.points || []).forEach(function (p) { html += '<li>' + esc(p) + '</li>'; });
+        html += '</ul></div>';
+      });
+    }
+    if (!c && !(coach.unlocked && coach.unlocked.length) && coach.framing) {
+      html += '<div class="ci-coach__block"><h3>' + esc(coach.framing.title) + '</h3><ul>';
+      (coach.framing.points || []).forEach(function (p) { html += '<li>' + esc(p) + '</li>'; });
+      html += '</ul></div>';
+    }
+    el.innerHTML = html || '<p class="muted">Follow the flowchart.</p>';
+  }
+
+  function renderStages(flow) {
+    var el = document.getElementById('ci-flow-stages');
+    if (!el) return;
+    var stages = (flow && flow.stages) || [];
+    var html = '';
+    stages.forEach(function (s, idx) {
+      if (idx) html += '<span class="ci-flow-stages__arrow" aria-hidden="true">→</span>';
+      html += '<div class="ci-flow-stages__item ci-flow-stages__item--' + esc(s.status) + '">';
+      html += '<span class="ci-flow-stages__name">' + esc(s.title) + '</span>';
+      html += '<span class="ci-flow-stages__count">' + s.done + '/' + s.total + '</span>';
+      html += '</div>';
+    });
+    el.innerHTML = html;
+  }
+
+  function renderTrail(flow) {
+    var el = document.getElementById('ci-flow-trail');
+    if (!el) return;
+    var trail = (flow && flow.trail) || [];
+    if (!trail.length) {
+      el.hidden = true;
+      el.innerHTML = '';
+      return;
+    }
+    el.hidden = false;
+    var html = '<div class="ci-flow-trail__label muted">Your path</div><div class="ci-flow-trail__row">';
+    trail.forEach(function (t, idx) {
+      if (idx) html += '<span class="ci-flow-trail__link" aria-hidden="true"></span>';
+      html += '<button type="button" class="ci-flow-trail__node' + (t.is_red_flag ? ' is-rf' : '') + '" data-focus="' + esc(t.id) + '">';
+      html += '<span class="ci-flow-trail__q">' + esc(t.prompt_short) + '</span>';
+      html += '<span class="ci-flow-trail__a">' + esc(t.answer) + '</span>';
+      html += '</button>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  function renderDecision(board) {
+    var wrap = document.getElementById('ci-fc-decision');
+    var nextEl = document.getElementById('ci-fc-next');
+    if (!wrap) return;
+    var flow = board.flow || {};
+    var decision = flow.decision || {};
+    var node = decision.node || findNode(board, board.focus_qid);
+
+    if (board.complete) {
+      wrap.innerHTML = '<div class="ci-fc__box ci-fc__box--done"><strong>End of history flow</strong><p class="muted">Proceed to examination.</p></div>';
+      if (nextEl) nextEl.innerHTML = '';
+      return;
+    }
+    if (!node) {
+      wrap.innerHTML = '<div class="ci-fc__box"><p class="muted">No focus node.</p></div>';
+      return;
+    }
+
+    var html = '<div class="ci-fc__box' + (node.is_red_flag ? ' ci-fc__box--rf' : '') + '">';
+    html += '<div class="ci-fc__meta muted">' + esc(node.section_title || node.section_key);
+    html += ' · ' + esc(node.id);
+    if (node.is_red_flag) html += ' · <strong>red flag</strong>';
+    html += '</div>';
+    html += '<h2 class="ci-fc__prompt">' + esc(node.prompt) + '</h2>';
+
+    var branches = decision.branches || [];
+    var atype = node.answer_type || 'text';
+
+    if (atype === 'scale') {
+      html += '<div class="ci-fc__branches ci-fc__branches--scale" data-qid="' + esc(node.id) + '" data-section="' + esc(node.section_key || '') + '">';
+      for (var si = 0; si <= 10; si++) {
+        var son = String(node.answer_text) === String(si) ? ' is-on' : '';
+        html += '<button type="button" class="ci-fc__branch ci-fc__branch--sm' + son + '" data-answer="' + si + '"><span class="ci-fc__branch-label">' + si + '</span></button>';
+      }
+      html += '</div>';
+    } else if (branches.length && atype !== 'text' && atype !== 'duration') {
+      html += '<div class="ci-fc__branches" data-qid="' + esc(node.id) + '" data-section="' + esc(node.section_key || '') + '">';
+      branches.forEach(function (b) {
+        var cls = 'ci-fc__branch' + (b.selected ? ' is-on' : '') + (b.opens_branch ? ' opens-branch' : '');
+        html += '<button type="button" class="' + cls + '" data-answer="' + esc(b.value) + '">';
+        html += '<span class="ci-fc__branch-label">' + esc(b.label) + '</span>';
+        if (b.opens_branch && b.hint_title) {
+          html += '<span class="ci-fc__branch-hint">→ ' + esc(b.hint_title) + '</span>';
+        } else {
+          html += '<span class="ci-fc__branch-arrow" aria-hidden="true">↓</span>';
+        }
+        html += '</button>';
+      });
+      html += '</div>';
+    } else {
+      html += '<form class="ci-text-form" data-qid="' + esc(node.id) + '" data-section="' + esc(node.section_key || '') + '">';
+      html += '<input type="text" class="ci-text-input" value="' + esc(node.answer_text || '') + '" placeholder="Type answer · Enter follows this path" autocomplete="off">';
+      html += '<button class="btn btn--primary" type="submit">Continue →</button></form>';
+    }
+    html += '</div>';
+    wrap.innerHTML = html;
+
+    if (nextEl) {
+      var np = flow.next_preview;
+      if (np) {
+        nextEl.innerHTML = '<button type="button" class="ci-fc__box ci-fc__box--next" data-focus="' + esc(np.id) + '">' +
+          '<span class="muted" style="font-size:11px;">Next node</span>' +
+          '<span>' + esc(np.prompt_short) + '</span></button>';
+      } else {
+        nextEl.innerHTML = '<div class="ci-fc__box ci-fc__box--next muted">Then: exam / remaining sections</div>';
+      }
+    }
+  }
+
+  function renderBoard(board) {
+    var el = document.getElementById('ci-hist-board');
+    if (!el) return;
+    var html = '';
+    (board.sections || []).forEach(function (sec) {
+      html += '<div class="ci-lane"><div class="ci-lane__title">' + esc(sec.title) + '</div><div class="ci-lane__nodes">';
+      (sec.nodes || []).forEach(function (n) {
+        var cls = 'ci-node ci-node--' + (n.status || 'pending');
+        if (n.id === board.focus_qid) cls += ' ci-node--focus';
+        if (n.is_red_flag) cls += ' ci-node--rf';
+        var label = n.prompt || n.id;
+        if (label.length > 42) label = label.slice(0, 40) + '…';
+        html += '<button type="button" class="' + cls + '" data-focus="' + esc(n.id) + '" title="' + esc(n.prompt) + '">';
+        html += '<span class="ci-node__id">' + esc(n.id.replace('Q000', 'Q')) + '</span>';
+        html += '<span class="ci-node__label">' + esc(label) + '</span>';
+        if (n.answer_text) html += '<span class="ci-node__ans">' + esc(n.answer_text) + '</span>';
+        html += '</button>';
+      });
+      html += '</div></div>';
+    });
+    el.innerHTML = html;
+  }
+
+  function renderMeta(board) {
+    var bar = document.getElementById('ci-hist-bar');
+    var meta = document.getElementById('ci-hist-meta');
+    if (bar) bar.style.width = (board.progress_pct || 0) + '%';
+    if (meta) {
+      meta.innerHTML = (board.progress_pct || 0) + '% · answered ' + board.answered_count +
+        ' · pending ' + board.pending_count;
+    }
+    var done = document.getElementById('ci-hist-done');
+    if (done) done.hidden = !board.complete;
+    var stops = document.getElementById('ci-hist-stops');
+    if (stops) {
+      var rules = board.stop_rules || [];
+      if (rules.length) {
+        stops.hidden = false;
+        stops.innerHTML = rules.map(function (s) {
+          return '<div class="ci-hist__stop"><strong>' + esc(s.action || 'stop') + ':</strong> ' + esc(s.message || '') + '</div>';
+        }).join('');
+      } else {
+        stops.hidden = true;
+        stops.innerHTML = '';
+      }
+    }
+  }
+
+  function applyPayload(p) {
+    payload = p || payload;
+    var board = payload.board || {};
+    renderMeta(board);
+    renderStages(board.flow);
+    renderTrail(board.flow);
+    renderDecision(board);
+    renderBoard(board);
+    renderCoach(payload.coach || {});
+    if (payload.exam_url) {
+      var a = document.getElementById('ci-hist-exam-link');
+      if (a) a.href = payload.exam_url;
+    }
+  }
+
+  function postAnswer(qid, answer, section, advance) {
+    if (saving || !qid || !answer) return;
+    saving = true;
+    root.classList.add('is-saving');
+    fetch(answerUrl, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+      body: JSON.stringify({
+        question_id: qid,
+        answer_text: answer,
+        section_key: section || '',
+        advance: advance !== false
+      })
+    }).then(function (r) {
+      return r.json().then(function (data) {
+        return { ok: r.ok, status: r.status, data: data };
+      });
+    }).then(function (res) {
+      saving = false;
+      root.classList.remove('is-saving');
+      if (!res.ok) {
+        var msg = (res.data && res.data.error) || ('Save failed (' + res.status + ')');
+        window.alert(msg);
+        return;
+      }
+      applyPayload(res.data);
+    }).catch(function () {
+      saving = false;
+      root.classList.remove('is-saving');
+      window.alert('Network error while saving answer.');
+    });
+  }
+
+  function focusNode(qid) {
+    fetch(stateUrl + (qid ? ('?focus=' + encodeURIComponent(qid)) : ''), {
+      headers: {'Accept': 'application/json'}
+    }).then(function (r) { return r.json(); }).then(function (data) {
+      applyPayload(data);
+    });
+  }
+
+  root.addEventListener('click', function (ev) {
+    var branch = ev.target.closest('.ci-fc__branch');
+    if (branch) {
+      var box = branch.closest('.ci-fc__branches');
+      postAnswer(box.dataset.qid, branch.dataset.answer, box.dataset.section, true);
+      return;
+    }
+    var nodeBtn = ev.target.closest('[data-focus]');
+    if (nodeBtn) {
+      focusNode(nodeBtn.getAttribute('data-focus'));
+    }
+  });
+
+  root.addEventListener('submit', function (ev) {
+    var form = ev.target.closest('.ci-text-form');
+    if (!form) return;
+    ev.preventDefault();
+    var input = form.querySelector('.ci-text-input');
+    postAnswer(form.dataset.qid, (input && input.value || '').trim(), form.dataset.section, true);
+  });
+
+  applyPayload(payload);
+})();
+</script>
+{% endblock %}

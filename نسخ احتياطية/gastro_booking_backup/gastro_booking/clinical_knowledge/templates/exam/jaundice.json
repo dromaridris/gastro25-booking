@@ -1,0 +1,81 @@
+{
+  "id": "ET_jaundice",
+  "complaint_code": "CC_jaundice",
+  "name": "Jaundice physical examination",
+  "source": {
+    "work": "Bates' Guide to Physical Examination and History Taking",
+    "note": "Exam organization only; findings recorded against dictionary sign codes."
+  },
+  "systems": [
+    {
+      "key": "general",
+      "title": "General appearance & vitals",
+      "finding_ids": [
+        "SG_tachycardia",
+        "SG_hypotension",
+        "SG_fever",
+        "SG_pallor",
+        "SG_dehydration"
+      ],
+      "checklist": [
+        "General distress / toxic appearance",
+        "Vital signs (HR, BP, RR, SpO2, temperature)",
+        "Hydration / mucous membranes",
+        "Pallor / colour"
+      ]
+    },
+    {
+      "key": "general_jaundice",
+      "title": "Signs of jaundice / chronic liver disease",
+      "finding_ids": [
+        "SG_jaundice",
+        "SG_icteric_sclera"
+      ],
+      "checklist": [
+        "Scleral icterus",
+        "Skin/mucosal jaundice",
+        "Spider naevi",
+        "Palmar erythema",
+        "Excoriations (pruritus)",
+        "Bruising / petechiae"
+      ]
+    },
+    {
+      "key": "abdomen",
+      "title": "Abdomen",
+      "finding_ids": [
+        "SG_hepatomegaly",
+        "SG_splenomegaly",
+        "SG_ascites",
+        "SG_murphy_sign",
+        "SG_abdominal_mass",
+        "SG_caput_medusae"
+      ],
+      "checklist": [
+        "Liver span / edge / consistency",
+        "Splenomegaly (portal hypertension)",
+        "Ascites / shifting dullness",
+        "Murphy sign",
+        "Palpable gallbladder (Courvoisier)",
+        "Caput medusae"
+      ]
+    },
+    {
+      "key": "neuro",
+      "title": "Neurological screen (encephalopathy)",
+      "finding_ids": [],
+      "checklist": [
+        "Asterixis",
+        "Mental status / GCS"
+      ]
+    }
+  ],
+  "priority_findings": [
+    "SG_jaundice",
+    "SG_ascites",
+    "SG_abdominal_mass"
+  ],
+  "schema_version": 1,
+  "revision": 1,
+  "status": "active"
+}

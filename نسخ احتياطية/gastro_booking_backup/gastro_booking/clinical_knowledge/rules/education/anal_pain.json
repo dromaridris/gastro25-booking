@@ -1,0 +1,27 @@
+{
+  "complaint_code": "CC_anal_pain",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Anal / perianal symptom history — structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Anal/perianal symptoms are local symptoms — not automatically 'hemorrhoids' as the complaint.",
+        "Always ask about bleeding amount/colour and systemic alarm features.",
+        "Prolapse/swelling and discharge change the exam focus."
+      ],
+      "linked_questions": [
+        "Q000137",
+        "Q000035",
+        "Q000140"
+      ]
+    }
+  ],
+  "question_coaching": {},
+  "answer_triggers": []
+}

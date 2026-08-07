@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+{% block title %}Edit {{ phase_label }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h1>{{ phase_label }}</h1>
+    <p class="text-muted">{{ report.report_number }}</p>
+
+    {% if not can('report:draft') %}
+    <div class="alert alert-warning">You do not have permission to edit structured report data.</div>
+    <a class="btn btn-secondary" href="{{ url_for('clinical_reports.view_report', report_id=report.id) }}">Back to report</a>
+    {% else %}
+    <form method="post">
+        {{ form.hidden_tag() }}
+
+        {% if phase_state == 'WF_CONTEXT' %}
+        <div class="mb-3">
+            <label class="form-label">Indication category{% if 'indication_category' in required_fields %} <span class="text-danger">*</span>{% endif %}</label>
+            {% for code, label in indication_choices %}
+            {% if code %}
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="indication_category" value="{{ code }}"
+                    {% if code in selected_indications %}checked{% endif %}>
+                <label class="form-check-label">{{ label }}</label>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="indication_detail">Indication detail</label>
+            <textarea class="form-control" id="indication_detail" name="indication_detail" rows="3">{{ form.indication_detail.data or '' }}</textarea>
+        </div>
+        <div class="mb-3">
+            {{ form.ercp_urgency.label(class="form-label") }}{% if 'ercp_urgency' in required_fields %} <span class="text-danger">*</span>{% endif %}
+            {{ form.ercp_urgency(class="form-select") }}
+        </div>
+        <div class="mb-3">{{ form.ascending_cholangitis_suspected.label(class="form-label") }}{{ form.ascending_cholangitis_suspected(class="form-select") }}</div>
+        <div class="mb-3">{{ form.prophylactic_antibiotics.label(class="form-label") }}{{ form.prophylactic_antibiotics(class="form-select", id="prophylactic_antibiotics") }}</div>
+        <div class="mb-3 {% if not show_antibiotic_agent %}d-none{% endif %}" id="antibiotic-agent-field">
+            {{ form.antibiotic_agent.label(class="form-label") }}{{ form.antibiotic_agent(class="form-control") }}
+        </div>
+
+        {% elif phase_state == 'WF_ACCESS' %}
+        <div class="mb-3">
+            {{ form.ampulla_identified.label(class="form-label") }}{% if 'ampulla_identified' in required_fields %} <span class="text-danger">*</span>{% endif %}
+            {{ form.ampulla_identified(class="form-select") }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Cannulation method(s)</label>
+            {% for code, label in cannulation_method_choices %}
+            {% if code %}
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="cannulation_method" value="{{ code }}"
+                    {% if code in selected_cannulation_methods %}checked{% endif %}>
+                <label class="form-check-label">{{ label }}</label>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        <div class="mb-3">
+            {{ form.cannulation_success.label(class="form-label") }}{% if 'cannulation_success' in required_fields %} <span class="text-danger">*</span>{% endif %}
+            {{ form.cannulation_success(class="form-select") }}
+        </div>
+        <div class="mb-3">{{ form.difficult_cannulation.label(class="form-label") }}{{ form.difficult_cannulation(class="form-select") }}</div>
+        <div class="mb-3">{{ form.precut_performed.label(class="form-label") }}{{ form.precut_performed(class="form-select") }}</div>
+        <div class="mb-3">
+            <label class="form-label">PEP prophylaxis</label>
+            {% for code, label in pep_prophylaxis_choices %}
+            {% if code %}
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="pep_prophylaxis" value="{{ code }}"
+                    {% if code in selected_pep_prophylaxis %}checked{% endif %}>
+                <label class="form-check-label">{{ label }}</label>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+
+        {% elif phase_state == 'WF_IMAGING' %}
+        <div class="mb-3">
+            {{ form.cholangiography_performed.label(class="form-label") }}{% if 'cholangiography_performed' in required_fields %} <span class="text-danger">*</span>{% endif %}
+            {{ form.cholangiography_performed(class="form-select") }}
+        </div>
+        <div class="mb-3">{{ form.cbd_diameter_mm.label(class="form-label") }}{{ form.cbd_diameter_mm(class="form-control") }}</div>
+        <div class="mb-3">{{ form.filling_defects.label(class="form-label") }}{{ form.filling_defects(class="form-control") }}</div>
+        <div class="mb-3">{{ form.stone_burden.label(class="form-label") }}{{ form.stone_burden(class="form-select") }}</div>
+        <div class="mb-3">{{ form.stricture_present.label(class="form-label") }}{{ form.stricture_present(class="form-select") }}</div>
+        <div class="mb-3">{{ form.pancreatography_performed.label(class="form-label") }}{{ form.pancreatography_performed(class="form-select") }}</div>
+        <div class="mb-3">{{ form.pancreatic_duct_findings.label(class="form-label") }}{{ form.pancreatic_duct_findings(class="form-control", rows=3) }}</div>
+
+        {% elif phase_state == 'WF_THERAPY' %}
+        <div id="intervention-rows">
+            {% set rows = interventions if interventions else [{}] %}
+            {% for row in rows %}
+            {% set idx = loop.index0 %}
+            <div class="border rounded p-3 mb-3 intervention-row">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong class="small text-muted">Intervention {{ loop.index }}</strong>
+                    <button type="button" class="btn btn-outline-danger btn-sm remove-intervention">Remove</button>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Intervention type</label>
+                    <select class="form-select" name="intervention_type_{{ idx }}">
+                        {% for code, label in intervention_type_choices %}
+                        <option value="{{ code }}" {% if row.get('intervention_type') == code %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Success</label>
+                    <select class="form-select" name="success_{{ idx }}">
+                        {% for code, label in yes_no_choices %}
+                        <option value="{{ code }}" {% if row.get('success') == code %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Details</label>
+                    <input type="text" class="form-control" name="details_{{ idx }}" value="{{ row.get('details', '') }}">
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <button type="button" class="btn btn-outline-secondary btn-sm mb-3" id="add-intervention">Add intervention</button>
+
+        {% elif phase_state == 'WF_CLOSURE' %}
+        <div class="mb-3">
+            {{ form.procedure_completed.label(class="form-label") }}{% if 'procedure_completed' in required_fields %} <span class="text-danger">*</span>{% endif %}
+            {{ form.procedure_completed(class="form-select") }}
+        </div>
+        <div class="mb-3">{{ form.clearance_achieved.label(class="form-label") }}{{ form.clearance_achieved(class="form-select") }}</div>
+        <div class="mb-3">{{ form.fluoroscopy_used.label(class="form-label") }}{{ form.fluoroscopy_used(class="form-select") }}</div>
+        <div class="mb-3">
+            {{ form.immediate_complication.label(class="form-label") }}{% if 'immediate_complication' in required_fields %} <span class="text-danger">*</span>{% endif %}
+            {{ form.immediate_complication(class="form-select", id="immediate_complication") }}
+        </div>
+        <div class="mb-3 {% if not show_complication_types %}d-none{% endif %}" id="complication-types-field">
+            <label class="form-label">Complication type(s)</label>
+            {% for code, label in complication_type_choices %}
+            {% if code %}
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="complication_types" value="{{ code }}"
+                    {% if code in selected_complication_types %}checked{% endif %}>
+                <label class="form-check-label">{{ label }}</label>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        <div class="mb-3">{{ form.pep_suspected.label(class="form-label") }}{{ form.pep_suspected(class="form-select") }}</div>
+
+        {% elif phase_state == 'WF_SYNTHESIS' %}
+        <div class="mb-3">
+            {{ form.impression_primary.label(class="form-label") }}{% if 'impression_primary' in required_fields %} <span class="text-danger">*</span>{% endif %}
+            {{ form.impression_primary(class="form-control", rows=4) }}
+        </div>
+        <div class="mb-3">
+            {{ form.clinical_plan.label(class="form-label") }}{% if 'clinical_plan' in required_fields %} <span class="text-danger">*</span>{% endif %}
+            {{ form.clinical_plan(class="form-control", rows=4) }}
+        </div>
+        <div class="mb-3">{{ form.repeat_ercp_planned.label(class="form-label") }}{{ form.repeat_ercp_planned(class="form-select") }}</div>
+        <div class="mb-3">{{ form.addendum_text.label(class="form-label") }}{{ form.addendum_text(class="form-control", rows=3) }}</div>
+        {% endif %}
+
+        <p class="text-muted small"><span class="text-danger">*</span> Required before leaving this workflow phase.</p>
+        {{ form.submit(class="btn btn-primary") }}
+        <a class="btn btn-secondary" href="{{ url_for('clinical_reports.view_report', report_id=report.id) }}">Cancel</a>
+    </form>
+    {% endif %}
+</div>
+{% if phase_state == 'WF_THERAPY' and can('report:draft') %}
+<script>
+(function () {
+    const container = document.getElementById('intervention-rows');
+    const addBtn = document.getElementById('add-intervention');
+    if (!container || !addBtn) return;
+
+    function reindexRows() {
+        container.querySelectorAll('.intervention-row').forEach(function (row, idx) {
+            row.querySelector('strong.small').textContent = 'Intervention ' + (idx + 1);
+            row.querySelectorAll('[name]').forEach(function (el) {
+                el.name = el.name.replace(/_\d+$/, '_' + idx);
+            });
+        });
+    }
+
+    addBtn.addEventListener('click', function () {
+        const template = container.querySelector('.intervention-row');
+        if (!template) return;
+        const clone = template.cloneNode(true);
+        clone.querySelectorAll('[name]').forEach(function (el) {
+            if (el.tagName === 'SELECT') el.selectedIndex = 0;
+            if (el.tagName === 'INPUT') el.value = '';
+        });
+        container.appendChild(clone);
+        reindexRows();
+    });
+
+    container.addEventListener('click', function (event) {
+        const btn = event.target.closest('.remove-intervention');
+        if (!btn) return;
+        const rows = container.querySelectorAll('.intervention-row');
+        if (rows.length <= 1) {
+            rows[0].querySelectorAll('select, input').forEach(function (el) {
+                if (el.tagName === 'SELECT') el.selectedIndex = 0;
+                else el.value = '';
+            });
+            return;
+        }
+        btn.closest('.intervention-row').remove();
+        reindexRows();
+    });
+})();
+</script>
+{% elif phase_state == 'WF_CONTEXT' and can('report:draft') %}
+<script>
+(function () {
+    const trigger = document.getElementById('prophylactic_antibiotics');
+    const target = document.getElementById('antibiotic-agent-field');
+    if (!trigger || !target) return;
+    function update() {
+        target.classList.toggle('d-none', trigger.value !== 'Yes');
+    }
+    trigger.addEventListener('change', update);
+    update();
+})();
+</script>
+{% elif phase_state == 'WF_CLOSURE' and can('report:draft') %}
+<script>
+(function () {
+    const trigger = document.getElementById('immediate_complication');
+    const target = document.getElementById('complication-types-field');
+    if (!trigger || !target) return;
+    function update() {
+        target.classList.toggle('d-none', trigger.value !== 'Yes');
+    }
+    trigger.addEventListener('change', update);
+    update();
+})();
+</script>
+{% endif %}
+{% endblock %}

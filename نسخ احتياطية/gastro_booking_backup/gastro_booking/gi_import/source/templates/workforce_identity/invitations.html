@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Invite trainee or house officer{% endblock %}
+{% block content %}
+<h1 class="h3">Invite trainee or house officer</h1>
+<p class="text-muted">The registration link creates a separate account. Set the account expiry date here — it is not in Hospital branding settings.</p>
+<p><a class="btn btn-primary btn-sm" href="{{ url_for('workforce_identity.create_invitation') }}">New Invitation</a></p>
+<table class="table table-sm"><thead><tr><th>Role</th><th>Rotation</th><th>Status</th><th>Expires</th><th></th></tr></thead>
+<tbody>{% for inv in invitations %}<tr>
+<td>{{ inv.role.name if inv.role else '—' }}</td><td>{{ inv.rotation_label or '—' }}</td><td>{{ inv.status }}</td><td>{{ inv.expiry_date }}</td>
+<td>{% if inv.status == 'pending' %}<form method="post" action="{{ url_for('workforce_identity.revoke_invitation', invitation_id=inv.id) }}" class="d-inline"><button class="btn btn-sm btn-outline-danger">Revoke</button></form>{% endif %}</td>
+</tr>{% endfor %}</tbody></table>
+{% endblock %}

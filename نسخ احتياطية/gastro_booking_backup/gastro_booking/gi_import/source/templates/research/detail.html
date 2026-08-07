@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}{{ registry.name }}{% endblock %}
+{% block content %}
+<h1>{{ registry.name }}</h1>
+<p class="text-muted">{{ registry.description }}</p>
+
+<h2 class="h5 mt-4">Research variables</h2>
+{% if can('research:variable_manage') %}
+<a href="{{ url_for('research.create_variable', registry_code=registry.code) }}" class="btn btn-outline-primary btn-sm mb-2">New variable</a>
+{% endif %}
+{% if groups %}
+<p class="small text-muted">Groups: {% for g in groups %}<span class="badge bg-light text-dark">{{ g.name }}</span>{% if not loop.last %} {% endif %}{% endfor %}</p>
+{% endif %}
+<table class="table table-sm">
+    <thead><tr><th>Code</th><th>Name</th><th>Type</th><th>Module</th><th>Origin</th><th>v</th><th></th></tr></thead>
+    <tbody>
+    {% for v in variables %}
+        <tr>
+            <td><code>{{ v.code }}</code></td>
+            <td>{{ v.name }}{% if v.is_required %} <span class="text-danger">*</span>{% endif %}</td>
+            <td>{{ v.data_type }}</td>
+            <td>{{ v.source_module or '—' }}</td>
+            <td>{{ v.value_origin }}</td>
+            <td>{{ v.version }}</td>
+            <td>{% if can('research:variable_manage') %}<a href="{{ url_for('research.edit_variable', variable_code=v.code) }}">Edit</a>{% endif %}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<h2 class="h5 mt-4">Enrolled patients ({{ enrollments|length }})</h2>
+<form method="POST" action="{{ url_for('research.enroll_patient', registry_code=registry.code) }}" class="row g-2 mb-3">
+    <div class="col-auto"><input type="number" name="patient_id" class="form-control form-control-sm" placeholder="Patient ID" required></div>
+    <div class="col-auto"><button type="submit" class="btn btn-primary btn-sm">Enroll patient</button></div>
+</form>
+<table class="table table-sm">
+    <thead><tr><th>Patient</th><th>MRN</th><th>Enrolled</th><th></th></tr></thead>
+    <tbody>
+    {% for e in enrollments %}
+        <tr>
+            <td>{{ e.patient.full_name }}</td>
+            <td>{{ e.patient.mrn }}</td>
+            <td>{{ e.enrolled_at.strftime('%Y-%m-%d') if e.enrolled_at else '—' }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('research.withdraw_enrollment', registry_code=registry.code, enrollment_id=e.id) }}" class="d-inline">
+                    <button type="submit" class="btn btn-outline-danger btn-sm">Withdraw</button>
+                </form>
+            </td>
+        </tr>
+    {% else %}
+        <tr><td colspan="4" class="text-muted">No enrollments yet.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<h2 class="h5 mt-4">Dataset preview</h2>
+{% if preview_rows %}
+<table class="table table-sm table-bordered">
+    <thead><tr>{% for key in preview_rows[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr></thead>
+    <tbody>
+    {% for row in preview_rows %}
+        <tr>{% for val in row.values() %}<td>{{ val or '—' }}</td>{% endfor %}</tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="text-muted">Enroll patients to build a dataset.</p>
+{% endif %}
+
+{% if can('research:export') %}
+<a href="{{ url_for('research.export_csv', registry_code=registry.code) }}" class="btn btn-outline-primary btn-sm">Export CSV</a>
+{% endif %}
+<a href="{{ url_for('research.list_registries') }}" class="btn btn-link btn-sm">Back</a>
+{% endblock %}

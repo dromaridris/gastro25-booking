@@ -1,0 +1,6 @@
+[
+  {"id": "pr-egd", "code": "PR_egd", "label": "Esophagogastroduodenoscopy", "entity_type": "procedure", "specialty_tags": ["gastroenterology"], "schema_version": 1, "revision": 1, "status": "draft"},
+  {"id": "pr-colonoscopy", "code": "PR_colonoscopy", "label": "Colonoscopy", "entity_type": "procedure", "specialty_tags": ["gastroenterology"], "schema_version": 1, "revision": 1, "status": "draft"},
+  {"id": "pr-paracentesis", "code": "PR_paracentesis", "label": "Paracentesis", "entity_type": "procedure", "specialty_tags": ["hepatology", "emergency"], "schema_version": 1, "revision": 1, "status": "draft"},
+  {"id": "pr-cholecystectomy", "code": "PR_cholecystectomy", "label": "Cholecystectomy", "entity_type": "procedure", "specialty_tags": ["surgery"], "schema_version": 1, "revision": 1, "status": "draft"}
+]

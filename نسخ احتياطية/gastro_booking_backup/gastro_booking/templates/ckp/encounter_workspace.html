@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% block title %}Encounter #{{ snap.session_id }} · {{ channel }}{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>{{ snap.patient_label or 'Encounter' }} <span class="muted">#{{ snap.session_id }}</span></h1>
+    <p class="muted">Continuous assessment (EBS) · no Run AI · physician remains author</p>
+  </div>
+  <div>
+    <a class="btn" href="{{ url_for('ckp_documents_list', session_id=snap.session_id) }}">Documents</a>
+    <a class="btn" href="{{ url_for('ckp_cds_panel', session_id=snap.session_id) }}">CDS</a>
+    <form method="POST" action="{{ url_for('ckp_longitudinal_ingest', session_id=snap.session_id) }}" style="display:inline">
+      <button class="btn" type="submit">Ingest → Longitudinal</button>
+    </form>
+    <a class="btn" href="{{ url_for('ckp_encounter_home') }}">All encounters</a>
+  </div>
+</section>
+
+<nav class="ci-tabs" style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0;">
+  {% for ch, label in [('history','History'),('examination','Examination'),('investigations','Investigations'),('summary','Summary'),('plan','Plan')] %}
+  <a class="btn {% if channel==ch %}btn--primary{% endif %}"
+     href="{{ url_for('ckp_encounter_workspace', session_id=snap.session_id, channel=ch) }}">{{ label }}</a>
+  {% endfor %}
+</nav>
+
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;">
+  <div>
+    {% if channel == 'history' %}
+    <section class="admin-section">
+      <h2>1. Presenting problems (symptoms)</h2>
+      <form method="POST" action="{{ url_for('ckp_encounter_intake', session_id=snap.session_id) }}">
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
+          {% for s in symptoms %}
+          <label style="display:inline-flex;gap:4px;align-items:center;">
+            <input type="checkbox" name="symptom_codes" value="{{ s.code }}"> {{ s.label }}
+          </label>
+          {% endfor %}
+        </div>
+        <label>Or free text <input name="free_text" placeholder="maps via synonyms"></label>
+        <button class="btn btn--primary" type="submit">Set intake</button>
+      </form>
+      {% if ebs.presenting_problems %}
+      <p>Active: {% for p in ebs.presenting_problems %}<span class="badge">{{ p.label }}</span> {% endfor %}</p>
+      {% endif %}
+    </section>
+    <section class="admin-section">
+      <h2>2. Next questions (from knowledge graph)</h2>
+      {% set qs = (ebs.suggested_next_action or {}).questions or [] %}
+      {% if qs %}
+      {% for q in qs %}
+      <form method="POST" action="{{ url_for('ckp_encounter_answer', session_id=snap.session_id) }}" class="settings-form" style="margin-bottom:10px;padding:8px;border:1px solid #ddd;">
+        <input type="hidden" name="question_code" value="{{ q.code }}">
+        <strong>{{ q.prompt or q.label or q.code }}</strong>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
+          <button class="btn btn--primary" name="polarity" value="present" type="submit">Present</button>
+          <button class="btn" name="polarity" value="absent" type="submit">Absent</button>
+          <button class="btn" name="polarity" value="unknown" type="submit">Unknown</button>
+          <input name="value" placeholder="optional detail" style="flex:1;min-width:120px;">
+        </div>
+      </form>
+      {% endfor %}
+      {% else %}
+      <p class="muted">No pending section questions — continue exam/Ix or review summary.</p>
+      {% endif %}
+      {% if ebs.active_section %}
+      <p class="muted">Active section: {{ ebs.active_section }} · objective: {{ ebs.section_objective }}</p>
+      {% endif %}
+    </section>
+    {% elif channel == 'examination' %}
+    <section class="admin-section">
+      <h2>Exam priorities (from graph)</h2>
+      {% for p in ebs.exam_priorities or [] %}
+      <form method="POST" action="{{ url_for('ckp_encounter_exam', session_id=snap.session_id) }}" class="settings-form" style="margin-bottom:8px;">
+        <input type="hidden" name="sign_code" value="{{ p.code }}">
+        <strong>{{ p.label or p.code }}</strong>
+        <button class="btn btn--primary" name="polarity" value="present" type="submit">Present</button>
+        <button class="btn" name="polarity" value="absent" type="submit">Absent</button>
+        <button class="btn" name="polarity" value="not_assessed" type="submit">Not assessed</button>
+      </form>
+      {% else %}
+      <p class="muted">No exam priorities yet — complete symptom intake first.</p>
+      {% endfor %}
+      <h3>Manual sign code</h3>
+      <form method="POST" action="{{ url_for('ckp_encounter_exam', session_id=snap.session_id) }}" class="settings-form">
+        <input name="sign_code" placeholder="e.g. SG_murphy" required>
+        <select name="polarity"><option>present</option><option>absent</option><option>not_assessed</option></select>
+        <button class="btn btn--primary" type="submit">Record</button>
+      </form>
+    </section>
+    {% elif channel == 'investigations' %}
+    <section class="admin-section">
+      <h2>Recommended investigations</h2>
+      {% for ix in ebs.investigation_recommendations or [] %}
+      <form method="POST" action="{{ url_for('ckp_encounter_order_ix', session_id=snap.session_id) }}" style="margin-bottom:6px;">
+        <input type="hidden" name="ix_code" value="{{ ix.code }}">
+        <button class="btn" type="submit">Order {{ ix.label or ix.code }}</button>
+        <span class="muted">{{ ix.rationale or '' }}</span>
+      </form>
+      {% else %}
+      <p class="muted">No Ix recommendations yet.</p>
+      {% endfor %}
+      <h3>Record result finding</h3>
+      <form method="POST" action="{{ url_for('ckp_encounter_result', session_id=snap.session_id) }}" class="settings-form">
+        <select name="finding_code">
+          {% for f in findings %}
+          <option value="{{ f.code }}">{{ f.label }}</option>
+          {% endfor %}
+        </select>
+        <select name="polarity"><option>present</option><option>absent</option></select>
+        <input name="value" placeholder="optional value">
+        <button class="btn btn--primary" type="submit">Record result</button>
+      </form>
+    </section>
+    {% elif channel == 'summary' %}
+    <section class="admin-section">
+      <h2>Summary (editable draft from EBS)</h2>
+      <form method="POST" action="{{ url_for('ckp_encounter_summary', session_id=snap.session_id) }}" id="summary-form">
+        <label>Narrative textarea
+          <textarea name="narrative_draft" id="narrative_draft" rows="8" style="width:100%;">{{ ebs.narrative_draft or '' }}</textarea>
+        </label>
+        <label>Assessment note
+          <textarea name="assessment_note" rows="3" style="width:100%;">{{ (ebs.summary_edits or {}).assessment_note or '' }}</textarea>
+        </label>
+        <button class="btn btn--primary" type="submit">Save summary</button>
+      </form>
+      <form method="POST" action="{{ url_for('ckp_encounter_regen', session_id=snap.session_id) }}" style="margin-top:8px;">
+        <button class="btn" type="submit">Regenerate narrative from EBS</button>
+      </form>
+      <h3>Differential (continuous)</h3>
+      <ul>
+        {% for d in ebs.differential or [] %}
+        <li><strong>{{ d.label }}</strong> — {{ d.confidence }} ({{ d.status }}) score {{ d.score }}</li>
+        {% else %}
+        <li class="muted">Empty until intake.</li>
+        {% endfor %}
+      </ul>
+      {% if ebs.stopping %}
+      <p><span class="badge">{{ ebs.stopping.status }}</span> {{ ebs.stopping.reasons|join(' ') }}</p>
+      {% endif %}
+    </section>
+    {% elif channel == 'plan' %}
+    <section class="admin-section">
+      <h2>Plan</h2>
+      <h3>Management from knowledge</h3>
+      <ul>
+        {% for m in ebs.management_recommendations or [] %}
+        <li>{{ m.label or m.code }} <span class="muted">{{ m.rationale or '' }}</span></li>
+        {% else %}
+        <li class="muted">None yet.</li>
+        {% endfor %}
+      </ul>
+      <form method="POST" action="{{ url_for('ckp_encounter_plan', session_id=snap.session_id) }}" id="plan-form">
+        <label>Plan text
+          <textarea name="plan_text" id="plan_text" rows="6" style="width:100%;">{{ (ebs.plan_edits or {}).plan_text or '' }}</textarea>
+        </label>
+        <label>Follow-up
+          <textarea name="follow_up_text" rows="3" style="width:100%;">{{ (ebs.plan_edits or {}).follow_up_text or '' }}</textarea>
+        </label>
+        <button class="btn btn--primary" type="submit">Save plan</button>
+      </form>
+      {% if ebs.red_flags %}
+      <h3>Red flags / pathways</h3>
+      <ul>{% for r in ebs.red_flags %}<li class="badge">{{ r.label or r.code }}</li>{% endfor %}</ul>
+      {% endif %}
+    </section>
+    {% endif %}
+  </div>
+
+  <aside class="admin-section">
+    <h2>Explainability</h2>
+    <p class="muted">Why the engine suggested actions (from KG edges)</p>
+    <ul style="max-height:480px;overflow:auto;font-size:0.9em;">
+      {% for x in explain|reverse %}
+      <li><span class="muted">{{ x.category or '' }}</span> {{ x.text or x.message or x }}</li>
+      {% else %}
+      <li class="muted">No explanations yet.</li>
+      {% endfor %}
+    </ul>
+    <p class="muted" id="autosave-status">Autosave idle</p>
+  </aside>
+</div>
+
+<script>
+(function(){
+  const sid = {{ snap.session_id }};
+  const url = {{ url_for('ckp_encounter_autosave', session_id=snap.session_id)|tojson }};
+  let t = null;
+  function schedule(){
+    const el = document.getElementById('autosave-status');
+    if(el) el.textContent = 'Autosave pending…';
+    clearTimeout(t);
+    t = setTimeout(doSave, 1200);
+  }
+  function doSave(){
+    const payload = {channel: {{ channel|tojson }}};
+    const nd = document.getElementById('narrative_draft');
+    const pt = document.getElementById('plan_text');
+    if(nd) payload.summary_edits = {narrative_draft: nd.value};
+    if(pt) payload.plan_edits = {plan_text: pt.value};
+    fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)})
+      .then(r=>r.json()).then(j=>{
+        const el = document.getElementById('autosave-status');
+        if(el) el.textContent = j.ok ? ('Autosaved ' + (j.updated_at||'')) : 'Autosave failed';
+      }).catch(()=>{
+        const el = document.getElementById('autosave-status');
+        if(el) el.textContent = 'Autosave error';
+      });
+  }
+  ['narrative_draft','plan_text'].forEach(id=>{
+    const n = document.getElementById(id);
+    if(n) n.addEventListener('input', schedule);
+  });
+})();
+</script>
+{% endblock %}

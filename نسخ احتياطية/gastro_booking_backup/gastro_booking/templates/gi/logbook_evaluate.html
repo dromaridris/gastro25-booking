@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Logbook evaluation{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('gi_governance_logbook') }}">← Logbook</a></p>
+<h1>CanMEDS evaluation</h1>
+<article class="admin-section">
+  <p><strong>{{ entry.staff_name }}</strong> · {{ entry.title }}</p>
+  <p class="muted">MRN {{ entry.mrn or '—' }} · {{ entry.patient_name or '' }} · {{ entry.created_at }}</p>
+  <p>{{ entry.activity_type|replace('_',' ') }}</p>
+</article>
+
+<h2>Submit evaluation (international standard — CanMEDS)</h2>
+<form method="POST" class="settings-form">
+  <label>Competency domain
+    <select name="competency_domain" required>{% for code, label in canmeds_domains %}
+      <option value="{{ code }}">{{ label }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Entrustment score (1–5)
+    <select name="score" required>
+      <option value="1">1 — Observes only</option>
+      <option value="2">2 — Direct supervision</option>
+      <option value="3">3 — Indirect supervision</option>
+      <option value="4">4 — Independent practice</option>
+      <option value="5">5 — Teaches others</option>
+    </select>
+  </label>
+  <label>Evaluator note<textarea name="note" rows="4" required placeholder="Specific feedback on this activity…"></textarea></label>
+  <button class="btn btn--primary" type="submit">Save evaluation</button>
+</form>
+
+{% if evaluations %}
+<h2>Previous evaluations</h2>
+<ul>{% for ev in evaluations %}
+  <li><strong>{{ ev.competency_domain|replace('_',' ') }}</strong> — Score {{ ev.score }}/5 · {{ ev.evaluator_name }} · {{ ev.note }}</li>
+{% endfor %}</ul>
+{% endif %}
+{% endblock %}

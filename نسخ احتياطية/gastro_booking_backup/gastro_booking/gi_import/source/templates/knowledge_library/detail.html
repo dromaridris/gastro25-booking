@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}{{ record.title }} — Knowledge Library{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <h2>{{ record.title }}</h2>
+        <p class="text-muted mb-0"><code>{{ record.stable_id }}</code> · {{ record.object_type }} · v{{ record.version_label }}</p>
+    </div>
+    <div class="d-flex gap-2">
+        {% if can_edit and record.status == 'draft' and not record.is_archived %}
+            <a href="{{ url_for('knowledge_library.edit_object', record_id=record.id) }}" class="btn btn-outline-primary btn-sm">Edit draft</a>
+            <form method="POST" action="{{ url_for('knowledge_library.publish_object', record_id=record.id) }}">
+                <button type="submit" class="btn btn-success btn-sm">Publish</button>
+            </form>
+        {% endif %}
+        {% if can_edit and record.status == 'published' and not record.is_archived %}
+            <form method="POST" action="{{ url_for('knowledge_library.new_version', record_id=record.id) }}">
+                <button type="submit" class="btn btn-outline-secondary btn-sm">New version</button>
+            </form>
+        {% endif %}
+        {% if can_edit and not record.is_archived %}
+            <a href="{{ url_for('knowledge_library.archive_object', record_id=record.id) }}" class="btn btn-outline-danger btn-sm">Archive</a>
+        {% elif can_edit and record.is_archived %}
+            <form method="POST" action="{{ url_for('knowledge_library.restore_object', record_id=record.id) }}">
+                <button type="submit" class="btn btn-outline-secondary btn-sm">Restore</button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+
+<dl class="row">
+    <dt class="col-sm-2">Status</dt>
+    <dd class="col-sm-10">{{ record.status }}{% if record.is_archived %} (archived){% endif %}</dd>
+    <dt class="col-sm-2">Topic key</dt>
+    <dd class="col-sm-10">{{ record.topic_key or '—' }}</dd>
+    <dt class="col-sm-2">Specialty</dt>
+    <dd class="col-sm-10">{{ record.specialty_code or '—' }}</dd>
+    <dt class="col-sm-2">Created</dt>
+    <dd class="col-sm-10">{{ record.created_at.strftime('%Y-%m-%d %H:%M') if record.created_at else '—' }}{% if record.created_by_id %} (user #{{ record.created_by_id }}){% endif %}</dd>
+    <dt class="col-sm-2">Modified</dt>
+    <dd class="col-sm-10">{{ record.updated_at.strftime('%Y-%m-%d %H:%M') if record.updated_at else '—' }}{% if record.updated_by_id %} (user #{{ record.updated_by_id }}){% endif %}</dd>
+</dl>
+
+{% if record.summary %}
+<h4>Summary</h4>
+<p>{{ record.summary }}</p>
+{% endif %}
+
+{% if record.body %}
+<h4>Body</h4>
+<pre class="bg-light p-3">{{ record.body }}</pre>
+{% endif %}
+
+{% if record.attributes %}
+<h4>Structured attributes</h4>
+<pre class="bg-light p-3">{{ record.attributes | tojson(indent=2) }}</pre>
+{% endif %}
+
+<h4 class="mt-4">Version history</h4>
+<table class="table table-sm">
+    <thead><tr><th>Ver</th><th>Label</th><th>Status</th><th>Published</th><th></th></tr></thead>
+    <tbody>
+        {% for v in versions %}
+        <tr>
+            <td>{{ v.version_sequence }}</td>
+            <td>{{ v.version_label }}</td>
+            <td>{{ v.status }}</td>
+            <td>{{ v.published_at.strftime('%Y-%m-%d') if v.published_at else '—' }}</td>
+            <td><a href="{{ url_for('knowledge_library.view_object', record_id=v.id) }}">Open</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h4>Links</h4>
+<ul>
+    {% for link in links %}
+    <li><code>{{ link.link_type }}</code> → {{ link.to_stable_id }}</li>
+    {% else %}
+    <li class="text-muted">No outbound links.</li>
+    {% endfor %}
+</ul>
+{% if can_edit %}
+<form method="POST" action="{{ url_for('knowledge_library.add_link', record_id=record.id) }}" class="row g-2 mb-4">
+    {{ link_form.hidden_tag() }}
+    <div class="col-auto">{{ link_form.to_stable_id(class="form-control form-control-sm") }}</div>
+    <div class="col-auto">{{ link_form.link_type(class="form-select form-select-sm") }}</div>
+    <div class="col-auto">{{ link_form.submit(class="btn btn-secondary btn-sm") }}</div>
+</form>
+{% endif %}
+
+<p><a href="{{ url_for('knowledge_library.list_objects') }}">&larr; Back to list</a></p>
+{% endblock %}

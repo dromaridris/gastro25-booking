@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — {{ branding.display_title }}{% endblock %}
+{% block content %}
+<div class="gi-page-header mb-4">
+    <p class="gi-eyebrow mb-1">Welcome</p>
+    <h1 class="gi-page-title h2 mb-1">{{ current_user.full_name }}</h1>
+    <p class="gi-page-subtitle text-muted mb-0">{{ branding.display_title }}</p>
+</div>
+
+{% include "ui/_quick_actions.html" %}
+
+<div class="gi-card p-3">
+    <p class="mb-0 text-muted">Today's recorded activities: <strong>{{ today.total_activities }}</strong></p>
+    {% if can('workforce:view_own') %}
+    <a href="{{ url_for('workforce.portfolio') }}" class="btn btn-outline-primary btn-sm mt-3">Open training portfolio</a>
+    {% endif %}
+</div>
+{% endblock %}

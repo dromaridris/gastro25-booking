@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Search · CKP{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div><h1>Enterprise search</h1></div>
+  <a class="btn" href="{{ url_for('ckp_enterprise_home') }}">Enterprise</a>
+</section>
+<section class="admin-section">
+  <form method="GET">
+    <input name="q" value="{{ q }}" placeholder="search indexed objects">
+    <button class="btn btn--primary" type="submit">Search</button>
+  </form>
+  <ul>{% for r in results %}<li>{{ r.object_kind }} · {{ r.title }} · {{ r.object_id }}</li>{% else %}<li class="muted">No hits (index objects via enterprise.index_object).</li>{% endfor %}</ul>
+</section>
+{% endblock %}

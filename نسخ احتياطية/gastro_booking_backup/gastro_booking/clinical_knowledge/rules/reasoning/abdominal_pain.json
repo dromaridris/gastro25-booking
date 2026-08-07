@@ -1,0 +1,131 @@
+{
+  "complaint_code": "CC_abdominal_pain",
+  "schema_version": 1,
+  "revision": 1,
+  "min_history_answers_for_dx": 8,
+  "min_confidence_to_list_dx": 0.45,
+  "patterns": [
+    {
+      "id": "PAT_ruq_biliary",
+      "label": "RUQ / biliary-pattern pain",
+      "diagnosis_code": "DX_biliary_colic_or_cholecystitis_suspect",
+      "diagnosis_label": "Biliary colic / cholecystitis (suspect)",
+      "weight_sum_required": 2.0,
+      "criteria": [
+        {"kind": "answer", "question_id": "Q000042", "op": "eq", "value": "RUQ", "weight": 1.2, "finding": "Pain localized to RUQ"},
+        {"kind": "answer", "question_id": "Q000043", "op": "eq", "value": "Worse after meals", "weight": 0.8, "finding": "Worse after meals"},
+        {"kind": "answer", "question_id": "Q000026", "op": "truthy", "weight": 0.9, "finding": "Jaundice associated"},
+        {"kind": "exam", "sign_code": "SG_murphy_sign", "op": "present", "weight": 1.5, "finding": "Murphy sign present"},
+        {"kind": "exam", "sign_code": "SG_icteric_sclera", "op": "present", "weight": 0.7, "finding": "Icteric sclera"}
+      ],
+      "suggested_questions": ["Q000027", "Q000028"],
+      "suggested_exam": ["SG_murphy_sign", "SG_icteric_sclera"],
+      "suggested_investigations": ["IX_liver_panel", "IX_abdominal_ultrasound", "IX_cbc"]
+    },
+    {
+      "id": "PAT_epigastric_ulcer_pancreas",
+      "label": "Epigastric ulcer / pancreatitis pattern",
+      "diagnosis_code": "DX_peptic_or_pancreatitis_suspect",
+      "diagnosis_label": "Peptic disease / pancreatitis (suspect)",
+      "weight_sum_required": 2.0,
+      "criteria": [
+        {"kind": "answer", "question_id": "Q000042", "op": "eq", "value": "Epigastric", "weight": 1.0, "finding": "Epigastric pain"},
+        {"kind": "answer", "question_id": "Q000043", "op": "in", "value": ["Worse after meals", "Worse when fasting"], "weight": 0.7, "finding": "Meal-related pain"},
+        {"kind": "answer", "question_id": "Q000021", "op": "truthy", "weight": 0.5, "finding": "Nausea"},
+        {"kind": "answer", "question_id": "Q000022", "op": "truthy", "weight": 0.5, "finding": "Vomiting"},
+        {"kind": "answer", "question_id": "Q000033", "op": "truthy", "weight": 1.2, "finding": "Hematemesis"},
+        {"kind": "answer", "question_id": "Q000034", "op": "truthy", "weight": 1.2, "finding": "Melena"}
+      ],
+      "suggested_questions": ["Q000053", "Q000016"],
+      "suggested_exam": ["SG_guarding", "SG_peritoneal_signs"],
+      "suggested_investigations": ["IX_cbc", "IX_lipase", "IX_upper_endoscopy"]
+    },
+    {
+      "id": "PAT_rlq_appendicitis",
+      "label": "RLQ appendicitis-pattern",
+      "diagnosis_code": "DX_appendicitis_suspect",
+      "diagnosis_label": "Appendicitis (suspect)",
+      "weight_sum_required": 2.0,
+      "criteria": [
+        {"kind": "answer", "question_id": "Q000042", "op": "eq", "value": "RLQ", "weight": 1.3, "finding": "RLQ pain"},
+        {"kind": "answer", "question_id": "Q000003", "op": "eq", "value": "Sudden", "weight": 0.4, "finding": "Sudden onset"},
+        {"kind": "answer", "question_id": "Q000017", "op": "truthy", "weight": 0.6, "finding": "Fever"},
+        {"kind": "answer", "question_id": "Q000021", "op": "truthy", "weight": 0.4, "finding": "Nausea"},
+        {"kind": "exam", "sign_code": "SG_rebound_tenderness", "op": "present", "weight": 1.2, "finding": "Rebound tenderness"},
+        {"kind": "exam", "sign_code": "SG_guarding", "op": "present", "weight": 0.8, "finding": "Guarding"}
+      ],
+      "suggested_questions": ["Q000017", "Q000022"],
+      "suggested_exam": ["SG_rebound_tenderness", "SG_guarding", "SG_peritoneal_signs"],
+      "suggested_investigations": ["IX_cbc", "IX_ct_abdomen"]
+    },
+    {
+      "id": "PAT_obstruction",
+      "label": "Possible bowel obstruction",
+      "diagnosis_code": "DX_bowel_obstruction_suspect",
+      "diagnosis_label": "Bowel obstruction (suspect)",
+      "weight_sum_required": 1.8,
+      "criteria": [
+        {"kind": "answer", "question_id": "Q000045", "op": "truthy", "weight": 1.5, "finding": "Inability to pass stool/gas"},
+        {"kind": "answer", "question_id": "Q000022", "op": "truthy", "weight": 0.6, "finding": "Vomiting"},
+        {"kind": "answer", "question_id": "Q000025", "op": "truthy", "weight": 0.5, "finding": "Bloating/distension"},
+        {"kind": "exam", "sign_code": "SG_visible_peristalsis", "op": "present", "weight": 0.8, "finding": "Visible peristalsis"}
+      ],
+      "suggested_questions": ["Q000022", "Q000025"],
+      "suggested_exam": ["SG_visible_peristalsis", "SG_peritoneal_signs"],
+      "suggested_investigations": ["IX_ct_abdomen", "IX_cbc", "IX_basic_metabolic_panel"]
+    },
+    {
+      "id": "PAT_gi_bleed",
+      "label": "GI bleeding syndrome",
+      "diagnosis_code": "DX_gi_bleeding_suspect",
+      "diagnosis_label": "Gastrointestinal bleeding (suspect)",
+      "weight_sum_required": 1.2,
+      "criteria": [
+        {"kind": "answer", "question_id": "Q000033", "op": "truthy", "weight": 1.5, "finding": "Hematemesis"},
+        {"kind": "answer", "question_id": "Q000034", "op": "truthy", "weight": 1.5, "finding": "Melena"},
+        {"kind": "answer", "question_id": "Q000035", "op": "truthy", "weight": 1.2, "finding": "Hematochezia"},
+        {"kind": "exam", "sign_code": "SG_tachycardia", "op": "present", "weight": 0.6, "finding": "Tachycardia"},
+        {"kind": "exam", "sign_code": "SG_hypotension", "op": "present", "weight": 0.9, "finding": "Hypotension"}
+      ],
+      "suggested_questions": ["Q000038"],
+      "suggested_exam": ["SG_tachycardia", "SG_hypotension"],
+      "suggested_investigations": ["IX_cbc", "IX_coagulation_panel", "IX_upper_endoscopy"]
+    },
+    {
+      "id": "PAT_peritonitis",
+      "label": "Peritonitis / acute abdomen",
+      "diagnosis_code": "DX_peritonitis_suspect",
+      "diagnosis_label": "Peritonitis / acute abdomen (suspect)",
+      "weight_sum_required": 1.5,
+      "criteria": [
+        {"kind": "exam", "sign_code": "SG_peritoneal_signs", "op": "present", "weight": 1.5, "finding": "Peritoneal signs"},
+        {"kind": "exam", "sign_code": "SG_rigidity", "op": "present", "weight": 1.4, "finding": "Rigidity"},
+        {"kind": "exam", "sign_code": "SG_rebound_tenderness", "op": "present", "weight": 1.0, "finding": "Rebound"},
+        {"kind": "answer", "question_id": "Q000017", "op": "truthy", "weight": 0.4, "finding": "Fever"}
+      ],
+      "suggested_questions": [],
+      "suggested_exam": ["SG_peritoneal_signs", "SG_rigidity"],
+      "suggested_investigations": ["IX_cbc", "IX_ct_abdomen", "IX_coagulation_panel"]
+    }
+  ],
+  "missing_info_rules": [
+    {
+      "id": "need_region",
+      "if_unanswered": ["Q000042"],
+      "message": "Abdominal pain region not recorded — ask Q000042",
+      "next_questions": ["Q000042"]
+    },
+    {
+      "id": "need_red_flags",
+      "if_unanswered_any": ["Q000033", "Q000034", "Q000035", "Q000045"],
+      "message": "Key red-flag GI questions incomplete",
+      "next_questions": ["Q000033", "Q000034", "Q000035", "Q000045"]
+    },
+    {
+      "id": "need_peritoneal_exam",
+      "if_exam_missing_any": ["SG_peritoneal_signs", "SG_guarding", "SG_rebound_tenderness"],
+      "message": "Peritoneal signs not fully documented on exam",
+      "next_exam": ["SG_peritoneal_signs", "SG_guarding", "SG_rebound_tenderness"]
+    }
+  ]
+}

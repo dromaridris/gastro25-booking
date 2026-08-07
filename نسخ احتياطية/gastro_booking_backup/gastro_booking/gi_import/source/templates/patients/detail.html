@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% block title %}{{ patient.full_name }} — GastroIntelligence{% endblock %}
+{% block content %}
+<h2>{{ patient.full_name }} <small class="text-muted">{{ patient.mrn }}</small></h2>
+{% if patient.is_archived %}
+    <span class="badge bg-secondary mb-3">Archived{% if patient.archive_reason %} — {{ patient.archive_reason }}{% endif %}</span>
+{% endif %}
+
+<dl class="row">
+    <dt class="col-sm-3">Date of Birth</dt><dd class="col-sm-9">{{ patient.date_of_birth.strftime("%Y-%m-%d") }}</dd>
+    <dt class="col-sm-3">Sex</dt><dd class="col-sm-9">{{ patient.sex.title() }}</dd>
+    <dt class="col-sm-3">Phone</dt><dd class="col-sm-9">{{ patient.phone or "—" }}</dd>
+    <dt class="col-sm-3">Email</dt><dd class="col-sm-9">{{ patient.email or "—" }}</dd>
+    <dt class="col-sm-3">Address</dt><dd class="col-sm-9">{{ patient.address or "—" }}</dd>
+    <dt class="col-sm-3">National ID</dt><dd class="col-sm-9">{{ patient.national_id or "—" }}</dd>
+    <dt class="col-sm-3">Emergency Contact</dt>
+    <dd class="col-sm-9">
+        {% if patient.emergency_contact_name %}
+            {{ patient.emergency_contact_name }} — {{ patient.emergency_contact_phone or "no phone on file" }}
+        {% else %}—{% endif %}
+    </dd>
+</dl>
+
+{% if can('patient:edit') %}
+<div class="d-flex gap-2">
+    <a href="{{ url_for('patients.edit_patient', patient_id=patient.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
+    {% if not patient.is_archived %}
+        <a href="{{ url_for('patients.archive_patient', patient_id=patient.id) }}" class="btn btn-outline-danger btn-sm">Archive</a>
+    {% else %}
+        <form method="POST" action="{{ url_for('patients.restore_patient', patient_id=patient.id) }}">
+            <button type="submit" class="btn btn-outline-success btn-sm">Restore</button>
+        </form>
+    {% endif %}
+</div>
+{% endif %}
+
+{% if can('appointment:view') and not patient.is_archived %}
+<hr>
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <h4>Appointments</h4>
+    {% if can('appointment:edit') %}
+        <a href="{{ url_for('appointments.new_appointment', patient_id=patient.id) }}" class="btn btn-primary btn-sm">+ Book Appointment</a>
+    {% endif %}
+</div>
+<table class="table table-sm">
+    <thead><tr><th>When</th><th>Provider</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+        {% for a in appointments %}
+        <tr>
+            <td>{{ a.scheduled_at.strftime("%Y-%m-%d %H:%M") }}</td>
+            <td>{{ a.provider.full_name if a.provider else "Unassigned" }}</td>
+            <td><span class="badge bg-secondary">{{ a.status.replace("_", " ").title() }}</span></td>
+            <td><a href="{{ url_for('appointments.view_appointment', appointment_id=a.id) }}">View</a>
+            {% if can('procedure:edit') and a.status not in ['cancelled', 'completed', 'no_show'] %}
+            · <a href="{{ url_for('procedures.new_procedure', appointment_id=a.id) }}">Book endoscopy</a>
+            {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="text-muted">No appointments yet.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if can('encounter:view') and not patient.is_archived %}
+<hr>
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <h4>Clinical Encounters</h4>
+    {% if can('encounter:create') %}
+        <a href="{{ url_for('encounters.new_encounter', patient_id=patient.id) }}" class="btn btn-primary btn-sm">+ Start Encounter</a>
+    {% endif %}
+</div>
+<table class="table table-sm">
+    <thead><tr><th>Started</th><th>Type</th><th>Status</th><th>Summary</th><th></th></tr></thead>
+    <tbody>
+        {% for e in encounters %}
+        <tr>
+            <td>{{ e.started_at.strftime("%Y-%m-%d %H:%M") }}</td>
+            <td>{{ e.encounter_type.replace("_", " ").title() }}</td>
+            <td><span class="badge bg-{{ 'success' if e.is_open else 'secondary' }}">{{ e.status.title() }}</span></td>
+            <td>{{ e.summary or "—" }}</td>
+            <td><a href="{{ url_for('encounters.view_encounter', encounter_id=e.id) }}">Open</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="text-muted">No encounters yet.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if can('investigation:view') and timeline %}
+<hr>
+<h4>Investigations Timeline</h4>
+<table class="table table-sm">
+    <thead><tr><th>When</th><th>Event</th><th>Status</th><th>Summary</th><th></th></tr></thead>
+    <tbody>
+        {% for event in timeline %}
+        <tr>
+            <td>{{ event.timestamp.strftime("%Y-%m-%d %H:%M") if event.timestamp else "—" }}</td>
+            <td>{{ event.label }}</td>
+            <td><span class="badge bg-secondary">{{ event.status.replace("_", " ").title() }}</span></td>
+            <td class="small text-muted">{{ event.summary if event.summary is defined else "—" }}</td>
+            <td>
+                {% if event.url_key == 'investigations.view_order' %}
+                    <a href="{{ url_for('investigations.view_order', order_id=event.id) }}">View</a>
+                {% elif event.url_key == 'investigations.view_lab_result' %}
+                    <a href="{{ url_for('investigations.view_lab_result', result_set_id=event.id) }}">View</a>
+                {% elif event.url_key == 'investigations.view_imaging' %}
+                    <a href="{{ url_for('investigations.view_imaging', study_id=event.id) }}">View</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if can('medication:view') and (active_medications or medication_timeline) %}
+<hr>
+<h4>Medications</h4>
+{% if active_medications %}
+<h6 class="text-muted">Active</h6>
+<table class="table table-sm mb-3">
+    <thead><tr><th>Drug</th><th>Dose</th><th>Frequency</th><th>Since</th><th></th></tr></thead>
+    <tbody>
+        {% for m in active_medications %}
+        <tr>
+            <td>{{ m.catalogue_item.name if m.catalogue_item else m.drug_code }}</td>
+            <td>{{ m.dose_text or "—" }}</td>
+            <td>{{ m.frequency_text or "—" }}</td>
+            <td>{{ m.started_on.strftime("%Y-%m-%d") if m.started_on else "—" }}</td>
+            <td><a href="{{ url_for('medications.view_entry', entry_id=m.id) }}">View</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% if medication_timeline %}
+<h6 class="text-muted">History</h6>
+<table class="table table-sm">
+    <thead><tr><th>When</th><th>Drug</th><th>Type</th><th>Status</th></tr></thead>
+    <tbody>
+        {% for event in medication_timeline %}
+        <tr>
+            <td>{{ event.timestamp.strftime("%Y-%m-%d %H:%M") if event.timestamp else "—" }}</td>
+            <td>{{ event.label }}</td>
+            <td>{{ event.entry_type.replace("_", " ").title() }}</td>
+            <td><span class="badge bg-secondary">{{ event.status.title() }}</span></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endif %}
+
+{% if can('history:view') %}
+<hr>
+<h4>Clinical History &amp; Follow-up</h4>
+{% if can('history:follow_up') %}
+<a href="{{ url_for('clinical_history.new_follow_up', patient_id=patient.id) }}" class="btn btn-outline-primary btn-sm mb-2">+ Record follow-up</a>
+{% endif %}
+{% if history_timeline %}
+<table class="table table-sm mb-3">
+    <thead><tr><th>When</th><th>Event</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+        {% for event in history_timeline %}
+        <tr>
+            <td>{{ event.timestamp.strftime("%Y-%m-%d %H:%M") if event.timestamp else "—" }}</td>
+            <td>{{ event.label }}</td>
+            <td><span class="badge bg-secondary">{{ event.status.replace("_", " ").title() }}</span></td>
+            <td>
+                {% if event.url_key == 'clinical_history.view_session' %}
+                <a href="{{ url_for('clinical_history.view_session', session_id=event.id) }}">View</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% if follow_ups %}
+<h6 class="text-muted">Follow-up notes</h6>
+<table class="table table-sm">
+    <thead><tr><th>When</th><th>Note</th></tr></thead>
+    <tbody>
+        {% for f in follow_ups %}
+        <tr>
+            <td>{{ f.documented_at.strftime("%Y-%m-%d %H:%M") }}</td>
+            <td>{{ f.narrative_text[:120] }}{% if f.narrative_text|length > 120 %}…{% endif %}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% elif not history_timeline %}
+<p class="text-muted">No clinical history sessions yet.</p>
+{% endif %}
+{% endif %}
+
+{% include "patient_documents/_documents.html" %}
+{% endblock %}

@@ -1,0 +1,90 @@
+{
+  "complaint_code": "CC_dysphagia",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Dysphagia history structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Solids-only vs solids-and-liquids from the start is the classic mechanical-vs-motility discriminator.",
+        "Progressive course over weeks with weight loss is an alarm pattern until proven otherwise — think malignant stricture.",
+        "Always localise: oropharyngeal (cough/choking, nasal regurgitation) vs oesophageal (food sticking retrosternally)."
+      ],
+      "linked_questions": [
+        "Q000054",
+        "Q000055",
+        "Q000056"
+      ]
+    },
+    {
+      "id": "EDU_alarm",
+      "title": "Dysphagia alarm features",
+      "trigger": {
+        "any_sign_present": [
+          "SG_oropharyngeal_lesion",
+          "SG_neck_mass"
+        ]
+      },
+      "points": [
+        "Weight loss, progressive solid-food dysphagia, or a visible lesion/mass warrant prompt endoscopic evaluation to exclude malignancy.",
+        "Food impaction episodes support a structural (stricture/ring) cause."
+      ]
+    }
+  ],
+  "question_coaching": {
+    "Q000054": {
+      "why_ask": "Solids-only points to a mechanical/structural cause; solids-and-liquids from onset suggests a motility disorder.",
+      "listen_for": [
+        "Solids only",
+        "both from the start"
+      ],
+      "think": "This single answer reorganises the entire differential (stricture/cancer vs achalasia/motility)."
+    },
+    "Q000055": {
+      "why_ask": "A progressive course over weeks is the classic pattern for malignant stricture; intermittent suggests a ring or spasm.",
+      "listen_for": [
+        "Steadily worsening",
+        "comes and goes"
+      ],
+      "think": "Progressive + weight loss + age >50 is a combination that should not be reassured away."
+    },
+    "Q000056": {
+      "why_ask": "Localisation (neck vs chest) helps separate oropharyngeal from oesophageal dysphagia.",
+      "listen_for": [
+        "Immediate sticking at the neck vs delayed retrosternal sticking"
+      ],
+      "think": "Neck-level symptoms with coughing/choking suggest an oropharyngeal (often neuromuscular) cause."
+    }
+  },
+  "answer_triggers": [
+    {
+      "id": "AT_solids_only",
+      "question_id": "Q000054",
+      "title": "Unlocked: mechanical pattern",
+      "points": [
+        "Consider peptic stricture, Schatzki ring, or oesophageal malignancy.",
+        "Progressive solids-only dysphagia with weight loss needs prompt endoscopy."
+      ],
+      "answer_in": [
+        "solids only"
+      ]
+    },
+    {
+      "id": "AT_progressive",
+      "question_id": "Q000055",
+      "title": "Unlocked: progressive course",
+      "points": [
+        "Progressive dysphagia is an alarm pattern — do not defer endoscopy.",
+        "Ask specifically about weight loss and food impaction."
+      ],
+      "answer_in": [
+        "progressive"
+      ]
+    }
+  ]
+}

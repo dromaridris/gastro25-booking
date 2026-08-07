@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Scope {{ scope.scope_code }}{% endblock %}
+{% block content %}
+<h1>{{ scope.scope_code }} <small class="text-muted">{{ scope.scope_type }}</small></h1>
+<p>Status: <strong>{{ scope.status }}</strong> · Location: {{ scope.current_location or '—' }} · Serial: {{ scope.serial_number or '—' }}</p>
+
+<div class="row">
+    <div class="col-md-6">
+        <h2 class="h5">Maintenance</h2>
+        {% if can('dept_ops:scope_manage') %}
+        <form method="POST" action="{{ url_for('dept_ops.record_scope_maintenance', scope_id=scope.id) }}" class="mb-3">
+            <select name="record_type" class="form-select form-select-sm w-auto d-inline"><option value="service">Service</option><option value="repair">Repair</option></select>
+            <input name="next_due_at" type="datetime-local" class="form-control form-control-sm w-auto d-inline">
+            <input name="notes" class="form-control form-control-sm w-auto d-inline" placeholder="Notes">
+            <button class="btn btn-sm btn-primary">Record</button>
+        </form>
+        {% endif %}
+        <table class="table table-sm"><thead><tr><th>Date</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>{% for m in maintenance %}<tr><td>{{ m.performed_at.strftime('%Y-%m-%d') if m.performed_at else '—' }}</td><td>{{ m.record_type }}</td><td>{{ m.notes or '—' }}</td></tr>{% else %}<tr><td colspan="3" class="text-muted">No maintenance records.</td></tr>{% endfor %}</tbody></table>
+    </div>
+    <div class="col-md-6">
+        <h2 class="h5">Reprocessing</h2>
+        {% if active_cycle %}
+        <div class="alert alert-info">Active cycle — step: <strong>{{ active_cycle.current_step }}</strong></div>
+        <form method="POST" action="{{ url_for('dept_ops.advance_reprocessing', scope_id=scope.id) }}">
+            <button class="btn btn-primary btn-sm">{% if active_cycle.current_step == 'storage' %}Complete reprocessing{% else %}Advance to next step{% endif %}</button>
+        </form>
+        {% elif can('dept_ops:scope_manage') %}
+        <form method="POST" action="{{ url_for('dept_ops.start_reprocessing', scope_id=scope.id) }}">
+            <button class="btn btn-outline-secondary btn-sm">Start reprocessing cycle</button>
+        </form>
+        {% endif %}
+        <table class="table table-sm mt-3"><thead><tr><th>Started</th><th>Step</th><th>Status</th></tr></thead>
+        <tbody>{% for c in reprocessing_cycles %}<tr><td>{{ c.started_at.strftime('%Y-%m-%d %H:%M') if c.started_at else '—' }}</td><td>{{ c.current_step }}</td><td>{{ c.status }}</td></tr>{% else %}<tr><td colspan="3" class="text-muted">No cycles.</td></tr>{% endfor %}</tbody></table>
+    </div>
+</div>
+<p><a href="{{ url_for('dept_ops.scopes') }}">← All scopes</a> · <a href="{{ url_for('dept_ops.reprocessing_board') }}">Reprocessing board</a></p>
+{% endblock %}

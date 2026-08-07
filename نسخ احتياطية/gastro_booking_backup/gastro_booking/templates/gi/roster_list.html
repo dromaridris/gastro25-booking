@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ label }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('gi_roster_index') }}">← Rosters</a></p>
+<h1>{{ label }}</h1>
+<form method="GET" action="{{ url_for('gi_roster_new_month', roster_type=roster_type, year_month='2026-07') }}" id="monthForm" style="margin:12px 0;display:flex;gap:8px;align-items:end;">
+  <label>Open month<input type="month" id="ym" value="2026-07" required></label>
+  <button class="btn btn--primary btn--sm" type="button" onclick="var v=document.getElementById('ym').value; window.location='{{ url_for('gi_roster_new_month', roster_type=roster_type, year_month='YYYY-MM') }}'.replace('YYYY-MM', v);">Open</button>
+</form>
+<ul>{% for p in periods %}
+<li><a href="{{ url_for('gi_roster_edit', roster_type=roster_type, year_month=p.year_month) }}">{{ p.year_month }}</a> — {{ p.status }}{% if p.published_at %} (published {{ p.published_at[:10] }}){% endif %}</li>
+{% else %}<li class="muted">No periods yet — pick a month above.</li>{% endfor %}</ul>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% if current_user.is_authenticated %}
+<div class="gi-fab" id="giFab" aria-label="Quick actions">
+  <button type="button" class="gi-fab-toggle btn btn-primary rounded-circle" aria-expanded="false" aria-controls="giFabMenu" title="Quick actions">+</button>
+  <ul class="gi-fab-menu list-unstyled" id="giFabMenu" hidden>
+    {% set fab_actions = gi_quick_actions|default([], true) %}
+    {% for action in fab_actions[:6] %}
+    <li><a href="{{ url_for(action.endpoint, **(action.url_kwargs or {})) }}" class="btn btn-sm btn-light">{{ action.label }}</a></li>
+    {% else %}
+    <li><a href="{{ url_for('core.dashboard') }}" class="btn btn-sm btn-light">Dashboard</a></li>
+    {% if can('patient:view') %}
+    <li><a href="{{ url_for('patients.list_patients') }}" class="btn btn-sm btn-light">Patient list</a></li>
+    {% endif %}
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}

@@ -1,0 +1,534 @@
+Gastro25 — ERCP Reporting Engine: ArchitectureSpeciﬁcation
+Document type: Reverse-engineered "as-built" architecture document, produced byreading the actual source code (app.py, report_service.py, image_service.py,
+qr_service.py, print_service.py, registry_service.py, session_service.py,and every template). No proposals, no code, no redesign — this describes exactly whatexists today, and, where the code was explicitly written to be reusable, how it could
+extend to future procedures without modiﬁcation.
+A note on honesty, up front: Several sections requested in the brief (Patient master
+record, Admissions, Locked vs. Finalized as distinct states, AI/decision-supportreadiness) describe concepts that do not exist as ﬁrst-class entities in this codebase.Rather than inventing plausible-sounding descriptions of things that aren't there, this
+document states clearly, section by section, what actually exists and what does not.This is the only way this document can safely serve as an accurate speciﬁcation.
+1. Overall Architecture
+Gastro25 is a single Flask application (app.py, ~4,700 lines) backed by a single SQLitedatabase (gastro_booking.db), with no separate backend/frontend split — Flaskrenders server-side Jinja2 templates, and a small set of shared JavaScript ﬁles
+(app.js, dilatation.js) handle in-page interactivity (AJAX saves, modals, imageupload) via fetch().
+The system has two conceptual layers:
+1. The Booking Layer — a generic outpatient/procedure scheduling system(appointment table), with daily capacity rules, holiday/Sunday restrictions, and
+role-based booking permissions. This layer knows nothing about clinical content.
+2. The Procedure Reporting Layer — one or more independent "procedure modules"(currently ERCP and Endoscopic Dilatation), each with its own report table, its own
+routes, its own templates, but all built on top of a shared set of Core Services.
+Why it was designed this way: The project's own operating rule (documented
+throughout this engagement) is: "ERCP is inviolable — no modiﬁcations to ERCP behavior,routes, templates, or workﬂow under any circumstances." This constraint is the reasonthe architecture evolved the way it did: rather than one shared, generic "procedure" table
+that both ERCP and Dilatation write into (which would risk ERCP behavior changingwhen Dilatation is touched, or vice versa), the actual implementation gives every
+procedure module its own complete, independent set of tables, routes, and templates,and shares logic only through a layer of small, generic, side-effect-free helper modules
+(the Core Services) that neither module owns and that don't encode any procedure-speciﬁc business rule.
+This is a deliberate trade-off: duplication of route/JS logic across modules is acceptedas the cost of guaranteeing that ERCP can never be broken by a change made for adifferent procedure. This is documented explicitly in the codebase's own comments
+and was an explicit instruction throughout this project's development: "Do NOT mergeduplicated ERCP/Dilatation functions yet... at this stage stability is much more important
+than reducing duplicate code."
+2. Folder Structure
+There is no src/, backend/, frontend/ split. Everything sits ﬂat in one deploymentdirectory (matching the PythonAnywhere "upload ﬂat ﬁles" deployment model
+documented in DEPLOY_PYTHONANYWHERE.md):
+Path Responsibility Owned by
+app.py
+The entire application: routes, business logic,
+schema deﬁnition (init_db()), narrativegenerators, validation.
+Application-s
+not reusable.
+report_service.py
+Generic report lifecycle:
+create/save/ﬁnalize/unlock/status, report
+number generation. Knows nothing about
+clinical ﬁelds.
+Core Service 
+procedure-ag
+image_service.py
+Generic image
+upload/compression/storage/retrieval/deletion
+for any slot-based image gallery.
+Core Service 
+qr_service.py Generic QR code generation for any URL. Core Service 
+print_service.py
+One small helper (split_team_names) plus aset of shared Jinja partials (see below) for
+print-page assembly.
+Core Service 
+registry_service.py
+Generic
+listing/ﬁltering/sorting/pagination/Excel-
+export infrastructure (Column dataclass +helper functions), with zero procedure-speciﬁc
+SQL.
+Core Service 
+Path Responsibility Owned by
+session_service.py
+Generic "session numbering" (Session 1,
+Session 2...) for a patient's repeat visits withinone procedure type, plus repeat-of linkage. Core Service 
+config.py One constant: CALENDARIFIC_API_KEY. Not
+part of the reporting engine. Infrastructure
+sync_holidays_task.py
+Standalone script for PythonAnywhere's
+scheduled-task feature; duplicates a smallamount of holiday-fetch logic from app.py
+intentionally, since it must run without the
+Flask app active.
+Infrastructure
+reporting.
+Templates (ﬂat .html ﬁles,
+e.g. ercp_report.html,
+dilatation_report.html,
+_print_header.html,
+_followup_modal.html)
+Presentation layer. Files preﬁxed with _ are
+partials, meant to be {% include %}'d, never
+routed to directly.
+Mixed — som
+procedure-spsome (the
+_print_*.h
+partials) are C
+Service partia
+static/js/app.js
+Shared frontend logic: booking modal,
+reschedule modal, follow-up modal(parameterized by endpoint), repeat-ERCP
+modal, ERCP report editor, dashboard/calendar
+rendering, the unsaved-changes guard.
+Shared, but cERCP-speciﬁc
+functions
+(initErcpRe
+alongside gen
+generic ones(initFollow
+initBookin
+static/js/dilatation.js
+Dilatation-speciﬁc frontend logic, loaded in
+addition toapp.js on Dilatation pages only.
+Mirrors app.js's ERCP editor functionsclosely (parallel, not shared, implementation).
+Procedure-sp
+static/css/style.css
+One global stylesheet for the entire application
+(screen + print), organized by feature area via
+comment-delimited sections.
+Shared.
+ercp_images/,
+dilatation_images/
+Flat on-disk directories foruploaded/compressed images, one per
+procedure module, created via
+os.makedirs() at startup.
+Procedure-spstorage, sam
+image_serv
+engine.
+Dependency direction:app.py imports and calls into every Core Service. No CoreService imports app.py or references any procedure-speciﬁc table/column name.
+This is the actual mechanism that makes the Core Services reusable — they take tablenames, column names, and directory paths as parameters, never hardcoded.
+3. Database Architecture
+Engine: SQLite, accessed via Python's built-in sqlite3 module (no ORM). Schema isdeﬁned entirely inside init_db() in app.py via one large executescript() call
+(fresh-install schema) followed by a series of idempotent ALTER TABLE ... ADD
+COLUMN migration blocks that run on every app start and check PRAGMA table_info()
+before altering, so re-running init_db() against an already-migrated database is
+always safe.
+3.1 Every table, with relationships
+user (standalone — no FK to anything)  id, username, full_name, password_hash, role, is_approved, created_at
+appointment (standalone — no FK to anything)  id, patient_name, gender, age, phone, mrn, clinical_notes,
+  on_admission_hb, platelet, inr, total_bilirubin, ggt, alp, tlc,  comorbs_etiology, referral, procedure_type, appointment_date,  is_bleeding, is_override, no_show,  booked_by_username, booked_by_role, created_at,  repeat_of_appointment_id  -- self-referential, points to another 
+appointment.id
+holiday (standalone)  id, holiday_date, name, source, created_at
+endoscopist (standalone)  id, full_name, title_lines, is_active, created_at
+settings (standalone, single-row table, id is always 1)  id, global_upper_gi_cap, global_colono_cap, global_peg_cap,  scheduler_upper_gi_cap, scheduler_colono_cap, warning_threshold
+──  ERCP module ──────────────────────────────────────────────ercp_report  FK: appointment_id →  appointment.id   (UNIQUE — one report per appointment)
+  FK: endoscopist_id →  endoscopist.id  ~65 clinical/lifecycle columns
+ercp_report_image  FK: report_id →  ercp_report.id
+  id, slot (1-8), filename, uploaded_by, uploaded_at  Application-level UNIQUE(report_id, slot) enforced by an upsert 
+pattern
+ercp_followup
+  FK: report_id →  ercp_report.id  id, followup_date, clinical_notes, histopathology_result, lab_results,  imaging_results, clinical_status, outcome, management_plan, free_notes,  created_by, created_at, updated_by, updated_at
+ercp_research  FK: report_id →  ercp_report.id   (UNIQUE — one research row per report)  fluoro_time_sec, contrast_volume_ml, stone_clearance, pd_findings,  pd_intervention, device_details, procedure_duration_min, asa_class,
+  complication_severity, disposition, followup_plan,  ampullary_appearance, ampullary_appearance_other, papilla_orientation,  papilla_accessibility, difficult_cannulation, time_to_cannulation_min,  cannulation_attempts, unintentional_pd_cannulation,  -- plus 6 legacy columns (cbd_diameter_mm, stone_size_mm, stone_count,
+  -- papilla_location, cannulation_outcome, cannulation_techniques) that  -- the application no longer writes new user input into — see Section 13.
+──  Dilatation module ────────────────────────────────────────
+dilatation_report  FK: appointment_id →  appointment.id   (UNIQUE)  FK: endoscopist_id →  endoscopist.id  ~40 clinical/lifecycle columns, structurally parallel to ercp_report  but with a completely independent, dilatation-specific field set
+dilatation_report_image   -- identical shape to ercp_report_image, FK → dilatation_report.id, slots 1-6dilatation_followup        -- identical shape to ercp_followup, FK → dilatation_report.iddilatation_research        -- FK →  dilatation_report.id (UNIQUE), 
+dilatation-specific research fields
+3.2 Indexes
+appointment(appointment_date), appointment(mrn)
+holiday(holiday_date)ercp_report(appointment_id), ercp_report_image(report_id), ercp_followup(report_id)dilatation_report(appointment_id), dilatation_report_image(report_id),dilatation_followup(report_id), dilatation_research(report_id)
+Every FK column used to join back from a child table to its parent report is indexed.
+appointment.mrn is indexed because it's the join key session_service.py uses for
+cross-visit patient linking (see Section 4). appointment.appointment_date is indexedbecause daily-capacity counting queries ﬁlter on it directly.
+3.3 Metadata / status / versioning
+Status ﬁeld: Both ercp_report.status and dilatation_report.status hold
+exactly two values: 'draft' or 'finalized' (constants
+STATUS_DRAFT/STATUS_FINALIZED in report_service.py). There is no third
+state.
+Audit columns:created_by/created_at, finalized_by/finalized_at,
+unlocked_by/unlocked_at, updated_at — all plain text/timestamp columns, no
+separate audit-log table. There is no row-level history/versioning table anywhere inthe schema — an UPDATE simply overwrites the previous value; nothing is
+preserved. This means: if a ﬁnalized report is unlocked and edited, the originalﬁnalized content is not retained anywhere once the new save happens.
+No soft-delete / archival column exists.DELETE FROM appointment is a hard
+delete (used by api_delete_appointment). Reports are never deleted through anyroute in the code.
+3.4 What does NOT exist in the database
+No patient table.
+No admission table.
+No procedure table separate from each module's own _report table.
+No generic audit_log table.
+No room table.
+No versioning/history table for any entity.
+4. Patient Architecture
+This is the most important structural fact in the entire system: there is no canonical
+Patient entity.
+Patient identity (patient_name, gender, age, phone, mrn) is stored as plain
+columns directly on the appointment row, repeated on every single booking. There isno patient_id foreign key anywhere in the schema, because there is no patient
+table to point to.
+4.1 How a patient is created
+Implicitly, the moment a booking is made (api_book). There is no separate "register a
+patient" step. Every appointment carries its own independent copy of the demographicﬁelds.
+4.2 How a patient "becomes unique"
+It doesn't, structurally. Uniqueness is not enforced anywhere:
+mrn is explicitly optional (payload.get('mrn') or '') and has no UNIQUE
+constraint.
+There is no check anywhere in api_book or api_edit_appointment for an existingpatient with the same name or MRN before inserting a new appointment row.
+Two different appointments for the objectively same real-world patient are onlyrelated to each other if their mrn strings happen to match exactly (case-sensitive,whitespace-sensitive string equality) — there is no fuzzy matching, no patient-merge
+tool, no canonical-ID resolution.
+4.3 How appointments connect to each other (the actual "patient timeline"
+mechanism)
+session_service.py's list_sessions(dbconn, procedure_type, mrn,
+fallback_row=None) is the entire mechanism:
+SELECT * FROM appointment WHERE procedure_type = ? AND mrn = ? ORDER BY appointment_date, id
+This is a live, on-demand query — nothing is precomputed or cached. Every time a
+Patient Overview page loads, this query re-runs from scratch. If mrn is blank on thecurrent appointment, list_sessions falls back to returning a single-row list containing
+just that one appointment (fallback_row) — meaning a patient with no MRN on ﬁlecan never be cross-linked to their own other visits, by design (the UI explicitly warnsabout this).
+number_sessions() then assigns 1-indexed session numbers purely by array positionin that date-ordered list — there is no stored session number anywhere; it is
+recalculated fresh every time.
+4.4 How reports connect
+A report connects to its appointment via ercp_report.appointment_id /
+dilatation_report.appointment_id (one-to-one, enforced UNIQUE). A report doesnot connect directly to "the patient" — it connects to one speciﬁc appointment, and the
+patient-level view (Patient ERCP/Dilatation Overview) is reconstructed by ﬁrst ﬁnding allappointments sharing the same MRN + procedure_type, then joining each one to its
+own report if it exists.
+4.5 How admissions connect
+They don't — there is no admission concept anywhere in this system. Gastro25 ispurely an outpatient/procedure-booking-and-reporting system. There is no inpatient
+ward, bed, or admission entity.
+4.6 How procedures connect
+Each procedure type is its own completely separate table family (ERCP's four tables,Dilatation's four tables). The only thing that connects "an ERCP visit" to "a Dilatation
+visit" for the same real patient is, again, a matching mrn string on their respective
+appointment rows — and even that connection is never actually surfaced in the UI
+(Patient ERCP Overview only ever queries procedure_type = 'ercp'; it never shows apatient's Dilatation history alongside their ERCP history, or vice versa). Cross-procedurepatient history does not exist as a feature.
+4.7 How research connects
+ercp_research/dilatation_research connect to their own report via report_id,
+one level removed from the appointment, two levels removed from any patient concept.
+4.8 How future modules would connect
+A future procedure module (e.g., Colonoscopy) would follow the exact same patternalready used twice: its own colonoscopy_report table with appointment_id FK, itsown procedure_type string value in the shared appointment.procedure_type
+column, and it would automatically gain patient-timeline capability for free by calling
+session_service.list_sessions(dbconn, 'colonoscopy', mrn) — the service is
+already fully generic and requires zero modiﬁcation to support a new procedure typestring.
+4.9 How duplicate patients are avoided
+They are not avoided. This is conﬁrmed by direct code inspection, not an oversight inthis document — no duplicate-detection logic exists at any layer.
+5. Registry Architecture
+A "registry" in this codebase means: a ﬁlterable, paginated, Excel-exportable listing ofprocedure sessions, built entirely on registry_service.py's generic primitives:
+Column(key, label, formatter=None, width=None)   # one dynamic column definitionfilter_by_date_range(rows, date_key, start_iso, end_iso)search_rows(rows, columns, term)sort_rows(rows, sort_key, descending=False)
+paginate(rows, page, per_page)build_excel_workbook(rows, columns, sheet_title=..., header_fill_color=...)
+None of these functions contain any SQL or any knowledge of "ERCP" or "Dilatation" —they operate purely on Python lists of dict-like rows and a list of Column objects
+supplied by the caller.
+5.1 How the ERCP Registry is built
+get_ercp_research_registry_rows() /
+get_ercp_research_registry_export_rows() in app.py: a raw SQL query joins
+appointment + ercp_report + endoscopist + ercp_research, scoped to
+procedure_type = 'ercp' and a date range, then session_service is usedseparately to compute each row's session number and "total sessions for this patient"
+by re-querying the patient's full history. The on-screen page(ercp_research_registry.html) uses the nested row shape (entry.appointment,
+entry.report, entry.research); the Excel export uses a separate, ﬂattened querybecause registry_service.Column.value_for() needs ﬂat dict-style key access.
+5.2 How the Dilatation Registry is built
+Same overall pattern (get_dilatation_registry_rows), but architecturally moreadvanced: it is a single ﬂat query used for both the on-screen table and the export (no
+separate nested/ﬂat versions), and it supports live ﬁltering (patient search, site,technique, endoscopist, success, complication) applied in Python after the base query,plus real pagination via registry_service.paginate(). The ERCP registry does not
+have this — it is a simpler date-range-only listing with no live ﬁlter form. These tworegistries are not built the same way — Dilatation's is the more evolved implementation.
+5.3 How every procedure could have its own registry
+The pattern is already proven twice with two independently-evolved implementations. A
+future module's registry would: (1) write its own base SQL query joining its ownreport/research tables, (2) deﬁne its own Column list, (3) reuse session_service forsession numbering exactly as both existing registries do, (4) call
+registry_service.build_excel_workbook() unchanged for export. No change to
+registry_service.py itself would be needed.
+5.4 How registries relate to the same patient
+Only loosely, and only within one procedure type at a time (see Section 4.6) — there is
+no uniﬁed "all registries for this patient" view.
+5.5 How registry objects relate to reports
+Directly — every registry row is built from a live join against the report table; there is noseparate "registry record" persisted anywhere. Registries are views over existing data,never their own data store.
+5.6 How registry objects relate to follow-up
+They don't, currently. Neither the ERCP Registry nor the Dilatation Registry query ordisplay any follow-up data.
+5.7 How registry objects relate to research
+Directly — the ERCP registry's export explicitly reads most of its columns from
+ercp_research (plus several now-redundant ones sourced from ercp_report directly
+— see Section 13). The Dilatation registry currently does not join
+dilatation_research at all — it only exposes report-level ﬁelds, not research-level
+ﬁelds, in its Column list.
+6. Follow-up Architecture
+ercp_followup / dilatation_followup — structurally identical tables (same 14columns), completely independent design from the report they attach to.
+6.1 How follow-up visits are stored
+A ﬂat table, report_id FK, followup_date, and free-text/select ﬁelds
+(clinical_status, outcome, clinical_notes, histopathology_result,
+lab_results, imaging_results, management_plan, free_notes). Unlimited rowsper report — no cap, no uniqueness constraint on (report_id, followup_date), so
+multiple follow-up entries on the same date are allowed.
+6.2 How new visits connect to previous procedures
+Every follow-up row belongs to exactly one speciﬁc report (report_id), not to "thepatient" — a follow-up is scoped to the single procedure session it documents. There is
+no follow-up-to-follow-up chaining and no follow-up that spans multiple proceduresessions.
+6.3 How recurrence is handled
+There is no recurrence/scheduling engine for follow-up. A follow-up is a manually-created record after the fact; there is no reminder, no due-date tracking, no automatic
+recurrence generation.
+6.4 How surveillance is handled
+Not handled as a distinct concept. dilatation_research.followup_interval and
+dilatation_research.need_repeat_dilatation are free-text/select ﬁelds an
+endoscopist can ﬁll in manually; nothing in the code reads them to drive any actualscheduling or alerting behavior.
+6.5 How longitudinal history is built
+The Patient ERCP/Dilatation Overview page is the only place this happens. It: (1) calls
+session_service.list_sessions() to get every appointment sharing the MRN, (2) foreach, joins its report (if any) and all its follow-up rows, (3) builds a single ﬂat
+timeline_events list mixing {'type': 'session', ...} and {'type':
+'followup', ...} dicts, (4) sorts that combined list by date (sessions sort before
+follow-ups on the same date). This is computed fresh on every page load — nothing iscached or precomputed.
+6.6 How future visits remain linked forever
+Purely through the MRN string match — there is no expiry, no cap on lookback window;
+list_sessions() returns the patient's entire history for that procedure type every time,
+unbounded.
+6.7 How timeline is maintained
+It isn't "maintained" in the sense of a stored object — it is recomputed from scratch onevery request. There is no background job, no materialized view, no cache invalidationconcern, because nothing is ever stored.
+7. Clinical Timeline
+Directly follows from Section 6: "the timeline" is not a stored artifact anywhere in thedatabase — it is a runtime projection built at request time, scoped to one MRN and one
+procedure type at a time. Clinicians navigate it by opening the Patient Overview pagefrom an existing report (via a " 📁  Patient ERCP/Dilatation Overview" link) or via theglobal Search feature (/search, matches by name/MRN/exact date, then links into the
+same overview page). There is no year-spanning, cross-procedure "one view ofeverything for this patient" — each procedure module's timeline is siloed to that module.
+8. Report Lifecycle
+The actual implemented lifecycle, per report_service.py, has exactly two states, notthe nine implied by the brief(Draft/Saved/Completed/Finalized/Locked/Unlocked/Edited/Printed/Archived):
+STATUS_DRAFT = 'draft'STATUS_FINALIZED = 'finalized'
+Requested
+concept What actually exists
+Draft status = 'draft'. Created automatically and lazily the ﬁrst time thereport page is opened, never by an explicit "start a new report" action.
+Saved
+Not a separate state — every POST .../save call just updates
+updated_at and whatever ﬁelds were sent, while status stays
+'draft'.
+Completed Does not exist as a distinct state from Finalized.
+Finalized
+status = 'finalized', finalized_by/finalized_at set.
+Requires an Endoscopist to be selected ﬁrst, or the route rejects the
+request. Once ﬁnalized, the save route itself refuses further writes (403),
+and the template renders the whole <fieldset> as disabled.
+Locked Not a separate state from Finalized — "locked" in the UI copy is just user-facing language for the same status = 'finalized' value. There is
+no independent lock ﬂag.
+Unlocked
+Reverts status back to 'draft', records
+unlocked_by/unlocked_at. Admin-only. The previous ﬁnalized
+content is not preserved anywhere — this is a plain UPDATE.
+Edited
+Any POST .../save while status = 'draft'. No distinction is
+made between "ﬁrst-time draft edit" and "re-edit after unlock" other than
+the presence of unlocked_by/unlocked_at on the row.
+Printed
+Not a stored state at all.GET .../print is a pure read-only render — it
+never writes to the database. A report can be printed any number oftimes, in either status, with zero record kept of when/how often it was
+printed.
+Archived Does not exist. There is no archival ﬂag, no soft-delete, and reports are
+never deleted through the application.
+Every transition that does exist:
+(none) --[first page open]--> draftdraft --[save]--> draftdraft --[finalize, requires endoscopist_id]--> finalizedfinalized --[unlock, Admin only]--> draft
+That is the complete state machine. Follow-up and research data are explicitly outsidethis state machine — both remain editable regardless of the parent report's status.
+9. Narrative Generation Engine
+There is no shared/generic narrative engine — ERCP and Dilatation each have their owncomplete, independent set of narrative-building functions in app.py, following the
+same overall pattern but sharing almost no code (the one genuinely shared helper is
+_join_natural(items), a small "a, b, and c" list-joiner used by both).
+9.1 How structured ﬁelds become narrative (ERCP,
+generate_procedure_note(fields))
+A ﬁxed pipeline of small, single-responsibility builder functions, each returning either asentence string or an empty string, appended in order to a parts list, which is then '
+'.join()'d into the ﬁnal note:
+1. build_duodenoscope_sentence() — advancement diﬃculty →  phrase, via a lookupdict (DUODENOSCOPE_ADVANCEMENT_PHRASES).
+2. build_papilla_sentences() — up to two sentences: access/location, thenHaraldsson morphology classiﬁcation.
+3. build_cannulation_sentence() — branches explicitly on whether cannulation
+failed; if failed, describes rescue techniques attempted and explicitly states biliaryaccess was not achieved.
+4. build_guidewire_sentence() — conditional, only if a guidewire was recorded asused.
+5. Conditional branch on cannulation outcome: if failed, a ﬁxed sentence states no
+cholangiography/therapeutic intervention/stent placement occurred; if succeeded,
+build_cholangiogram_sentence(), build_therapeutic_paragraph(),
+describe_stent_placement() run.
+6. Biopsy sentence (conditional on biopsy != 'Not taken').
+7. Complications sentence, or a ﬁxed "no immediate complications" sentence, or (if
+cannulation failed) a ﬁxed sentence recommending alternative biliary accessstrategies.
+9.2 Grouping logic — the cholangiogram sub-engine
+build_cholangiogram_sentence() is itself a small pipeline: special-cases "Normal
+cholangiogram" as a single ﬁxed sentence; otherwise composes up to three structuredfragments (describe_biliary_dilatation(), describe_stricture(),
+describe_filling_defects()), then appends any remaining "leftover" checked
+ﬁndings as a generic trailing clause.
+9.3 Ordering and conditionals
+Sentence order is hardcoded by the literal order of .append() calls — there is noconﬁgurable ordering, no priority system, no template-driven sentence assembly. There
+is no generalized "negative ﬁndings" subsystem — negative statements only exist wherea speciﬁc builder function was explicitly written to emit them.
+9.4 Medical terminology
+Hardcoded in per-value lookup dictionaries throughout app.py
+(THERAPEUTIC_PHRASES, CANNULATION_PHRASES, STENT_TYPE_SHORT_TEXT,
+STENT_DEPLOYMENT_TEXT, etc.).
+9.5 Alarm features / assessment / plan
+No "alarm features" concept exists. "Impression" and "Recommendations" are plain
+free-text ﬁelds typed directly by the endoscopist — no auto-generation for either, unlikethe Procedure Note itself.
+9.6 The Dilatation narrative engine (independent implementation)
+generate_dilatation_procedure_note() follows the same shape but is a separatelywritten function: build_dilatation_introduction(),
+build_stricture_detail_sentence(), then a hard branch on
+immediate_technical_success == 'Failed' calling either
+build_dilatation_failure_paragraph() or the technique-speciﬁc
+build_balloon_paragraph()/build_savary_paragraph(), ending with
+build_dilatation_complications_sentence() and
+build_dilatation_conclusion().
+10. Dynamic Forms
+There is no generic "form schema" or "ﬁeld registry" system — every form ﬁeld is hand-written HTML in each report's template, with visibility controlled by small, individually
+hand-written JavaScript toggle functions (e.g. setupStentFieldsToggle(),
+setupGuidewireFieldsToggle(), setupSphincteroplastyFieldsToggle(),
+setupBalloonDilationFieldsToggle(), setupFailureReasonToggle() in Dilatation).Each follows the identical hand-coded pattern: ﬁnd a trigger element, ﬁnd a container
+<div>, toggle .hidden on change/click, call once on page load.
+Conditional sections in ERCP: Stent detail ﬁelds, Guidewire size, Sphincteroplasty size,Balloon Dilation location+size.
+Conditional sections in Dilatation: Balloon vs. Savary-Gilliard technique ﬁelds, FailureReason.
+Required vs. optional ﬁelds: Not declared as metadata anywhere. The report editors
+have no ﬁeld-level required validation on the frontend; the only server-side lifecyclerequirement is "an endoscopist must be selected before ﬁnalize."
+Reusable ﬁeld architecture: Does not exist as an abstraction. YES_NO_OPTIONS isdeﬁned once and reused by both modules; several Dilatation option lists reuse ERCP-
+deﬁned generic lists (FOLLOWUP_CLINICAL_STATUS_OPTIONS,
+FOLLOWUP_OUTCOME_OPTIONS) — but there is no dynamic-ﬁeld-deﬁnition system.
+11. Printing Architecture
+Each procedure's print page is a fully standalone HTML document — it does not extend
+base.html, has its own <html>/<head>/<body>, opened via target="_blank".Both link the same global style.css.
+11.1 Shared partials (Print Service)
+_print_header.html, _print_team_block.html, _print_signature_block.html,
+_print_qr_block.html, _print_image_grid.html — all parameterized entirely viaJinja variables.
+Actual usage is inconsistent between the two modules:dilatation_print.html usesall ﬁve as intended. ercp_print.html does not — it reimplements the header andsignature block as inline Jinja macros, and merges Procedural Team ﬁelds directly into
+the Procedure Information table. This divergence is deliberate/accepted — targetedlayout work (letterhead mode, pagination engine, merged team table) was applied onlyto ERCP per explicit instruction.
+11.2 Pagination engine (ERCP only, currently)
+Because standard browsers expose no API for "how much vertical space remains on
+the current printed page," the mechanism is: (1) every content block has page-break-
+inside: avoid in CSS, guaranteeing no block is split mid-content; (2) a JS function
+(fitErcpReportToTwoPages) runs on page load, measures the actual rendered heightof the page-1 content wrapper against a calculated page-height budget (derived fromthe known @page size/margins), and, if page 1 overﬂows, moves whole DOM sections
+(Impression+Recommendation combined block ﬁrst, then Procedure Note) into anoverﬂow slot at the top of the images page.
+Known limitation: this guarantees no split content and no orphan/widow singlelines (via CSS orphans/widows) for realistic report lengths, but cannotmathematically guarantee exactly two pages for unbounded text without truncating
+or shrinking — neither of which the system does.
+11.3 Legal page numbering
+Static text ("Page 1 of 2" / "Page 2 of 2"), not CSS Paged Media counters (unreliablecross-browser support for total page count was the reason this approach was rejected).
+11.4 Letterhead mode
+A second print button that dynamically injects a <style> tag overriding @page toLetter size with margins matching the department's actual pre-printed stationery(~49mm top, 25mm elsewhere), hiding .ercp-print-header on every page.
+Implemented identically in both print templates.
+11.5 Images on the print page
+ercp_print.html iterates only actually-uploaded images, sorted by slot, no blankplaceholder cells. dilatation_print.html, via the shared partial, still uses the older
+ﬁxed-slot-with-blanks pattern — not changed to match ERCP's newer behavior.
+12. Image Architecture
+Entirely generic, in image_service.py, parameterized by table name, FK column,directory, and slot count — used identically by both modules.
+Upload:compress_and_save() — Pillow, RGB conversion, thumbnail() to a maxdimension, JPEG save at a given quality. Both modules use the same constantsdespite the ERCP-preﬁxed name (explicitly noted as intentional reuse).
+Storage: Flat ﬁlesystem directories, ﬁlenames
+{prefix}_{entity_id}_slot_{slot}.jpg.
+Ordering:ordered_slots() returns a ﬁxed slot sequence, used by both editors andDilatation's print grid; ERCP's print grid no longer uses this.
+Retrieval: gated by the same @roles_required decorator as the report itself.
+Slot count differs by module: ERCP = 8, Dilatation = 6 — intentional, not aninconsistency to ﬁx.
+Upsert semantics: re-upload to a ﬁlled slot replaces the record, never creates asecond row.
+Lock interaction: upload/delete blocked once status == 'finalized'.
+13. Research Architecture
+13.1 Which ﬁelds are clinical vs. research
+"Clinical" ﬁelds live on the report tables and feed the printed report and narrative.
+"Research" ﬁelds live on the research tables, are never printed (structural absence, not aruntime ﬁlter), and remain editable even after ﬁnalization.
+13.2 How both coexist — and the one signiﬁcant exception
+Six columns on ercp_research (cbd_diameter_mm, stone_size_mm, stone_count,
+papilla_location, cannulation_outcome, cannulation_techniques) were
+originally independently-entered duplicates of facts already on ercp_report. Per anexplicit "one clinical fact, entered once" decision made during this project, the
+application now auto-copies the report's own values into these six columns on everysave, and the corresponding input elements were removed from the Research Datasection. The columns were deliberately kept in the schema so any code reading
+ercp_research directly still ﬁnds populated values — this was an explicit choice, notan oversight.
+Dilatation's research table has no equivalent duplication, with one ﬂagged-but-unresolved exception: estimated_diameter_before/after_mm visually overlaps withthe report's own balloon diameter ﬁelds — left as-is pending clariﬁcation of intent.
+13.3 How future studies would reuse the same data
+Via the same registry/export pattern (Section 5) — there is no separate research data
+warehouse or analytics layer.
+14. Workﬂow Architecture
+Booking created (api_book)   │   writes: appointment row only. No report exists yet.   ▼
+Report opened for the first time (GET /ercp/<appointment_id>)   │   lazily inserts ercp_report (status=draft) + blank ercp_research   │   + pre-fills lab fields from the appointment's booking-time labs (once)   ▼
+Draft editing (POST /ercp/<report_id>/save, repeatable)   │   writes report fields + auto-syncs the 6 research columns   ▼Images uploaded — any time before finalize   ▼
+Narrative generated (stateless preview; not saved until next /save)   ▼Finalization — requires endoscopist_id; status →  finalized   ▼Printing — read-only render, any time, any number of times   ▼
+Registry — read-only, joins appointment + report + research + endoscopist   ▼Follow-up — independent of finalize status, unlimited entries, any time
+"Research" is not a downstream step after Finalization — it happens concurrently withdrafting (auto-synced on every save) and remains editable indeﬁnitely afterward.
+15. Universal Procedure Architecture
+What genuinely is procedure-agnostic today (proven by being used identically by twoindependently-built modules): report_service.py, image_service.py,
+qr_service.py, registry_service.py, session_service.py — all 100% generic.
+print_service.py's ﬁve shared partials are generic by design, though ERCP currentlyopts out of three of them.
+What is NOT generic today, and would need to be hand-written again for every newprocedure:
+The report table schema itself.
+Every route (report view/save/generate-note/ﬁnalize/unlock/imageCRUD/print/followup CRUD/repeat/patient-overview/registry/export) — hand-
+duplicated per module.
+The narrative generator — entirely bespoke code per procedure.
+The report editor template and its JS toggle functions.
+The print template.
+Given this, the honest answer to how EUS, Capsule Endoscopy, FibroScan, EMR, ESD,
+APC, Polypectomy, Stenting, etc. would integrate today: each would require adeveloper to manually build its own report table + routes + templates + narrativegenerator, reusing the ﬁve/six Core Services without modiﬁcation. There is no code-
+generation, no schema-driven form builder, and no procedure-registration mechanismthat would let a new procedure "plug in" without writing a comparable volume of new
+code to what ERCP and Dilatation each required.
+16. Reusable Engines — Inventory
+Engine File Genuinely generic? Reused by
+Report Engine report_service.pyYes, fully ERCP,
+Dilatation
+Image Engine image_service.pyYes, fully ERCP,
+Dilatation
+QR Engine qr_service.pyYes, fully ERCP,
+Dilatation
+Engine File Genuinely generic? Reused by
+Print Engine print_service.pyYes, by design Dilatation fully;
+ERCP partially
+Registry Engine registry_service.pyYes, fully
+ERCP,
+Dilatation
+(independently-
+evolved query
+layers)
+Session/Timeline
+Engine session_service.pyYes, fully ERCP,
+Dilatation
+Follow-up Engine(does not exist as a
+service)
+No — CRUD routes
+hand-duplicated in
+app.py despiteidentical table shape
+N/A
+Narrative Engine (does not exist as a
+service)
+No — one complete
+independent
+implementation per
+module
+N/A
+Validation Engine(does not exist as aservice)
+No —
+validate_booking()
+is one large function
+with if/elif per
+procedure type
+N/A
+Workﬂow Engine (does not exist)
+No formal state-
+machine abstraction —
+enforced by scattered
+per-route if checks
+N/A
+17. Clinical Intelligence Readiness
+No AI, machine learning, decision-support, or knowledge-library code exists anywherein this codebase. This section can only describe structural properties relevant to anyfuture such work, without implying any of it has begun:
+Clinical ﬁndings are captured as discrete, typed, structured ﬁelds for most of thereport — a prerequisite for any future structured-data-reading feature. The threenarrative ﬁelds (procedure_note, impression, recommendations) remain plain
+free text with no structure.
+The narrative generator demonstrates structured-ﬁeld →  text logic centralized innamed functions, but no hook or extension point exists for anything to attach to.
+The Registry Excel export already produces a clean, ﬂat, denormalized dataset —the shape a future analytics pipeline would need, but no pipeline exists.
+There is no patient-summary generation of any kind, structured or narrative.
+18. Architectural Philosophy
+"ERCP is inviolable" was the dominant design force. Every duplication-lookingchoice traces back to this rule.
+"Extend, never replace" — every change was additive (new columns, new routes,new templates) rather than in-place modiﬁcation.
+Duplication was an accepted, explicit trade-off, not an oversight. An earlier audit inthis project identiﬁed ~11 near-identical route pairs and 2 duplicated JS functions;the recorded decision was to defer consolidation until "all procedure modules are
+ﬁnished" (which has not happened — no third module exists).
+The Core Services were carved out speciﬁcally to keep the truly generic, risk-freeparts shared from day one, accepting duplication only in the procedure-speciﬁc
+business logic layer where sharing would create cross-module coupling risk.
+Print-layout work was scoped surgically to ERCP only on explicit instruction —
+which is why the two print templates are no longer structurally consistent with eachother; documented here as fact, not ﬂagged as a defect.
+No speculative infrastructure was built, with one exception:
+session_service.next_session_number() exists, unused, explicitly noted in itsown docstring as being there for "any future UI."
+MASTER BLUEPRINT FOR ALL FUTURE ENDOSCOPY
+MODULES
+(This describes the pattern ERCP and Dilatation already demonstrate, as a reusablechecklist — not a new design.)
+1. Universal Report Engine — Create <procedure>_report with appointment_id FK
+(UNIQUE) + endoscopist_id FK + the generic lifecycle columns
+report_service.py expects. Call its four functions unchanged.
+2. Universal Registry Engine — One SQL query + a Column list +
+registry_service.build_excel_workbook(). Decide deliberately between ERCP'ssimpler pattern and Dilatation's more advanced live-ﬁlter pattern — they currently
+differ.
+3. Universal Follow-up Engine — Create <procedure>_followup with the same 14-column shape; hand-write the CRUD routes following either existing module as a
+template (no shared service exists to call into).
+4. Universal Patient Timeline — Call
+session_service.list_sessions()/.number_sessions() unchanged with thenew procedure_type string.
+5. Universal Research Layer — Decide up front which facts are report-duplicates-to-
+auto-sync (ERCP precedent) versus genuinely independent (Dilatation precedent) —this was decided after the fact for ERCP and required a corrective change.
+6. Universal Print Engine — Use all ﬁve shared partials as Dilatation does, unlessthere's a speciﬁc, explicit reason to diverge as ERCP did.
+7. Universal Narrative Generator — No engine to call; write
+generate_<procedure>_procedure_note() following the demonstrated ordered-sentence-builder pattern by hand.
+8. Universal Procedure Framework — Does not exist as an importable abstraction;
+"the framework" is the six Core Services plus this hand-replicated pattern.
+9. Universal Image Manager — Call image_service.py unchanged with new
+table/directory/slot-count parameters.
+10. Universal Workﬂow — No engine to plug into; the two-state lifecycle from Section 8is the entire workﬂow.
+11. Universal Clinical Record — Does not exist; a new module's data will be exactly assiloed from ERCP/Dilatation as they are from each other, unless separate, deliberate
+work builds a genuine cross-procedure patient entity — which nothing in the currentcodebase implies or prepares for.
+ERCP remains the most feature-rich reference implementation. Dilatation is the more
+architecturally consistent reference for using the Core Services without deviation. Anew module should study both and explicitly decide, feature by feature, which
+precedent to follow — the codebase does not enforce a single canonical answer.

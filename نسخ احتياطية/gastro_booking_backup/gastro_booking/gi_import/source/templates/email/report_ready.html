@@ -1,0 +1,14 @@
+{% extends "email/base.html" %}
+{% block email_body %}
+<h1 style="font-size:20px;color:{{ branding.primary_color }};margin:0 0 12px;">Report Ready</h1>
+<p>Dear {{ patient_name }},</p>
+<p>Your clinical report from {{ branding.hospital_name }} is now available.</p>
+<ul>
+    <li><strong>Report:</strong> {{ report_number }}</li>
+    <li><strong>Procedure:</strong> {{ procedure_type }}</li>
+    <li><strong>Date:</strong> {{ procedure_date }}</li>
+</ul>
+{% if report_url %}
+<p><a href="{{ report_url }}" style="display:inline-block;padding:12px 20px;background:{{ branding.primary_color }};color:#ffffff;text-decoration:none;border-radius:4px;">View Report</a></p>
+{% endif %}
+{% endblock %}

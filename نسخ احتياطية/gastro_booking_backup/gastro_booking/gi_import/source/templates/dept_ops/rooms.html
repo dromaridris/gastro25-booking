@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Room Management{% endblock %}
+{% block content %}
+<h1>Endoscopy Room Management</h1>
+
+<h2 class="h5">Today's room schedule</h2>
+{% for room_id, data in calendar.schedules.items() %}
+<div class="mb-3">
+    <strong>{{ data.room.name }}</strong>
+    <div class="d-flex flex-wrap gap-1 mt-1">
+    {% for slot in data.slots %}
+        <span class="badge bg-primary">{{ slot.start_at.strftime('%H:%M') }}–{{ slot.end_at.strftime('%H:%M') }} {{ slot.title or '' }}</span>
+    {% else %}
+        <span class="text-muted small">No slots booked</span>
+    {% endfor %}
+    </div>
+</div>
+{% endfor %}
+
+{% if can('dept_ops:room_manage') %}
+<h2 class="h6 mt-4">Book room slot</h2>
+<form method="POST" action="{{ url_for('dept_ops.book_room_slot') }}" class="row g-2 mb-4">
+    <div class="col-md-2"><select name="room_id" class="form-select form-select-sm" required>{% for r in board %}<option value="{{ r.room.id }}">{{ r.room.name }}</option>{% endfor %}</select></div>
+    <div class="col-md-3"><input name="start_at" type="datetime-local" class="form-control form-control-sm" required></div>
+    <div class="col-md-3"><input name="end_at" type="datetime-local" class="form-control form-control-sm" required></div>
+    <div class="col-md-2"><input name="title" class="form-control form-control-sm" placeholder="Title"></div>
+    <div class="col-md-2"><button class="btn btn-primary btn-sm">Book</button></div>
+</form>
+{% endif %}
+
+<h2 class="h5">Room board</h2>
+<table class="table table-sm">
+    <thead><tr><th>Room</th><th>Type</th><th>Status</th><th>Procedure</th><th>Staff today</th><th>Action</th></tr></thead>
+    <tbody>{% for r in board %}
+        <tr>
+            <td>{{ r.room.name }}</td><td>{{ r.state.room_type }}</td><td>{{ r.state.status }}</td>
+            <td>{{ r.state.current_procedure_id or '—' }}</td><td>{{ r.staff|length }}</td>
+            <td>{% if can('dept_ops:room_manage') %}
+                <form method="POST" action="{{ url_for('dept_ops.update_room_status', room_id=r.room.id) }}" class="d-inline">
+                    <select name="status" class="form-select form-select-sm d-inline w-auto">
+                        <option value="available">Available</option><option value="occupied">Occupied</option>
+                        <option value="cleaning">Cleaning</option><option value="maintenance">Maintenance</option>
+                        <option value="out_of_service">Out of service</option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-outline-primary">Update</button>
+                </form>
+            {% endif %}</td>
+        </tr>
+    {% endfor %}</tbody>
+</table>
+{% endblock %}

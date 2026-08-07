@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Clinical Intelligence{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>Clinical Intelligence</h1>
+    <p class="muted">Knowledge v{{ version.knowledge_version or '?' }} · canonical structured history (Bates JSON)</p>
+  </div>
+  <div class="btn-row" style="display:flex;gap:8px;flex-wrap:wrap;">
+    <a class="btn btn--primary" href="{{ url_for('ci_new_encounter') }}">New encounter</a>
+    {% if can_manage_knowledge %}
+    <a class="btn btn--outline" href="{{ url_for('ci_knowledge_admin') }}">Knowledge admin</a>
+    {% endif %}
+  </div>
+</section>
+
+<div class="compact-card" style="margin-bottom:14px;">
+  AI assist: {% if ai.usable %}enabled ({{ ai.model }}){% elif ai.enabled %}enabled but no API key — offline fallback{% else %}off (set CI_AI_ENABLED=true + OPENAI_API_KEY){% endif %}
+</div>
+
+<section class="admin-section">
+  <h2>Start from complaint</h2>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;">
+    {% for c in complaints %}
+    <form method="POST" action="{{ url_for('ci_new_encounter') }}" style="display:inline;">
+      <input type="hidden" name="complaint_code" value="{{ c.complaint_code }}">
+      <button class="btn btn--sm {{ 'btn--primary' if c.complaint_code == 'CC_abdominal_pain' else 'btn--outline' }}" type="submit">{{ c.name }}</button>
+    </form>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="admin-section">
+  <h2>Recent encounters</h2>
+  {% if not encounters %}
+  <p class="muted">No encounters yet.</p>
+  {% endif %}
+  {% for e in encounters %}
+  <div class="compact-card" style="margin-bottom:10px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;">
+    <div>
+      <strong>#{{ e.id }}</strong>
+      <span class="muted">{{ e.complaint_code }}</span>
+      {% if e.patient_label %} — {{ e.patient_label }}{% endif %}
+      {% if e.ward_patient_id %}<span class="badge" title="Linked ward patient">ward #{{ e.ward_patient_id }}</span>{% endif %}
+      {% if e.urgency_flag %}<span class="badge">{{ e.urgency_flag }}</span>{% endif %}
+      <div class="muted" style="font-size:12px;">{{ e.phase }} · {{ e.status }} · {{ e.updated_at }}</div>
+    </div>
+    <div class="btn-row" style="display:flex;gap:6px;flex-wrap:wrap;">
+      <a class="btn btn--sm btn--primary" href="{{ url_for('ci_history', encounter_id=e.id) }}">History</a>
+      <a class="btn btn--sm btn--outline" href="{{ url_for('ci_exam', encounter_id=e.id) }}">Exam</a>
+      <a class="btn btn--sm btn--outline" href="{{ url_for('ci_investigations', encounter_id=e.id) }}">IX</a>
+      <a class="btn btn--sm btn--outline" href="{{ url_for('ci_consult', encounter_id=e.id) }}">Consult</a>
+      <a class="btn btn--sm btn--ghost" href="{{ url_for('ci_teach', encounter_id=e.id) }}">Teach</a>
+    </div>
+  </div>
+  {% endfor %}
+</section>
+{% endblock %}

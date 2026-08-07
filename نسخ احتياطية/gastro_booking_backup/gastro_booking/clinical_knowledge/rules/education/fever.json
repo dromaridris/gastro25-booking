@@ -1,0 +1,80 @@
+{
+  "complaint_code": "CC_fever",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Fever history structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Establish a source-focused systems review (respiratory, urinary, abdominal, skin/joint) rather than treating fever as a diagnosis on its own.",
+        "Always screen for sepsis red flags: confusion, hypotension, rapidly worsening course.",
+        "Travel, exposure, and recent antibiotic use reshape the differential significantly."
+      ],
+      "linked_questions": [
+        "Q000018",
+        "Q000074",
+        "Q000053"
+      ]
+    },
+    {
+      "id": "EDU_sepsis",
+      "title": "Sepsis red flags",
+      "trigger": {
+        "any_sign_present": [
+          "SG_hypotension",
+          "SG_tachycardia"
+        ]
+      },
+      "points": [
+        "Hypotension or marked tachycardia with fever should trigger a sepsis-pathway mindset.",
+        "Early source identification and cultures precede a leisurely outpatient-style history."
+      ]
+    }
+  ],
+  "question_coaching": {
+    "Q000018": {
+      "why_ask": "Rigors/night sweats raise concern for bacteraemia or a focal collection.",
+      "listen_for": [
+        "True rigors vs feeling chilly"
+      ],
+      "think": "True rigors are a stronger predictor of bloodstream infection than subjective chills."
+    },
+    "Q000053": {
+      "why_ask": "Travel and exposure history reshapes the infectious differential substantially.",
+      "listen_for": [
+        "Region visited",
+        "food/water source",
+        "animal or sick contacts"
+      ],
+      "think": "Endemic-disease and food/water-borne causes should be considered early when relevant."
+    },
+    "Q000074": {
+      "why_ask": "Altered mental status with fever is a red flag for CNS infection or severe sepsis.",
+      "listen_for": [
+        "Confusion",
+        "lethargy",
+        "reduced responsiveness"
+      ],
+      "think": "This finding should escalate urgency regardless of the rest of the history."
+    }
+  },
+  "answer_triggers": [
+    {
+      "id": "AT_travel",
+      "question_id": "Q000053",
+      "title": "Unlocked: travel/exposure branch",
+      "points": [
+        "Consider endemic infections and food/water-borne illness.",
+        "Ask about specific region, timing, and prophylaxis/vaccination."
+      ],
+      "answer_in": [
+        "yes"
+      ]
+    }
+  ]
+}

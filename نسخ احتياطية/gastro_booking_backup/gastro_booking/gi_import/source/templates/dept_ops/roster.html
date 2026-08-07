@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Duty Roster{% endblock %}
+{% block content %}
+<h1>Duty Roster — week of {{ calendar.week_start.strftime('%d %b %Y') }}</h1>
+
+{% if can('dept_ops:roster_manage') %}
+<h2 class="h6">Add roster entry</h2>
+<form method="POST" action="{{ url_for('dept_ops.add_roster_entry') }}" class="row g-2 mb-4">
+    <div class="col-md-3"><select name="user_id" class="form-select form-select-sm" required><option value="">Staff member</option>{% for u in users %}<option value="{{ u.id }}">{{ u.email }}</option>{% endfor %}</select></div>
+    <div class="col-md-2"><input name="roster_date" type="date" class="form-control form-control-sm" value="{{ roster_date.isoformat() }}" required></div>
+    <div class="col-md-2"><select name="shift_type" class="form-select form-select-sm"><option value="day">Day</option><option value="evening">Evening</option><option value="on_call">On call</option><option value="leave">Leave</option><option value="backup">Backup</option></select></div>
+    <div class="col-md-2"><label class="form-check-label"><input type="checkbox" name="is_on_call" class="form-check-input"> On call</label></div>
+    <div class="col-md-2"><label class="form-check-label"><input type="checkbox" name="is_leave" class="form-check-input"> Leave</label></div>
+    <div class="col-md-1"><button class="btn btn-primary btn-sm">Add</button></div>
+</form>
+{% endif %}
+
+<h2 class="h5">Weekly calendar</h2>
+{% from "dept_ops/_calendar_week.html" import week_grid %}
+{{ week_grid(calendar) }}
+
+<h2 class="h5 mt-4">Entries for {{ roster_date }}</h2>
+<table class="table table-sm">
+    <thead><tr><th>Staff</th><th>Shift</th><th>On call</th><th>Leave</th><th>Notes</th></tr></thead>
+    <tbody>{% for e in entries %}
+        <tr class="{% if e.is_leave %}table-secondary{% endif %}">
+            <td>{{ e.user.email if e.user else e.user_id }}</td>
+            <td>{{ e.shift_type }}</td>
+            <td>{{ 'Yes' if e.is_on_call else 'No' }}</td>
+            <td>{{ 'Yes' if e.is_leave else 'No' }}</td>
+            <td>{{ e.notes or '—' }}</td>
+        </tr>
+    {% else %}<tr><td colspan="5" class="text-muted">No roster entries for this date.</td></tr>{% endfor %}</tbody>
+</table>
+<p><a href="{{ url_for('dept_ops.roster') }}">View full roster →</a></p>
+{% endblock %}

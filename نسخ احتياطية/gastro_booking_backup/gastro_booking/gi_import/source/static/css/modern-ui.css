@@ -1,0 +1,571 @@
+/* GastroIntelligence — Modern clinical UI layer (2026 refresh) */
+
+:root {
+    --gi-radius-xl: 1rem;
+    --gi-shadow-lg: 0 12px 40px rgba(26, 35, 50, 0.1);
+    --gi-nav-height: 4rem;
+    --gi-content-max: 1320px;
+}
+
+/* --- App shell --- */
+html {
+    height: 100%;
+}
+
+body.gi-app {
+    background:
+        radial-gradient(ellipse 80% 60% at 10% -10%, color-mix(in srgb, var(--gi-color-primary) 10%, transparent), transparent 55%),
+        radial-gradient(ellipse 60% 50% at 100% 0%, color-mix(in srgb, var(--gi-color-accent) 8%, transparent), transparent 50%),
+        var(--gi-color-bg);
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.gi-app-shell {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.gi-app-header {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 4px 24px rgba(15, 23, 42, 0.14);
+}
+
+.gi-navbar {
+    background: linear-gradient(
+        120deg,
+        var(--gi-color-nav-bg) 0%,
+        color-mix(in srgb, var(--gi-color-secondary) 70%, var(--gi-color-nav-bg)) 100%
+    ) !important;
+    min-height: var(--gi-nav-height);
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+    backdrop-filter: blur(8px);
+}
+
+.gi-nav-container {
+    max-width: var(--gi-content-max);
+    margin: 0 auto;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+}
+
+.gi-main {
+    flex: 1 0 auto;
+    width: 100%;
+    max-width: var(--gi-content-max);
+    padding-top: 1.75rem;
+    padding-bottom: 2.5rem;
+}
+
+/* --- Typography --- */
+.gi-eyebrow {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gi-color-primary);
+    margin-bottom: 0.35rem;
+}
+
+.gi-page-title {
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+}
+
+.gi-page-header {
+    padding-bottom: 1.25rem;
+    margin-bottom: 1.75rem !important;
+    border-bottom: none;
+    background: var(--gi-color-surface);
+    border: 1px solid var(--gi-color-card-border);
+    border-radius: var(--gi-radius-lg);
+    box-shadow: var(--gi-shadow-sm);
+    padding: 1.25rem 1.5rem;
+}
+
+.gi-breadcrumbs .breadcrumb {
+    font-size: 0.8125rem;
+}
+
+.gi-breadcrumbs .breadcrumb-item a {
+    color: var(--gi-color-muted);
+    text-decoration: none;
+}
+
+.gi-breadcrumbs .breadcrumb-item a:hover {
+    color: var(--gi-color-link);
+}
+
+/* --- Navigation --- */
+.gi-main-nav .nav-link {
+    font-weight: 500;
+    font-size: 0.9rem;
+    border-radius: var(--gi-radius-sm);
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+    transition: background 0.15s ease;
+}
+
+.gi-main-nav .nav-link:hover,
+.gi-main-nav .nav-link:focus {
+    background: rgba(255, 255, 255, 0.1);
+    opacity: 1;
+}
+
+.gi-nav-dropdown {
+    border: 1px solid var(--gi-color-card-border);
+    border-radius: var(--gi-radius-md);
+    padding: 0.35rem;
+    min-width: 13rem;
+}
+
+.gi-nav-dropdown .dropdown-item {
+    border-radius: calc(var(--gi-radius-sm) - 2px);
+    font-size: 0.9rem;
+    min-height: 2.5rem;
+}
+
+.gi-nav-user-block {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.35rem 0.5rem 0.35rem 0.35rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.gi-user-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+}
+
+.gi-nav-user-name {
+    color: var(--gi-color-nav-text) !important;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.25;
+}
+
+.gi-nav-user-role {
+    display: block;
+    font-size: 0.6875rem;
+    opacity: 0.75;
+    font-weight: 400;
+}
+
+.gi-nav-logout {
+    min-height: 2rem !important;
+    padding: 0.25rem 0.85rem !important;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border-radius: 999px !important;
+    border-color: rgba(255, 255, 255, 0.35) !important;
+}
+
+.gi-brand-text {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.gi-brand-label {
+    color: var(--gi-color-nav-text);
+    max-width: 14rem;
+}
+
+.gi-brand-hospital {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gi-brand-dept {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    opacity: 0.82;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gi-logo {
+    max-height: 48px;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+}
+
+/* --- Cards & surfaces --- */
+.gi-card,
+.card {
+    border-radius: var(--gi-radius-lg);
+    border: 1px solid color-mix(in srgb, var(--gi-color-card-border) 80%, transparent);
+    box-shadow: var(--gi-shadow-sm);
+    transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+
+.gi-stat-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.gi-stat-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gi-color-primary), var(--gi-color-accent));
+    opacity: 0.85;
+}
+
+.gi-stat-card .card-body,
+.gi-stat-card .gi-stat-card-body {
+    padding: 1.25rem 1.35rem !important;
+}
+
+.gi-stat-card .gi-stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+
+/* --- Dashboard --- */
+.gi-dashboard-hero {
+    border: none;
+    background: linear-gradient(
+        135deg,
+        var(--gi-color-surface) 0%,
+        color-mix(in srgb, var(--gi-color-primary) 4%, var(--gi-color-surface)) 100%
+    );
+    box-shadow: var(--gi-shadow-md);
+    overflow: hidden;
+    position: relative;
+}
+
+.gi-dashboard-hero::after {
+    content: "";
+    position: absolute;
+    top: -40%;
+    right: -5%;
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--gi-color-accent) 18%, transparent), transparent 70%);
+    pointer-events: none;
+}
+
+.gi-dashboard-hero-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    padding: 1.75rem 1.75rem;
+}
+
+.gi-dashboard-hero h1 {
+    font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.35rem;
+}
+
+.gi-action-tile {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 1.35rem;
+    text-decoration: none;
+    color: inherit;
+    border-radius: var(--gi-radius-lg);
+}
+
+.gi-action-tile:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--gi-shadow-md);
+    border-color: color-mix(in srgb, var(--gi-color-accent) 40%, var(--gi-color-card-border));
+    color: inherit;
+}
+
+.gi-action-tile-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--gi-radius-md);
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+}
+
+.gi-action-tile-icon--patients { background: color-mix(in srgb, var(--gi-color-primary) 14%, var(--gi-color-surface)); color: var(--gi-color-primary); }
+.gi-action-tile-icon--encounters { background: color-mix(in srgb, var(--gi-color-accent) 16%, var(--gi-color-surface)); color: var(--gi-color-accent); }
+.gi-action-tile-icon--history { background: color-mix(in srgb, var(--gi-color-secondary) 16%, var(--gi-color-surface)); color: var(--gi-color-secondary); }
+.gi-action-tile-icon--branding { background: color-mix(in srgb, var(--gi-color-secondary) 14%, var(--gi-color-surface)); color: var(--gi-color-secondary); }
+
+.gi-action-tile h3 {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+}
+
+.gi-action-tile p {
+    font-size: 0.875rem;
+    color: var(--gi-color-muted);
+    margin-bottom: 1rem;
+    flex: 1;
+}
+
+.gi-action-tile-link {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--gi-color-link);
+}
+
+.gi-action-tile:hover .gi-action-tile-link {
+    text-decoration: underline;
+}
+
+/* --- Buttons --- */
+.btn,
+.gi-btn-primary,
+.gi-btn-outline {
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.gi-btn-primary,
+.btn-primary {
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--gi-color-btn-primary) 35%, transparent);
+}
+
+.gi-btn-primary:hover,
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--gi-color-btn-primary) 40%, transparent);
+}
+
+.btn-outline-primary {
+    font-weight: 600;
+}
+
+/* --- Forms --- */
+.form-control,
+.form-select {
+    background-color: var(--gi-color-surface);
+    font-size: 0.9375rem;
+    border-color: color-mix(in srgb, var(--gi-color-card-border) 90%, var(--gi-color-muted));
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-control:hover,
+.form-select:hover {
+    border-color: color-mix(in srgb, var(--gi-color-secondary) 50%, var(--gi-color-card-border));
+}
+
+.gi-form-panel {
+    padding: 1.75rem;
+}
+
+.gi-form-section-heading {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--gi-color-muted);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--gi-color-card-border);
+}
+
+/* --- Tables (global uplift for legacy pages) --- */
+.gi-main .table {
+    font-size: 0.9375rem;
+}
+
+.gi-main .table thead th {
+    font-weight: 600;
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--gi-color-muted);
+    background: color-mix(in srgb, var(--gi-color-bg) 60%, var(--gi-color-surface));
+    border-bottom-width: 1px;
+}
+
+.gi-table-wrapper {
+    box-shadow: var(--gi-shadow-sm);
+}
+
+.gi-table tbody td {
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
+}
+
+/* --- Search panel --- */
+.gi-search-panel {
+    border-radius: var(--gi-radius-lg);
+    box-shadow: var(--gi-shadow-sm);
+}
+
+.gi-search-panel .input-group-lg > .form-control {
+    font-size: 1rem;
+    border-radius: var(--gi-radius-sm) 0 0 var(--gi-radius-sm);
+}
+
+/* --- Alerts --- */
+.gi-flash-messages .alert {
+    border-radius: var(--gi-radius-md);
+    border: none;
+    box-shadow: var(--gi-shadow-sm);
+    font-size: 0.9375rem;
+}
+
+/* --- Footer --- */
+.gi-footer {
+    background: var(--gi-color-surface);
+    border-top: 1px solid var(--gi-color-card-border);
+    font-size: 0.8125rem;
+}
+
+.gi-footer-inner {
+    max-width: var(--gi-content-max);
+    padding-top: 0.85rem !important;
+    padding-bottom: 0.85rem !important;
+}
+
+.gi-footer-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+}
+
+.gi-footer-meta--clinical {
+    justify-content: center;
+}
+
+/* --- Clinical history suggestion rows --- */
+.gi-suggestion-table tr.gi-suggestion-accepted {
+    background: color-mix(in srgb, var(--gi-color-success-bg, #d1e7dd) 65%, var(--gi-color-surface));
+}
+
+.gi-suggestion-table tr.gi-suggestion-dismissed {
+    opacity: 0.72;
+}
+
+.gi-suggestion-badge {
+    font-size: 0.8125rem;
+    padding: 0.35rem 0.55rem;
+}
+
+.gi-fab-toggle-label {
+    position: absolute;
+    bottom: 3.75rem;
+    right: 0;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    background: var(--gi-color-surface);
+    border: 1px solid var(--gi-color-card-border);
+    border-radius: 999px;
+    padding: 0.2rem 0.55rem;
+    box-shadow: var(--gi-shadow-sm);
+}
+
+.gi-footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--gi-color-muted);
+}
+
+.gi-platform-logo {
+    height: 28px;
+    opacity: 0.9;
+}
+
+/* --- Branding preview --- */
+.gi-logo-preview-wrap {
+    border-radius: var(--gi-radius-md);
+    background: color-mix(in srgb, var(--gi-color-bg) 50%, var(--gi-color-surface));
+}
+
+/* --- Back navigation --- */
+.gi-back-nav {
+    margin-top: -0.25rem;
+}
+
+.gi-back-btn {
+    font-weight: 600;
+    border-radius: 999px;
+    padding-left: 0.85rem;
+    padding-right: 1rem;
+}
+
+/* --- Login page --- */
+.gi-login-card {
+    border-radius: var(--gi-radius-xl);
+    box-shadow: var(--gi-shadow-lg);
+    backdrop-filter: blur(12px);
+}
+
+.gi-login-logo {
+    max-height: 64px;
+}
+
+/* --- Responsive --- */
+@media (max-width: 991.98px) {
+    .gi-nav-user-block {
+        margin-top: 0.5rem;
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .gi-dashboard-hero-inner {
+        padding: 1.25rem;
+    }
+
+    .gi-page-header {
+        padding: 1rem 1.15rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .gi-nav-container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .gi-stat-card .gi-stat-value {
+        font-size: 1.65rem;
+    }
+}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Messages{% endblock %}
+{% block content %}
+<h1>Unit messages</h1>
+{% include "gi/dept_ops/_nav.html" %}
+
+<section class="admin-section compact-section">
+  <h2>Send message</h2>
+  <form method="POST">
+    <label>To
+      <select name="recipient_id">
+        <option value="">— Department broadcast —</option>
+        {% for u in staff %}<option value="{{ u.id }}">{{ u.username }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Scope
+      <select name="message_scope">
+        <option value="direct">Direct</option>
+        <option value="department">Department</option>
+      </select>
+    </label>
+    <label>Subject <input name="subject" required style="width:100%;max-width:28rem;"></label>
+    <label>Body<br><textarea name="body" rows="3" required style="width:100%;max-width:28rem;"></textarea></label>
+    <button class="btn btn--primary" type="submit">Send</button>
+  </form>
+</section>
+
+<section class="admin-section compact-section">
+  <h2>Inbox</h2>
+  <table class="admin-table compact-table">
+    <thead><tr><th>When</th><th>From</th><th>To</th><th>Subject</th></tr></thead>
+    <tbody>
+      {% for m in messages %}
+      <tr>
+        <td>{{ m.created_at }}</td>
+        <td>{{ m.sender_name }}</td>
+        <td>{{ m.recipient_name or m.message_scope }}</td>
+        <td><strong>{{ m.subject }}</strong><br><span class="muted">{{ m.body[:120] }}{% if m.body|length > 120 %}…{% endif %}</span></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="muted">No messages.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

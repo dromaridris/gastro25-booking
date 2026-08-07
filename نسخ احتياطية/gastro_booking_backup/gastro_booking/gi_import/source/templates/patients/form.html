@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}{% if mode == "create" %}New Patient{% else %}Edit Patient{% endif %} — GastroIntelligence{% endblock %}
+{% block content %}
+<h2>{% if mode == "create" %}New Patient{% else %}Edit Patient: {{ target.full_name }} ({{ target.mrn }}){% endif %}</h2>
+<form method="POST" class="col-md-6">
+    {{ form.hidden_tag() }}
+    <div class="row">
+        <div class="col mb-3">
+            {{ form.first_name.label(class="form-label") }}
+            {{ form.first_name(class="form-control") }}
+        </div>
+        <div class="col mb-3">
+            {{ form.last_name.label(class="form-label") }}
+            {{ form.last_name(class="form-control") }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col mb-3">
+            {{ form.date_of_birth.label(class="form-label") }}
+            {{ form.date_of_birth(class="form-control", type="date") }}
+        </div>
+        <div class="col mb-3">
+            {{ form.sex.label(class="form-label") }}
+            {{ form.sex(class="form-select") }}
+        </div>
+    </div>
+    <div class="mb-3">
+        {{ form.phone.label(class="form-label") }}
+        {{ form.phone(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.email.label(class="form-label") }}
+        {{ form.email(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.address.label(class="form-label") }}
+        {{ form.address(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.national_id.label(class="form-label") }}
+        {{ form.national_id(class="form-control") }}
+    </div>
+    <div class="row">
+        <div class="col mb-3">
+            {{ form.emergency_contact_name.label(class="form-label") }}
+            {{ form.emergency_contact_name(class="form-control") }}
+        </div>
+        <div class="col mb-3">
+            {{ form.emergency_contact_phone.label(class="form-label") }}
+            {{ form.emergency_contact_phone(class="form-control") }}
+        </div>
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+</form>
+{% endblock %}

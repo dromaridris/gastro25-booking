@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Endoscope Management{% endblock %}
+{% block content %}
+<h1>Endoscope Management</h1>
+<p>
+    <a href="{{ url_for('dept_ops.create_scope') }}" class="btn btn-sm btn-primary">Register scope</a>
+    <a href="{{ url_for('dept_ops.reprocessing_board') }}" class="btn btn-sm btn-outline-secondary">Reprocessing board ({{ cleaning_queue|length }})</a>
+</p>
+<table class="table table-sm">
+    <thead><tr><th>Code</th><th>Type</th><th>Status</th><th>Location</th><th>Next maintenance</th><th></th></tr></thead>
+    <tbody>{% for s in scopes %}
+        <tr>
+            <td><a href="{{ url_for('dept_ops.scope_detail', scope_id=s.id) }}">{{ s.scope_code }}</a></td>
+            <td>{{ s.scope_type }}</td>
+            <td>{{ s.status }}</td>
+            <td>{{ s.current_location or '—' }}</td>
+            <td>{{ s.next_maintenance_at.strftime('%Y-%m-%d') if s.next_maintenance_at else '—' }}</td>
+            <td><a href="{{ url_for('dept_ops.scope_detail', scope_id=s.id) }}" class="btn btn-sm btn-outline-primary">Manage</a></td>
+        </tr>
+    {% else %}<tr><td colspan="6" class="text-muted">No scopes registered.</td></tr>{% endfor %}</tbody>
+</table>
+{% endblock %}

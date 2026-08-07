@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Add variable · {{ registry.title }}{% endblock %}
+{% block content %}
+<h1>Add research variable</h1>
+<p class="muted">{{ registry.title }} — variables never alter the medical record (Blueprint §17).</p>
+<form method="POST" class="settings-form">
+  <label>Code<input name="code" placeholder="e.g. age_at_enrollment"></label>
+  <label>Name<input name="name" required placeholder="e.g. Age at enrollment"></label>
+  <label>Type
+    <select name="var_type" id="varTypeSelect">
+      <option value="text">Text</option>
+      <option value="number">Number</option>
+      <option value="boolean">Boolean</option>
+      <option value="choice">Choice</option>
+      <option value="date">Date</option>
+    </select>
+  </label>
+  <label id="optionsLabel" hidden>Options (comma-separated)
+    <input name="options" placeholder="e.g. Male, Female, Other">
+  </label>
+  <label>Source type<input name="source_type" placeholder="e.g. manual, lab, endoscopy"></label>
+  <label>Sort order<input name="sort_order" type="number" value="0"></label>
+  <label><input type="checkbox" name="required" value="1"> Required</label>
+  <button class="btn btn--primary" type="submit">Add variable</button>
+</form>
+<script>
+(function () {
+  const sel = document.getElementById('varTypeSelect');
+  const optLabel = document.getElementById('optionsLabel');
+  function sync() {
+    optLabel.hidden = sel.value !== 'choice';
+  }
+  sel.addEventListener('change', sync);
+  sync();
+})();
+</script>
+{% endblock %}

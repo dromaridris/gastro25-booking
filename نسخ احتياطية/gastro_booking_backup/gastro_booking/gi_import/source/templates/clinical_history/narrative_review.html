@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}History Narrative Review{% endblock %}
+{% block content %}
+<h2>Generated History — Review &amp; Edit</h2>
+<p class="text-muted">Consultant-level prose is auto-generated from structured answers. Edit any section before completing.</p>
+
+<form method="POST">
+    {% for key, label in section_labels.items() %}
+    <div class="mb-4">
+        <label class="form-label fw-semibold">{{ label }}</label>
+        <textarea name="{{ key }}-text" class="form-control" rows="4">{{ narratives[key].display_text if narratives.get(key) else '' }}</textarea>
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-outline-primary btn-sm">Save edits</button>
+    <button type="submit" name="complete" value="1" class="btn btn-success">Complete clinical history</button>
+</form>
+
+{% if differential %}
+<hr>
+<h5>Clinical considerations (not definitive diagnosis)</h5>
+<ul class="list-group mb-3">
+    {% for d in differential %}
+    <li class="list-group-item d-flex justify-content-between">
+        <span>{{ d.name }}</span>
+        <span class="badge bg-secondary">{{ d.consideration_level.replace('_', ' ') }}</span>
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+{% if suggestions %}
+<h5>Investigation suggestions</h5>
+<table class="table table-sm">
+    <thead><tr><th>Investigation</th><th>Tier</th><th>Reason</th></tr></thead>
+    <tbody>
+        {% for s in suggestions %}
+        <tr>
+            <td>{{ s.investigation_code }}</td>
+            <td>{{ s.tier }}</td>
+            <td class="small">{{ s.reason_text or '—' }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+<a href="{{ url_for('clinical_history.view_session', session_id=session.id) }}" class="btn btn-link">View session</a>
+{% endblock %}

@@ -1,0 +1,79 @@
+{
+  "id": "ET_dyspnea",
+  "complaint_code": "CC_dyspnea",
+  "name": "Dyspnoea / shortness of breath physical examination",
+  "source": {
+    "work": "Bates' Guide to Physical Examination and History Taking",
+    "note": "Exam organization only; findings recorded against dictionary sign codes."
+  },
+  "systems": [
+    {
+      "key": "general",
+      "title": "General appearance & vitals",
+      "finding_ids": [
+        "SG_tachycardia",
+        "SG_hypotension",
+        "SG_fever",
+        "SG_pallor",
+        "SG_dehydration"
+      ],
+      "checklist": [
+        "General distress / toxic appearance",
+        "Vital signs (HR, BP, RR, SpO2, temperature)",
+        "Hydration / mucous membranes",
+        "Pallor / colour"
+      ]
+    },
+    {
+      "key": "respiratory",
+      "title": "Respiratory exam",
+      "finding_ids": [
+        "SG_tachypnea",
+        "SG_reduced_air_entry",
+        "SG_crackles",
+        "SG_wheeze"
+      ],
+      "checklist": [
+        "Work of breathing / accessory muscle use",
+        "Percussion note",
+        "Breath sounds / added sounds",
+        "SpO2 on room air"
+      ]
+    },
+    {
+      "key": "cardiovascular",
+      "title": "Cardiovascular exam",
+      "finding_ids": [
+        "SG_raised_jvp",
+        "SG_cardiac_murmur",
+        "SG_peripheral_edema",
+        "SG_tachycardia"
+      ],
+      "checklist": [
+        "JVP",
+        "Heart sounds / murmurs",
+        "Peripheral oedema (cardiac vs hepatic cause)"
+      ]
+    },
+    {
+      "key": "abdomen",
+      "title": "Abdomen (relevant to ascites / hepatic causes)",
+      "finding_ids": [
+        "SG_ascites",
+        "SG_hepatomegaly"
+      ],
+      "checklist": [
+        "Distension / shifting dullness",
+        "Hepatomegaly"
+      ]
+    }
+  ],
+  "priority_findings": [
+    "SG_reduced_air_entry",
+    "SG_hypotension",
+    "SG_tachypnea"
+  ],
+  "schema_version": 1,
+  "revision": 1,
+  "status": "active"
+}

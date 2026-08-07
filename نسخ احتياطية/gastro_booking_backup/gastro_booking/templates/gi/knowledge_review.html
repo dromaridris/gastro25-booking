@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Review queue{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>Knowledge review queue</h1>
+    <p class="muted">Imported PDFs and new objects appear here until approved and published.</p>
+  </div>
+  <a href="{{ url_for('gi_import_manager') }}" class="btn btn--outline btn--sm">← Import manager</a>
+</section>
+
+{% if pending %}
+<p class="muted">{{ pending|length }} object(s) awaiting review.</p>
+{% endif %}
+
+<ul>{% for o in pending %}
+<li style="margin-bottom:14px;padding:12px;border:1px solid var(--border);border-radius:8px;">
+  <strong>{{ o.title }}</strong>
+  <span class="muted"> · {{ o.object_type }} · {{ o.slug }}</span>
+  {% if o.summary %}<br><span style="font-size:13px;">{{ o.summary }}</span>{% endif %}
+  <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
+    <form method="POST" action="{{ url_for('gi_knowledge_approve_review', object_id=o.id) }}">
+      <button class="btn btn--sm btn--primary" type="submit">Approve &amp; publish</button>
+    </form>
+    <a class="btn btn--sm btn--outline" href="{{ url_for('gi_knowledge_detail', object_id=o.id) }}">Open &amp; check</a>
+  </div>
+</li>
+{% else %}
+<li class="muted">No objects awaiting review. Import a PDF from Import Manager to add one.</li>
+{% endfor %}</ul>
+{% endblock %}

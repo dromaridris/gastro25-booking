@@ -1,0 +1,40 @@
+{
+  "complaint_code": "CC_melena",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Starter investigation framework for CC_melena. Names/urgency/indications only.",
+  "bundles": [
+    {
+      "id": "IXB_mel_baseline",
+      "label": "Melena baseline",
+      "urgency": "urgent",
+      "when": {
+        "always_if_complaint": true
+      },
+      "investigations": [
+        "IX_cbc",
+        "IX_coagulation_panel",
+        "IX_basic_metabolic_panel"
+      ]
+    },
+    {
+      "id": "IXB_mel_endo",
+      "label": "Upper endoscopy for melena",
+      "urgency": "urgent",
+      "when": {
+        "any": [
+          {
+            "pattern_id": "PAT_mel_ugib"
+          },
+          {
+            "pattern_id": "PAT_mel_hemodynamic"
+          }
+        ]
+      },
+      "investigations": [
+        "IX_upper_endoscopy"
+      ],
+      "referral_hint": "Urgent GI review"
+    }
+  ]
+}

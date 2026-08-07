@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}My Next Duties{% endblock %}
+{% block content %}
+<h1 class="h3">My Next Duties</h1>
+{% if duties %}
+<table class="table table-sm"><thead><tr><th>Date</th><th>Shift</th><th>On Call</th></tr></thead>
+<tbody>{% for duty in duties %}<tr><td>{{ duty.roster_date }}</td><td>{{ duty.shift_type }}</td><td>{{ 'Yes' if duty.is_on_call else 'No' }}</td></tr>{% endfor %}</tbody></table>
+{% else %}<p class="text-muted">No upcoming duties scheduled.</p>{% endif %}
+<p><a href="{{ url_for('workforce_identity.today_team') }}">View today's on-call team</a></p>
+{% endblock %}

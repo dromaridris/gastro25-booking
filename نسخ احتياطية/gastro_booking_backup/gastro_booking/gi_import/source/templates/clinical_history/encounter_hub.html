@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Clinical History — Encounter #{{ encounter.id }}{% endblock %}
+{% block content %}
+<h2>Clinical History</h2>
+<p class="text-muted">Encounter #{{ encounter.id }} — adaptive interview engine</p>
+
+{% if can('history:document') and encounter.is_open %}
+<a href="{{ url_for('clinical_history.select_complaint', session_id=session.id) }}" class="btn btn-primary btn-sm mb-3">
+    {% if session.chief_complaint_code %}Continue interview{% else %}Select chief complaint{% endif %}
+</a>
+{% endif %}
+
+<dl class="row">
+    <dt class="col-sm-3">Current session</dt>
+    <dd class="col-sm-9">#{{ session.id }} — <span class="badge bg-secondary">{{ session.status.replace('_', ' ').title() }}</span>
+        {% if session.chief_complaint_code %} · {{ session.chief_complaint_code.replace('hist.', '').replace('_', ' ').title() }}{% endif %}
+    </dd>
+</dl>
+
+{% if sessions %}
+<h5>Sessions on this encounter</h5>
+<table class="table table-sm">
+    <thead><tr><th>ID</th><th>Complaint</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+        {% for s in sessions %}
+        <tr>
+            <td>{{ s.id }}</td>
+            <td>{{ s.chief_complaint_code.replace('hist.', '').replace('_', ' ').title() if s.chief_complaint_code else '—' }}</td>
+            <td>{{ s.status }}</td>
+            <td><a href="{{ url_for('clinical_history.view_session', session_id=s.id) }}">View</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+<a href="{{ url_for('encounters.view_encounter', encounter_id=encounter.id) }}" class="btn btn-outline-secondary btn-sm">Back to encounter</a>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Consumables{% endblock %}
+{% block content %}
+<h1>Endoscopy Consumables</h1>
+{% if low_stock %}<div class="alert alert-warning">{{ low_stock|length }} item(s) at or below minimum stock.</div>{% endif %}
+
+{% if can('dept_ops:consumable_manage') %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="h6">Add consumable</h2>
+        <form method="POST" action="{{ url_for('dept_ops.create_consumable') }}" class="row g-2">
+            <div class="col-md-4"><input name="name" class="form-control form-control-sm" placeholder="Name" required></div>
+            <div class="col-md-3"><select name="category" class="form-select form-select-sm">{% for c in categories %}<option value="{{ c }}">{{ c }}</option>{% endfor %}</select></div>
+            <div class="col-md-2"><input name="current_stock" type="number" class="form-control form-control-sm" placeholder="Stock" value="0"></div>
+            <div class="col-md-2"><input name="minimum_stock" type="number" class="form-control form-control-sm" placeholder="Min" value="5"></div>
+            <div class="col-md-1"><button class="btn btn-primary btn-sm">Add</button></div>
+        </form>
+    </div>
+    <div class="col-md-6">
+        <h2 class="h6">Plan consumable for procedure (auto-deduct on completion)</h2>
+        <form method="POST" action="{{ url_for('dept_ops.plan_consumable') }}" class="row g-2">
+            <div class="col-md-4"><select name="procedure_id" class="form-select form-select-sm" required><option value="">Procedure</option>{% for p in procedures %}<option value="{{ p.id }}">#{{ p.id }}</option>{% endfor %}</select></div>
+            <div class="col-md-4"><select name="consumable_id" class="form-select form-select-sm" required><option value="">Consumable</option>{% for i in items %}<option value="{{ i.id }}">{{ i.name }}</option>{% endfor %}</select></div>
+            <div class="col-md-2"><input name="quantity" type="number" class="form-control form-control-sm" value="1" min="1"></div>
+            <div class="col-md-2"><button class="btn btn-outline-primary btn-sm">Plan</button></div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<table class="table table-sm">
+    <thead><tr><th>Name</th><th>Category</th><th>Stock</th><th>Minimum</th><th>Unit</th><th>Actions</th></tr></thead>
+    <tbody>
+    {% for i in items %}
+        <tr class="{% if i.current_stock <= i.minimum_stock %}table-warning{% endif %}">
+            <td>{{ i.name }}</td><td>{{ i.category }}</td><td>{{ i.current_stock }}</td><td>{{ i.minimum_stock }}</td><td>{{ i.unit }}</td>
+            <td>
+            {% if can('dept_ops:consumable_manage') %}
+                <form method="POST" action="{{ url_for('dept_ops.consumable_movement', item_id=i.id) }}" class="d-inline-flex gap-1">
+                    <input type="hidden" name="movement_type" value="usage">
+                    <input name="quantity" type="number" class="form-control form-control-sm" style="width:60px" value="1" min="1">
+                    <button class="btn btn-sm btn-outline-danger">Use</button>
+                </form>
+                <form method="POST" action="{{ url_for('dept_ops.consumable_movement', item_id=i.id) }}" class="d-inline-flex gap-1">
+                    <input type="hidden" name="movement_type" value="receipt">
+                    <input name="quantity" type="number" class="form-control form-control-sm" style="width:60px" value="10" min="1">
+                    <button class="btn btn-sm btn-outline-success">Receive</button>
+                </form>
+            {% endif %}
+            </td>
+        </tr>
+    {% else %}<tr><td colspan="6" class="text-muted">No consumables tracked.</td></tr>{% endfor %}
+    </tbody>
+</table>
+{% endblock %}

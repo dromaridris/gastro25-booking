@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Department Operations{% endblock %}
+{% block content %}
+<h1>Head of Department — Operations Dashboard</h1>
+{% include "dept_ops/_alert_centre.html" %}
+<div class="row mb-4">
+    <div class="col-md-2"><div class="card"><div class="card-body"><h6>Rooms</h6><p class="fs-5 mb-0">{{ rooms_occupied }}/{{ rooms_total }} occupied</p></div></div></div>
+    <div class="col-md-2"><div class="card"><div class="card-body"><h6>Today's procedures</h6><p class="fs-5 mb-0">{{ today_procedure_count }}</p></div></div></div>
+    <div class="col-md-2"><div class="card"><div class="card-body"><h6>Completed</h6><p class="fs-5 mb-0">{{ today_completed_count }}</p></div></div></div>
+    <div class="col-md-2"><div class="card"><div class="card-body"><h6>Utilisation</h6><p class="fs-5 mb-0">{{ average_room_utilisation }}%</p></div></div></div>
+    <div class="col-md-2"><div class="card"><div class="card-body"><h6>Waiting pressure</h6><p class="fs-5 mb-0">{{ waiting_pressure }}</p></div></div></div>
+    <div class="col-md-2"><div class="card"><div class="card-body"><h6>Staff on duty</h6><p class="fs-5 mb-0">{{ staff_on_duty|length }}</p></div></div></div>
+</div>
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="h5">Department status</h2>
+        <ul class="list-unstyled">
+            <li>Available scopes: {{ available_scopes|length }}</li>
+            <li>Awaiting reprocessing: {{ scopes_awaiting_cleaning|length }}</li>
+            <li>Scopes in procedure: {{ scopes_in_procedure|length }}</li>
+            <li>Low stock items: {{ low_stock|length }}</li>
+            <li>Equipment in maintenance: {{ equipment_maintenance|length }}</li>
+        </ul>
+        <h2 class="h5 mt-3">Attendance summary</h2>
+        <p>Average attendance this month: <strong>{{ attendance_summary.average_attendance_pct }}%</strong></p>
+    </div>
+    <div class="col-md-6">
+        <h2 class="h5">Waiting list</h2>
+        <p>Active: {{ waiting_list.active_count }} · Urgent: {{ waiting_list.urgent_count }} · Delayed: {{ waiting_list.delayed_count }}</p>
+    </div>
+</div>
+<h2 class="h5">Weekly duty roster</h2>
+{% from "dept_ops/_calendar_week.html" import week_grid %}
+{{ week_grid(roster_calendar, highlight_today=calendar_today) }}
+<h2 class="h5 mt-4">Waiting list schedule</h2>
+{{ week_grid(waiting_calendar, highlight_today=calendar_today) }}
+{% include "ui/_quick_actions.html" %}
+{% include "ui/_dept_ops_links.html" %}
+{% endblock %}

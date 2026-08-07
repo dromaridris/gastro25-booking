@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Lab Results — GastroIntelligence{% endblock %}
+{% block content %}
+<h2>Enter Laboratory Results</h2>
+<p class="text-muted">
+    Encounter #{{ encounter.id }}
+    {% if order %} · Order #{{ order.id }}{% endif %}
+</p>
+
+<form method="POST">
+    <table class="table table-sm">
+        <thead><tr><th>Test</th><th>Value</th><th>Unit</th><th>Reference</th></tr></thead>
+        <tbody>
+            {% for test in lab_tests %}
+            <tr>
+                <td>{{ test.name }}</td>
+                <td><input type="text" name="value_{{ test.id }}" class="form-control form-control-sm" style="max-width:120px"></td>
+                <td class="text-muted">{{ test.default_unit or "—" }}</td>
+                <td class="text-muted small">
+                    {% if test.reference_range_low is not none and test.reference_range_high is not none %}
+                        {{ test.reference_range_low }} – {{ test.reference_range_high }}
+                    {% elif test.reference_range_text %}
+                        {{ test.reference_range_text }}
+                    {% else %}—{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button type="submit" name="save_draft" class="btn btn-outline-primary">Save draft</button>
+    <button type="submit" name="mark_available" class="btn btn-primary">Save and mark available</button>
+    <a href="{{ url_for('encounters.view_encounter', encounter_id=encounter.id) }}" class="btn btn-outline-secondary">Cancel</a>
+</form>
+{% endblock %}

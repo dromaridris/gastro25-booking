@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}My logbook{% endblock %}
+{% block content %}
+<h1>My logbook</h1>
+{% include "_module_intro.html" %}
+<p>Activities (30d): {{ summary.total_activities }} · Active days: {{ summary.active_days }}
+{% if summary.avg_evaluation_score %} · Avg CanMEDS score: {{ summary.avg_evaluation_score }}{% endif %}</p>
+<p><a href="{{ url_for('gi_my_duties') }}">My on-call duties →</a></p>
+
+{% for group in grouped %}
+<section class="admin-section compact-section logbook-patient-group">
+  <h2>{{ group.patient_name or 'Unknown patient' }}{% if group.mrn %} <span class="muted">MRN {{ group.mrn }}</span>{% endif %}</h2>
+  {% for atype, items in group.types %}
+  <h3 class="logbook-type-heading">{{ atype|replace('_',' ')|title }}</h3>
+  <ul class="compact-list">
+    {% for e in items %}
+    <li>{{ e.title }} · <span class="muted">{{ e.created_at[:16] if e.created_at else '' }}</span></li>
+    {% endfor %}
+  </ul>
+  {% endfor %}
+</section>
+{% else %}
+<p class="muted">No activity recorded yet.</p>
+{% endfor %}
+{% endblock %}

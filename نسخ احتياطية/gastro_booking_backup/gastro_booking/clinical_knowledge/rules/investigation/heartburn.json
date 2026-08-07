@@ -1,0 +1,39 @@
+{
+  "complaint_code": "CC_heartburn",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Starter investigation framework for CC_heartburn. Names/urgency/indications only.",
+  "bundles": [
+    {
+      "id": "IXB_hb_alarm_endo",
+      "label": "Alarm-feature endoscopy",
+      "urgency": "urgent",
+      "when": {
+        "any": [
+          {
+            "pattern_id": "PAT_hb_alarm"
+          },
+          {
+            "question_id": "Q000031",
+            "op": "truthy"
+          }
+        ]
+      },
+      "investigations": [
+        "IX_upper_endoscopy",
+        "IX_cbc"
+      ]
+    },
+    {
+      "id": "IXB_hb_routine",
+      "label": "Typical reflux — endoscopy if indicated",
+      "urgency": "routine",
+      "when": {
+        "always_if_complaint": true
+      },
+      "investigations": [
+        "IX_upper_endoscopy"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Report Incident{% endblock %}
+{% block content %}
+<h1>Report Incident</h1>
+<form method="POST">
+    <div class="mb-3"><label class="form-label">Date/time</label><input name="incident_date" type="datetime-local" class="form-control" required></div>
+    <div class="mb-3"><label class="form-label">Category</label><select name="category" class="form-select">{% for c in categories %}<option value="{{ c }}">{{ c.replace('_',' ') }}</option>{% endfor %}</select></div>
+    <div class="mb-3"><label class="form-label">Severity</label><select name="severity" class="form-select"><option value="minor">Minor</option><option value="moderate">Moderate</option><option value="major">Major</option><option value="critical">Critical</option></select></div>
+    <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" required></textarea></div>
+    <div class="mb-3"><label class="form-label">Patient ID (optional)</label><input name="patient_id" type="number" class="form-control"></div>
+    <div class="mb-3"><label class="form-check-label"><input type="checkbox" name="is_anonymous" class="form-check-input"> Anonymous report</label></div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endblock %}

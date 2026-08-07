@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Clinical Encounter · CKP{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>Clinical Encounter Workspace</h1>
+    <p class="muted">Specialty-agnostic · Knowledge → Reasoning → Workflow · Assessment is continuous (EBS), not a page</p>
+  </div>
+  <div>
+    <a class="btn" href="{{ url_for('ckp_knowledge_home') }}">Knowledge</a>
+    <a class="btn" href="{{ url_for('ckp_longitudinal_home') }}">Longitudinal</a>
+    <a class="btn" href="{{ url_for('ckp_research_home') }}">Research</a>
+  </div>
+</section>
+
+<section class="admin-section">
+  <h2>Start encounter</h2>
+  <form method="POST" action="{{ url_for('ckp_encounter_start') }}" class="settings-form">
+    <label>Patient label <input name="patient_label" placeholder="e.g. MRN-1001 / Demo Patient" required></label>
+    <button class="btn btn--primary" type="submit">Open workspace</button>
+  </form>
+  {% if published %}
+  <p class="muted">Published release: <strong>{{ published.code }}</strong> — {{ published.label }}</p>
+  {% else %}
+  <p class="muted">No published release — seeding will run on start.</p>
+  {% endif %}
+</section>
+
+<section class="admin-section">
+  <h2>Recent sessions</h2>
+  {% if sessions %}
+  <ul>
+    {% for s in sessions %}
+    <li>
+      <a href="{{ url_for('ckp_encounter_workspace', session_id=s.id, channel='history') }}">#{{ s.id }} · {{ s.patient_label or 'unnamed' }}</a>
+      <span class="muted">{{ s.updated_at }} · {{ s.status }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="muted">No sessions yet.</p>
+  {% endif %}
+</section>
+
+{% if validation %}
+<section class="admin-section">
+  <h2>Knowledge validation</h2>
+  <p>{% if validation.ok %}<span class="badge">OK</span>{% else %}<span class="badge">Issues</span>{% endif %}
+  Entities {{ validation.counts.entities_active if validation.counts else '?' }} · Relationships {{ validation.counts.relationships_active if validation.counts else '?' }}</p>
+  {% if validation.errors %}
+  <ul>{% for e in validation.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}

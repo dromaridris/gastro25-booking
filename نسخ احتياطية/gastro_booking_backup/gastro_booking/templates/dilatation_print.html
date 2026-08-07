@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{ report_number }} — {{ appt.patient_name }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="print-body print-report-body">
+  {% include "_print_toolbar.html" %}
+
+  <div class="print-sheet ercp-print-sheet">
+    <div id="printPage1Content" data-print-page="1">
+      {% set header_class = 'ercp-print-header' %}
+      {% set dept_line = 'Gastroenterology Ward 25 · Endoscopy Unit' %}
+      {% set title = 'Endoscopic Dilatation Report' %}
+      {% set subtitle = 'Jinnah Postgraduate Medical Center, Karachi' %}
+      {% include "_print_header.html" %}
+
+      <p class="ercp-report-number">
+        <span>Report No: {{ report_number }}</span>
+        <span data-page-num>Page 1 of 1</span>
+      </p>
+
+      <table class="ercp-print-table">
+        <tr><th colspan="4" class="ercp-section-th">Patient Information</th></tr>
+        <tr>
+          <td class="ercp-label">Patient Name</td><td>{{ appt.patient_name }}</td>
+          <td class="ercp-label">MR Number</td><td>{{ appt.mrn or '—' }}</td>
+        </tr>
+        <tr>
+          <td class="ercp-label">Age / Gender</td><td>{{ appt.age }} / {{ appt.gender }}</td>
+          <td class="ercp-label">Procedure Date</td><td>{{ appt.appointment_date }}</td>
+        </tr>
+        <tr>
+          <td class="ercp-label">Referral Source</td><td colspan="3">{{ appt.referral or '—' }}</td>
+        </tr>
+      </table>
+
+      {% set procedure_section_title = 'Procedure Information' %}
+      {% include "_print_procedure_fields_2col.html" %}
+
+      <span id="procedureNoteBlockAnchor"></span>
+      {% if report.procedure_note %}
+      <div class="ercp-print-block" id="procedureNoteBlock">
+        <h3>Procedure Note</h3>
+        <p>{{ report.procedure_note }}</p>
+      </div>
+      {% endif %}
+
+      <span id="impressionBlockAnchor"></span>
+      {% if report.impression %}
+      <div class="ercp-print-block" id="impressionBlock">
+        <h3>Impression</h3>
+        <p>{{ report.impression }}</p>
+      </div>
+      {% endif %}
+
+      <span id="recommendationsBlockAnchor"></span>
+      {% if report.recommendations %}
+      <div class="ercp-print-block" id="recommendationsBlock">
+        <h3>Recommendations</h3>
+        <p>{{ report.recommendations }}</p>
+      </div>
+      {% endif %}
+
+      {% set anesthesiologist = '' %}
+      {% set technician = report.technician %}
+      {% include "_print_team_block.html" %}
+
+      <div class="ercp-signature-row">
+        {% set signature_class = 'print-signature print-signature--ercp' %}
+        {% set person = endoscopist %}
+        {% include "_print_signature_block.html" %}
+        {% include "_print_qr_block.html" %}
+      </div>
+    </div>
+
+    <div class="ercp-print-page2" id="printPage2" data-print-page="2" hidden>
+      {% set header_class = 'ercp-print-header' %}
+      {% set dept_line = 'Gastroenterology Ward 25 · Endoscopy Unit' %}
+      {% set title = 'Dilatation Images' %}
+      {% set subtitle = 'Report No: ' ~ report_number ~ ' — ' ~ appt.patient_name %}
+      {% include "_print_header.html" %}
+
+      <p class="ercp-report-number">
+        <span>Report No: {{ report_number }}</span>
+        <span data-page-num>Page 2 of 2</span>
+      </p>
+
+      <div id="page2OverflowSlot"></div>
+      {% include "_print_image_grid.html" %}
+
+      <div class="ercp-signature-row">
+        {% set signature_class = 'print-signature print-signature--ercp' %}
+        {% set person = endoscopist %}
+        {% include "_print_signature_block.html" %}
+        {% include "_print_qr_block.html" %}
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/print_report.js') }}"></script>
+  <script>
+    window.onBeforePrintFit = function () {
+      window.printReportFit({
+        page1Id: 'printPage1Content',
+        page2Id: 'printPage2',
+        overflowSlotId: 'page2OverflowSlot',
+        moveOrder: ['recommendationsBlock', 'impressionBlock', 'procedureNoteBlock'],
+        syncPage2: function () {
+          var page2 = document.getElementById('printPage2');
+          var overflowSlot = document.getElementById('page2OverflowSlot');
+          var hasImages = !!page2.querySelector('.ercp-print-image-grid img');
+          var hasOverflow = !!(overflowSlot && overflowSlot.children.length);
+          page2.hidden = !(hasImages || hasOverflow);
+          window.syncPrintPageNumbers();
+        }
+      });
+    };
+  </script>
+</body>
+</html>

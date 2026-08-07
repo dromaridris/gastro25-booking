@@ -1,0 +1,26 @@
+{
+  "complaint_code": "CC_weight_gain",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Weight gain history — structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Weight gain is a symptom/sign pattern (tissue vs fluid). Heart failure, ascites, and endocrine disease are differentials — not complaint codes.",
+        "Ask about edema, orthopnea, and abdominal swelling to separate fluid overload pathways."
+      ],
+      "linked_questions": [
+        "Q000169",
+        "Q000072",
+        "Q000046"
+      ]
+    }
+  ],
+  "question_coaching": {},
+  "answer_triggers": []
+}

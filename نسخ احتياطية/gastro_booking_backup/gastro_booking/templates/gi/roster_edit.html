@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{{ label }} — {{ year_month }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('gi_roster_list', roster_type=roster_type) }}">← {{ label }}</a></p>
+<h1>{{ label }} · {{ year_month }}</h1>
+<p>Status: <strong>{{ period.status }}</strong>
+{% if period.status == 'published' %} · Published {{ period.published_at[:16] if period.published_at else '' }}{% endif %}</p>
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+  <a class="btn btn--outline btn--sm" href="{{ url_for('gi_roster_export', roster_type=roster_type, year_month=year_month) }}">Export Excel</a>
+  {% if period.status != 'published' %}
+  <form method="POST" style="display:inline"><input type="hidden" name="action" value="publish">
+    <button class="btn btn--primary btn--sm" type="submit" onclick="return confirm('Publish and notify all assigned staff?')">Publish &amp; notify</button>
+  </form>
+  {% endif %}
+</div>
+
+{% if period.status != 'published' %}
+<section class="admin-section">
+  <h2>Import from Excel</h2>
+  <p class="muted">Columns: Date | Shift | Doctor usernames (comma-separated)</p>
+  <form method="POST" enctype="multipart/form-data"><input type="hidden" name="action" value="import">
+    <input type="file" name="excel_file" accept=".xlsx,.xls" required>
+    <button class="btn btn--outline btn--sm" type="submit">Import</button>
+  </form>
+</section>
+
+<section class="admin-section">
+  <h2>Assign shift</h2>
+  <form method="POST" class="settings-form"><input type="hidden" name="action" value="assign">
+    <label>Date<select name="roster_date" required>{% for d in days %}<option value="{{ d }}">{{ d }}</option>{% endfor %}</select></label>
+    <label>Shift<select name="shift_type">{% for s in shift_types %}<option value="{{ s }}">{{ s|replace('_',' ') }}</option>{% endfor %}</select></label>
+    <label>Doctors (select multiple)<select name="user_ids" multiple size="6" required>{% for s in staff %}<option value="{{ s.id }}">{{ s.full_name }}</option>{% endfor %}</select></label>
+    <label>Notes<input name="notes"></label>
+    <button class="btn btn--primary" type="submit">Save shift</button>
+  </form>
+</section>
+{% endif %}
+
+<h2>Schedule</h2>
+<table class="admin-table"><thead><tr><th>Date</th><th>Shift</th><th>Assigned</th></tr></thead>
+<tbody>{% for d in days %}{% for st in shift_types %}
+{% set key = (d, st) %}{% if grid.grid.get(key) %}
+<tr><td>{{ d }}</td><td>{{ st|replace('_',' ') }}</td>
+<td>{% for a in grid.grid[key].assignments %}{{ a.full_name }}{% if not loop.last %}, {% endif %}{% endfor %}</td></tr>
+{% endif %}{% endfor %}{% endfor %}</tbody></table>
+{% endblock %}

@@ -1,0 +1,26 @@
+{
+  "complaint_code": "CC_flank_pain",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Flank pain history — structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Flank pain is a location symptom (Bates urinary/renal). Pyelo/stone/AAA are differentials — not CCs.",
+        "Ask dysuria, hematuria, fever, and radiation to groin."
+      ],
+      "linked_questions": [
+        "Q000164",
+        "Q000162",
+        "Q000158"
+      ]
+    }
+  ],
+  "question_coaching": {},
+  "answer_triggers": []
+}

@@ -1,0 +1,20 @@
+[
+  {"id": "pmh-diabetes", "code": "PM_diabetes", "label": "Diabetes mellitus", "entity_type": "past_medical_history", "specialty_tags": ["endocrinology", "general"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "pmh-hypertension", "code": "PM_hypertension", "label": "Hypertension", "entity_type": "past_medical_history", "specialty_tags": ["cardiology", "general"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "pmh-cad", "code": "PM_coronary_artery_disease", "label": "Coronary artery disease", "entity_type": "past_medical_history", "specialty_tags": ["cardiology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "pmh-heart-failure", "code": "PM_heart_failure", "label": "Heart failure", "entity_type": "past_medical_history", "specialty_tags": ["cardiology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "pmh-copd", "code": "PM_copd", "label": "COPD", "entity_type": "past_medical_history", "specialty_tags": ["pulmonology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "pmh-asthma", "code": "PM_asthma", "label": "Asthma", "entity_type": "past_medical_history", "specialty_tags": ["pulmonology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "pmh-ckd", "code": "PM_chronic_kidney_disease", "label": "Chronic kidney disease", "entity_type": "past_medical_history", "specialty_tags": ["nephrology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "pmh-cirrhosis", "code": "PM_cirrhosis", "label": "Cirrhosis", "entity_type": "past_medical_history", "specialty_tags": ["hepatology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "pmh-hepatitis", "code": "PM_viral_hepatitis", "label": "Viral hepatitis", "entity_type": "past_medical_history", "specialty_tags": ["hepatology", "infectious_disease"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "pmh-ibd", "code": "PM_inflammatory_bowel_disease", "label": "Inflammatory bowel disease", "entity_type": "past_medical_history", "specialty_tags": ["gastroenterology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "pmh-pud", "code": "PM_peptic_ulcer_disease", "label": "Peptic ulcer disease", "entity_type": "past_medical_history", "specialty_tags": ["gastroenterology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "pmh-gerd", "code": "PM_gerd", "label": "GERD", "entity_type": "past_medical_history", "specialty_tags": ["gastroenterology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "pmh-pancreatitis", "code": "PM_pancreatitis", "label": "Prior pancreatitis", "entity_type": "past_medical_history", "specialty_tags": ["gastroenterology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "pmh-gallstones", "code": "PM_cholelithiasis", "label": "Gallstone disease", "entity_type": "past_medical_history", "specialty_tags": ["gastroenterology", "surgery"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "pmh-cancer", "code": "PM_cancer", "label": "Cancer (any)", "entity_type": "past_medical_history", "specialty_tags": ["oncology", "general"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "pmh-stroke", "code": "PM_stroke", "label": "Stroke / TIA", "entity_type": "past_medical_history", "specialty_tags": ["neurology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "pmh-thyroid", "code": "PM_thyroid_disease", "label": "Thyroid disease", "entity_type": "past_medical_history", "specialty_tags": ["endocrinology"], "schema_version": 1, "revision": 1, "status": "active"},
+  {"id": "pmh-hiv", "code": "PM_hiv", "label": "HIV infection", "entity_type": "past_medical_history", "specialty_tags": ["infectious_disease"], "schema_version": 1, "revision": 1, "status": "active"}
+]

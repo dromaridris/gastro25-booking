@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 48" role="img" aria-label="GastroIntelligence">
+  <defs>
+    <linearGradient id="giGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a5276"/>
+      <stop offset="100%" style="stop-color:#3498db"/>
+    </linearGradient>
+  </defs>
+  <circle cx="24" cy="24" r="18" fill="url(#giGrad)" opacity="0.9"/>
+  <path d="M16 24c0-4 3-7 8-7s8 3 8 7-3 7-8 7" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+  <text x="52" y="30" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="600" fill="#5c6b7a">GastroIntelligence</text>
+</svg>

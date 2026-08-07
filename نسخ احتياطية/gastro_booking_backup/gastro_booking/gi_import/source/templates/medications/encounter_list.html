@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Medications — Encounter #{{ encounter.id }}{% endblock %}
+{% block content %}
+<h2>Medications</h2>
+<p class="text-muted">
+    Encounter #{{ encounter.id }} —
+    <a href="{{ url_for('patients.view_patient', patient_id=encounter.patient_id) }}">
+        {{ encounter.patient.full_name if encounter.patient else encounter.patient_id }}
+    </a>
+</p>
+
+{% if can('medication:document') and encounter.is_open %}
+<a href="{{ url_for('medications.new_medication_entry', encounter_id=encounter.id) }}" class="btn btn-primary btn-sm mb-3">+ Add medication</a>
+{% endif %}
+
+<table class="table table-sm">
+    <thead><tr><th>Drug</th><th>Type</th><th>Dose</th><th>Frequency</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+        {% for e in entries %}
+        <tr>
+            <td>{{ e.catalogue_item.name if e.catalogue_item else e.drug_code }}</td>
+            <td>{{ e.entry_type.replace("_", " ").title() }}</td>
+            <td>{{ e.dose_text or "—" }}</td>
+            <td>{{ e.frequency_text or "—" }}</td>
+            <td><span class="badge bg-secondary">{{ e.status.title() }}</span></td>
+            <td><a href="{{ url_for('medications.view_entry', entry_id=e.id) }}">View</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-muted">No medication entries for this encounter.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{{ url_for('encounters.view_encounter', encounter_id=encounter.id) }}" class="btn btn-outline-secondary btn-sm">Back to encounter</a>
+{% endblock %}

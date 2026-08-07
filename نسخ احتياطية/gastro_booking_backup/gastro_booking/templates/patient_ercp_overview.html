@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}Patient ERCP Overview · {{ appt.patient_name }}{% endblock %}
+{% block content %}
+<div class="admin-page">
+  <div class="ercp-header no-print">
+    <div>
+      <h1>Patient ERCP Overview — {{ appt.patient_name }}</h1>
+      <p class="muted">
+        MRN {{ mrn or '—' }} · {{ appt.gender }} / {{ appt.age }}y ·
+        {{ sessions|length }} ERCP session{{ 's' if sessions|length != 1 }} on record
+      </p>
+    </div>
+    {% if latest_session %}
+    <div class="ercp-header-actions">
+      <button type="button" class="btn btn--primary" id="scheduleRepeatBtn"
+              data-appt-id="{{ latest_session.appointment.id }}">🔁 Schedule Repeat ERCP</button>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if not has_linked_history %}
+  <div class="holiday-banner no-print">
+    ⚠ This appointment has no MRN on file, so it can't be automatically cross-linked with any other visits
+    for the same patient. Only this single session is shown below. Add the MRN on the booking record to
+    enable full patient history tracking going forward.
+  </div>
+  {% endif %}
+
+  <section class="admin-section">
+    <h2>Longitudinal Timeline</h2>
+    <p class="muted" style="margin-bottom:14px;">A quick chronological overview of this patient's complete ERCP journey — sessions, follow-ups, and repeat procedures in order.</p>
+    <div class="timeline">
+      {% for event in timeline_events %}
+        {% if event.type == 'session' %}
+        <div class="timeline-item timeline-item--session">
+          <div class="timeline-dot timeline-dot--session"></div>
+          <div class="timeline-card timeline-card--session">
+            <div class="timeline-card-head">
+              <span class="timeline-date">{{ event.date }}</span>
+              <span class="badge">ERCP Session {{ event.session_number }}</span>
+              {% if event.status %}
+              <span class="ercp-status-badge ercp-status-{{ event.status }}">{{ 'Finalized' if event.status == 'finalized' else 'Draft' }}</span>
+              {% endif %}
+              {% if event.repeat_of_session_number %}
+              <span class="followup-tag">🔁 Repeat of Session {{ event.repeat_of_session_number }}</span>
+              {% endif %}
+            </div>
+            {% if event.indication %}<p class="followup-field"><strong>Indication:</strong> {{ event.indication }}</p>{% endif %}
+            {% if event.endoscopist_name %}<p class="followup-field"><strong>Endoscopist:</strong> {{ event.endoscopist_name }}</p>{% endif %}
+            {% if event.report_id %}
+            <a class="btn btn--sm btn--outline no-print" href="{{ url_for('ercp_report_view', appointment_id=event.appointment_id) }}">Open Report</a>
+            {% else %}
+            <a class="btn btn--sm btn--outline no-print" href="{{ url_for('ercp_report_view', appointment_id=event.appointment_id) }}">Start Report</a>
+            {% endif %}
+          </div>
+        </div>
+        {% else %}
+        <div class="timeline-item timeline-item--followup">
+          <div class="timeline-dot timeline-dot--followup"></div>
+          <div class="timeline-card timeline-card--followup">
+            <div class="timeline-card-head">
+              <span class="timeline-date">{{ event.date }}</span>
+              <span class="badge badge--muted">Follow-up · Session {{ event.session_number }}</span>
+              {% if event.followup.clinical_status %}<span class="followup-tag">{{ event.followup.clinical_status }}</span>{% endif %}
+              {% if event.followup.outcome %}<span class="followup-tag followup-tag--outcome">{{ event.followup.outcome }}</span>{% endif %}
+            </div>
+            {% if event.followup.clinical_notes %}<p class="followup-field"><strong>Clinical Notes:</strong> {{ event.followup.clinical_notes }}</p>{% endif %}
+            {% if event.followup.histopathology_result %}<p class="followup-field"><strong>Histopathology / Biopsy:</strong> {{ event.followup.histopathology_result }}</p>{% endif %}
+          </div>
+        </div>
+        {% endif %}
+      {% else %}
+      <p class="muted">No ERCP history recorded yet.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  {% for s in sessions %}
+  <section class="admin-section">
+    <h2>
+      ERCP Session {{ s.session_number }}
+      <span class="badge">{{ s.appointment.appointment_date }}</span>
+      {% if s.report and s.report.status %}
+      <span class="ercp-status-badge ercp-status-{{ s.report.status }}">{{ 'Finalized' if s.report.status == 'finalized' else 'Draft' }}</span>
+      {% endif %}
+      {% if s.repeat_of_session_number %}
+      <span class="followup-tag">🔁 Repeat of Session {{ s.repeat_of_session_number }}</span>
+      {% endif %}
+    </h2>
+
+    {% if s.report %}
+    <div class="admin-table-scroll"><table class="admin-table">
+      <tbody>
+        {% if s.report.indication %}<tr><td><strong>Indication</strong></td><td>{{ s.report.indication }}</td></tr>{% endif %}
+        {% if s.endoscopist %}<tr><td><strong>Endoscopist</strong></td><td>{{ s.endoscopist.full_name }}</td></tr>{% endif %}
+        {% set labs = [] %}
+        {% if s.report.lab_total_bilirubin %}{% set _ = labs.append('Tb ' ~ s.report.lab_total_bilirubin) %}{% endif %}
+        {% if s.report.lab_alt %}{% set _ = labs.append('ALT ' ~ s.report.lab_alt) %}{% endif %}
+        {% if s.report.lab_ggt %}{% set _ = labs.append('GGT ' ~ s.report.lab_ggt) %}{% endif %}
+        {% if s.report.lab_alp %}{% set _ = labs.append('ALP ' ~ s.report.lab_alp) %}{% endif %}
+        {% if s.report.lab_hb %}{% set _ = labs.append('Hb ' ~ s.report.lab_hb) %}{% endif %}
+        {% if s.report.lab_platelets %}{% set _ = labs.append('Plt ' ~ s.report.lab_platelets) %}{% endif %}
+        {% if s.report.lab_inr %}{% set _ = labs.append('INR ' ~ s.report.lab_inr) %}{% endif %}
+        {% if labs %}<tr><td><strong>Labs</strong></td><td>{{ labs|join(' · ') }}</td></tr>{% endif %}
+        {% if s.report.imaging_us %}<tr><td><strong>U/S Findings</strong></td><td>{{ s.report.imaging_us }}</td></tr>{% endif %}
+        {% if s.report.imaging_mrcp %}<tr><td><strong>MRCP Findings</strong></td><td>{{ s.report.imaging_mrcp }}</td></tr>{% endif %}
+        {% if s.appointment.previous_labs %}<tr><td><strong>Previous Labs</strong></td><td>{{ s.appointment.previous_labs }}</td></tr>{% endif %}
+        {% if s.cholangio_summary %}<tr><td><strong>Cholangiogram</strong></td><td>{{ s.cholangio_summary }}</td></tr>{% endif %}
+        {% if s.stent_summary %}<tr><td><strong>Biliary Stent</strong></td><td>{{ s.stent_summary }}</td></tr>{% endif %}
+        {% if s.report.biopsy and s.report.biopsy != 'Not taken' %}<tr><td><strong>Biopsy</strong></td><td>{{ s.report.biopsy }}</td></tr>{% endif %}
+        {% if s.report.complications and s.report.complications != 'None' %}<tr><td><strong>Complications</strong></td><td>{{ s.report.complications }}</td></tr>{% endif %}
+      </tbody>
+    </table></div>
+    <div style="margin-top:10px;" class="no-print">
+      <a class="btn btn--sm btn--outline" href="{{ url_for('ercp_report_view', appointment_id=s.appointment.id) }}">Open Report</a>
+      <button type="button" class="btn btn--sm btn--outline" onclick="openFollowupModalForNew({{ s.report.id }})">+ Add Follow-up</button>
+      <button type="button" class="btn btn--sm btn--outline schedule-repeat-btn" data-appt-id="{{ s.appointment.id }}">🔁 Repeat this Session</button>
+    </div>
+
+    <h3 style="margin-top:18px;font-size:14px;">Follow-up Records</h3>
+    <div class="timeline" id="followupTimeline-{{ s.report.id }}">Loading…</div>
+    {% else %}
+    <p class="muted">Report not started yet — <a href="{{ url_for('ercp_report_view', appointment_id=s.appointment.id) }}">open it</a> to begin documenting this session.</p>
+    {% endif %}
+  </section>
+  {% endfor %}
+</div>
+
+{% include "_followup_modal.html" %}
+{% include "_repeat_ercp_modal.html" %}
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script>
+  initRepeatErcpModal();
+  initFollowupModal(refreshAllFollowupTimelines);
+
+  document.querySelectorAll('.schedule-repeat-btn, #scheduleRepeatBtn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      openRepeatErcpModal(btn.dataset.apptId, {{ (appt.patient_name ~ ' (MRN ' ~ (mrn or '—') ~ ')') | tojson }});
+    });
+  });
+
+  {% for s in sessions %}
+  {% if s.report %}
+  registerFollowupTimeline({{ s.report.id }});
+  {% endif %}
+  {% endfor %}
+</script>
+{% endblock %}

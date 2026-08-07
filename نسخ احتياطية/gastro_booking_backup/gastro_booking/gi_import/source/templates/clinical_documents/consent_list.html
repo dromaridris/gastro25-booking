@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Consent Forms{% endblock %}
+{% block content %}
+<h2>Consent Forms</h2>
+{% if can('consent:sign') %}
+<form method="POST" action="{{ url_for('clinical_documents.consent_create') }}" class="row g-2 mb-4">
+  <input type="hidden" name="patient_id" value="{{ patient_id }}">
+  <div class="col-auto"><select name="template_id" class="form-select form-select-sm" required>
+    {% for t in templates %}<option value="{{ t.id }}">{{ t.title }}</option>{% endfor %}
+  </select></div>
+  <div class="col-auto"><button class="btn btn-primary btn-sm">New Consent</button></div>
+</form>
+{% endif %}
+<table class="table table-sm">
+  <thead><tr><th>Template</th><th>Status</th><th>Signed</th><th></th></tr></thead>
+  <tbody>
+  {% for rec in records %}
+    <tr>
+      <td>{{ rec.template.title if rec.template else '—' }}</td>
+      <td>{{ rec.status }}</td>
+      <td>{{ rec.signed_at.strftime("%Y-%m-%d") if rec.signed_at else '—' }}</td>
+      <td><a href="{{ url_for('clinical_documents.consent_sign', record_id=rec.id) }}">View</a></td>
+    </tr>
+  {% else %}
+    <tr><td colspan="4" class="text-muted">No consent records.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

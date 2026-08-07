@@ -1,0 +1,794 @@
+{
+  "schema_version": "1",
+  "template_key": "eus",
+  "label": "EUS — Structured Clinical Report",
+  "sections": [
+    {
+      "id": "context",
+      "label": "Clinical Context",
+      "workflow_phase": "WF_CONTEXT",
+      "fields": [
+        {
+          "id": "eus.context.indication_category",
+          "label": "Indication category",
+          "type": "multi_select",
+          "required": true,
+          "default": [],
+          "vocabulary_source": "eus_indication_category",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ],
+          "research_flag": true
+        },
+        {
+          "id": "eus.context.indication_detail",
+          "label": "Indication detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ]
+        },
+        {
+          "id": "eus.context.urgency",
+          "label": "Urgency",
+          "type": "dropdown",
+          "required": true,
+          "default": "",
+          "vocabulary_source": "procedure_urgency",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ]
+        },
+        {
+          "id": "eus.context.consent_obtained",
+          "label": "Consent obtained",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ]
+        },
+        {
+          "id": "eus.context.anticoagulation",
+          "label": "Anticoagulation / antiplatelet therapy",
+          "type": "dropdown",
+          "default": "",
+          "vocabulary_source": "anticoagulation_status",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ]
+        },
+        {
+          "id": "eus.context.targeted_lesion",
+          "label": "Targeted lesion description",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_CONTEXT"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "technique",
+      "label": "Technique & Target",
+      "workflow_phase": "WF_ACCESS",
+      "fields": [
+        {
+          "id": "eus.technique.scope_type",
+          "label": "Scope type",
+          "type": "dropdown",
+          "required": true,
+          "default": "",
+          "vocabulary_source": "eus_scope_type",
+          "workflow_phases": [
+            "WF_ACCESS"
+          ]
+        },
+        {
+          "id": "eus.technique.frequency",
+          "label": "Frequency",
+          "type": "dropdown",
+          "default": "",
+          "vocabulary_source": "eus_frequency",
+          "workflow_phases": [
+            "WF_ACCESS"
+          ]
+        },
+        {
+          "id": "eus.technique.doppler_used",
+          "label": "Doppler used",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_ACCESS"
+          ]
+        },
+        {
+          "id": "eus.technique.contrast_used",
+          "label": "Contrast used",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_ACCESS"
+          ]
+        },
+        {
+          "id": "eus.technique.target_organ",
+          "label": "Target organ",
+          "type": "dropdown",
+          "default": "",
+          "vocabulary_source": "eus_target_organ",
+          "workflow_phases": [
+            "WF_ACCESS"
+          ]
+        },
+        {
+          "id": "eus.technique.lesion_location",
+          "label": "Lesion location",
+          "type": "text",
+          "default": "",
+          "workflow_phases": [
+            "WF_ACCESS"
+          ]
+        },
+        {
+          "id": "eus.technique.lesion_size_mm",
+          "label": "Lesion size (mm)",
+          "type": "text",
+          "default": "",
+          "workflow_phases": [
+            "WF_ACCESS"
+          ]
+        },
+        {
+          "id": "eus.technique.echo_layer",
+          "label": "Echo layer",
+          "type": "dropdown",
+          "default": "",
+          "vocabulary_source": "eus_echo_layer",
+          "workflow_phases": [
+            "WF_ACCESS"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "findings",
+      "label": "Findings",
+      "workflow_phase": "WF_IMAGING",
+      "fields": [
+        {
+          "id": "eus.findings.pancreas_normal",
+          "label": "Pancreas — normal",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ]
+        },
+        {
+          "id": "eus.findings.pancreas_findings",
+          "label": "Pancreas — findings",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "eus_finding_type",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "eus.findings.pancreas_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "eus.findings.pancreas_detail",
+          "label": "Pancreas — detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "eus.findings.pancreas_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "eus.findings.bile_duct_normal",
+          "label": "Bile duct — normal",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ]
+        },
+        {
+          "id": "eus.findings.bile_duct_findings",
+          "label": "Bile duct — findings",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "eus_finding_type",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "eus.findings.bile_duct_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "eus.findings.bile_duct_detail",
+          "label": "Bile duct — detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "eus.findings.bile_duct_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "eus.findings.mediastinal_normal",
+          "label": "Mediastinal — normal",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ]
+        },
+        {
+          "id": "eus.findings.mediastinal_findings",
+          "label": "Mediastinal — findings",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "eus_finding_type",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "eus.findings.mediastinal_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "eus.findings.mediastinal_detail",
+          "label": "Mediastinal — detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "eus.findings.mediastinal_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "eus.findings.rectal_normal",
+          "label": "Rectal — normal",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ]
+        },
+        {
+          "id": "eus.findings.rectal_findings",
+          "label": "Rectal — findings",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "eus_finding_type",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "eus.findings.rectal_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        },
+        {
+          "id": "eus.findings.rectal_detail",
+          "label": "Rectal — detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_IMAGING"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "eus.findings.rectal_normal",
+            "operator": "equals",
+            "value": "No"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sampling",
+      "label": "Sampling",
+      "workflow_phase": "WF_THERAPY",
+      "fields": [
+        {
+          "id": "eus.sampling.fna_performed",
+          "label": "FNA / FNB performed",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_THERAPY"
+          ]
+        },
+        {
+          "id": "eus.sampling.needle_type",
+          "label": "Needle type",
+          "type": "dropdown",
+          "default": "",
+          "vocabulary_source": "eus_needle_type",
+          "workflow_phases": [
+            "WF_THERAPY"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "eus.sampling.fna_performed",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "eus.sampling.pass_count",
+          "label": "Number of passes",
+          "type": "text",
+          "default": "",
+          "workflow_phases": [
+            "WF_THERAPY"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "eus.sampling.fna_performed",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "eus.sampling.rose_performed",
+          "label": "ROSE performed",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_THERAPY"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "eus.sampling.fna_performed",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "eus.sampling.cytology_adequacy",
+          "label": "Cytology adequacy",
+          "type": "dropdown",
+          "default": "",
+          "vocabulary_source": "eus_cytology_adequacy",
+          "workflow_phases": [
+            "WF_THERAPY"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "eus.sampling.fna_performed",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        }
+      ]
+    },
+    {
+      "id": "closure",
+      "label": "Closure",
+      "workflow_phase": "WF_CLOSURE",
+      "fields": [
+        {
+          "id": "eus.closure.procedure_completed",
+          "label": "Procedure completed as planned",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ],
+          "qi_flag": true,
+          "qi_mapping": {
+            "metric_key": "procedure_completed",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "eus.closure.immediate_complication",
+          "label": "Immediate complication",
+          "type": "yes_no",
+          "required": true,
+          "default": "",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ],
+          "qi_flag": true,
+          "qi_mapping": {
+            "metric_key": "immediate_complication",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "eus.closure.complication_types",
+          "label": "Complication type(s)",
+          "type": "multi_select",
+          "default": [],
+          "vocabulary_source": "standard_complication_type",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "eus.closure.immediate_complication",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "eus.closure.complication_detail",
+          "label": "Complication detail",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "eus.closure.immediate_complication",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        },
+        {
+          "id": "eus.closure.specimens_sent",
+          "label": "Specimens sent",
+          "type": "yes_no",
+          "default": "",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ]
+        },
+        {
+          "id": "eus.closure.specimen_details",
+          "label": "Specimen details",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_CLOSURE"
+          ],
+          "visibility": {
+            "when": "field",
+            "field_id": "eus.closure.specimens_sent",
+            "operator": "equals",
+            "value": "Yes"
+          }
+        }
+      ]
+    },
+    {
+      "id": "synthesis",
+      "label": "Synthesis",
+      "workflow_phase": "WF_SYNTHESIS",
+      "fields": [
+        {
+          "id": "eus.synthesis.impression_primary",
+          "label": "Primary impression",
+          "type": "long_text",
+          "required": true,
+          "default": "",
+          "workflow_phases": [
+            "WF_SYNTHESIS"
+          ]
+        },
+        {
+          "id": "eus.synthesis.clinical_plan",
+          "label": "Recommendations / clinical plan",
+          "type": "long_text",
+          "required": true,
+          "default": "",
+          "workflow_phases": [
+            "WF_SYNTHESIS"
+          ]
+        },
+        {
+          "id": "eus.synthesis.t_stage",
+          "label": "T stage (if applicable)",
+          "type": "dropdown",
+          "default": "",
+          "vocabulary_source": "eus_t_stage",
+          "workflow_phases": [
+            "WF_SYNTHESIS"
+          ]
+        },
+        {
+          "id": "eus.synthesis.addendum_text",
+          "label": "Addendum",
+          "type": "long_text",
+          "default": "",
+          "workflow_phases": [
+            "WF_SYNTHESIS"
+          ]
+        }
+      ]
+    }
+  ],
+  "components": {
+    "timeline": [
+      {
+        "key": "scope_insertion",
+        "label": "Scope inserted"
+      },
+      {
+        "key": "fna_start",
+        "label": "FNA started"
+      },
+      {
+        "key": "scope_removal",
+        "label": "Scope removed"
+      }
+    ]
+  },
+  "section_narratives": [
+    {
+      "section": "clinical_indication",
+      "intro": "Clinical indication:",
+      "bindings": [
+        {
+          "mode": "literal",
+          "field_id": "eus.context.indication_category",
+          "label": "Category"
+        },
+        {
+          "mode": "literal",
+          "field_id": "eus.context.indication_detail",
+          "label": "Detail"
+        },
+        {
+          "mode": "sentence",
+          "field_id": "eus.context.urgency",
+          "template": "Urgency: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "eus.context.consent_obtained",
+          "template": "Consent obtained: {value}."
+        }
+      ]
+    },
+    {
+      "section": "impression",
+      "bindings": [
+        {
+          "mode": "sentence",
+          "field_id": "eus.synthesis.impression_primary",
+          "template": "Impression:\n{value}"
+        }
+      ]
+    },
+    {
+      "section": "recommendations",
+      "intro": "Recommendations / plan:",
+      "bindings": [
+        {
+          "mode": "literal",
+          "field_id": "eus.synthesis.clinical_plan",
+          "label": ""
+        },
+        {
+          "mode": "sentence",
+          "field_id": "eus.synthesis.addendum_text",
+          "template": "Addendum:\n{value}"
+        }
+      ]
+    },
+    {
+      "section": "complications",
+      "intro": "Complications and closure:",
+      "bindings": [
+        {
+          "mode": "sentence",
+          "field_id": "eus.closure.procedure_completed",
+          "template": "Procedure completed as planned: {value}."
+        },
+        {
+          "mode": "sentence",
+          "field_id": "eus.closure.immediate_complication",
+          "template": "Immediate complication: {value}."
+        },
+        {
+          "mode": "literal",
+          "field_id": "eus.closure.complication_types",
+          "label": "Complication type(s)"
+        },
+        {
+          "mode": "sentence",
+          "field_id": "eus.closure.complication_detail",
+          "template": "Complication detail: {value}."
+        }
+      ]
+    }
+  ],
+  "workflow": {
+    "states": [
+      "WF_CONTEXT",
+      "WF_ACCESS",
+      "WF_IMAGING",
+      "WF_THERAPY",
+      "WF_CLOSURE",
+      "WF_SYNTHESIS",
+      "WF_REVIEW",
+      "WF_FINALIZE"
+    ],
+    "transitions": {
+      "WF_CONTEXT": [
+        "WF_ACCESS"
+      ],
+      "WF_ACCESS": [
+        "WF_CONTEXT",
+        "WF_IMAGING"
+      ],
+      "WF_IMAGING": [
+        "WF_ACCESS",
+        "WF_THERAPY"
+      ],
+      "WF_THERAPY": [
+        "WF_IMAGING",
+        "WF_CLOSURE"
+      ],
+      "WF_CLOSURE": [
+        "WF_THERAPY",
+        "WF_SYNTHESIS"
+      ],
+      "WF_SYNTHESIS": [
+        "WF_CLOSURE",
+        "WF_REVIEW"
+      ],
+      "WF_REVIEW": [
+        "WF_SYNTHESIS",
+        "WF_FINALIZE"
+      ],
+      "WF_FINALIZE": [
+        "WF_REVIEW"
+      ]
+    }
+  },
+  "validation": [
+    {
+      "id": "V_EUS_INDICATION",
+      "severity": "error",
+      "message": "Indication category is required before finalize.",
+      "rule": {
+        "type": "field_present",
+        "field_id": "eus.context.indication_category"
+      }
+    },
+    {
+      "id": "V_EUS_URGENCY",
+      "severity": "error",
+      "message": "Urgency is required before finalize.",
+      "rule": {
+        "type": "field_present",
+        "field_id": "eus.context.urgency"
+      }
+    },
+    {
+      "id": "V_EUS_CONSENT",
+      "severity": "error",
+      "message": "Consent outcome must be documented before finalize.",
+      "rule": {
+        "type": "field_in",
+        "field_id": "eus.context.consent_obtained",
+        "values": [
+          "Yes",
+          "No"
+        ]
+      }
+    },
+    {
+      "id": "V_EUS_PROC",
+      "severity": "error",
+      "message": "Scope type must be documented before finalize.",
+      "rule": {
+        "type": "field_present",
+        "field_id": "eus.technique.scope_type"
+      }
+    },
+    {
+      "id": "V_EUS_COMPLETED",
+      "severity": "error",
+      "message": "Procedure completion status is required before finalize.",
+      "rule": {
+        "type": "field_present",
+        "field_id": "eus.closure.procedure_completed"
+      }
+    },
+    {
+      "id": "V_EUS_COMPLICATION",
+      "severity": "error",
+      "message": "Immediate complication outcome must be documented before finalize.",
+      "rule": {
+        "type": "field_present",
+        "field_id": "eus.closure.immediate_complication"
+      }
+    },
+    {
+      "id": "V_EUS_IMPRESSION",
+      "severity": "error",
+      "message": "Primary impression is required before finalize.",
+      "rule": {
+        "type": "field_nonempty",
+        "field_id": "eus.synthesis.impression_primary"
+      }
+    },
+    {
+      "id": "V_EUS_PLAN",
+      "severity": "error",
+      "message": "Clinical plan / recommendations are required before finalize.",
+      "rule": {
+        "type": "field_nonempty",
+        "field_id": "eus.synthesis.clinical_plan"
+      }
+    }
+  ],
+  "quick_fill": {
+    "normal_diagnostic": {
+      "label": "Normal diagnostic EUS",
+      "values": {
+        "eus.context.indication_category": [
+          "submucosal_lesion"
+        ],
+        "eus.context.urgency": "elective",
+        "eus.context.consent_obtained": "Yes",
+        "eus.technique.scope_type": "linear",
+        "eus.sampling.fna_performed": "No",
+        "eus.findings.pancreas_normal": "Yes",
+        "eus.findings.bile_duct_normal": "Yes",
+        "eus.findings.mediastinal_normal": "Yes",
+        "eus.findings.rectal_normal": "Yes",
+        "eus.closure.procedure_completed": "Yes",
+        "eus.closure.immediate_complication": "No",
+        "eus.synthesis.impression_primary": "Normal EUS examination.",
+        "eus.synthesis.clinical_plan": "Routine clinical follow-up as indicated."
+      }
+    }
+  },
+  "qi": [
+    {
+      "metric_key": "immediate_complication",
+      "label": "Immediate complication"
+    },
+    {
+      "metric_key": "procedure_completed",
+      "label": "Procedure completed"
+    }
+  ]
+}

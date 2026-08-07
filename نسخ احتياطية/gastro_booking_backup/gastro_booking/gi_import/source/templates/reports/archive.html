@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Archive Report{% endblock %}
+{% block content %}
+<h2>Archive Report {{ report.report_number }}</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">{{ form.reason.label(class="form-label") }}{{ form.reason(class="form-control") }}</div>
+    {{ form.submit(class="btn btn-danger") }}
+    <a href="{{ url_for('reports.view_report', report_id=report.id) }}" class="btn btn-link">Cancel</a>
+</form>
+{% endblock %}

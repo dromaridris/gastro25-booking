@@ -1,0 +1,26 @@
+{
+  "complaint_code": "CC_dizziness",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Dizziness / vertigo / lightheadedness history — structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Separate spinning vertigo from lightheaded near-syncope (Bates cardiac vs vestibular pathways).",
+        "Do not use 'labyrinthitis' or 'hypotension' as the complaint code."
+      ],
+      "linked_questions": [
+        "Q000154",
+        "Q000153",
+        "Q000038"
+      ]
+    }
+  ],
+  "question_coaching": {},
+  "answer_triggers": []
+}

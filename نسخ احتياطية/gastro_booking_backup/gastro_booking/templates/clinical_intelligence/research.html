@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% from 'clinical_intelligence/_nav.html' import ci_nav %}
+{% block title %}Research · encounter {{ enc.id }}{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>Research engine</h1>
+    <p class="muted">#{{ enc.id }} · gaps &amp; hypotheses</p>
+  </div>
+  {{ ci_nav(enc, ci_tabs, 'research') }}
+</section>
+
+<section class="admin-section">
+  <h2>Detected gaps / signals</h2>
+  {% if research.entries %}
+  <ul>
+    {% for g in research.entries %}
+    <li><span class="badge">{{ g.priority }}</span> <strong>{{ g.title }}</strong><br>
+      <span class="muted">{{ g.hypothesis }}</span></li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="muted">No gaps triggered for this encounter state.</p>
+  {% endif %}
+</section>
+
+<section class="admin-section">
+  <h2>Question bank</h2>
+  <ul>
+    {% for q in research.question_bank %}
+    <li><strong>{{ q.title }}</strong> — {{ q.prompt }}</li>
+    {% endfor %}
+  </ul>
+</section>
+
+<section class="admin-section">
+  <h2>Save hypothesis</h2>
+  <form method="POST" class="settings-form">
+    <label>Title <input name="title" required></label>
+    <label>Hypothesis <textarea name="hypothesis" rows="3" required></textarea></label>
+    <button class="btn btn--primary" type="submit">Save</button>
+  </form>
+</section>
+
+{% if saved %}
+<section class="admin-section">
+  <h2>Saved hypotheses</h2>
+  {% for s in saved %}
+  <div class="compact-card" style="margin-bottom:8px;">
+    <strong>#{{ s.id }} {{ s.title }}</strong>
+    <div class="muted">{{ s.hypothesis }}</div>
+  </div>
+  {% endfor %}
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Department logbook{% endblock %}
+{% block content %}
+<div class="page-compact">
+<h1>Department logbook</h1>
+{% include "_module_intro.html" %}
+<p><a href="{{ url_for('gi_governance_dashboard') }}">← Governance</a>
+ · <a href="{{ url_for('gi_logbook_export') }}">Export Excel</a></p>
+
+<form method="GET" class="compact-form">
+  <select name="role"><option value="">All roles</option>
+    {% for s in staff %}<option value="{{ s.role }}" {% if role_filter==s.role %}selected{% endif %}>{{ s.full_name }} ({{ s.role }})</option>{% endfor %}
+  </select>
+  <button class="btn btn--sm btn--outline" type="submit">Filter</button>
+</form>
+
+<div class="admin-table-scroll">
+<table class="admin-table compact-table"><thead><tr><th>Staff</th><th>Role</th><th>Activity</th><th>MRN / Patient</th><th>Date</th><th></th></tr></thead>
+<tbody>{% for e in entries %}
+<tr>
+  <td><a href="{{ url_for('gi_staff_profile', user_id=e.user_id) }}">{{ e.staff_name }}</a></td>
+  <td>{{ e.staff_role|replace('_',' ') }}</td>
+  <td>{{ e.title }}</td>
+  <td>{{ e.mrn or '' }} {{ e.patient_name or e.wp_name or '' }}</td>
+  <td>{{ e.created_at[:16] if e.created_at else '' }}</td>
+  <td><a href="{{ url_for('gi_logbook_evaluate', entry_id=e.id) }}">Evaluate</a></td>
+</tr>{% else %}<tr><td colspan="6" class="muted">No entries.</td></tr>{% endfor %}</tbody></table>
+</div>
+</div>
+{% endblock %}

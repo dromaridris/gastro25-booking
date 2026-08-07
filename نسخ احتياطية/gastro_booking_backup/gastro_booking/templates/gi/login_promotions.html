@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Login promotions{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>Login page promotions</h1>
+    {% include "_module_intro.html" %}
+    <p class="muted">Admin &amp; Head of Department · pharmaceutical partner images on the login screen</p>
+  </div>
+</section>
+
+<div class="admin-section" style="margin-bottom:20px;">
+  <h2 style="margin-top:0;font-size:16px;">How it works</h2>
+  <ul style="margin:0;padding-left:20px;line-height:1.7;font-size:14px;">
+    <li>Up to <strong>{{ max_slots }}</strong> images appear around the login form at once.</li>
+    <li>If you upload more than {{ max_slots }} active images, a <strong>different random set of {{ max_slots }}</strong> is shown each day (same set all day for every visitor).</li>
+    <li>Supported formats: PNG, JPG, WEBP, GIF.</li>
+  </ul>
+  <p class="muted" style="margin-top:10px;font-size:13px;">
+    Active images: {{ active_count }} · Today's visible set: {{ today_preview|length }}
+  </p>
+</div>
+
+<section class="admin-section" style="margin-bottom:24px;">
+  <h2 style="margin-top:0;font-size:16px;">Upload image</h2>
+  <form method="POST" enctype="multipart/form-data" class="settings-form">
+    <input type="hidden" name="action" value="upload">
+    <label>Image file
+      <input type="file" name="image_file" accept=".png,.jpg,.jpeg,.webp,.gif" required>
+    </label>
+    <label>Label <span class="muted">(optional — e.g. company name)</span>
+      <input type="text" name="label" placeholder="Pharma partner">
+    </label>
+    <label>Click-through URL <span class="muted">(optional)</span>
+      <input type="url" name="link_url" placeholder="https://">
+    </label>
+    <button class="btn btn--primary" type="submit">Upload</button>
+  </form>
+</section>
+
+{% if today_preview %}
+<section class="admin-section" style="margin-bottom:24px;">
+  <h2 style="margin-top:0;font-size:16px;">Today's login preview</h2>
+  <div class="login-promo-preview-grid">
+    {% for img in today_preview %}
+    <div class="login-promo-preview-item">
+      <img src="{{ url_for('gi_login_promo_image', image_id=img.id) }}" alt="{{ img.label or img.original_filename or 'Promo' }}">
+      {% if img.label %}<span class="muted" style="font-size:11px;">{{ img.label }}</span>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<h2>All uploaded images</h2>
+<div class="admin-table-scroll"><table class="admin-table">
+  <thead>
+    <tr><th>Preview</th><th>Label</th><th>File</th><th>Active</th><th>Uploaded</th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for img in images %}
+    <tr>
+      <td><img src="{{ url_for('gi_login_promo_admin_file', image_id=img.id) }}" alt="" style="max-height:48px;max-width:80px;object-fit:contain;"></td>
+      <td>{{ img.label or '—' }}</td>
+      <td style="font-size:12px;">{{ img.original_filename or img.stored_filename }}</td>
+      <td>{{ 'Yes' if img.is_active else 'No' }}</td>
+      <td style="font-size:12px;">{{ (img.created_at or '')[:16].replace('T', ' ') }}</td>
+      <td class="admin-actions" style="white-space:nowrap;">
+        <form method="POST" style="display:inline;">
+          <input type="hidden" name="action" value="toggle">
+          <input type="hidden" name="image_id" value="{{ img.id }}">
+          <input type="hidden" name="active" value="{{ 0 if img.is_active else 1 }}">
+          <button class="btn btn--sm btn--outline" type="submit">{{ 'Hide' if img.is_active else 'Show' }}</button>
+        </form>
+        <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this image?');">
+          <input type="hidden" name="action" value="delete">
+          <input type="hidden" name="image_id" value="{{ img.id }}">
+          <button class="btn btn--sm btn--ghost" type="submit">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="muted">No promotional images yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table></div>
+{% endblock %}

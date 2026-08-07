@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}{% if mode == "edit" %}Edit{% else %}New{% endif %} Procedure Type{% endblock %}
+{% block content %}
+<h2>{% if mode == "edit" %}Edit Procedure Type{% else %}New Procedure Type{% endif %}</h2>
+<form method="POST" class="col-md-6">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        {{ form.name.label(class="form-label") }}
+        {{ form.name(class="form-control") }}
+    </div>
+    <div class="form-check mb-3">
+        {{ form.requires_special_authorization(class="form-check-input") }}
+        {{ form.requires_special_authorization.label(class="form-check-label") }}
+    </div>
+    <div class="mb-3">
+        {{ form.report_template_key.label(class="form-label") }}
+        {{ form.report_template_key(class="form-select") }}
+        {% if form.report_template_key.description %}
+        <div class="form-text">{{ form.report_template_key.description }}</div>
+        {% endif %}
+    </div>
+    <div class="mb-3">
+        {{ form.description.label(class="form-label") }}
+        {{ form.description(class="form-control", rows=3) }}
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+</form>
+{% endblock %}

@@ -1,0 +1,17 @@
+{# Right column: clinical images only (absolute, out of document flow). #}
+{% if sidebar_images %}
+<aside class="print-right-rail" aria-label="Clinical images">
+  <div class="print-sidebar-images" data-image-count="{{ sidebar_images|length }}" style="--img-count: {{ sidebar_images|length }}">
+    {% for img in sidebar_images %}
+    <figure class="print-sidebar-figure">
+      <div class="print-sidebar-img-box">
+        <img src="{{ img.url }}" alt="Procedure image {{ img.slot }}">
+      </div>
+      {% if img.caption %}
+      <figcaption>{{ img.caption }}</figcaption>
+      {% endif %}
+    </figure>
+    {% endfor %}
+  </div>
+</aside>
+{% endif %}

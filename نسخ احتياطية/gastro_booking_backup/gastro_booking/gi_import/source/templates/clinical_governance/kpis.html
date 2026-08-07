@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Quality Indicators{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4">Quality Indicators</h1>
+
+{% macro kpi_bar(label, value, variant='primary') %}
+<div class="mb-3">
+    <div class="d-flex justify-content-between small mb-1">
+        <span>{{ label }}</span>
+        <span>{% if value is not none %}{{ value }}%{% else %}—{% endif %}</span>
+    </div>
+    <div class="gi-chart-bar" role="progressbar" aria-valuenow="{{ value or 0 }}" aria-valuemin="0" aria-valuemax="100">
+        <div class="gi-chart-bar-fill {{ variant }}" style="width: {{ value or 0 }}%;"></div>
+    </div>
+</div>
+{% endmacro %}
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card gi-card p-3">
+            <h2 class="h5">Upper GI</h2>
+            {{ kpi_bar('Completion rate', kpis.upper_gi.completion_rate_pct) }}
+            {{ kpi_bar('Biopsy rate', kpis.upper_gi.biopsy_rate_pct, 'secondary') }}
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card gi-card p-3">
+            <h2 class="h5">Colonoscopy</h2>
+            {{ kpi_bar('Cecal intubation', kpis.colonoscopy.cecal_intubation_rate_pct) }}
+            {{ kpi_bar('ADR', kpis.colonoscopy.adenoma_detection_rate_pct, 'accent') }}
+            {{ kpi_bar('Bowel prep adequate', kpis.colonoscopy.bowel_prep_adequate_pct, 'secondary') }}
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card gi-card p-3">
+            <h2 class="h5">ERCP</h2>
+            {{ kpi_bar('Cannulation success', kpis.ercp.cannulation_success_pct) }}
+            {{ kpi_bar('Stone clearance', kpis.ercp.stone_clearance_pct, 'accent') }}
+            {{ kpi_bar('Complication rate', kpis.ercp.complication_rate_pct, 'secondary') }}
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card gi-card p-3">
+            <h2 class="h5">Operations &amp; Workforce</h2>
+            <p class="mb-2">Average waiting list: <strong>{{ kpis.waiting_list.average_waiting_days }}</strong> days</p>
+            {{ kpi_bar('Cancellation rate', kpis.waiting_list.cancellation_rate_pct, 'secondary') }}
+            <p class="mt-3 mb-0">Trainee procedures: <strong>{{ kpis.workforce.trainee_procedure_total }}</strong></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

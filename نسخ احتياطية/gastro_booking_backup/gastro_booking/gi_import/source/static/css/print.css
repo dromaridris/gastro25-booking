@@ -1,0 +1,32 @@
+/* Print and PDF branding — Sprint 8B */
+
+.gi-print-body pre {
+    white-space: pre-wrap;
+    font-family: inherit;
+    margin: 0;
+}
+
+.report-section {
+    margin-bottom: 1.25rem;
+}
+
+@media print {
+    .no-print { display: none !important; }
+    body { font-size: 11pt; }
+    .gi-print-body { background: #fff; }
+    .gi-navbar,
+    .gi-footer,
+    .no-print-nav,
+    .gi-splash,
+    .gi-loading-overlay {
+        display: none !important;
+    }
+    body.gi-app {
+        background: #fff;
+        color: #000;
+    }
+    .gi-card {
+        border: none;
+        box-shadow: none;
+    }
+}

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}MCQ Question Bank{% endblock %}
+{% block content %}
+<div class="admin-page mcq-page">
+<div class="mcq-page-head">
+  <h1>Study</h1>
+  {% if current_user.role in ['admin', 'hod', 'specialist', 'registrar'] %}
+  <a class="btn btn--primary" href="{{ url_for('mcqbank_admin_dashboard') }}">MCQ Bank Admin</a>
+  {% endif %}
+</div>
+
+{% if daily_target.enabled %}
+<div class="mcq-daily-target mcq-daily-target--active" id="mcq-daily-target">
+  <div class="mcq-daily-target-main">
+    <span class="mcq-daily-target-label">Daily Target</span>
+    <strong class="mcq-daily-target-count" id="mcq-daily-solved">{{ daily_target.solved }}</strong>
+    <span class="muted">/</span>
+    <strong id="mcq-daily-goal">{{ daily_target.target }}</strong>
+    {% if daily_target.met %}<span class="badge">Goal met</span>{% endif %}
+  </div>
+  <a class="btn btn--sm btn--ghost" href="#mcq-daily-settings">Edit</a>
+</div>
+{% else %}
+<div class="mcq-daily-target mcq-daily-target--off">
+  <a class="btn btn--sm btn--outline" href="#mcq-daily-settings">Set daily target</a>
+</div>
+{% endif %}
+
+<details class="mcq-daily-settings compact-card" id="mcq-daily-settings"{% if not daily_target.enabled and request.args.get('settings') %} open{% endif %}>
+  <summary>Daily target settings</summary>
+  <form class="mcq-form" method="post" action="{{ url_for('mcqbank_api_daily_target') }}" style="margin-top:12px;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <div class="form-row">
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;">
+        <input type="checkbox" name="enabled" value="1" {% if daily_target.enabled %}checked{% endif %}>
+        Enable daily target
+      </label>
+    </div>
+    <div class="form-row">
+      <label for="target_count">Questions per day</label>
+      <input class="compact-input" type="number" id="target_count" name="target_count"
+             min="1" max="500" value="{{ daily_target.target }}" required>
+    </div>
+    <div class="btn-row">
+      <button type="submit" class="btn btn--sm btn--primary">Save</button>
+    </div>
+    <p class="muted" style="font-size:12px;margin:8px 0 0;">Uncheck “Enable” and Save to disable. Progress resets at midnight (server local date).</p>
+  </form>
+</details>
+
+{% if my_quizzes %}
+<div class="admin-section">
+  <h2 style="font-size:16px;">Assigned quizzes</h2>
+  {% for qa in my_quizzes %}
+  <div class="compact-card mcq-book-card">
+    <div class="mcq-book-meta"><strong class="mcq-book-name">{{ qa.title }}</strong> <span class="muted">— {{ qa.question_count }} questions</span></div>
+    <div class="btn-row mcq-book-actions">
+      <a class="btn btn--sm btn--primary" href="{{ url_for('mcqbank_take_quiz', quiz_id=qa.quiz_id) }}">Start</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if not book_summaries %}
+<p class="muted">No question banks are available to study yet.</p>
+{% endif %}
+
+<div class="admin-section">
+{% for s in book_summaries %}
+  <div class="compact-card" style="margin-bottom:14px;">
+    <div class="mcq-book-card" style="margin-bottom:0;border:none;padding:0;box-shadow:none;">
+      <div class="mcq-book-meta">
+        <strong class="mcq-book-name">{{ s.book.name }}</strong>
+        <div class="muted" style="font-size:13px;">{{ s.total_approved }} questions available</div>
+      </div>
+      <div class="btn-row mcq-book-actions">
+        <a class="btn btn--sm btn--primary" href="{{ url_for('mcqbank_solve', book_id=s.book.id) }}">Study whole book</a>
+        <a class="btn btn--sm btn--outline" href="{{ url_for('mcqbank_solve', book_id=s.book.id, random='1') }}">Random mix</a>
+        <a class="btn btn--sm btn--ghost" href="{{ url_for('mcqbank_solve', book_id=s.book.id, wrong_only='1') }}">Review wrong answers</a>
+      </div>
+    </div>
+    {% if s.chapters %}
+    <div class="mcq-chapter-grid">
+      {% for ch in s.chapters %}
+      <a class="btn btn--sm btn--outline" style="text-align:left;" href="{{ url_for('mcqbank_solve', chapter_id=ch.id) }}">Ch {{ ch.number }} — {{ ch.title[:28] }}</a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+{% endfor %}
+</div>
+</div>
+{% endblock %}

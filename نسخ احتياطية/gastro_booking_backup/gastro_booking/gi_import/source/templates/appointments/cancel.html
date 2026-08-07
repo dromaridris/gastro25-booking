@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Cancel Appointment{% endblock %}
+{% block content %}
+<h2>Cancel Appointment <small class="text-muted">#{{ target.id }}</small></h2>
+<p class="text-muted">This marks the appointment as cancelled — it stays visible in the schedule and audit trail, it is not deleted or archived.</p>
+<form method="POST" class="col-md-6">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        {{ form.reason.label(class="form-label") }}
+        {{ form.reason(class="form-control") }}
+    </div>
+    {{ form.submit(class="btn btn-danger") }}
+</form>
+{% endblock %}

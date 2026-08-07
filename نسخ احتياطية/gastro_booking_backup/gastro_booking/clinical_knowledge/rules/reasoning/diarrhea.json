@@ -1,0 +1,158 @@
+{
+  "complaint_code": "CC_diarrhea",
+  "schema_version": 1,
+  "revision": 1,
+  "min_history_answers_for_dx": 5,
+  "min_confidence_to_list_dx": 0.45,
+  "description": "Starter reasoning pack for CC_diarrhea (practical, not Sleisenger-complete).",
+  "patterns": [
+    {
+      "id": "PAT_diarrhea_infectious",
+      "label": "Acute infectious / inflammatory diarrhea",
+      "diagnosis_code": "DX_infectious_diarrhea_suspect",
+      "diagnosis_label": "Infectious diarrhea (suspect)",
+      "weight_sum_required": 1.5,
+      "criteria": [
+        {
+          "kind": "answer",
+          "question_id": "Q000023",
+          "op": "truthy",
+          "weight": 0.8,
+          "finding": "Diarrhea"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000017",
+          "op": "truthy",
+          "weight": 0.8,
+          "finding": "Fever"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000003",
+          "op": "eq",
+          "value": "Sudden",
+          "weight": 0.5,
+          "finding": "Sudden onset"
+        },
+        {
+          "kind": "exam",
+          "sign_code": "SG_dehydration",
+          "op": "present",
+          "weight": 0.7,
+          "finding": "Dehydration"
+        }
+      ],
+      "suggested_questions": [
+        "Q000035",
+        "Q000051",
+        "Q000075"
+      ],
+      "suggested_exam": [
+        "SG_dehydration",
+        "SG_rebound_tenderness"
+      ],
+      "suggested_investigations": [
+        "IX_cbc",
+        "IX_basic_metabolic_panel"
+      ]
+    },
+    {
+      "id": "PAT_diarrhea_ibd_alarm",
+      "label": "Chronic / IBD-alarm pattern",
+      "diagnosis_code": "DX_ibd_diarrhea_suspect",
+      "diagnosis_label": "IBD / inflammatory diarrhea (suspect)",
+      "weight_sum_required": 1.5,
+      "criteria": [
+        {
+          "kind": "answer",
+          "question_id": "Q000051",
+          "op": "truthy",
+          "weight": 1.0,
+          "finding": "Nocturnal diarrhea"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000035",
+          "op": "truthy",
+          "weight": 0.9,
+          "finding": "Bloody stool"
+        },
+        {
+          "kind": "answer",
+          "question_id": "Q000019",
+          "op": "truthy",
+          "weight": 0.6,
+          "finding": "Weight loss"
+        }
+      ],
+      "suggested_questions": [
+        "Q000034",
+        "Q000017"
+      ],
+      "suggested_exam": [
+        "SG_abnormal_stool_colour",
+        "SG_pallor"
+      ],
+      "suggested_investigations": [
+        "IX_cbc",
+        "IX_colonoscopy"
+      ]
+    },
+    {
+      "id": "PAT_diarrhea_dehydration",
+      "label": "Dehydration / volume depletion",
+      "diagnosis_code": "DX_diarrheal_dehydration_suspect",
+      "diagnosis_label": "Dehydration from diarrhea (suspect)",
+      "weight_sum_required": 1.2,
+      "criteria": [
+        {
+          "kind": "answer",
+          "question_id": "Q000075",
+          "op": "truthy",
+          "weight": 1.1,
+          "finding": "Dehydration symptoms"
+        },
+        {
+          "kind": "exam",
+          "sign_code": "SG_dehydration",
+          "op": "present",
+          "weight": 1.0,
+          "finding": "Dehydration signs"
+        },
+        {
+          "kind": "exam",
+          "sign_code": "SG_hypotension",
+          "op": "present",
+          "weight": 0.7,
+          "finding": "Hypotension"
+        }
+      ],
+      "suggested_questions": [
+        "Q000038"
+      ],
+      "suggested_exam": [
+        "SG_dehydration",
+        "SG_hypotension"
+      ],
+      "suggested_investigations": [
+        "IX_basic_metabolic_panel",
+        "IX_cbc"
+      ]
+    }
+  ],
+  "missing_info_rules": [
+    {
+      "id": "need_bloody",
+      "if_unanswered_any": [
+        "Q000035",
+        "Q000034"
+      ],
+      "message": "Ask about blood in stool",
+      "next_questions": [
+        "Q000035",
+        "Q000034"
+      ]
+    }
+  ]
+}

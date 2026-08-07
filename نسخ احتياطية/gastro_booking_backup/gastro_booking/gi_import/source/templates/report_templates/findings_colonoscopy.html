@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Edit Findings — Colonoscopy{% endblock %}
+{% block content %}
+<h2>Colonoscopy Findings</h2>
+<p class="text-muted">Report {{ report.report_number }}</p>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="row">
+        <div class="col-md-4 mb-3">{{ form.caecum_reached.label(class="form-label") }}{{ form.caecum_reached(class="form-select") }}</div>
+        <div class="col-md-4 mb-3">{{ form.ileum_intubated.label(class="form-label") }}{{ form.ileum_intubated(class="form-select") }}</div>
+        <div class="col-md-4 mb-3">{{ form.withdrawal_time_minutes.label(class="form-label") }}{{ form.withdrawal_time_minutes(class="form-control") }}</div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 mb-3">{{ form.bbps_right.label(class="form-label") }}{{ form.bbps_right(class="form-select") }}</div>
+        <div class="col-md-4 mb-3">{{ form.bbps_transverse.label(class="form-label") }}{{ form.bbps_transverse(class="form-select") }}</div>
+        <div class="col-md-4 mb-3">{{ form.bbps_left.label(class="form-label") }}{{ form.bbps_left(class="form-select") }}</div>
+    </div>
+    <div class="mb-3">{{ form.polyp_findings.label(class="form-label") }}{{ form.polyp_findings(class="form-control", rows=4) }}</div>
+    <div class="mb-3">{{ form.mucosal_findings.label(class="form-label") }}{{ form.mucosal_findings(class="form-control", rows=4) }}</div>
+    <div class="mb-3">{{ form.other_findings.label(class="form-label") }}{{ form.other_findings(class="form-control", rows=3) }}</div>
+    {{ form.submit(class="btn btn-primary") }}
+    <a href="{{ url_for('report_templates.view_report', report_id=report.id) }}" class="btn btn-link">Cancel</a>
+</form>
+{% endblock %}

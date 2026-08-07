@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Appointment — {{ appointment.patient.full_name }}{% endblock %}
+{% block content %}
+<h2>Appointment</h2>
+<p class="text-muted mb-3">
+    <strong>{{ appointment.patient.full_name }}</strong> — {{ appointment.patient.mrn }}
+    · {{ appointment.scheduled_at.strftime("%Y-%m-%d %H:%M") }}
+</p>
+{% if appointment.is_archived %}
+    <span class="badge bg-secondary mb-3">Archived{% if appointment.archive_reason %} — {{ appointment.archive_reason }}{% endif %}</span>
+{% endif %}
+<span class="badge bg-secondary mb-3">{{ appointment.status.replace("_", " ").title() }}</span>
+
+<dl class="row">
+    <dt class="col-sm-3">Patient</dt>
+    <dd class="col-sm-9"><a href="{{ url_for('patients.view_patient', patient_id=appointment.patient.id) }}">{{ appointment.patient.full_name }} ({{ appointment.patient.mrn }})</a></dd>
+
+    <dt class="col-sm-3">Provider</dt>
+    <dd class="col-sm-9">{{ appointment.provider.full_name if appointment.provider else "Unassigned" }}</dd>
+
+    <dt class="col-sm-3">Scheduled</dt>
+    <dd class="col-sm-9">
+        {{ appointment.scheduled_at.strftime("%Y-%m-%d %H:%M") }} ({{ appointment.duration_minutes }} min)
+        {% if appointment.was_rescheduled %}
+            <br><small class="text-muted">Originally scheduled for {{ appointment.original_scheduled_at.strftime("%Y-%m-%d %H:%M") }}</small>
+        {% endif %}
+    </dd>
+
+    <dt class="col-sm-3">Reason</dt><dd class="col-sm-9">{{ appointment.reason or "—" }}</dd>
+    <dt class="col-sm-3">Notes</dt><dd class="col-sm-9">{{ appointment.notes or "—" }}</dd>
+</dl>
+
+{% if linked_procedures %}
+<hr>
+<h4 class="h6">Linked endoscopy bookings</h4>
+<ul class="list-unstyled mb-3">
+    {% for p in linked_procedures %}
+    <li class="mb-1">
+        <a href="{{ url_for('procedures.view_procedure', procedure_id=p.id) }}">{{ p.procedure_type.name }}</a>
+        <span class="badge bg-secondary">{{ p.status.replace("_", " ").title() }}</span>
+    </li>
+    {% endfor %}
+</ul>
+{% elif can('procedure:edit') and not appointment.is_archived and appointment.status not in ["cancelled", "completed", "no_show"] %}
+<div class="alert alert-light border mb-3">
+    <strong>Next step:</strong> Book an endoscopy procedure for this appointment.
+    <div class="mt-2">
+        <a href="{{ url_for('procedures.new_procedure', appointment_id=appointment.id) }}" class="btn btn-primary btn-sm">Book endoscopy</a>
+    </div>
+</div>
+{% endif %}
+
+{% if can('appointment:edit') and not appointment.is_archived %}
+<div class="d-flex gap-2 flex-wrap">
+    {% if appointment.status not in ["cancelled", "completed", "no_show"] %}
+        <a href="{{ url_for('appointments.reschedule_appointment', appointment_id=appointment.id) }}" class="btn btn-outline-secondary btn-sm">Reschedule</a>
+        <form method="POST" action="{{ url_for('appointments.check_in_appointment', appointment_id=appointment.id) }}">
+            <button type="submit" class="btn btn-outline-primary btn-sm">Check In</button>
+        </form>
+        <form method="POST" action="{{ url_for('appointments.start_appointment', appointment_id=appointment.id) }}">
+            <button type="submit" class="btn btn-outline-primary btn-sm">Start</button>
+        </form>
+        <form method="POST" action="{{ url_for('appointments.complete_appointment', appointment_id=appointment.id) }}">
+            <button type="submit" class="btn btn-outline-success btn-sm">Complete</button>
+        </form>
+        <form method="POST" action="{{ url_for('appointments.no_show_appointment', appointment_id=appointment.id) }}">
+            <button type="submit" class="btn btn-outline-warning btn-sm">Mark No-Show</button>
+        </form>
+        <a href="{{ url_for('appointments.cancel_appointment', appointment_id=appointment.id) }}" class="btn btn-outline-danger btn-sm">Cancel</a>
+    {% endif %}
+    <a href="{{ url_for('appointments.archive_appointment', appointment_id=appointment.id) }}" class="btn btn-outline-dark btn-sm">Archive</a>
+</div>
+{% elif can('appointment:edit') and appointment.is_archived %}
+<form method="POST" action="{{ url_for('appointments.restore_appointment', appointment_id=appointment.id) }}">
+    <button type="submit" class="btn btn-outline-success btn-sm">Restore</button>
+</form>
+{% endif %}
+{% endblock %}

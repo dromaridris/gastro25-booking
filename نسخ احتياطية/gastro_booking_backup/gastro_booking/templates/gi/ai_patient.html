@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Clinical AI{% endblock %}
+{% block content %}
+<h1>AI assistant · Ward patient #{{ ward_patient_id }}</h1>
+<form method="POST" action="{{ url_for('gi_ai_new_session', ward_patient_id=ward_patient_id) }}">
+  <button class="btn btn--primary" type="submit">New AI session</button>
+</form>
+<ul>{% for s in sessions %}<li><a href="{{ url_for('gi_ai_session', session_id=s.id) }}">Session {{ s.id }}</a> ({{ s.created_at }})</li>{% else %}<li class="muted">No AI sessions.</li>{% endfor %}</ul>
+{% endblock %}

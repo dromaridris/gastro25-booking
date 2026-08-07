@@ -1,0 +1,54 @@
+<div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Report images</span>
+        <span class="badge bg-secondary">{{ report_image_count }} / {{ max_report_images }}</span>
+    </div>
+    <div class="card-body">
+        {% if report_images %}
+        <div class="row g-3 mb-3">
+            {% for image in report_images %}
+            <div class="col-md-4 col-sm-6">
+                <div class="border rounded p-2 h-100 d-flex flex-column">
+                    <a href="{{ image.url }}" target="_blank" rel="noopener">
+                        <img src="{{ image.url }}" alt="{{ image.original_filename }}"
+                             class="img-fluid rounded mb-2" style="max-height: 180px; object-fit: cover; width: 100%;">
+                    </a>
+                    <div class="small text-muted text-truncate mb-2" title="{{ image.original_filename }}">
+                        {{ image.original_filename }}
+                    </div>
+                    {% if report.is_editable and can('report:draft') %}
+                    <form method="post"
+                          action="{{ url_for('clinical_reports.delete_report_image', report_id=report.id, attachment_id=image.id) }}"
+                          class="mt-auto"
+                          onsubmit="return confirm('Delete this image?');">
+                        <button type="submit" class="btn btn-outline-danger btn-sm w-100">Delete</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted small mb-3">No images uploaded yet.</p>
+        {% endif %}
+
+        {% if report.is_editable and can('report:draft') and report_image_count < max_report_images %}
+        <form method="post"
+              action="{{ url_for('clinical_reports.upload_report_images', report_id=report.id) }}"
+              enctype="multipart/form-data">
+            <div class="mb-2">
+                <label class="form-label" for="report-images-input">Add images</label>
+                <input class="form-control" type="file" name="images" id="report-images-input"
+                       accept="image/jpeg,image/png,image/webp" multiple>
+                <div class="form-text">
+                    Upload one or more images (JPEG, PNG, WebP). Images are compressed automatically.
+                    You can add up to {{ max_report_images }} images total.
+                </div>
+            </div>
+            <button type="submit" class="btn btn-outline-primary btn-sm">Upload selected images</button>
+        </form>
+        {% elif report.is_editable and can('report:draft') %}
+        <p class="text-muted small mb-0">Maximum number of images reached for this report.</p>
+        {% endif %}
+    </div>
+</div>

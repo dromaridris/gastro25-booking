@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}{{ study.title }}{% endblock %}
+{% block content %}
+<h1>{{ study.title }}</h1>
+<p class="text-muted"><code>{{ study.study_code }}</code> · Registry {{ study.registry_code }} · {{ study.status }} · v{{ study.version }}</p>
+{% if study.description %}<p>{{ study.description }}</p>{% endif %}
+{% if study.ethics_approval_number %}<p class="small">Ethics: {{ study.ethics_approval_number }}</p>{% endif %}
+
+<div class="mb-3">
+    {% if can('research:export') %}
+    <a href="{{ url_for('research.export_study', study_code=study.study_code, export_format='csv') }}" class="btn btn-outline-primary btn-sm">Export CSV</a>
+    <a href="{{ url_for('research.export_study', study_code=study.study_code, export_format='xlsx') }}" class="btn btn-outline-primary btn-sm">Export Excel</a>
+    <a href="{{ url_for('research.export_study', study_code=study.study_code, export_format='csv', snapshot=1) }}" class="btn btn-outline-secondary btn-sm">Export + snapshot</a>
+    {% endif %}
+</div>
+
+<h2 class="h5 mt-4">Enrolled cases ({{ cases|length }})</h2>
+{% if can('research:edit') %}
+<form method="POST" action="{{ url_for('research.enroll_study_case', study_code=study.study_code) }}" class="row g-2 mb-2">
+    <div class="col-auto"><input type="number" name="patient_id" class="form-control form-control-sm" placeholder="Patient ID" required></div>
+    <div class="col-auto"><button type="submit" class="btn btn-primary btn-sm">Enrol</button></div>
+</form>
+<form method="POST" action="{{ url_for('research.screen_study_patient', study_code=study.study_code) }}" class="row g-2 mb-3">
+    <div class="col-auto"><input type="number" name="patient_id" class="form-control form-control-sm" placeholder="Patient ID" required></div>
+    <div class="col-auto"><button type="submit" class="btn btn-outline-secondary btn-sm">Screen</button></div>
+</form>
+{% endif %}
+<table class="table table-sm">
+    <thead><tr><th>Patient</th><th>MRN</th><th>Status</th><th>Completeness</th><th>Enrolled</th></tr></thead>
+    <tbody>
+    {% for c in cases %}
+        <tr>
+            <td>{{ c.patient.full_name }}</td>
+            <td>{{ c.patient.mrn }}</td>
+            <td>{{ c.case_status }}</td>
+            <td>{{ c.completeness_pct }}%</td>
+            <td>{{ c.enrolled_at.strftime('%Y-%m-%d') if c.enrolled_at else '—' }}</td>
+        </tr>
+    {% else %}
+        <tr><td colspan="5" class="text-muted">No enrolled cases.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+<p><a href="{{ url_for('research.list_studies') }}">← All studies</a></p>
+{% endblock %}

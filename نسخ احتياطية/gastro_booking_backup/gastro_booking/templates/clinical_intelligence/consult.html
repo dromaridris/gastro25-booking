@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% from 'clinical_intelligence/_nav.html' import ci_nav %}
+{% block title %}Consult · encounter {{ enc.id }}{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>Consultation summary</h1>
+    <p class="muted">#{{ enc.id }} · {{ enc.complaint_code }} · knowledge {{ result.knowledge_version.knowledge_version }}</p>
+  </div>
+  {{ ci_nav(enc, ci_tabs, 'consult') }}
+</section>
+
+{% set r = result.reasoning %}
+{% set sc = result.scoring %}
+{% set ix = result.investigations %}
+{% set mgmt = result.management %}
+{% set interp = result.interpretation %}
+{% set procs = result.procedures %}
+{% set edu = result.education %}
+{% set res = result.research %}
+{% set ai = result.ai_assist %}
+
+<section class="admin-section">
+  <h2>Scoring</h2>
+  {% if sc.available %}
+  <p><strong>{{ sc.total_score }}</strong>{% if sc.band %} — {{ sc.band.label }}{% endif %}</p>
+  <p class="muted" style="font-size:12px;">{{ sc.disclaimer }}</p>
+  <ul class="muted" style="font-size:13px;">
+    {% if sc.components %}
+    {% if sc.components.history_completeness is defined %}<li>History completeness: {{ sc.components.history_completeness }}</li>{% endif %}
+    {% if sc.components.exam_completeness is defined %}<li>Exam completeness: {{ sc.components.exam_completeness }}</li>{% endif %}
+    {% if sc.components.best_pattern_confidence is defined %}<li>Best pattern: {{ sc.components.best_pattern_confidence }}</li>{% endif %}
+    {% endif %}
+  </ul>
+  {% endif %}
+</section>
+
+<section class="admin-section">
+  <h2>Patterns &amp; suspects</h2>
+  {% if not r.dx_unlocked %}
+  <p class="muted">Diagnoses listed only after ≥{{ r.min_history_answers_for_dx }} history answers.</p>
+  {% endif %}
+  {% if r.diagnoses %}
+  <ul>
+    {% for d in r.diagnoses %}
+    <li><strong>{{ d.label }}</strong> ({{ d.confidence }})
+      <div class="muted" style="font-size:12px;">Linked: {{ d.linked_findings|join('; ') }}</div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="muted">No diagnosis meets confidence threshold yet.</p>
+  {% endif %}
+</section>
+
+{% if interp.entries %}
+<section class="admin-section">
+  <h2>IX interpretation</h2>
+  {% for item in interp.entries if item.ok %}
+    {% for i in item.interpretations %}
+    <div class="compact-card" style="margin-bottom:6px;">{{ item.investigation_code }}={{ item.result }} — {{ i.message }}</div>
+    {% endfor %}
+  {% endfor %}
+</section>
+{% endif %}
+
+{% if ward_labs %}
+<section class="admin-section">
+  <h2>Ward laboratory results</h2>
+  <p class="muted muted-sm">Auto-propagated from Laboratory for linked ward patient.</p>
+  <ul>
+    {% for lab in ward_labs[:15] %}
+    <li>{{ lab.test_name or lab.test_code }}: {{ lab.result_value }}{% if lab.result_unit %} {{ lab.result_unit }}{% endif %}
+      {% if lab.result_date %}<span class="muted">({{ lab.result_date[:10] }})</span>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<section class="admin-section">
+  <h2>Investigations / procedures / management</h2>
+  {% if ix.entries %}
+  <p><strong>IX:</strong> {% for item in ix.entries[:8] %}[{{ item.urgency }}] {{ item.label }}{% if not loop.last %}; {% endif %}{% endfor %}</p>
+  {% endif %}
+  {% if procs.entries %}
+  <p><strong>Procedures:</strong> {% for p in procs.entries %}[{{ p.urgency }}] {{ p.label }}{% if not loop.last %}; {% endif %}{% endfor %}</p>
+  {% endif %}
+  {% if mgmt.actions %}
+  {% for a in mgmt.actions %}
+  <div class="compact-card" style="margin-bottom:8px;">
+    <strong>[{{ a.urgency }}] {{ a.label }}</strong>
+    {% if a.referral %}<div class="muted">Referral: {{ a.referral }}</div>{% endif %}
+  </div>
+  {% endfor %}
+  {% endif %}
+</section>
+
+{% if edu.modules %}
+<section class="admin-section">
+  <h2>Teach highlights</h2>
+  {% for m in edu.modules[:3] %}
+  <div class="compact-card" style="margin-bottom:8px;"><strong>{{ m.title }}</strong>
+    <ul>{% for p in m.points[:2] %}<li>{{ p }}</li>{% endfor %}</ul>
+  </div>
+  {% endfor %}
+  <a class="btn btn--sm btn--outline" href="{{ ci_tabs.teach }}">Full teach mode</a>
+</section>
+{% endif %}
+
+{% if res.entries %}
+<section class="admin-section">
+  <h2>Research gaps</h2>
+  <ul>{% for g in res.entries %}<li><strong>{{ g.title }}</strong> — {{ g.hypothesis }}</li>{% endfor %}</ul>
+</section>
+{% endif %}
+
+{% if ai %}
+<section class="admin-section">
+  <h2>AI assist (optional)</h2>
+  <p class="muted">{{ ai.disclaimer }} · mode={{ ai.mode }} · diagnostic_authority={{ ai.diagnostic_authority }}</p>
+  <pre style="white-space:pre-wrap;font-size:13px;">{{ ai.summary }}</pre>
+</section>
+{% endif %}
+
+<section class="admin-section">
+  <h2>Documentation draft</h2>
+  <pre style="white-space:pre-wrap;font-size:13px;background:transparent;border:0;padding:0;">{{ result.documentation_text }}</pre>
+</section>
+
+<section class="admin-section" id="export-ward">
+  <h2>Export to ward chart</h2>
+  <p class="muted" style="font-size:13px;margin-bottom:8px;">
+    <strong>Clinical Intelligence</strong> = canonical structured Bates interview.
+    <strong>Ward</strong> = operational chart (labs, plan, bed board).
+    Export copies consultation highlights into ward HPI / notes — answers stay in CI only (no silent dual-write).
+  </p>
+  {% if enc.ward_patient_id %}
+  <form method="post" action="{{ url_for('ci_export_to_ward', encounter_id=enc.id) }}" class="settings-form">
+    <label>Destination
+      <select name="target">
+        <option value="both">HPI section + clinical note</option>
+        <option value="hpi">HPI / summary section only</option>
+        <option value="note">Clinical note only</option>
+      </select>
+    </label>
+    <button type="submit" class="btn btn--primary btn--sm">Export CI → Ward</button>
+    <a class="btn btn--outline btn--sm" href="{{ url_for('ward_patient_view', ward_patient_id=enc.ward_patient_id) }}">Open ward patient</a>
+  </form>
+  {% else %}
+  <p class="muted">This encounter is not linked to a ward patient. Start from ward Clinical workflow → Clinical Intelligence to enable export.</p>
+  {% endif %}
+</section>
+{% endblock %}

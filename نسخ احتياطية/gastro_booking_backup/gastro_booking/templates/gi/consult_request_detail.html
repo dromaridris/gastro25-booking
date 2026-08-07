@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Consult #{{ req.id }}{% endblock %}
+{% block content %}
+<section class="dash-head">
+  <div>
+    <h1>Consult — {{ req.specialty }}</h1>
+    <p class="muted">{{ req.patient_name }} · MRN {{ req.mrn or '—' }} · {{ req.status|upper }}</p>
+  </div>
+  <a href="{{ url_for('gi_consult_requests') }}" class="btn btn--outline btn--sm">← List</a>
+</section>
+
+<article class="admin-section compact-card">
+  <p><strong>Urgency:</strong> {{ req.urgency }}</p>
+  <p><strong>Requested by:</strong> {{ req.requesting_name or '—' }} · {{ req.created_at }}</p>
+  <p><strong>Question:</strong></p>
+  <p>{{ req.clinical_question }}</p>
+  {% if req.response_notes %}
+  <p><strong>Response:</strong></p>
+  <p>{{ req.response_notes }}</p>
+  {% endif %}
+</article>
+
+{% if req.status == 'pending' %}
+<div class="btn-row admin-section">
+  <form method="post" action="{{ url_for('gi_consult_request_accept', request_id=req.id) }}">
+    <button class="btn btn--primary btn--sm" type="submit">Accept</button>
+  </form>
+  <form method="post" action="{{ url_for('gi_consult_request_reject', request_id=req.id) }}" class="settings-form" style="display:inline-flex;gap:8px;align-items:center;">
+    <input name="reason" placeholder="Rejection reason" required>
+    <button class="btn btn--outline btn--sm" type="submit">Reject</button>
+  </form>
+  <form method="post" action="{{ url_for('gi_consult_request_cancel', request_id=req.id) }}">
+    <button class="btn btn--ghost btn--sm" type="submit">Cancel</button>
+  </form>
+</div>
+{% elif req.status == 'accepted' %}
+<form method="post" action="{{ url_for('gi_consult_request_complete', request_id=req.id) }}" class="settings-form admin-section">
+  <label>Response notes<textarea name="response_notes" rows="4" required></textarea></label>
+  <button class="btn btn--primary" type="submit">Complete consult</button>
+</form>
+{% endif %}
+{% endblock %}

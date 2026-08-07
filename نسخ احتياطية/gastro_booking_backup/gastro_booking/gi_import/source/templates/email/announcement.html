@@ -1,0 +1,7 @@
+{% extends "email/base.html" %}
+{% block email_body %}
+<h1 style="font-size:20px;color:{{ branding.primary_color }};margin:0 0 12px;">Department Announcement</h1>
+<p><strong>{{ announcement_title }}</strong></p>
+<div>{{ announcement_body | safe }}</div>
+<p style="color:#5c6b7a;font-size:13px;">— {{ branding.department_name }}</p>
+{% endblock %}

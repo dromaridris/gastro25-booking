@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}User accounts{% endblock %}
+{% block content %}
+<div class="page-compact">
+<h1>User account management</h1>
+{% include "_module_intro.html" %}
+<p class="muted">HOD / Admin — change role or set expiry date for any approved account.</p>
+
+<form method="GET" class="settings-form" style="max-width:420px;margin-bottom:16px;">
+  <label>Search by name or username
+    <input name="q" value="{{ q or '' }}" placeholder="Account holder name">
+  </label>
+  <button class="btn btn--outline btn--sm" type="submit">Search</button>
+  {% if q %}<a class="btn btn--ghost btn--sm" href="{{ url_for('gi_user_accounts') }}">Clear</a>{% endif %}
+</form>
+
+<div class="admin-table-scroll">
+<table class="admin-table compact-table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Username</th>
+      <th>Current role</th>
+      <th>Expires</th>
+      <th>Change</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for u in users %}
+    <tr>
+      <td>{{ u.full_name }}</td>
+      <td>@{{ u.username }}</td>
+      <td>{{ role_labels.get(u.role, u.role) }}</td>
+      <td>{{ u.role_expires_at[:10] if u.role_expires_at else '—' }}</td>
+      <td>
+        <form method="POST" class="settings-form compact-form" style="margin:0;">
+          <input type="hidden" name="user_id" value="{{ u.id }}">
+          {% if q %}<input type="hidden" name="search_q" value="{{ q }}">{% endif %}
+          <label style="font-size:12px;">New role
+            <select name="role">
+              <option value="">— keep —</option>
+              {% for r in all_roles %}
+              <option value="{{ r }}" {% if u.role == r %}selected{% endif %}>{{ role_labels.get(r, r) }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label style="font-size:12px;">Expiry date (optional)
+            <input type="date" name="role_expires_at" value="{{ u.role_expires_at[:10] if u.role_expires_at else '' }}">
+          </label>
+          <label class="checkbox-row" style="font-size:12px;">
+            <input type="checkbox" name="clear_expiry" value="1"> Clear expiry
+          </label>
+          <button class="btn btn--sm btn--primary" type="submit">Save</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+</div>
+{% endblock %}

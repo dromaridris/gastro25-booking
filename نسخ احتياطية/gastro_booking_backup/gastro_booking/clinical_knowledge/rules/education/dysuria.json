@@ -1,0 +1,26 @@
+{
+  "complaint_code": "CC_dysuria",
+  "schema_version": 1,
+  "revision": 1,
+  "description": "Teach-mode + passive coaching during history. Educational only.",
+  "modules": [
+    {
+      "id": "EDU_structure",
+      "title": "Painful / difficult urination history — structure",
+      "trigger": {
+        "always": true
+      },
+      "points": [
+        "Dysuria/voiding symptoms are symptoms — not 'UTI' as the chief complaint.",
+        "Clarify storage vs voiding symptoms; screen hematuria and fever."
+      ],
+      "linked_questions": [
+        "Q000158",
+        "Q000159",
+        "Q000162"
+      ]
+    }
+  ],
+  "question_coaching": {},
+  "answer_triggers": []
+}

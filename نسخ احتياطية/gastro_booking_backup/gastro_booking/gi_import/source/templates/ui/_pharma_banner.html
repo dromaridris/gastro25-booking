@@ -1,0 +1,15 @@
+{% if gi_pharma_slides %}
+<div class="gi-pharma-banner carousel slide mb-3" data-bs-ride="carousel" aria-label="Educational information">
+  <div class="carousel-inner">
+  {% for slide in gi_pharma_slides %}
+    <div class="carousel-item {% if loop.first %}active{% endif %}">
+      <div class="gi-pharma-slide p-3 rounded">
+        <strong>{{ slide.title }}</strong>
+        {% if slide.body_html %}<div class="small">{{ slide.body_html|safe }}</div>{% endif %}
+        {% if slide.link_url %}<a href="{{ slide.link_url }}" class="small">Learn more</a>{% endif %}
+      </div>
+    </div>
+  {% endfor %}
+  </div>
+</div>
+{% endif %}
