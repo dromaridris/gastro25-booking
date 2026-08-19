@@ -94,11 +94,17 @@
       </div>
       {% endif %}
 
-      <span id="impressionRecommendationsBlockAnchor"></span>
-      {% if report.impression or report.recommendations %}
-      <div class="ercp-print-block" id="impressionRecommendationsBlock">
-        {% if report.impression %}<p><strong>Impression:</strong> {{ report.impression }}</p>{% endif %}
-        {% if report.recommendations %}<p><strong>Recommendation:</strong> {{ report.recommendations }}</p>{% endif %}
+      <span id="impressionBlockAnchor"></span>
+      {% if report.impression %}
+      <div class="ercp-print-block" id="impressionBlock">
+        <p><strong>Impression:</strong> {{ report.impression }}</p>
+      </div>
+      {% endif %}
+
+      <span id="recommendationsBlockAnchor"></span>
+      {% if report.recommendations %}
+      <div class="ercp-print-block" id="recommendationsBlock">
+        <p><strong>Recommendation:</strong> {{ report.recommendations }}</p>
       </div>
       {% endif %}
 
@@ -116,6 +122,8 @@
         <span>Report No: {{ report_number }}</span>
         <span>Page 2 of 2</span>
       </p>
+
+      <div class="print-recommendation-image-slot" data-recommendation-image-slot></div>
 
       <div class="ercp-print-image-grid">
         {% for img in images|sort(attribute='slot') %}

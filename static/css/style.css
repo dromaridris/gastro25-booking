@@ -846,12 +846,14 @@ input:focus, select:focus, textarea:focus{ outline: 2px solid var(--crimson); ou
 .ercp-print-image-cell{
   min-width:0; min-height:0; height:100%; margin:0;
   border:0; border-radius:0; background:transparent; box-sizing:border-box;
-  display:flex; flex-direction:column; overflow:hidden;
+  display:grid;
+  grid-template-rows:minmax(0,1fr) var(--image-caption-height);
+  overflow:hidden;
   break-inside:avoid; page-break-inside:avoid;
 }
 .ercp-print-image-cell[hidden]{ display:none !important; }
 .ercp-print-image-box{
-  flex:1 1 auto; min-height:0; width:100%; display:flex;
+  min-height:0; width:100%; height:100%; display:flex;
   align-items:center; justify-content:center; overflow:hidden;
   box-sizing:border-box; background:transparent;
 }
@@ -865,7 +867,6 @@ input:focus, select:focus, textarea:focus{ outline: 2px solid var(--crimson); ou
 .ercp-print-image-caption{
   display:block !important;
   visibility:visible !important;
-  flex:0 0 var(--image-caption-height);
   min-height:var(--image-caption-height);
   height:var(--image-caption-height);
   max-height:var(--image-caption-height);
@@ -877,12 +878,17 @@ input:focus, select:focus, textarea:focus{ outline: 2px solid var(--crimson); ou
   margin:0;
   padding:0.7mm 0.5mm 0;
   text-align:center;
-  color:#111;
-  background:#fff;
+  color:#111 !important;
+  background:#fff !important;
   border:0;
   white-space:normal;
+  position:relative;
+  z-index:3;
 }
-.ercp-print-image-caption:empty{ visibility:hidden !important; }
+.ercp-print-image-caption:empty{
+  color:transparent !important;
+}
+
 .ercp-print-page-frame{
   box-sizing:border-box;
   position:relative;
@@ -957,6 +963,54 @@ input:focus, select:focus, textarea:focus{ outline: 2px solid var(--crimson); ou
   page-break-inside:avoid;
   break-inside:avoid;
 }
+
+/* Adaptive report fit: only used when a report exceeds the footer-safe area by
+   a small amount. It preserves the 63 mm header / 50 mm footer contract while
+   reclaiming a few millimetres before a continuation page is created. */
+.print-compact-fit .ercp-print-table{ margin-bottom:9px; }
+.print-compact-fit .ercp-print-table td{ padding:4px 7px; }
+.print-compact-fit .ercp-section-th{ padding:4px 7px; }
+.print-compact-fit .ercp-print-block{ margin-bottom:9px; }
+.print-compact-fit .ercp-print-block h3{ margin-bottom:3px; padding-bottom:2px; }
+.print-compact-fit .ercp-print-block p{ line-height:1.42; margin-bottom:4px; }
+.print-compact-fit .ercp-report-number{ margin-bottom:7px; }
+.print-compact-fit .print-team-block,
+.print-compact-fit .ercp-print-team{ margin-top:7px !important; margin-bottom:7px !important; }
+
+/* Dynamically-created text continuation pages. These use exactly the same
+   physical page contract as the original report page and are inserted before
+   the dedicated image page. */
+.print-report-continuation{
+  position:relative;
+  box-sizing:border-box;
+  width:190mm;
+  min-height:297mm;
+  height:297mm;
+  padding-bottom:50mm;
+  overflow:visible;
+  page-break-before:always;
+  break-before:page;
+  page-break-after:auto;
+  break-after:auto;
+}
+.print-report-continuation .ercp-print-header,
+.print-report-continuation .print-fixed-header,
+.print-report-continuation .print-secondary-header{
+  min-height:63mm !important;
+  height:63mm !important;
+  box-sizing:border-box;
+}
+.print-report-continuation .ercp-print-footer,
+.print-report-continuation .print-fixed-footer,
+.print-report-continuation .print-secondary-footer{
+  height:50mm; min-height:50mm; box-sizing:border-box;
+  position:absolute; left:0; right:0; bottom:0; margin:0 !important;
+  align-items:flex-end; padding-bottom:4mm; background:#fff; z-index:2;
+}
+.letterhead-mode .print-report-continuation .ercp-print-header,
+.letterhead-mode .print-report-continuation .print-fixed-header,
+.letterhead-mode .print-report-continuation .print-secondary-header{ visibility:hidden !important; }
+
 .ercp-image-caption-field{ display:block; margin-top:6px; font-size:11px; color:var(--muted); }
 .ercp-image-caption-field input{ width:100%; box-sizing:border-box; margin-top:3px; }
 
@@ -1785,4 +1839,69 @@ input:focus, select:focus, textarea:focus{ outline: 2px solid var(--crimson); ou
   .ci-hist__coach{ order:-1; }
   .ci-node{ max-width:100%; flex:1 1 140px; }
   .ci-fc__branches{ grid-template-columns:1fr 1fr; }
+}
+
+
+/* ================================================================
+   Priority print pagination
+   Page 1 priority: patient/procedure data + Procedure Note + Impression.
+   Recommendation is the only report section allowed to move.
+   ================================================================ */
+.print-recommendation-image-slot:empty{ display:none !important; }
+.print-recommendation-image-slot:not(:empty){
+  display:block;
+  margin:0 0 3mm 0;
+}
+.print-recommendation-image-slot .ercp-print-block{
+  margin-top:0;
+  margin-bottom:0;
+}
+
+.print-recommendation-page{
+  position:relative;
+  box-sizing:border-box;
+  width:190mm;
+  min-height:297mm;
+  margin:0 auto;
+  padding:0;
+  page-break-before:always;
+  page-break-after:always;
+  break-before:page;
+  break-after:page;
+}
+.print-recommendation-page .ercp-print-header,
+.print-recommendation-page .print-fixed-header,
+.print-recommendation-page .print-secondary-header{
+  min-height:63mm;
+  height:63mm;
+  box-sizing:border-box;
+}
+.print-recommendation-page .ercp-print-footer,
+.print-recommendation-page .print-fixed-footer,
+.print-recommendation-page .print-secondary-footer{
+  min-height:50mm;
+  height:50mm;
+  box-sizing:border-box;
+}
+.print-recommendation-page-content{
+  box-sizing:border-box;
+  padding-bottom:53mm;
+}
+
+/* Mild fallback only if the protected first-page core itself is too tall.
+   Procedure Note and Impression still remain on page 1. */
+.print-core-tight .ercp-print-table{ margin-bottom:8px; }
+.print-core-tight .ercp-print-table td,
+.print-core-tight .ercp-print-table th{
+  padding-top:3px;
+  padding-bottom:3px;
+}
+.print-core-tight .ercp-print-block{
+  margin-top:6px;
+  margin-bottom:6px;
+}
+.print-core-tight .ercp-print-block p{
+  line-height:1.15;
+  margin-top:2px;
+  margin-bottom:2px;
 }
