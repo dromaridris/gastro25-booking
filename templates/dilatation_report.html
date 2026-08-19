@@ -11,7 +11,7 @@
       <span class="ercp-status-badge ercp-status-{{ report.status }}">{{ 'Finalized' if is_locked else 'Draft' }}</span>
       <a class="btn btn--outline" href="{{ url_for('patient_dilatation_overview', appointment_id=appt.id) }}">📁 Patient Dilatation Overview</a>
       <button type="button" class="btn btn--outline" id="scheduleRepeatDilatationBtn" data-appt-id="{{ appt.id }}">🔁 Schedule Repeat Dilatation</button>
-      <a class="btn btn--outline" href="{{ url_for('dilatation_print', report_id=report.id) }}" target="_blank">🖨 Print Report</a>
+      <a class="btn btn--outline" id="dilatationPrintReportLink" href="{{ url_for('dilatation_print', report_id=report.id) }}" target="_blank">🖨 Print Report</a>
     </div>
   </div>
 
@@ -471,7 +471,7 @@
   </section>
 
   <section class="admin-section">
-    <h2>Images <span class="label-hint">(up to 9 slots — printed adaptively on the image page)</span></h2>
+    <h2>Images <span class="label-hint">(8 slots — always shown on page 2 of the printed report)</span></h2>
     <div class="ercp-image-grid">
       {% for slot in image_slots %}
       <div class="ercp-image-slot">

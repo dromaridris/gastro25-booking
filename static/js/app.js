@@ -343,6 +343,10 @@ function initBookingModal(onSaved) {
   document.getElementById('closeBookingBtn').addEventListener('click', () => { modalEl.hidden = true; });
   document.getElementById('cancelBookingBtn').addEventListener('click', () => { modalEl.hidden = true; });
 
+  ['f_followup_eckardt_dysphagia', 'f_followup_eckardt_regurgitation', 'f_followup_eckardt_chest_pain', 'f_followup_eckardt_weight_loss'].forEach(id => {
+    document.getElementById(id)?.addEventListener('change', syncFollowupEckardtTotal);
+  });
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     formError.hidden = true;
@@ -565,6 +569,7 @@ function followupTimelineHTML(followups) {
       ['Imaging Results', f.imaging_results],
       ['Management / Plan', f.management_plan],
       ['Notes', f.free_notes],
+      ['Eckardt Score', f.followup_eckardt_total ? `${f.followup_eckardt_total} / 12` : ''],
     ].filter(([, v]) => v && v.trim());
     const rowsHtml = rows.map(([label, v]) => `<p class="followup-field"><strong>${label}:</strong> ${escapeHtml(v)}</p>`).join('');
     return `
@@ -690,17 +695,40 @@ function initFollowupModal(onSaved) {
   const errorEl = document.getElementById('followupError');
   const submitBtn = document.getElementById('followupSubmitBtn');
 
+  function isAchalasiaFollowupReport(reportId) {
+    const ids = window.DILATATION_ACHALASIA_REPORT_IDS || [];
+    return ids.map(String).includes(String(reportId));
+  }
+
+  function syncAchalasiaFollowupVisibility(reportId) {
+    const section = document.getElementById('achalasiaFollowupSection');
+    if (section) section.hidden = !isAchalasiaFollowupReport(reportId);
+  }
+
   function resetForm() {
     form.reset();
     followupIdField.value = '';
     modalTitle.textContent = 'Add Follow-up';
     submitBtn.textContent = 'Save Follow-up';
     errorEl.hidden = true;
+    const achalasiaSection = document.getElementById('achalasiaFollowupSection');
+    if (achalasiaSection) achalasiaSection.hidden = true;
+    const scoreTotal = document.getElementById('f_followup_eckardt_total');
+    if (scoreTotal) scoreTotal.value = 'Not calculated';
+  }
+
+  function syncFollowupEckardtTotal() {
+    const ids = ['f_followup_eckardt_dysphagia', 'f_followup_eckardt_regurgitation', 'f_followup_eckardt_chest_pain', 'f_followup_eckardt_weight_loss'];
+    const total = document.getElementById('f_followup_eckardt_total');
+    if (!total) return;
+    const values = ids.map(id => document.getElementById(id)?.value || '');
+    total.value = values.some(v => v === '') ? 'Not calculated' : `${values.reduce((sum, v) => sum + Number(v), 0)} / 12`;
   }
 
   window.openFollowupModalForNew = function (reportId) {
     resetForm();
     reportIdField.value = reportId;
+    syncAchalasiaFollowupVisibility(reportId);
     modalEl.hidden = false;
   };
 
@@ -710,6 +738,7 @@ function initFollowupModal(onSaved) {
     resetForm();
     followupIdField.value = f.id;
     reportIdField.value = f.report_id;
+    syncAchalasiaFollowupVisibility(f.report_id);
     document.getElementById('f_followup_date').value = f.followup_date;
     document.getElementById('f_followup_clinical_status').value = f.clinical_status || '';
     document.getElementById('f_followup_outcome').value = f.outcome || '';
@@ -719,6 +748,11 @@ function initFollowupModal(onSaved) {
     document.getElementById('f_followup_imaging').value = f.imaging_results || '';
     document.getElementById('f_followup_management').value = f.management_plan || '';
     document.getElementById('f_followup_free_notes').value = f.free_notes || '';
+    document.getElementById('f_followup_eckardt_dysphagia').value = f.followup_eckardt_dysphagia || '';
+    document.getElementById('f_followup_eckardt_regurgitation').value = f.followup_eckardt_regurgitation || '';
+    document.getElementById('f_followup_eckardt_chest_pain').value = f.followup_eckardt_chest_pain || '';
+    document.getElementById('f_followup_eckardt_weight_loss').value = f.followup_eckardt_weight_loss || '';
+    syncFollowupEckardtTotal();
     modalTitle.textContent = 'Edit Follow-up';
     submitBtn.textContent = 'Save Changes';
     modalEl.hidden = false;
@@ -740,6 +774,10 @@ function initFollowupModal(onSaved) {
       imaging_results: document.getElementById('f_followup_imaging').value,
       management_plan: document.getElementById('f_followup_management').value,
       free_notes: document.getElementById('f_followup_free_notes').value,
+      followup_eckardt_dysphagia: document.getElementById('f_followup_eckardt_dysphagia')?.value || '',
+      followup_eckardt_regurgitation: document.getElementById('f_followup_eckardt_regurgitation')?.value || '',
+      followup_eckardt_chest_pain: document.getElementById('f_followup_eckardt_chest_pain')?.value || '',
+      followup_eckardt_weight_loss: document.getElementById('f_followup_eckardt_weight_loss')?.value || '',
     };
     const reportId = reportIdField.value;
     const followupId = followupIdField.value;
@@ -1008,7 +1046,13 @@ function initErcpReport() {
   }
 
   function gatherPayload() {
+    const image_captions = {};
+    document.querySelectorAll('.img-caption-input[data-slot]').forEach((input) => {
+      const slot = input.dataset.slot;
+      if (slot) image_captions[slot] = (input.value || '').trim();
+    });
     return {
+      image_captions,
       endoscopist_id: document.getElementById('f_endoscopist_id').value || null,
       sedation: document.getElementById('f_sedation').value,
       anesthesiologist: document.getElementById('f_anesthesiologist').value,
@@ -1031,6 +1075,11 @@ function initErcpReport() {
       cholangio_largest_stone_mm: document.getElementById('f_cholangio_largest_stone_mm').value,
       cholangio_stone_count: document.getElementById('f_cholangio_stone_count').value,
       cholangio_stricture_length_mm: document.getElementById('f_cholangio_stricture_length_mm').value,
+      stricture_morphology: checkedValues('f_stricture_morphology'),
+      stricture_severity: document.getElementById('f_stricture_severity').value,
+      stricture_appearance: document.getElementById('f_stricture_appearance').value,
+      upstream_dilatation: document.getElementById('f_upstream_dilatation').value,
+      bile_leak_severity: document.getElementById('f_bile_leak_severity').value,
       therapeutic_procedures: checkedValues('f_therapeutic_procedures'),
       sphincteroplasty_balloon_size_mm: document.getElementById('f_sphincteroplasty_balloon_size_mm').value,
       balloon_dilation_location: document.getElementById('f_balloon_dilation_location').value,
@@ -1044,7 +1093,15 @@ function initErcpReport() {
       stent_location: document.getElementById('f_stent_location').value,
       stent_deployment: document.getElementById('f_stent_deployment').value,
       stent_drainage: document.getElementById('f_stent_drainage').value,
+      stent_configuration: document.getElementById('f_stent_configuration').value,
       biopsy: document.getElementById('f_biopsy').value,
+      tissue_sampling_site: document.getElementById('f_tissue_sampling_site').value,
+      tissue_sampling_method: document.getElementById('f_tissue_sampling_method').value,
+      cholangioscopy_performed: document.getElementById('f_cholangioscopy_performed').value,
+      cholangioscopy_findings: checkedValues('f_cholangioscopy_findings'),
+      stent_indication: document.getElementById('f_stent_indication').value,
+      therapeutic_outcome: document.getElementById('f_therapeutic_outcome').value,
+      therapeutic_incomplete_reason: document.getElementById('f_therapeutic_incomplete_reason').value,
       complications: checkedValues('f_complications'),
       procedure_note: document.getElementById('f_procedure_note').value,
       impression: document.getElementById('f_impression').value,
@@ -1116,6 +1173,30 @@ function initErcpReport() {
   // ---- Normal Cholangiogram auto-deselects itself if any abnormal finding
   // (checkbox, toggle-list selection, or measurement) is entered, and clears
   // abnormal findings if re-checked ----
+  // ---- Stricture details: show only when an actual stricture option is selected.
+  // "No stricture" must never expose the stricture-detail fields. Existing
+  // saved detail values are intentionally preserved when the section is hidden.
+  function setupStrictureDetailsToggle() {
+    const wrap = document.getElementById('f_cholangiogram_findings');
+    const details = document.getElementById('strictureDetailFields');
+    if (!wrap || !details) return;
+
+    function hasActualStricture() {
+      return Array.from(wrap.querySelectorAll('.ercp-cholangio-toggle-opt.is-selected'))
+        .some(opt => {
+          const value = (opt.dataset.value || '').trim().toLowerCase();
+          return value && value !== 'no stricture';
+        });
+    }
+
+    function sync() {
+      details.hidden = !hasActualStricture();
+    }
+
+    wrap.addEventListener('cholangio-toggle', sync);
+    sync();
+  }
+
   function setupNormalCholangiogramToggle() {
     const wrap = document.getElementById('f_cholangiogram_findings');
     if (!wrap) return;
@@ -1161,6 +1242,28 @@ function initErcpReport() {
       stentDetailsFields.hidden = stentPlacedSelect.value !== 'Yes';
     }
     stentPlacedSelect.addEventListener('change', sync);
+    sync();
+  }
+
+  // ---- Cholangioscopy: show visual findings only when performed ----
+  function setupCholangioscopyFieldsToggle() {
+    const performed = document.getElementById('f_cholangioscopy_performed');
+    const findings = document.getElementById('cholangioscopyFindingsFields');
+    if (!performed || !findings) return;
+    function sync() { findings.hidden = performed.value !== 'Yes'; }
+    performed.addEventListener('change', sync);
+    sync();
+  }
+
+  // ---- Therapeutic outcome: show reason only for partial/failed/staged therapy ----
+  function setupTherapeuticOutcomeFieldsToggle() {
+    const outcome = document.getElementById('f_therapeutic_outcome');
+    const reason = document.getElementById('therapeuticIncompleteReasonFields');
+    if (!outcome || !reason) return;
+    function sync() {
+      reason.hidden = !['Partially successful', 'Failed', 'Staged procedure'].includes(outcome.value);
+    }
+    outcome.addEventListener('change', sync);
     sync();
   }
 
@@ -1231,6 +1334,41 @@ function initErcpReport() {
   const saveBtn = document.getElementById('saveReportBtn');
   if (saveBtn) saveBtn.addEventListener('click', () => saveReport(false));
 
+  // Print must reflect what is currently on screen. For an editable draft,
+  // persist the full payload first (including image captions), then open the
+  // print route. Finalized/locked reports are already persisted and can open
+  // directly without an unnecessary save request.
+  const printReportLink = document.getElementById('ercpPrintReportLink');
+  if (printReportLink && !locked) {
+    printReportLink.addEventListener('click', async (event) => {
+      event.preventDefault();
+      if (printReportLink.dataset.printBusy === '1') return;
+
+      const printUrl = printReportLink.href;
+      printReportLink.dataset.printBusy = '1';
+      printReportLink.setAttribute('aria-busy', 'true');
+
+      // Open a blank tab immediately so browsers do not block the popup after
+      // the asynchronous save. It is navigated only after a successful save.
+      const printWindow = window.open('', '_blank');
+      try {
+        const saved = await saveReport(true);
+        if (!saved) {
+          if (printWindow) printWindow.close();
+          return;
+        }
+        if (printWindow) {
+          printWindow.location.href = printUrl;
+        } else {
+          window.location.href = printUrl;
+        }
+      } finally {
+        delete printReportLink.dataset.printBusy;
+        printReportLink.removeAttribute('aria-busy');
+      }
+    });
+  }
+
   const generateBtn = document.getElementById('generateNoteBtn');
   if (generateBtn) {
     generateBtn.addEventListener('click', async () => {
@@ -1285,11 +1423,14 @@ function initErcpReport() {
       });
     });
     setupCholangioToggleLists('f_cholangiogram_findings');
+    setupStrictureDetailsToggle();
     setupNormalCholangiogramToggle();
     setupStentFieldsToggle();
     setupGuidewireFieldsToggle();
     setupSphincteroplastyFieldsToggle();
     setupBalloonDilationFieldsToggle();
+    setupCholangioscopyFieldsToggle();
+    setupTherapeuticOutcomeFieldsToggle();
     initUnsavedChangesGuard('#ercpFieldset', saveReport);
   }
   updateDilatationBadge();

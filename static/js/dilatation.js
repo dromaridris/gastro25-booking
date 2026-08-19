@@ -28,13 +28,33 @@ function initDilatationReport() {
   }
 
   function gatherPayload() {
+    const image_captions = {};
+    document.querySelectorAll('.img-caption-input[data-slot]').forEach((input) => {
+      const slot = input.dataset.slot;
+      if (slot) image_captions[slot] = (input.value || '').trim();
+    });
     return {
+      image_captions,
       endoscopist_id: document.getElementById('f_endoscopist_id').value || null,
       sedation: document.getElementById('f_sedation').value,
       technician: document.getElementById('f_technician').value,
       assistants: document.getElementById('f_assistants').value,
       procedure_site: document.getElementById('f_procedure_site').value,
       indication: document.getElementById('f_indication').value,
+      achalasia_type: document.getElementById('f_achalasia_type').value,
+      eckardt_dysphagia: document.getElementById('f_eckardt_dysphagia').value,
+      eckardt_regurgitation: document.getElementById('f_eckardt_regurgitation').value,
+      eckardt_chest_pain: document.getElementById('f_eckardt_chest_pain').value,
+      eckardt_weight_loss: document.getElementById('f_eckardt_weight_loss').value,
+      maximum_inflation_pressure: document.getElementById('f_maximum_inflation_pressure').value,
+      pressure_unit: document.getElementById('f_pressure_unit').value,
+      balloon_waist: document.getElementById('f_balloon_waist').value,
+      balloon_position: document.getElementById('f_balloon_position').value,
+      esophageal_retained_contents: document.getElementById('f_esophageal_retained_contents').value,
+      egj_les_appearance: document.getElementById('f_egj_les_appearance').value,
+      esophageal_dilatation: document.getElementById('f_esophageal_dilatation').value,
+      previous_achalasia_treatment: document.getElementById('f_previous_achalasia_treatment').value,
+      previous_achalasia_treatment_details: document.getElementById('f_previous_achalasia_treatment_details').value,
       stricture_location_detail: document.getElementById('f_stricture_location_detail').value,
       stricture_length_mm: document.getElementById('f_stricture_length_mm').value,
       stricture_severity: document.getElementById('f_stricture_severity').value,
@@ -91,6 +111,41 @@ function initDilatationReport() {
     sync();
   }
 
+  function setupAchalasia() {
+    const indication = document.getElementById('f_indication');
+    const assessment = document.getElementById('achalasiaAssessment');
+    const strictureFields = document.getElementById('genericStrictureFields');
+    const balloonFields = document.getElementById('balloonFields');
+    const pneumaticFields = document.getElementById('achalasiaPneumaticFields');
+    const total = document.getElementById('f_eckardt_total');
+    const scoreIds = ['f_eckardt_dysphagia', 'f_eckardt_regurgitation', 'f_eckardt_chest_pain', 'f_eckardt_weight_loss'];
+    if (!indication || !assessment || !strictureFields || !pneumaticFields || !total) return;
+
+    function updateScore() {
+      const values = scoreIds.map(id => document.getElementById(id)?.value || '');
+      if (values.some(v => v === '')) {
+        total.value = 'Not calculated';
+        return;
+      }
+      total.value = `${values.reduce((sum, v) => sum + Number(v), 0)} / 12`;
+    }
+
+    function sync() {
+      const isAchalasia = indication.value === 'Achalasia';
+      assessment.hidden = !isAchalasia;
+      strictureFields.hidden = isAchalasia;
+      const isBalloon = document.getElementById('f_dilatation_technique')?.value === 'Balloon Dilatation';
+      pneumaticFields.hidden = !(isAchalasia && isBalloon);
+      document.querySelector('.ercp-page').dataset.indication = indication.value;
+      updateScore();
+    }
+
+    scoreIds.forEach(id => document.getElementById(id)?.addEventListener('change', updateScore));
+    indication.addEventListener('change', sync);
+    document.getElementById('f_dilatation_technique')?.addEventListener('change', sync);
+    sync();
+  }
+
   async function saveReport(silent) {
     try {
       await api(`/dilatation/${reportId}/save`, {
@@ -113,6 +168,38 @@ function initDilatationReport() {
 
   const saveBtn = document.getElementById('saveDilatationReportBtn');
   if (saveBtn) saveBtn.addEventListener('click', () => saveReport(false));
+
+  // Print must reflect the current editor state. Save the draft first so
+  // Recommendation length/placement and image captions are read from the
+  // latest database values by the print route.
+  const printReportLink = document.getElementById('dilatationPrintReportLink');
+  if (printReportLink && !locked) {
+    printReportLink.addEventListener('click', async (event) => {
+      event.preventDefault();
+      if (printReportLink.dataset.printBusy === '1') return;
+
+      const printUrl = printReportLink.href;
+      printReportLink.dataset.printBusy = '1';
+      printReportLink.setAttribute('aria-busy', 'true');
+
+      const printWindow = window.open('', '_blank');
+      try {
+        const saved = await saveReport(true);
+        if (!saved) {
+          if (printWindow) printWindow.close();
+          return;
+        }
+        if (printWindow) {
+          printWindow.location.href = printUrl;
+        } else {
+          window.location.href = printUrl;
+        }
+      } finally {
+        delete printReportLink.dataset.printBusy;
+        printReportLink.removeAttribute('aria-busy');
+      }
+    });
+  }
 
   const generateBtn = document.getElementById('generateDilatationNoteBtn');
   if (generateBtn) {
@@ -149,6 +236,8 @@ function initDilatationReport() {
       }
     });
   }
+
+  setupAchalasia();
 
   if (!locked) {
     document.querySelectorAll('.dilatation-image-input').forEach(input => {
