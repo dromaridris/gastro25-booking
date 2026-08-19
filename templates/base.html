@@ -2,78 +2,310 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{% block title %}JPMC Gastro Booking{% endblock %}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>{% block title %}{{ branding.site_name|default('JPMC · Gastroenterology & Hepatology') }}{% endblock %}</title>
 
+{% if branding.favicon_filename %}
+<link rel="icon" href="{{ url_for('gi_branding_asset', kind='favicon') }}">
+{% else %}
 <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='icons/favicon.ico') }}">
+<link rel="icon" type="image/png" sizes="64x64" href="{{ url_for('static', filename='icons/icon-64.png') }}">
+<link rel="icon" type="image/png" sizes="48x48" href="{{ url_for('static', filename='icons/icon-48.png') }}">
 <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='icons/icon-32.png') }}">
 <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='icons/icon-16.png') }}">
 <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='icons/icon-180.png') }}">
+{% endif %}
 <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-<meta name="theme-color" content="#A6192E">
+<meta name="theme-color" content="{{ branding.primary_color|default('#A6192E') }}">
+<meta name="csrf-token" content="{{ csrf_token }}">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Gastro Booking">
+<meta name="apple-mobile-web-app-title" content="{{ branding.site_name|default('Gastro & Hepatology') }}">
 
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<style>:root {
+  --brand-primary: {{ branding.primary_color|default('#A6192E') }};
+  --brand-secondary: {{ branding.secondary_color|default('#1a1a2e') }};
+}
+.topbar { border-bottom-color: var(--brand-primary); }
+.btn--primary { background: var(--brand-primary); border-color: var(--brand-primary); }
+.pharma-ticker { background: var(--brand-secondary); color: #fff; overflow: hidden; }
+.pharma-ticker-track { display: flex; gap: 48px; animation: pharma-scroll 28s linear infinite; white-space: nowrap; padding: 6px 0; font-size: 13px; }
+.pharma-ticker-item strong { color: #ffd; margin-right: 8px; }
+@keyframes pharma-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+</style>
 </head>
 <body>
 
 {% if current_user %}
 <header class="topbar no-print">
   <div class="topbar-inner">
-    <div class="brand">
-      <img src="{{ url_for('static', filename='logos/jpmc_logo1.png') }}" alt="JPGMC" class="brand-logo brand-logo--institute">
-      <img src="{{ url_for('static', filename='logos/jpmc_gastro_logo.jpeg') }}" alt="Dept. of Gastroenterology" class="brand-logo brand-logo--dept">
+    <a href="{{ url_for('dashboard') }}" class="brand brand-home" aria-label="Home — today's bookings">
+      {% if branding.show_hospital_logo|default(true) %}
+      <img src="{{ url_for('gi_branding_asset', kind='hospital') if branding.hospital_logo_filename else url_for('static', filename='logos/jpmc_logo1.png') }}" alt="" class="brand-logo brand-logo--institute">
+      {% endif %}
+      {% if branding.show_department_logo|default(true) %}
+      <img src="{{ url_for('gi_branding_asset', kind='department') if branding.logo_filename else url_for('static', filename='logos/jpmc_gastro_logo.png') }}" alt="" class="brand-logo brand-logo--dept">
+      {% endif %}
       <div class="brand-text">
-        <span class="brand-title">Gastro &amp; Endoscopy Booking</span>
-        <span class="brand-sub">Single source of truth · Jinnah Postgraduate Medical Centre</span>
+        <span class="brand-title">{{ branding.site_name|default('Gastroenterology • Advanced Endoscopy') }}</span>
+        <span class="brand-sub">{{ branding.dept_subtitle|default('Research Center · Ward 25 · JPMC') }}</span>
+        <span class="brand-sub brand-sub-line2">{{ branding.slogan|default('The Source of Truth and Care') }}</span>
       </div>
-    </div>
+    </a>
     <button class="nav-toggle no-print" id="navToggleBtn" aria-label="Menu" aria-expanded="false">☰</button>
     <nav class="mainnav" id="mainNav">
-      <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint=='dashboard' }}">Today</a>
-      <a href="{{ url_for('calendar_view') }}" class="{{ 'active' if request.endpoint=='calendar_view' }}">Calendar</a>
-      {% if current_user.role in ['admin','specialist','nurse_manager'] %}
-      <a href="{{ url_for('statistics_view') }}" class="{{ 'active' if request.endpoint=='statistics_view' }}">Statistics</a>
+      {% set booking_active = request.endpoint in ['dashboard', 'calendar_view', 'search_patients', 'gi_calendar_hub'] %}
+      {% set ward_active = request.endpoint and request.endpoint.startswith('ward_') %}
+      {% set clinical_active = request.endpoint in [
+        'gi_knowledge_index', 'gi_workforce_board', 'gi_my_logbook', 'gi_registrar_approvals',
+        'gi_registry_dashboard', 'gi_registry_procedure_hub', 'gi_registry_diagnosis_hub',
+        'gi_history_ai_training', 'ci_home', 'ci_new_encounter', 'ci_history', 'ci_exam', 'ci_consult',
+        'ci_encounter', 'ci_investigations', 'ci_teach', 'ci_research', 'ci_knowledge_admin'
+      ] or (request.endpoint and (
+        request.endpoint.startswith('gi_knowledge') or request.endpoint.startswith('gi_clinical')
+        or request.endpoint.startswith('gi_laboratory') or request.endpoint.startswith('gi_history')
+        or request.endpoint.startswith('gi_registry_') or request.endpoint.startswith('gi_consult')
+        or request.endpoint.startswith('ci_')
+        or request.endpoint in ['gi_education_index', 'gi_education_create', 'gi_education_archive']
+      )) %}
+      {% set registry_active = request.endpoint in [
+        'gi_registry_dashboard', 'gi_registry_procedure_hub', 'gi_registry_diagnosis_hub'
+      ] or (request.endpoint and request.endpoint.startswith('gi_registry_') and request.endpoint != 'gi_registry_dev_map') %}
+      {% set research_active = request.endpoint in [
+        'statistics_view', 'ercp_research_registry', 'dilatation_registry', 'upper_gi_research_registry',
+        'colonoscopy_research_registry',
+        'gi_research_index', 'gi_research_hod_assign'
+      ] or (request.endpoint and request.endpoint.startswith('gi_research')) %}
+      {% set dept_ops_active = request.endpoint and request.endpoint.startswith('dept_ops_') %}
+      {% set admin_active = request.endpoint in [
+        'admin_panel', 'holidays_view', 'endoscopists_view',
+        'gi_user_accounts', 'gi_admin_permissions', 'gi_import_manager',
+        'gi_login_promotions', 'gi_history_templates',
+        'gi_governance_dashboard', 'gi_governance_logbook',
+        'gi_gov_incidents', 'gi_gov_mm', 'gi_gov_journal_club', 'gi_gov_audits',
+        'gi_gov_documents', 'gi_gov_checklists', 'gi_roster_index',
+        'gi_attendance_department', 'gi_my_duties',
+        'gi_staff_profile', 'gi_logbook_evaluate',
+        'gi_clinical_ai_admin', 'gi_admin_branding', 'gi_pharma_banner_admin', 'gi_archive_index',
+        'mcqbank_admin_dashboard', 'mcqbank_upload', 'mcqbank_review',
+        'mcqbank_generate_quiz', 'mcqbank_job_progress'
+      ] or dept_ops_active or (request.endpoint and (
+        request.endpoint.startswith('gi_governance') or request.endpoint.startswith('gi_gov_')
+      )) %}
+
+      <div class="nav-dropdown">
+        <button type="button" class="nav-dropdown-trigger {{ 'active' if booking_active }}" aria-expanded="false">
+          Booking <span class="nav-dropdown-arrow">▾</span>
+        </button>
+        <div class="nav-dropdown-menu">
+          <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint == 'dashboard' }}">Today's list</a>
+          <a href="{{ url_for('calendar_view') }}" class="{{ 'active' if request.endpoint == 'calendar_view' }}">Calendar</a>
+          <a href="{{ url_for('gi_calendar_hub') }}" class="{{ 'active' if request.endpoint == 'gi_calendar_hub' }}">Calendar hub</a>
+          {% if nav.can_see_patient_search(current_user.role) %}
+          <a href="{{ url_for('search_patients') }}" class="{{ 'active' if request.endpoint == 'search_patients' }}">Patient search</a>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if current_user.role not in ['scheduler', 'endoscopy_staff'] %}
+      <a href="{{ url_for('ward_dashboard') }}" class="{{ 'active' if ward_active }}">Ward</a>
       {% endif %}
-      {% if current_user.role in ['admin','specialist'] %}
-      <a href="{{ url_for('admin_panel') }}" class="{{ 'active' if request.endpoint=='admin_panel' }}">Admin</a>
-      <a href="{{ url_for('holidays_view') }}" class="{{ 'active' if request.endpoint=='holidays_view' }}">Holidays</a>
-      <a href="{{ url_for('endoscopists_view') }}" class="{{ 'active' if request.endpoint=='endoscopists_view' }}">Endoscopists</a>
+
+      {% if nav.can_see_registry_map(current_user.role) %}
+      <a href="{{ url_for('gi_registry_dashboard') }}" class="{{ 'active' if registry_active }}">Clinical Registry</a>
+      {% endif %}
+
+      <a href="{{ url_for('mcqbank_dashboard') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('mcqbank_') }}">MCQ Bank</a>
+
+      {% if nav.can_see_clinical_menu(current_user.role) %}
+      <div class="nav-dropdown">
+        <button type="button" class="nav-dropdown-trigger {{ 'active' if clinical_active }}" aria-expanded="false">
+          Clinical <span class="nav-dropdown-arrow">▾</span>
+        </button>
+        <div class="nav-dropdown-menu">
+          {% if nav.can_see_my_tasks(current_user.role) %}
+          <a href="{{ url_for('gi_workforce_board') }}" class="{{ 'active' if request.endpoint == 'gi_workforce_board' }}">My Tasks{% if my_tasks_alert %}<span class="nav-dot" title="New tasks"></span>{% endif %}</a>
+          {% endif %}
+          {% if nav.can_see_my_logbook(current_user.role) %}
+          <a href="{{ url_for('gi_my_logbook') }}" class="{{ 'active' if request.endpoint == 'gi_my_logbook' }}">My logbook</a>
+          {% endif %}
+          {% if nav.can_see_registrar_approvals(current_user.role) %}
+          <a href="{{ url_for('gi_registrar_approvals') }}" class="{{ 'active' if request.endpoint == 'gi_registrar_approvals' }}">Registrar approvals</a>
+          {% endif %}
+          {% if nav.can_see_knowledge(current_user.role) %}
+          <span class="nav-dropdown-divider"></span>
+          <a href="{{ url_for('gi_knowledge_index') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('gi_knowledge') }}">Knowledge Library</a>
+          {% endif %}
+          <a href="{{ url_for('ci_home') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('ci_') }}">Clinical Intelligence</a>
+          <a href="{{ url_for('gi_consult_requests') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('gi_consult') }}">Consult requests</a>
+          <a href="{{ url_for('gi_education_index') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('gi_education') }}">Education</a>
+          {% if current_user.role in ['admin','hod','specialist'] %}
+          <a href="{{ url_for('gi_history_ai_training') }}" class="{{ 'active' if request.endpoint == 'gi_history_ai_training' }}">History AI Training (legacy)</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if nav.can_see_research_dropdown(current_user.role) %}
+      <div class="nav-dropdown">
+        <button type="button" class="nav-dropdown-trigger {{ 'active' if research_active }}" aria-expanded="false">
+          Research <span class="nav-dropdown-arrow">▾</span>
+        </button>
+        <div class="nav-dropdown-menu">
+          {% if nav.can_see_statistics(current_user.role) %}
+          <a href="{{ url_for('statistics_view') }}" class="{{ 'active' if request.endpoint=='statistics_view' }}">Statistics</a>
+          {% endif %}
+          {% if nav.can_see_ercp_research_registry(current_user.role) %}
+          <a href="{{ url_for('ercp_research_registry') }}" class="{{ 'active' if request.endpoint=='ercp_research_registry' }}">ERCP Registry</a>
+          {% endif %}
+          {% if nav.can_see_dilatation_registry(current_user.role) %}
+          <a href="{{ url_for('dilatation_registry') }}" class="{{ 'active' if request.endpoint=='dilatation_registry' }}">Dilatation Registry</a>
+          {% endif %}
+          {% if nav.can_see_upper_gi_registry(current_user.role) %}
+          <a href="{{ url_for('upper_gi_research_registry') }}" class="{{ 'active' if request.endpoint=='upper_gi_research_registry' }}">EGD Registry</a>
+          {% endif %}
+          {% if nav.can_see_colonoscopy_registry(current_user.role) %}
+          <a href="{{ url_for('colonoscopy_research_registry') }}" class="{{ 'active' if request.endpoint=='colonoscopy_research_registry' }}">Colonoscopy Registry</a>
+          {% endif %}
+          {% if nav.can_see_gi_research_module(current_user.role) %}
+          <a href="{{ url_for('gi_research_index') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('gi_research') and request.endpoint != 'gi_research_hod_assign' }}">GI Research Module</a>
+          {% endif %}
+          {% if nav.can_assign_hod_research(current_user.role) %}
+          <a href="{{ url_for('gi_research_hod_assign') }}" class="{{ 'active' if request.endpoint=='gi_research_hod_assign' }}">Assign research</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if nav.can_see_unit_ops_topnav(current_user.role) %}
+      <a href="{{ url_for('dept_ops_home') }}" class="{{ 'active' if dept_ops_active }}">Unit Ops</a>
+      {% endif %}
+
+      {% if nav.can_see_admin_menu(current_user.role) %}
+      <div class="nav-dropdown">
+        <button type="button" class="nav-dropdown-trigger {{ 'active' if admin_active }}" aria-expanded="false">
+          Admin <span class="nav-dropdown-arrow">▾</span>
+        </button>
+        <div class="nav-dropdown-menu">
+          {% if nav.can_see_admin_panel(current_user.role) or nav.can_see_booking_admin(current_user.role) %}
+          <span class="nav-dropdown-label">Booking setup</span>
+          {% if nav.can_see_admin_panel(current_user.role) %}
+          <a href="{{ url_for('admin_panel') }}" class="{{ 'active' if request.endpoint=='admin_panel' }}">Admin Panel</a>
+          {% endif %}
+          {% if nav.can_see_booking_admin(current_user.role) %}
+          <a href="{{ url_for('holidays_view') }}" class="{{ 'active' if request.endpoint=='holidays_view' }}">Holidays</a>
+          <a href="{{ url_for('endoscopists_view') }}" class="{{ 'active' if request.endpoint=='endoscopists_view' }}">Endoscopists</a>
+          {% endif %}
+          {% endif %}
+
+          {% if nav.can_see_unit_operations(current_user.role) %}
+          <span class="nav-dropdown-divider"></span>
+          <span class="nav-dropdown-label">Endoscopy unit</span>
+          <a href="{{ url_for('dept_ops_home') }}" class="{{ 'active' if dept_ops_active }}">Unit Operations</a>
+          {% endif %}
+
+          {% if nav.can_see_my_duties(current_user.role) or nav.can_see_staff_attendance(current_user.role) %}
+          <span class="nav-dropdown-divider"></span>
+          <span class="nav-dropdown-label">Staff</span>
+          {% if nav.can_see_my_duties(current_user.role) %}
+          <a href="{{ url_for('gi_my_duties') }}" class="{{ 'active' if request.endpoint == 'gi_my_duties' }}">My on-call duties</a>
+          {% endif %}
+          {% if nav.can_see_staff_attendance(current_user.role) %}
+          <a href="{{ url_for('gi_attendance_department') }}" class="{{ 'active' if request.endpoint == 'gi_attendance_department' }}">Staff attendance</a>
+          {% endif %}
+          {% endif %}
+
+          {% if nav.can_see_governance(current_user.role) or nav.can_see_incidents(current_user.role) or nav.can_see_mm_journal_club(current_user.role) %}
+          <span class="nav-dropdown-divider"></span>
+          <span class="nav-dropdown-label">Governance</span>
+          {% if nav.can_see_governance(current_user.role) %}
+          <a href="{{ url_for('gi_governance_dashboard') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('gi_governance') }}">Governance &amp; logbook</a>
+          <a href="{{ url_for('gi_gov_audits') }}" class="{{ 'active' if request.endpoint == 'gi_gov_audits' }}">Audits</a>
+          <a href="{{ url_for('gi_gov_documents') }}" class="{{ 'active' if request.endpoint == 'gi_gov_documents' }}">Documents</a>
+          <a href="{{ url_for('gi_gov_checklists') }}" class="{{ 'active' if request.endpoint == 'gi_gov_checklists' }}">Checklists</a>
+          <a href="{{ url_for('gi_roster_index') }}" class="{{ 'active' if request.endpoint == 'gi_roster_index' }}">On-call rosters</a>
+          {% endif %}
+          {% if nav.can_see_incidents(current_user.role) %}
+          <a href="{{ url_for('gi_gov_incidents') }}" class="{{ 'active' if request.endpoint == 'gi_gov_incidents' }}">Incidents</a>
+          {% endif %}
+          {% if nav.can_see_mm_journal_club(current_user.role) %}
+          <a href="{{ url_for('gi_gov_mm') }}" class="{{ 'active' if request.endpoint == 'gi_gov_mm' }}">M&amp;M</a>
+          <a href="{{ url_for('gi_gov_journal_club') }}" class="{{ 'active' if request.endpoint == 'gi_gov_journal_club' }}">Journal club</a>
+          {% endif %}
+          {% endif %}
+
+          {% if nav.can_manage_user_accounts(current_user.role) or nav.can_see_roster_permissions(current_user.role) or nav.can_see_import_manager(current_user.role) or nav.can_manage_login_promos(current_user.role) or nav.can_see_history_templates(current_user.role) or current_user.role in ['admin','hod','specialist','registrar'] %}
+          <span class="nav-dropdown-divider"></span>
+          <span class="nav-dropdown-label">Management</span>
+          {% if current_user.role in ['admin','hod','specialist','registrar'] %}
+          <a href="{{ url_for('mcqbank_admin_dashboard') }}" class="{{ 'active' if request.endpoint in ['mcqbank_admin_dashboard','mcqbank_upload','mcqbank_review','mcqbank_generate_quiz','mcqbank_job_progress'] }}">MCQ Bank Admin</a>
+          {% endif %}
+          {% if nav.can_manage_user_accounts(current_user.role) %}
+          <a href="{{ url_for('gi_user_accounts') }}" class="{{ 'active' if request.endpoint == 'gi_user_accounts' }}">User accounts</a>
+          {% endif %}
+          {% if nav.can_see_roster_permissions(current_user.role) %}
+          <a href="{{ url_for('gi_admin_permissions') }}" class="{{ 'active' if request.endpoint == 'gi_admin_permissions' }}">Roster permissions</a>
+          {% endif %}
+          {% if nav.can_see_history_templates(current_user.role) %}
+          <a href="{{ url_for('gi_history_templates') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('gi_history_template') }}">History Templates (legacy)</a>
+          {% endif %}
+          {% if nav.can_see_import_manager(current_user.role) %}
+          <a href="{{ url_for('gi_import_manager') }}" class="{{ 'active' if request.endpoint == 'gi_import_manager' }}">Import Manager</a>
+          {% endif %}
+          {% if nav.can_manage_login_promos(current_user.role) %}
+          <a href="{{ url_for('gi_login_promotions') }}" class="{{ 'active' if request.endpoint=='gi_login_promotions' }}">Login promotions</a>
+          {% endif %}
+          {% if current_user.role in ['admin','hod','specialist'] %}
+          <a href="{{ url_for('gi_admin_branding') }}" class="{{ 'active' if request.endpoint == 'gi_admin_branding' }}">Branding</a>
+          <a href="{{ url_for('gi_pharma_banner_admin') }}" class="{{ 'active' if request.endpoint == 'gi_pharma_banner_admin' }}">Pharma banner</a>
+          <a href="{{ url_for('gi_clinical_ai_admin') }}" class="{{ 'active' if request.endpoint == 'gi_clinical_ai_admin' }}">Clinical AI</a>
+          <a href="{{ url_for('gi_archive_index') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('gi_archive') }}">Archive</a>
+          {% endif %}
+          {% endif %}
+        </div>
+      </div>
       {% endif %}
     </nav>
+    {% if nav.can_see_patient_search(current_user.role) %}
+    <div class="nav-search-wrap no-print">
+      <button type="button" class="nav-search-toggle" id="searchToggleBtn" aria-label="Search" aria-expanded="false">🔍</button>
+      <form action="{{ url_for('search_patients') }}" method="GET" class="nav-search" id="navSearchForm" hidden>
+        <input type="text" name="q" placeholder="Name, MRN, or date..." id="navSearchInput"
+               value="{{ request.args.get('q', '') if request.endpoint == 'search_patients' else '' }}">
+        <button type="submit" aria-label="Search">🔍</button>
+      </form>
+    </div>
+    {% endif %}
     <div class="userbox">
       <span class="userbox-name">{{ current_user.full_name }}</span>
       <span class="userbox-role">{{ user_role_label(current_user.role) }}</span>
-      <a href="{{ url_for('change_password') }}" class="logout-link">Change password</a>
+      <a href="{{ url_for('change_password') }}" class="logout-link">Password</a>
       <a href="{{ url_for('logout') }}" class="logout-link">Log out</a>
     </div>
   </div>
 </header>
-<script>
-  (function(){
-    var toggle = document.getElementById('navToggleBtn');
-    var nav = document.getElementById('mainNav');
-    if (!toggle || !nav) return;
-    function closeMenu(){
-      nav.classList.remove('nav-open');
-      toggle.textContent = '☰';
-      toggle.setAttribute('aria-expanded', 'false');
-    }
-    toggle.addEventListener('click', function(){
-      var isOpen = nav.classList.toggle('nav-open');
-      toggle.textContent = isOpen ? '✕' : '☰';
-      toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-    });
-    nav.querySelectorAll('a').forEach(function(a){
-      a.addEventListener('click', closeMenu);
-    });
-    document.addEventListener('click', function(e){
-      if (!nav.contains(e.target) && !toggle.contains(e.target)) closeMenu();
-    });
-  })();
-</script>
+<script src="{{ url_for('static', filename='js/responsive_nav.js') }}"></script>
+{% if pharma_banners %}
+<div class="pharma-ticker no-print" aria-label="Education and sponsor messages">
+  <div class="pharma-ticker-track">
+    {% for b in pharma_banners %}
+    <span class="pharma-ticker-item">
+      {% if b.link_url %}<a href="{{ b.link_url }}" style="color:inherit;text-decoration:none;">{% endif %}
+      <strong>{{ b.label }}</strong>{{ b.message }}
+      {% if b.link_url %}</a>{% endif %}
+    </span>
+    {% endfor %}
+    {% for b in pharma_banners %}
+    <span class="pharma-ticker-item" aria-hidden="true">
+      {% if b.link_url %}<a href="{{ b.link_url }}" style="color:inherit;text-decoration:none;">{% endif %}
+      <strong>{{ b.label }}</strong>{{ b.message }}
+      {% if b.link_url %}</a>{% endif %}
+    </span>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
 {% endif %}
 
 <main class="page {{ 'page--auth' if not current_user }}">
@@ -90,5 +322,17 @@
 </main>
 
 {% block scripts %}{% endblock %}
+
+<footer class="site-footer no-print">
+  <div class="site-footer-inner">
+    <img src="{{ url_for('static', filename='logos/gastrointelligence.png') }}" alt="GastroIntelligence" class="site-footer-logo">
+    <span class="site-footer-text">Powered by <strong>GastroIntelligence</strong></span>
+    <a href="mailto:awradex@gmail.com" class="site-footer-contact">awradex@gmail.com</a>
+  </div>
+</footer>
+<script src="{{ url_for('static', filename='js/csrf.js') }}"></script>
+{% if current_user %}
+<script src="{{ url_for('static', filename='js/user_mentions.js') }}"></script>
+{% endif %}
 </body>
 </html>

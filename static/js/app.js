@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------
-// JPMC Gastro & Endoscopy Booking — shared frontend logic
+// JPMC Gastroenterology & Hepatology — shared frontend logic
 // ------------------------------------------------------------------
 
 let ME = null; // { username, role, role_label, can_override, can_book_ercp, can_book_special }
@@ -28,9 +28,13 @@ async function loadMe() {
   return ME;
 }
 
+function hasFullAccess(me) {
+  return !!(me && (me.has_full_access || me.role === 'admin' || me.role === 'hod'));
+}
+
 function canManage(appt) {
   if (!ME) return false;
-  return appt.booked_by_username === ME.username || ME.can_override;
+  return appt.booked_by_username === ME.username || ME.can_override || hasFullAccess(ME);
 }
 
 // Mirrors the backend's SCHEDULER_LIKE_ROLES — Endoscopy Staff has identical
@@ -57,6 +61,14 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+// Shared by the booking modal's ERCP option and the Repeat ERCP modal —
+// ERCP can only be scheduled on Tuesdays or Saturdays.
+function isErcpEligible(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  const day = d.getDay(); // 0=Sun ... 2=Tue ... 6=Sat
+  return day === 2 || day === 6;
+}
+
 function apptCardHTML(a) {
   APPT_CACHE[a.id] = a;
   const bleedTag = a.is_bleeding ? '<span class="appt-bleeding-tag">⚠ Bleeding</span>' : '';
@@ -74,8 +86,8 @@ function apptCardHTML(a) {
 
   const manage = canManage(a);
   const locked = isTimeLocked(a);
-  const canEdit = manage && !(ME && isSchedulerLikeRole(ME.role) && locked);
-  const canDelete = manage && !(ME && ME.role !== 'admin' && locked);
+  const canEdit = manage && !(ME && isSchedulerLikeRole(ME.role) && locked && !hasFullAccess(ME));
+  const canDelete = manage && (hasFullAccess(ME) || !locked);
 
   const manageButtons = [];
   if (canEdit) manageButtons.push(`<button class="appt-cancel" onclick="openBookingModalForEdit(${a.id})">edit</button>`);
@@ -88,12 +100,55 @@ function apptCardHTML(a) {
   if (a.procedure_type === 'ercp' && ME && ['admin', 'specialist', 'nurse_manager'].includes(ME.role)) {
     manageButtons.push(`<a class="appt-cancel" href="/ercp/${a.id}">📋 Open Report</a>`);
   }
+  // Phase 4: Endoscopic Dilatation Module — same role gate as ERCP reports
+  // (CAN_ACCESS_DILATATION_REPORTS is the same role tuple server-side).
+  if (['dilatation', 'balloon_dilatation', 'esophageal_dilatation'].includes(a.procedure_type) && ME && ['admin', 'specialist', 'nurse_manager'].includes(ME.role)) {
+    manageButtons.push(`<a class="appt-cancel" href="/dilatation/${a.id}">📋 Open Report</a>`);
+  }
+  if (a.procedure_type === 'upper_gi' && ME && ['admin', 'specialist', 'nurse_manager', 'registrar', 'general_endoscopy', 'pg_trainee'].includes(ME.role)) {
+    manageButtons.push(`<a class="appt-cancel" href="/upper-gi/${a.id}">📋 EGD Report</a>`);
+  }
+  if (a.procedure_type === 'colonoscopy' && ME && ['admin', 'specialist', 'nurse_manager', 'registrar', 'general_endoscopy', 'pg_trainee'].includes(ME.role)) {
+    manageButtons.push(`<a class="appt-cancel" href="/colonoscopy/${a.id}">📋 Colonoscopy Report</a>`);
+  }
+  if (a.procedure_type === 'peg_tube' && ME && ['admin', 'specialist', 'nurse_manager', 'registrar', 'general_endoscopy', 'pg_trainee'].includes(ME.role)) {
+    manageButtons.push(`<a class="appt-cancel" href="/upper-gi/${a.id}">📋 PEG / EGD Report</a>`);
+  }
+  if (a.procedure_type === 'polypectomy' && ME && ['admin', 'specialist', 'nurse_manager', 'registrar', 'general_endoscopy', 'pg_trainee'].includes(ME.role)) {
+    manageButtons.push(`<a class="appt-cancel" href="/colonoscopy/${a.id}">📋 Polypectomy / Col Report</a>`);
+  }
+  if (a.procedure_type === 'eus' && ME && ['admin', 'specialist', 'nurse_manager', 'consultant', 'hod'].includes(ME.role)) {
+    manageButtons.push(`<a class="appt-cancel" href="/eus/${a.id}">📋 Open Report</a>`);
+  }
+  if (a.procedure_type === 'capsule_endoscopy' && ME && ['admin', 'specialist', 'nurse_manager', 'consultant', 'hod'].includes(ME.role)) {
+    manageButtons.push(`<a class="appt-cancel" href="/capsule-endoscopy/${a.id}">📋 Open Report</a>`);
+  }
+  const ADVANCED_REPORT_ROUTES = {
+    sigmoidoscopy: '/sigmoidoscopy/',
+    proctoscopy: '/proctoscopy/',
+    enteroscopy: '/enteroscopy/',
+    emr: '/emr/',
+    esd: '/esd/',
+    variceal_band_ligation: '/variceal-band-ligation/',
+    sclerotherapy: '/sclerotherapy/',
+    stent_placement: '/stent-placement/',
+    liver_biopsy: '/liver-biopsy/',
+  };
+  if (ADVANCED_REPORT_ROUTES[a.procedure_type] && ME && ['admin', 'specialist', 'nurse_manager', 'consultant', 'hod'].includes(ME.role)) {
+    manageButtons.push(`<a class="appt-cancel" href="${ADVANCED_REPORT_ROUTES[a.procedure_type]}${a.id}">📋 Open Report</a>`);
+  }
   const actions = manageButtons.join(' · ');
+
+  const COLUMN_TYPES = new Set(['upper_gi', 'colonoscopy', 'peg_tube', 'ercp']);
+  const procLabel = a.procedure_label || a.procedure_type;
+  const nameHtml = COLUMN_TYPES.has(a.procedure_type)
+    ? escapeHtml(a.patient_name)
+    : `${escapeHtml(a.patient_name)} <span class="appt-procedure">— ${escapeHtml(procLabel)}</span>`;
 
   return `
     <div class="appt-card ${a.is_bleeding ? 'is-bleeding' : ''} ${a.no_show ? 'is-no-show' : ''}" data-id="${a.id}">
       <div class="appt-card-top">
-        <span class="appt-name">${escapeHtml(a.patient_name)}</span>
+        <span class="appt-name">${nameHtml}</span>
         ${bleedTag}${noShowTag}
       </div>
       <div class="appt-meta">
@@ -179,15 +234,16 @@ function initBookingModal(onSaved) {
   const ercpOpt = document.getElementById('ercpOption');
   const dilOpt = document.getElementById('dilatationOption');
   const polOpt = document.getElementById('polypectomyOption');
-  if (!canErcp && ercpOpt) ercpOpt.remove();
-  if (!canSpecial) { if (dilOpt) dilOpt.remove(); if (polOpt) polOpt.remove(); }
-  if (canOverride) overrideRow.hidden = false;
-
-  function isErcpEligible(dateStr) {
-    const d = new Date(dateStr + 'T00:00:00');
-    const day = d.getDay(); // 0=Sun ... 2=Tue ... 6=Sat
-    return day === 2 || day === 6;
+  const advancedGroup = document.getElementById('advancedGroup');
+  if (!canErcp) {
+    if (ercpOpt) ercpOpt.remove();
+    if (advancedGroup) advancedGroup.remove();
   }
+  if (!canSpecial) {
+    if (dilOpt) dilOpt.remove();
+    if (polOpt) polOpt.remove();
+  }
+  if (canOverride) overrideRow.hidden = false;
 
   function syncErcpAvailability() {
     const opt = document.getElementById('ercpOption');
@@ -263,6 +319,14 @@ function initBookingModal(onSaved) {
     form.on_admission_hb.value = appt.on_admission_hb || '';
     form.platelet.value = appt.platelet || '';
     form.inr.value = appt.inr || '';
+    form.total_bilirubin.value = appt.total_bilirubin || '';
+    form.ggt.value = appt.ggt || '';
+    form.alp.value = appt.alp || '';
+    form.tlc.value = appt.tlc || '';
+    form.alt.value = appt.alt || '';
+    form.us_findings.value = appt.us_findings || '';
+    form.mrcp_findings.value = appt.mrcp_findings || '';
+    form.previous_labs.value = appt.previous_labs || '';
     form.comorbs_etiology.value = appt.comorbs_etiology || '';
     form.referral.value = appt.referral || '';
     form.is_bleeding.checked = !!appt.is_bleeding;
@@ -295,6 +359,14 @@ function initBookingModal(onSaved) {
       on_admission_hb: fd.get('on_admission_hb'),
       platelet: fd.get('platelet'),
       inr: fd.get('inr'),
+      total_bilirubin: fd.get('total_bilirubin'),
+      ggt: fd.get('ggt'),
+      alp: fd.get('alp'),
+      tlc: fd.get('tlc'),
+      alt: fd.get('alt'),
+      us_findings: fd.get('us_findings'),
+      mrcp_findings: fd.get('mrcp_findings'),
+      previous_labs: fd.get('previous_labs'),
       comorbs_etiology: fd.get('comorbs_etiology'),
       referral: fd.get('referral'),
       is_bleeding: fd.get('is_bleeding') === 'on',
@@ -373,6 +445,14 @@ function initRescheduleModal(onSaved) {
       on_admission_hb: appt.on_admission_hb,
       platelet: appt.platelet,
       inr: appt.inr,
+      total_bilirubin: appt.total_bilirubin,
+      ggt: appt.ggt,
+      alp: appt.alp,
+      tlc: appt.tlc,
+      alt: appt.alt,
+      us_findings: appt.us_findings,
+      mrcp_findings: appt.mrcp_findings,
+      previous_labs: appt.previous_labs,
       comorbs_etiology: appt.comorbs_etiology,
       referral: appt.referral,
       is_bleeding: appt.is_bleeding,
@@ -390,6 +470,292 @@ function initRescheduleModal(onSaved) {
       if (onSaved) onSaved();
     } catch (err) {
       showAlertPopup(err.message);
+    }
+  });
+}
+
+// ==================================================================
+// SCHEDULE REPEAT ERCP MODAL (shared by ercp_report.html and
+// patient_ercp_overview.html)
+// ==================================================================
+function initRepeatErcpModal() {
+  const modalEl = document.getElementById('repeatErcpModal');
+  if (!modalEl) return;
+
+  const form = document.getElementById('repeatErcpForm');
+  const apptIdField = document.getElementById('repeatSourceApptId');
+  const dateField = document.getElementById('repeatErcpDateField');
+  const infoEl = document.getElementById('repeatErcpPatientInfo');
+  const errorEl = document.getElementById('repeatErcpError');
+
+  window.openRepeatErcpModal = function (apptId, patientLabel) {
+    apptIdField.value = apptId;
+    dateField.value = '';
+    infoEl.textContent = patientLabel || '';
+    errorEl.hidden = true;
+    modalEl.hidden = false;
+  };
+
+  document.getElementById('closeRepeatErcpBtn').addEventListener('click', () => { modalEl.hidden = true; });
+  document.getElementById('cancelRepeatErcpBtn').addEventListener('click', () => { modalEl.hidden = true; });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorEl.hidden = true;
+    if (!isErcpEligible(dateField.value)) {
+      errorEl.textContent = 'ERCP can only be scheduled on Tuesdays or Saturdays.';
+      errorEl.hidden = false;
+      return;
+    }
+    try {
+      const result = await api(`/api/appointment/${apptIdField.value}/repeat-ercp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ appointment_date: dateField.value }),
+      });
+      modalEl.hidden = true;
+      // The overview page recomputes all sessions fresh from the DB (by
+      // MRN) on every load, so a full reload is enough to show the new
+      // session — no client-side state to reconcile.
+      if (result.appointment) {
+        window.location.href = `/patient-overview/${result.appointment.repeat_of_appointment_id}`;
+      } else {
+        window.location.reload();
+      }
+    } catch (err) {
+      errorEl.textContent = err.message;
+      errorEl.hidden = false;
+    }
+  });
+}
+
+// ==================================================================
+// FOLLOW-UP MODULE (shared by ercp_report.html/patient_ercp_overview.html
+// AND, since Phase 4, dilatation_report.html/dilatation_patient_overview.html
+// — one timeline per report). The endpoint URLs are procedure-specific, so
+// they're parameterized via window.FOLLOWUP_ENDPOINTS (set once per page
+// with setFollowupEndpoints()) rather than hardcoded — this default is
+// ERCP's original endpoints, so any page that never calls
+// setFollowupEndpoints() (i.e. every existing ERCP page) behaves exactly
+// as before.
+// ==================================================================
+const ERCP_FOLLOWUP_ENDPOINTS = {
+  list: (reportId) => `/api/ercp/${reportId}/followups`,
+  item: (followupId) => `/api/followup/${followupId}`,
+};
+window.FOLLOWUP_ENDPOINTS = window.FOLLOWUP_ENDPOINTS || ERCP_FOLLOWUP_ENDPOINTS;
+
+function setFollowupEndpoints(endpoints) {
+  window.FOLLOWUP_ENDPOINTS = endpoints;
+}
+
+const FOLLOWUP_CACHE = {};
+window.FOLLOWUP_REPORT_IDS = window.FOLLOWUP_REPORT_IDS || [];
+
+function followupTimelineHTML(followups) {
+  if (!followups.length) return '<p class="muted">No follow-up records yet.</p>';
+  return followups.map(f => {
+    FOLLOWUP_CACHE[f.id] = f;
+    const statusTag = f.clinical_status ? `<span class="followup-tag">${escapeHtml(f.clinical_status)}</span>` : '';
+    const outcomeTag = f.outcome ? `<span class="followup-tag followup-tag--outcome">${escapeHtml(f.outcome)}</span>` : '';
+    const rows = [
+      ['Clinical Notes', f.clinical_notes],
+      ['Histopathology / Biopsy', f.histopathology_result],
+      ['Laboratory Results', f.lab_results],
+      ['Imaging Results', f.imaging_results],
+      ['Management / Plan', f.management_plan],
+      ['Notes', f.free_notes],
+    ].filter(([, v]) => v && v.trim());
+    const rowsHtml = rows.map(([label, v]) => `<p class="followup-field"><strong>${label}:</strong> ${escapeHtml(v)}</p>`).join('');
+    return `
+      <div class="timeline-item timeline-item--followup">
+        <div class="timeline-dot timeline-dot--followup"></div>
+        <div class="timeline-card timeline-card--followup">
+          <div class="timeline-card-head">
+            <span class="timeline-date">${escapeHtml(f.followup_date)}</span>
+            ${statusTag}${outcomeTag}
+            <span class="timeline-actions no-print">
+              <button class="appt-cancel" onclick="openFollowupModalForEdit(${f.id})">edit</button>
+              <button class="appt-cancel" onclick="deleteFollowup(${f.id})">delete</button>
+            </span>
+          </div>
+          ${rowsHtml || '<p class="muted">No additional details recorded.</p>'}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function loadFollowupTimeline(reportId) {
+  const container = document.getElementById(`followupTimeline-${reportId}`);
+  if (!container) return;
+  try {
+    const data = await api(window.FOLLOWUP_ENDPOINTS.list(reportId));
+    container.innerHTML = followupTimelineHTML(data.followups);
+  } catch (err) {
+    container.innerHTML = `<p class="form-error">${escapeHtml(err.message)}</p>`;
+  }
+}
+
+function registerFollowupTimeline(reportId) {
+  if (!window.FOLLOWUP_REPORT_IDS.includes(reportId)) window.FOLLOWUP_REPORT_IDS.push(reportId);
+  loadFollowupTimeline(reportId);
+}
+
+function refreshAllFollowupTimelines() {
+  window.FOLLOWUP_REPORT_IDS.forEach(id => loadFollowupTimeline(id));
+}
+
+async function deleteFollowup(followupId) {
+  if (!confirm('Delete this follow-up record?')) return;
+  try {
+    await api(window.FOLLOWUP_ENDPOINTS.item(followupId), { method: 'DELETE' });
+    refreshAllFollowupTimelines();
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+// ==================================================================
+// UNSAVED CHANGES GUARD (shared by ercp_report.html and
+// dilatation_report.html). Two layers:
+//  1. Browser-level navigation (tab close, refresh, typing a new URL) can
+//     only trigger the browser's own generic "leave site?" dialog via
+//     beforeunload — its text and buttons are controlled by the browser,
+//     not customizable, that's a browser security restriction.
+//  2. In-app link clicks (nav bar, "Open Report" links, etc.) are under
+//     our control, so those show a custom modal with real Save Draft /
+//     Discard / Cancel choices before navigating away.
+// ==================================================================
+function initUnsavedChangesGuard(fieldsetSelector, saveFn) {
+  const fieldset = document.querySelector(fieldsetSelector);
+  const modalEl = document.getElementById('leaveConfirmModal');
+  if (!fieldset || !modalEl) return;
+
+  let isDirty = false;
+  let pendingHref = null;
+
+  fieldset.addEventListener('input', () => { isDirty = true; });
+  fieldset.addEventListener('change', () => { isDirty = true; });
+
+  window.markReportSaved = function () { isDirty = false; };
+
+  window.addEventListener('beforeunload', (e) => {
+    if (!isDirty) return;
+    e.preventDefault();
+    e.returnValue = '';
+  });
+
+  document.addEventListener('click', function (e) {
+    const link = e.target.closest('a[href]');
+    if (!link || !isDirty) return;
+    if (link.target === '_blank') return; // e.g. "Print Report" opens a new tab — don't block that
+    e.preventDefault();
+    pendingHref = link.href;
+    modalEl.hidden = false;
+  }, true);
+
+  const saveBtn = document.getElementById('leaveSaveBtn');
+  const discardBtn = document.getElementById('leaveDiscardBtn');
+  const cancelBtn = document.getElementById('leaveCancelBtn');
+
+  if (saveBtn) saveBtn.addEventListener('click', async () => {
+    const ok = await saveFn(true);
+    if (ok) {
+      isDirty = false;
+      modalEl.hidden = true;
+      if (pendingHref) window.location.href = pendingHref;
+    } else {
+      modalEl.hidden = true;
+    }
+  });
+  if (discardBtn) discardBtn.addEventListener('click', () => {
+    isDirty = false;
+    modalEl.hidden = true;
+    if (pendingHref) window.location.href = pendingHref;
+  });
+  if (cancelBtn) cancelBtn.addEventListener('click', () => {
+    modalEl.hidden = true;
+    pendingHref = null;
+  });
+}
+
+function initFollowupModal(onSaved) {
+  const modalEl = document.getElementById('followupModal');
+  if (!modalEl) return;
+
+  const form = document.getElementById('followupForm');
+  const reportIdField = document.getElementById('followupReportId');
+  const followupIdField = document.getElementById('followupId');
+  const modalTitle = document.getElementById('followupModalTitle');
+  const errorEl = document.getElementById('followupError');
+  const submitBtn = document.getElementById('followupSubmitBtn');
+
+  function resetForm() {
+    form.reset();
+    followupIdField.value = '';
+    modalTitle.textContent = 'Add Follow-up';
+    submitBtn.textContent = 'Save Follow-up';
+    errorEl.hidden = true;
+  }
+
+  window.openFollowupModalForNew = function (reportId) {
+    resetForm();
+    reportIdField.value = reportId;
+    modalEl.hidden = false;
+  };
+
+  window.openFollowupModalForEdit = function (followupId) {
+    const f = FOLLOWUP_CACHE[followupId];
+    if (!f) { alert('Could not find that follow-up record — try refreshing.'); return; }
+    resetForm();
+    followupIdField.value = f.id;
+    reportIdField.value = f.report_id;
+    document.getElementById('f_followup_date').value = f.followup_date;
+    document.getElementById('f_followup_clinical_status').value = f.clinical_status || '';
+    document.getElementById('f_followup_outcome').value = f.outcome || '';
+    document.getElementById('f_followup_clinical_notes').value = f.clinical_notes || '';
+    document.getElementById('f_followup_histopathology').value = f.histopathology_result || '';
+    document.getElementById('f_followup_labs').value = f.lab_results || '';
+    document.getElementById('f_followup_imaging').value = f.imaging_results || '';
+    document.getElementById('f_followup_management').value = f.management_plan || '';
+    document.getElementById('f_followup_free_notes').value = f.free_notes || '';
+    modalTitle.textContent = 'Edit Follow-up';
+    submitBtn.textContent = 'Save Changes';
+    modalEl.hidden = false;
+  };
+
+  document.getElementById('closeFollowupBtn').addEventListener('click', () => { modalEl.hidden = true; });
+  document.getElementById('cancelFollowupBtn').addEventListener('click', () => { modalEl.hidden = true; });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorEl.hidden = true;
+    const payload = {
+      followup_date: document.getElementById('f_followup_date').value,
+      clinical_status: document.getElementById('f_followup_clinical_status').value,
+      outcome: document.getElementById('f_followup_outcome').value,
+      clinical_notes: document.getElementById('f_followup_clinical_notes').value,
+      histopathology_result: document.getElementById('f_followup_histopathology').value,
+      lab_results: document.getElementById('f_followup_labs').value,
+      imaging_results: document.getElementById('f_followup_imaging').value,
+      management_plan: document.getElementById('f_followup_management').value,
+      free_notes: document.getElementById('f_followup_free_notes').value,
+    };
+    const reportId = reportIdField.value;
+    const followupId = followupIdField.value;
+    try {
+      followupId
+        ? await api(window.FOLLOWUP_ENDPOINTS.item(followupId), {
+            method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+          })
+        : await api(window.FOLLOWUP_ENDPOINTS.list(reportId), {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+          });
+      modalEl.hidden = true;
+      if (onSaved) onSaved();
+    } catch (err) {
+      errorEl.textContent = err.message;
+      errorEl.hidden = false;
     }
   });
 }
@@ -619,6 +985,28 @@ function initErcpReport() {
     return Array.from(document.querySelectorAll(`#${containerId} input[type="checkbox"]:checked`)).map(el => el.value);
   }
 
+  function cholangioFindingsValues(containerId) {
+    const checkboxValues = checkedValues(containerId);
+    const toggleValues = Array.from(document.querySelectorAll(`#${containerId} .ercp-cholangio-toggle-opt.is-selected`))
+      .map(el => el.dataset.value);
+    return checkboxValues.concat(toggleValues);
+  }
+
+  function setupCholangioToggleLists(containerId) {
+    document.querySelectorAll(`#${containerId} .ercp-cholangio-toggle-opt`).forEach(opt => {
+      function toggle() {
+        const nowSelected = !opt.classList.contains('is-selected');
+        opt.classList.toggle('is-selected', nowSelected);
+        opt.setAttribute('aria-selected', nowSelected ? 'true' : 'false');
+        opt.dispatchEvent(new CustomEvent('cholangio-toggle', { bubbles: true }));
+      }
+      opt.addEventListener('click', toggle);
+      opt.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+      });
+    });
+  }
+
   function gatherPayload() {
     return {
       endoscopist_id: document.getElementById('f_endoscopist_id').value || null,
@@ -632,7 +1020,10 @@ function initErcpReport() {
       papilla_location: document.getElementById('f_papilla_location').value,
       papilla_access: document.getElementById('f_papilla_access').value,
       cannulation: document.getElementById('f_cannulation').value,
-      cholangiogram_findings: checkedValues('f_cholangiogram_findings'),
+      cannulation_rescue_techniques: checkedValues('f_cannulation_rescue'),
+      guidewire_used: document.getElementById('f_guidewire_used').value,
+      guidewire_size: document.getElementById('f_guidewire_size').value,
+      cholangiogram_findings: cholangioFindingsValues('f_cholangiogram_findings'),
       cholangio_cbd_mm: document.getElementById('f_cholangio_cbd_mm').value,
       cholangio_chd_mm: document.getElementById('f_cholangio_chd_mm').value,
       cholangio_rhd_mm: document.getElementById('f_cholangio_rhd_mm').value,
@@ -641,6 +1032,9 @@ function initErcpReport() {
       cholangio_stone_count: document.getElementById('f_cholangio_stone_count').value,
       cholangio_stricture_length_mm: document.getElementById('f_cholangio_stricture_length_mm').value,
       therapeutic_procedures: checkedValues('f_therapeutic_procedures'),
+      sphincteroplasty_balloon_size_mm: document.getElementById('f_sphincteroplasty_balloon_size_mm').value,
+      balloon_dilation_location: document.getElementById('f_balloon_dilation_location').value,
+      balloon_dilation_size_mm: document.getElementById('f_balloon_dilation_size_mm').value,
       stent_placed: document.getElementById('f_stent_placed').value,
       stent_type: document.getElementById('f_stent_type').value,
       stent_manufacturer: document.getElementById('f_stent_manufacturer').value,
@@ -671,12 +1065,11 @@ function initErcpReport() {
       imaging_us: document.getElementById('f_imaging_us').value,
       imaging_ct: document.getElementById('f_imaging_ct').value,
       imaging_mrcp: document.getElementById('f_imaging_mrcp').value,
+      pep_nsaid_prophylaxis: document.getElementById('f_pep_nsaid_prophylaxis').value,
+      pep_pd_stent_prophylaxis: document.getElementById('f_pep_pd_stent_prophylaxis').value,
       research: {
         fluoro_time_sec: document.getElementById('r_fluoro_time_sec').value,
         contrast_volume_ml: document.getElementById('r_contrast_volume_ml').value,
-        cbd_diameter_mm: document.getElementById('r_cbd_diameter_mm').value,
-        stone_size_mm: document.getElementById('r_stone_size_mm').value,
-        stone_count: document.getElementById('r_stone_count').value,
         stone_clearance: document.getElementById('r_stone_clearance').value,
         pd_findings: document.getElementById('r_pd_findings').value,
         pd_intervention: document.getElementById('r_pd_intervention').value,
@@ -686,6 +1079,14 @@ function initErcpReport() {
         complication_severity: document.getElementById('r_complication_severity').value,
         disposition: document.getElementById('r_disposition').value,
         followup_plan: document.getElementById('r_followup_plan').value,
+        ampullary_appearance: checkedValues('r_ampullary_appearance'),
+        ampullary_appearance_other: document.getElementById('r_ampullary_appearance_other').value,
+        papilla_orientation: document.getElementById('r_papilla_orientation').value,
+        papilla_accessibility: document.getElementById('r_papilla_accessibility').value,
+        difficult_cannulation: document.getElementById('r_difficult_cannulation').value,
+        time_to_cannulation_min: document.getElementById('r_time_to_cannulation_min').value,
+        cannulation_attempts: document.getElementById('r_cannulation_attempts').value,
+        unintentional_pd_cannulation: document.getElementById('r_unintentional_pd_cannulation').value,
       },
     };
   }
@@ -713,8 +1114,8 @@ function initErcpReport() {
   }
 
   // ---- Normal Cholangiogram auto-deselects itself if any abnormal finding
-  // (checkbox or measurement) is entered, and clears abnormal findings if
-  // re-checked ----
+  // (checkbox, toggle-list selection, or measurement) is entered, and clears
+  // abnormal findings if re-checked ----
   function setupNormalCholangiogramToggle() {
     const wrap = document.getElementById('f_cholangiogram_findings');
     if (!wrap) return;
@@ -730,6 +1131,9 @@ function initErcpReport() {
     abnormalCheckboxes.forEach(cb => cb.addEventListener('change', () => {
       if (cb.checked) normalCheckbox.checked = false;
     }));
+    wrap.addEventListener('cholangio-toggle', (e) => {
+      if (e.target.classList.contains('is-selected')) normalCheckbox.checked = false;
+    });
     numericFields.forEach(f => f.addEventListener('input', () => {
       if (f.value.trim() !== '') normalCheckbox.checked = false;
       updateDilatationBadge();
@@ -737,6 +1141,10 @@ function initErcpReport() {
     normalCheckbox.addEventListener('change', () => {
       if (normalCheckbox.checked) {
         abnormalCheckboxes.forEach(cb => { cb.checked = false; });
+        wrap.querySelectorAll('.ercp-cholangio-toggle-opt.is-selected').forEach(opt => {
+          opt.classList.remove('is-selected');
+          opt.setAttribute('aria-selected', 'false');
+        });
         numericFields.forEach(f => { f.value = ''; });
         updateDilatationBadge();
       }
@@ -756,6 +1164,50 @@ function initErcpReport() {
     sync();
   }
 
+  // ---- Guidewire: show the Size field only when Guidewire Used is Yes ----
+  function setupGuidewireFieldsToggle() {
+    const usedSelect = document.getElementById('f_guidewire_used');
+    const sizeField = document.getElementById('guidewireSizeField');
+    if (!usedSelect || !sizeField) return;
+    function sync() {
+      sizeField.hidden = usedSelect.value !== 'Yes';
+    }
+    usedSelect.addEventListener('change', sync);
+    sync();
+  }
+
+  // ---- Balloon Sphincteroplasty Size: show only when "Sphincteroplasty" is
+  // checked under Therapeutic Procedures ----
+  function setupSphincteroplastyFieldsToggle() {
+    const grid = document.getElementById('f_therapeutic_procedures');
+    const sizeFields = document.getElementById('sphincteroplastyFields');
+    if (!grid || !sizeFields) return;
+    const checkbox = Array.from(grid.querySelectorAll('input[type="checkbox"]'))
+      .find(cb => cb.value === 'Sphincteroplasty');
+    if (!checkbox) return;
+    function sync() {
+      sizeFields.hidden = !checkbox.checked;
+    }
+    checkbox.addEventListener('change', sync);
+    sync();
+  }
+
+  // ---- Balloon Dilation location/size: show only when "Balloon dilation"
+  // is checked under Therapeutic Procedures — distinct from Sphincteroplasty ----
+  function setupBalloonDilationFieldsToggle() {
+    const grid = document.getElementById('f_therapeutic_procedures');
+    const detailFields = document.getElementById('balloonDilationFields');
+    if (!grid || !detailFields) return;
+    const checkbox = Array.from(grid.querySelectorAll('input[type="checkbox"]'))
+      .find(cb => cb.value === 'Balloon dilation');
+    if (!checkbox) return;
+    function sync() {
+      detailFields.hidden = !checkbox.checked;
+    }
+    checkbox.addEventListener('change', sync);
+    sync();
+  }
+
   async function saveReport(silent) {
     try {
       await api(`/ercp/${reportId}/save`, {
@@ -763,6 +1215,7 @@ function initErcpReport() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(gatherPayload()),
       });
+      if (window.markReportSaved) window.markReportSaved();
       if (!silent) {
         const notice = document.getElementById('ercpSaveNotice');
         notice.hidden = false;
@@ -831,8 +1284,13 @@ function initErcpReport() {
         }
       });
     });
+    setupCholangioToggleLists('f_cholangiogram_findings');
     setupNormalCholangiogramToggle();
     setupStentFieldsToggle();
+    setupGuidewireFieldsToggle();
+    setupSphincteroplastyFieldsToggle();
+    setupBalloonDilationFieldsToggle();
+    initUnsavedChangesGuard('#ercpFieldset', saveReport);
   }
   updateDilatationBadge();
 }
@@ -849,3 +1307,50 @@ async function ercpDeleteImage(slot) {
     showAlertPopup(err.message);
   }
 }
+
+// --- Prefill booking labs from ward records (optional, never overwrites) ---
+document.addEventListener('click', async (e) => {
+  if (e.target && e.target.id === 'prefillWardLabsBtn') {
+    const btn = e.target;
+    const msg = document.getElementById('prefillWardLabsMsg');
+    const mrnInput = document.getElementById('bookingMrnInput');
+    const form = btn.closest('form');
+    const mrn = (mrnInput && mrnInput.value || '').trim();
+    if (!mrn) {
+      msg.style.display = 'block';
+      msg.textContent = 'Enter an MRN first, then try again.';
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'Looking up…';
+    try {
+      const res = await fetch(`/api/patient-labs-lookup?mrn=${encodeURIComponent(mrn)}`);
+      const labs = await res.json();
+      const keys = Object.keys(labs || {});
+      if (!keys.length) {
+        msg.style.display = 'block';
+        msg.textContent = 'No recent ward lab results found for this MRN.';
+      } else {
+        let filled = 0;
+        keys.forEach((field) => {
+          const el = form && form.elements[field];
+          // Only fill empty fields — never overwrite something the clinician already typed.
+          if (el && !el.value) {
+            el.value = labs[field];
+            filled += 1;
+          }
+        });
+        msg.style.display = 'block';
+        msg.textContent = filled
+          ? `Filled ${filled} field(s) from the patient's ward lab history.`
+          : 'Found ward labs, but every matching field already had a value — nothing overwritten.';
+      }
+    } catch (err) {
+      msg.style.display = 'block';
+      msg.textContent = 'Could not look up ward labs right now.';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '⤓ Prefill labs from ward records';
+    }
+  }
+});

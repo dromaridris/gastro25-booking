@@ -1,0 +1,8 @@
+<div class="ercp-print-image-grid">
+  {% for item in image_slots_data if item.url %}
+  <figure class="ercp-print-image-cell">
+    <div class="ercp-print-image-box"><img src="{{ item.url }}" alt="Procedure image {{ item.slot }}"></div>
+    <figcaption class="ercp-print-image-caption">{{ item.caption|default('', true) }}</figcaption>
+  </figure>
+  {% endfor %}
+</div>

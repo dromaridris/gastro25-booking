@@ -1,13 +1,14 @@
 {% extends "base.html" %}
-{% block title %}Register · Gastro Booking{% endblock %}
+{% block title %}Register · Gastro & Hepatology{% endblock %}
 {% block content %}
 <div class="auth-card auth-card--wide">
   <div class="auth-logos">
     <img src="{{ url_for('static', filename='logos/jpmc_logo1.png') }}" alt="JPGMC">
-    <img src="{{ url_for('static', filename='logos/jpmc_gastro_logo.jpeg') }}" alt="Dept. of Gastroenterology">
+    <img src="{{ url_for('static', filename='logos/jpmc_gastro_logo.png') }}" alt="Dept. of Gastroenterology">
   </div>
   <h1>Request an account</h1>
-  <p class="auth-sub">Your account will be <strong>pending</strong> until an Admin or Specialist approves it.</p>
+  <p class="auth-sub">Gastroenterology • Research Center · Ward 25 · JPMC</p>
+  <p class="auth-sub auth-sub--tagline">Your account will be <strong>pending</strong> until an Admin or Specialist approves it.</p>
 
   <form method="POST" class="auth-form">
     <label>Full name
@@ -16,8 +17,8 @@
     <label>Username
       <input type="text" name="username" required>
     </label>
-    <label>Password (min. 6 characters)
-      <input type="password" name="password" minlength="6" required>
+    <label>Password (min. 8 characters)
+      <input type="password" name="password" minlength="8" required>
     </label>
     <label>Account type
       <select name="role" required>

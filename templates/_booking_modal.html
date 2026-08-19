@@ -22,6 +22,13 @@
           <option value="ercp" id="ercpOption">ERCP (Tue/Sat only)</option>
           <option value="dilatation" id="dilatationOption">Dilatation (special case)</option>
           <option value="polypectomy" id="polypectomyOption">Polypectomy (special case)</option>
+          {% if booking_advanced %}
+          <optgroup label="Advanced endoscopy" id="advancedGroup">
+            {% for key, label in booking_advanced %}
+            <option value="{{ key }}" class="advanced-opt">{{ label }}</option>
+            {% endfor %}
+          </optgroup>
+          {% endif %}
         </select>
       </label>
 
@@ -79,6 +86,36 @@
           <input type="text" name="comorbs_etiology" placeholder="e.g. CKD, cirrhosis">
         </label>
       </div>
+      <div class="form-row">
+        <label>Total Bilirubin
+          <input type="text" name="total_bilirubin" placeholder="e.g. 1.2 mg/dL">
+        </label>
+        <label>ALT
+          <input type="text" name="alt" placeholder="e.g. 35 U/L">
+        </label>
+      </div>
+      <div class="form-row">
+        <label>GGT
+          <input type="text" name="ggt" placeholder="e.g. 40 U/L">
+        </label>
+        <label>ALP
+          <input type="text" name="alp" placeholder="e.g. 90 U/L">
+        </label>
+      </div>
+      <div class="form-row">
+        <label>TLC (WBC)
+          <input type="text" name="tlc" placeholder="e.g. 8.5">
+        </label>
+      </div>
+      <label>US Findings <span class="label-hint">(optional)</span>
+        <textarea name="us_findings" rows="2" placeholder="Ultrasound findings, if available"></textarea>
+      </label>
+      <label>MRCP Findings <span class="label-hint">(optional)</span>
+        <textarea name="mrcp_findings" rows="2" placeholder="MRCP findings, if available"></textarea>
+      </label>
+      <label>Previous Labs <span class="label-hint">(optional — any earlier lab summary)</span>
+        <textarea name="previous_labs" rows="2" placeholder="e.g. results from an earlier admission or clinic visit"></textarea>
+      </label>
 
       <label class="checkbox-row" id="bleedingRow">
         <input type="checkbox" name="is_bleeding" id="bleedingCheckbox">

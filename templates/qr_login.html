@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}QR Login · Gastro & Hepatology{% endblock %}
+{% block content %}
+<div class="auth-card">
+  <div class="auth-logos">
+    <img src="{{ url_for('static', filename='logos/jpmc_logo1.png') }}" alt="JPGMC">
+    <img src="{{ url_for('static', filename='logos/jpmc_gastro_logo.png') }}" alt="Dept. of Gastroenterology">
+  </div>
+  <h1>Gastroenterology • Advanced Endoscopy</h1>
+  <p class="auth-sub">Research Center · Ward 25 · JPMC · The Source of Truth and Care</p>
+  <p class="auth-sub auth-sub--tagline">Log in to view this report.</p>
+
+  <form method="POST" class="auth-form">
+    <input type="hidden" name="next" value="{{ next }}">
+    <label>Username
+      <input type="text" name="username" autocomplete="username" required autofocus>
+    </label>
+    <label>Password
+      <input type="password" name="password" autocomplete="current-password" required>
+    </label>
+    <button type="submit" class="btn btn--primary btn--full">Log in</button>
+  </form>
+</div>
+{% endblock %}

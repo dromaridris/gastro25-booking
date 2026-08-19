@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Endoscopists · Gastro Booking{% endblock %}
+{% block title %}Endoscopists · Gastro & Hepatology{% endblock %}
 {% block content %}
 <div class="admin-page">
   <h1>Endoscopists</h1>
@@ -35,6 +35,7 @@
           <td>{{ 'Active' if e.is_active else 'Inactive' }}</td>
           <td>{{ usage_counts.get(e.id, 0) }}</td>
           <td class="admin-actions">
+            <button type="button" class="btn btn--sm btn--outline" onclick="toggleEndoscopistEdit({{ e.id }})">Edit</button>
             <form method="POST" action="{{ url_for('toggle_endoscopist', endoscopist_id=e.id) }}" style="display:inline">
               <button class="btn btn--sm btn--outline" type="submit">{{ 'Deactivate' if e.is_active else 'Reactivate' }}</button>
             </form>
@@ -43,7 +44,25 @@
                   onsubmit="return confirm('Delete this endoscopist?');">
               <button class="btn btn--sm btn--ghost" type="submit">Delete</button>
             </form>
+            {% else %}
+            <span class="label-hint">In use — deactivate instead of deleting</span>
             {% endif %}
+          </td>
+        </tr>
+        <tr class="endoscopist-edit-row" id="editRow{{ e.id }}" hidden>
+          <td colspan="5">
+            <form method="POST" action="{{ url_for('edit_endoscopist', endoscopist_id=e.id) }}" class="settings-form" style="margin-top:0;">
+              <label>Full Name &amp; Credentials
+                <input type="text" name="full_name" value="{{ e.full_name }}" required>
+              </label>
+              <label>Title / Department Lines <span class="label-hint">(one per line)</span>
+                <textarea name="title_lines" rows="3" style="grid-column: 1 / -1;">{{ e.title_lines }}</textarea>
+              </label>
+              <div style="display:flex; gap:8px;">
+                <button class="btn btn--sm btn--primary" type="submit">Save Changes</button>
+                <button class="btn btn--sm btn--ghost" type="button" onclick="toggleEndoscopistEdit({{ e.id }})">Cancel</button>
+              </div>
+            </form>
           </td>
         </tr>
         {% endfor %}
@@ -54,4 +73,13 @@
     {% endif %}
   </section>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function toggleEndoscopistEdit(id) {
+    const row = document.getElementById('editRow' + id);
+    if (row) row.hidden = !row.hidden;
+  }
+</script>
 {% endblock %}

@@ -1,7 +1,7 @@
 {
-  "name": "Gastro & Endoscopy Booking",
-  "short_name": "Gastro Booking",
-  "description": "JPMC Department of Gastroenterology — centralized endoscopy booking system",
+  "name": "Gastroenterology · Advanced Endoscopy",
+  "short_name": "Gastro & Hepatology",
+  "description": "JPMC Research Center · Ward 25 — The Source of Truth and Care",
   "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#F7F5F1",

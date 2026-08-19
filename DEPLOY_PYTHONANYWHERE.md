@@ -12,7 +12,7 @@
      static/
        css/style.css
        js/app.js
-       logos/jpmc_gastro_logo.jpeg
+       logos/jpmc_gastro_logo.png
        logos/jpmc_logo1.png
    ```
    Easiest way: zip this whole folder locally, upload the zip via the Files tab,
@@ -47,27 +47,32 @@ if path not in sys.path:
 from app import app as application
 ```
 
-## 5. Set a real SECRET_KEY (recommended)
+## 5. Set security environment variables (required for production)
 On the **Web** tab, under "Environment variables", add:
 ```
 SECRET_KEY = <a long random string>
+SESSION_COOKIE_SECURE = 1
+CALENDARIFIC_API_KEY = <your calendarific key if used>
 ```
+`SECRET_KEY` signs session cookies. If unset, the app generates and stores one in
+`.flask_secret_key` next to the database — still set a real env value on
+PythonAnywhere. Never use the old placeholder `change-this-secret-key-in-production`.
+
+`SESSION_COOKIE_SECURE=1` keeps the session cookie HTTPS-only (correct for
+PythonAnywhere HTTPS).
 
 ## 6. Reload
 Click the green **Reload** button on the Web tab. Your app is now live at
 `https://YOURUSERNAME.pythonanywhere.com`.
 
 ## 7. First login
-A default admin account is created automatically on first run:
+A default admin account is created automatically **only when no admin exists**:
 - **Username:** `admin`
-- **Password:** `admin123`
+- **Password:** a one-time random password printed in the server/error log on first boot
 
-**Log in immediately and change this password** (or create a new admin account
-and delete the default one) — the app doesn't yet expose a "change password"
-screen, so if you want a different admin password, either:
-- edit `bootstrap_db()` in `app.py` before first launch, or
-- delete `gastro_booking.db` (resets ALL data) and set a new password there, or
-- ask for a "change password" feature to be added.
+You will be forced to change that password on first login. The old default
+`admin123` is no longer used for new installs; existing installs that still
+use `admin123` are also forced to change it at login.
 
 ## 8. Data persistence
 The SQLite file `gastro_booking.db` is created automatically next to `app.py`

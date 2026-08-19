@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Statistics · Gastro Booking{% endblock %}
+{% block title %}Statistics · Gastro & Hepatology{% endblock %}
 {% block content %}
 <div class="stats-page">
   <h1>Medical Statistics</h1>
@@ -109,7 +109,7 @@
       </table></div>
     </section>
 
-    {% if current_user.role in ['admin', 'specialist'] %}
+    {% if has_full_access() or current_user.role == 'specialist' %}
     <section class="admin-section">
       <h2>Export Raw Data</h2>
       <p class="muted">Download the underlying bookings for this same date range as an .xlsx file.</p>
