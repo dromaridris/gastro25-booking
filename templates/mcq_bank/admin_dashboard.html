@@ -36,7 +36,12 @@
       </div>
       <div class="btn-row mcq-book-actions">
         <a class="btn btn--sm btn--outline" href="{{ url_for('mcqbank_review', book_id=s.book.id) }}">Review</a>
-        <button class="btn btn--sm btn--ghost" onclick="mcqDeleteBook({{ s.book.id }}, {{ s.book.name|tojson }})">Delete</button>
+        <button
+          type="button"
+          class="btn btn--sm btn--ghost mcq-delete-book"
+          data-book-id="{{ s.book.id }}"
+          data-book-name="{{ s.book.name }}"
+        >Delete</button>
       </div>
     </div>
     {% endfor %}
@@ -49,5 +54,11 @@ async function mcqDeleteBook(bookId, bookName) {
   const res = await fetch(`/mcq-bank/admin/api/books/${bookId}`, { method: 'DELETE' });
   if (res.ok) location.reload(); else alert('Failed to delete.');
 }
+
+document.querySelectorAll('.mcq-delete-book').forEach((button) => {
+  button.addEventListener('click', () => {
+    mcqDeleteBook(button.dataset.bookId, button.dataset.bookName);
+  });
+});
 </script>
 {% endblock %}

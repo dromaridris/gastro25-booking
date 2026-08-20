@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>First-time setup · Gastro Booking</title>
+  <style>
+    :root{font-family:Inter,Segoe UI,Arial,sans-serif;color:#172033;background:#f4f7fb}*{box-sizing:border-box}
+    body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px}.card{width:min(680px,100%);background:#fff;border:1px solid #dce3ee;border-radius:18px;padding:32px;box-shadow:0 18px 55px #22304a18}
+    h1{margin:0 0 8px}.muted{color:#667085;line-height:1.55}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.wide{grid-column:1/-1}
+    label{display:block;font-weight:700;margin-top:14px}input{width:100%;margin-top:7px;border:1px solid #cbd5e1;border-radius:10px;padding:12px;font:inherit}
+    button{margin-top:24px;border:0;border-radius:10px;background:#a6192e;color:white;font-weight:800;padding:13px 18px;cursor:pointer}.alert{padding:12px;border-radius:10px;margin:14px 0;background:#fee2e2;color:#991b1b}
+    @media(max-width:620px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Create the owner account</h1>
+    <p class="muted">Activation completed. Set the institution identity and create the first Administrator account. This page closes permanently after setup.</p>
+    {% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}<div class="alert">{{ message }}</div>{% endfor %}{% endwith %}
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <div class="grid">
+        <label class="wide">Institution / Site name<input name="site_name" maxlength="120" required placeholder="Example: City Gastroenterology Center"></label>
+        <label class="wide">Department subtitle<input name="dept_subtitle" maxlength="160" placeholder="Example: Gastroenterology & Advanced Endoscopy"></label>
+        <label>Administrator full name<input name="full_name" maxlength="120" required></label>
+        <label>Administrator username<input name="username" maxlength="60" required autocomplete="username"></label>
+        <label>Administrator password<input type="password" name="password" minlength="8" required autocomplete="new-password"></label>
+        <label>Confirm password<input type="password" name="confirm_password" minlength="8" required autocomplete="new-password"></label>
+      </div>
+      <button type="submit">Complete setup</button>
+    </form>
+  </main>
+</body>
+</html>

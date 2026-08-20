@@ -19,7 +19,6 @@ Deploy on PythonAnywhere: see DEPLOY_PYTHONANYWHERE.md
 
 import os
 import re
-import json
 import secrets
 import sqlite3
 from datetime import datetime, date, timedelta
@@ -42,6 +41,7 @@ import report_service
 import image_service
 import qr_service
 import print_service
+import license_service
 # Gastro25 Core Services (phase 3) — generic registry (listing/export) and
 # procedure-session-numbering helpers, shared across procedure modules.
 # See registry_service.py / session_service.py.
@@ -169,7 +169,7 @@ SCHEDULER_LIKE_ROLES = (ROLE_SCHEDULER, ROLE_ENDOSCOPY_STAFF)
 CAN_ACCESS_ERCP_REPORTS = CAN_BOOK_ERCP  # (admin, specialist, nurse_manager)
 CAN_MANAGE_ENDOSCOPISTS = (ROLE_ADMIN, ROLE_SPECIALIST)
 
-ERCP_IMAGE_SLOTS = 9
+ERCP_IMAGE_SLOTS = 8
 ERCP_IMAGES_DIR = os.path.join(DATA_DIR, 'ercp_images')
 os.makedirs(ERCP_IMAGES_DIR, exist_ok=True)
 ERCP_IMAGE_MAX_DIMENSION = 1600   # px, longest side
@@ -433,7 +433,7 @@ FOLLOWUP_OUTCOME_OPTIONS = [
 CAN_ACCESS_DILATATION_REPORTS = CAN_BOOK_SPECIAL
 CAN_MANAGE_DILATATION_FOLLOWUP = CAN_BOOK_SPECIAL
 
-DILATATION_IMAGE_SLOTS = 9
+DILATATION_IMAGE_SLOTS = 8
 DILATATION_IMAGES_DIR = os.path.join(DATA_DIR, 'dilatation_images')
 os.makedirs(DILATATION_IMAGES_DIR, exist_ok=True)
 
@@ -660,7 +660,6 @@ def init_db():
             sedation TEXT NOT NULL DEFAULT '',
             anesthesiologist TEXT NOT NULL DEFAULT '',
             indication TEXT NOT NULL DEFAULT '',
-            other_specifications TEXT NOT NULL DEFAULT '{}',
             duodenoscope_advancement TEXT NOT NULL DEFAULT '',
             papilla TEXT NOT NULL DEFAULT '',
             papilla_location TEXT NOT NULL DEFAULT '',
@@ -952,7 +951,7 @@ def init_db():
         # procedure time; flow automatically into the ERCP report instead of
         # being typed twice (tlc = Total Leukocyte Count, same value as WBC).
         'total_bilirubin', 'ggt', 'alp', 'tlc',
-        'alt', 'us_findings', 'mrcp_findings', 'ct_findings', 'previous_labs',
+        'alt', 'us_findings', 'mrcp_findings', 'previous_labs',
     ):
         if col not in existing_cols:
             dbconn.execute(f"ALTER TABLE appointment ADD COLUMN {col} TEXT DEFAULT ''")
@@ -965,7 +964,6 @@ def init_db():
     existing_ercp_cols = {row['name'] for row in dbconn.execute('PRAGMA table_info(ercp_report)').fetchall()}
     new_ercp_columns = [
         'anesthesiologist',
-        'other_specifications',
         'cholangio_cbd_mm', 'cholangio_chd_mm', 'cholangio_rhd_mm', 'cholangio_lhd_mm',
         'cholangio_largest_stone_mm', 'cholangio_stone_count', 'cholangio_stricture_length_mm',
         'stricture_morphology', 'stricture_severity', 'stricture_appearance', 'upstream_dilatation',
@@ -1096,22 +1094,6 @@ def init_db():
             (d.isoformat(), name, 'seed', datetime.utcnow().isoformat())
         )
 
-    cur = dbconn.execute('SELECT COUNT(*) AS c FROM user WHERE role = ?', (ROLE_ADMIN,))
-    if cur.fetchone()['c'] == 0:
-        boot_password = secrets.token_urlsafe(14)
-        dbconn.execute(
-            'INSERT INTO user (username, full_name, password_hash, role, is_approved, '
-            'created_at, must_change_password) VALUES (?, ?, ?, ?, 1, ?, 1)',
-            ('admin', 'Head of Department', generate_password_hash(boot_password),
-             ROLE_ADMIN, datetime.utcnow().isoformat())
-        )
-        print('=' * 60)
-        print('Created default admin account (ONE-TIME PASSWORD — change after login):')
-        print(f'  username: admin')
-        print(f'  password: {boot_password}')
-        print('This password will NOT be shown again. Change it immediately.')
-        print('=' * 60)
-
     dbconn.commit()
     dbconn.close()
 
@@ -1163,7 +1145,6 @@ def appt_to_dict(row):
         'alt': row['alt'],
         'us_findings': row['us_findings'],
         'mrcp_findings': row['mrcp_findings'],
-        'ct_findings': row['ct_findings'],
         'previous_labs': row['previous_labs'],
         'comorbs_etiology': row['comorbs_etiology'],
         'referral': row['referral'],
@@ -1239,6 +1220,22 @@ def _request_csrf_token() -> str:
 @app.before_request
 def _security_before_request():
     _ensure_csrf_token()
+
+    # A fresh commercial installation must be activated, then create its own
+    # owner account. Existing installations with users continue unchanged;
+    # deployments can temporarily opt out during a staged upgrade.
+    licensing_disabled = os.environ.get('GASTRO_DISABLE_LICENSING', '').strip().lower() in ('1', 'true', 'yes')
+    if not licensing_disabled:
+        host = request.host
+        licensed, _license, _license_error = license_service.license_status(DATA_DIR, host)
+        if not licensed and request.endpoint not in ('activation', 'static'):
+            return redirect(url_for('activation'))
+        if licensed:
+            admin_exists = get_db().execute(
+                'SELECT 1 FROM user WHERE role = ? LIMIT 1', (ROLE_ADMIN,)
+            ).fetchone() is not None
+            if not admin_exists and request.endpoint not in ('first_setup', 'activation', 'static'):
+                return redirect(url_for('first_setup'))
 
     # Keep session role in sync with DB (prevents sticky privileges after demotion)
     if session.get('user_id'):
@@ -2446,6 +2443,87 @@ def validate_booking(user, payload, exclude_id=None):
 # ----------------------------------------------------------------------
 # Auth routes
 # ----------------------------------------------------------------------
+@app.route('/activation', methods=['GET', 'POST'])
+def activation():
+    host = request.host
+    device = license_service.device_code(DATA_DIR, host)
+    licensed, _payload, _error = license_service.license_status(DATA_DIR, host)
+    if licensed:
+        admin_exists = get_db().execute(
+            'SELECT 1 FROM user WHERE role = ? LIMIT 1', (ROLE_ADMIN,)
+        ).fetchone() is not None
+        return redirect(url_for('login' if admin_exists else 'first_setup'))
+
+    if request.method == 'POST':
+        activation_key = request.form.get('activation_key', '')
+        try:
+            license_service.activate(activation_key, DATA_DIR, host)
+        except ValueError as exc:
+            flash(str(exc), 'error')
+            return redirect(url_for('activation'))
+        flash('Installation activated successfully. Create the owner account.', 'success')
+        return redirect(url_for('first_setup'))
+    return render_template('activation.html', device_code=device)
+
+
+@app.route('/setup', methods=['GET', 'POST'])
+def first_setup():
+    licensed, _payload, _error = license_service.license_status(DATA_DIR, request.host)
+    if not licensed:
+        return redirect(url_for('activation'))
+
+    dbconn = get_db()
+    if dbconn.execute('SELECT 1 FROM user WHERE role = ? LIMIT 1', (ROLE_ADMIN,)).fetchone():
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        site_name = request.form.get('site_name', '').strip()
+        dept_subtitle = request.form.get('dept_subtitle', '').strip()
+        full_name = request.form.get('full_name', '').strip()
+        username = request.form.get('username', '').strip().lower()
+        password = request.form.get('password', '')
+        confirm_password = request.form.get('confirm_password', '')
+        if not site_name or not full_name or not username:
+            flash('Institution name and Administrator details are required.', 'error')
+            return redirect(url_for('first_setup'))
+        if len(password) < 8:
+            flash('Administrator password must be at least 8 characters.', 'error')
+            return redirect(url_for('first_setup'))
+        if password != confirm_password:
+            flash('Password and confirmation do not match.', 'error')
+            return redirect(url_for('first_setup'))
+        if dbconn.execute('SELECT 1 FROM user WHERE username = ?', (username,)).fetchone():
+            flash('That username is already in use.', 'error')
+            return redirect(url_for('first_setup'))
+
+        dbconn.execute(
+            'INSERT INTO user (username, full_name, password_hash, role, is_approved, '
+            'created_at, must_change_password) VALUES (?, ?, ?, ?, 1, ?, 0)',
+            (username, full_name, generate_password_hash(password), ROLE_ADMIN,
+             datetime.utcnow().isoformat()),
+        )
+        dbconn.commit()
+        try:
+            from gi_platform import branding_service
+            branding_service.save_settings(
+                dbconn,
+                fields={
+                    'site_name': site_name,
+                    'dept_subtitle': dept_subtitle or 'Gastroenterology & Advanced Endoscopy',
+                    'slogan': '',
+                    'show_hospital_logo': False,
+                    'show_department_logo': False,
+                },
+            )
+        except Exception:
+            app.logger.exception('Owner account created but initial branding could not be saved.')
+
+        flash('Setup completed. Log in with the Administrator account you created.', 'success')
+        return redirect(url_for('login'))
+
+    return render_template('first_setup.html')
+
+
 @app.route('/')
 def index():
     if current_user():
@@ -3321,10 +3399,10 @@ def api_book():
     cur = dbconn.execute(
         'INSERT INTO appointment '
         '(patient_name, gender, age, phone, mrn, clinical_notes, on_admission_hb, platelet, inr, '
-        'total_bilirubin, alt, ggt, alp, tlc, us_findings, mrcp_findings, ct_findings, previous_labs, '
+        'total_bilirubin, alt, ggt, alp, tlc, us_findings, mrcp_findings, previous_labs, '
         'comorbs_etiology, referral, procedure_type, appointment_date, is_bleeding, is_override, '
         'booked_by_username, booked_by_role, created_at) '
-        'VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+        'VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
         (
             payload['patient_name'].strip(),
             payload['gender'],
@@ -3342,7 +3420,6 @@ def api_book():
             (payload.get('tlc') or '').strip(),
             (payload.get('us_findings') or '').strip(),
             (payload.get('mrcp_findings') or '').strip(),
-            (payload.get('ct_findings') or '').strip(),
             (payload.get('previous_labs') or '').strip(),
             (payload.get('comorbs_etiology') or '').strip(),
             (payload.get('referral') or '').strip(),
@@ -3406,7 +3483,7 @@ def api_edit_appointment(appt_id):
     dbconn.execute(
         'UPDATE appointment SET patient_name=?, gender=?, age=?, phone=?, mrn=?, '
         'clinical_notes=?, on_admission_hb=?, platelet=?, inr=?, total_bilirubin=?, alt=?, ggt=?, alp=?, tlc=?, '
-        'us_findings=?, mrcp_findings=?, ct_findings=?, previous_labs=?, '
+        'us_findings=?, mrcp_findings=?, previous_labs=?, '
         'comorbs_etiology=?, referral=?, '
         'procedure_type=?, appointment_date=?, is_bleeding=?, is_override=? '
         'WHERE id = ?',
@@ -3427,7 +3504,6 @@ def api_edit_appointment(appt_id):
             (payload.get('tlc') or '').strip(),
             (payload.get('us_findings') or '').strip(),
             (payload.get('mrcp_findings') or '').strip(),
-            (payload.get('ct_findings') or '').strip(),
             (payload.get('previous_labs') or '').strip(),
             (payload.get('comorbs_etiology') or '').strip(),
             (payload.get('referral') or '').strip(),
@@ -3664,7 +3740,6 @@ def ercp_report_save(report_id):
         'sedation': payload.get('sedation') or '',
         'anesthesiologist': (payload.get('anesthesiologist') or '').strip(),
         'indication': payload.get('indication') or '',
-        'other_specifications': json.dumps(payload.get('other_specifications') or {}, ensure_ascii=False, separators=(',', ':')),
         'duodenoscope_advancement': payload.get('duodenoscope_advancement') or '',
         'papilla': payload.get('papilla') or '',
         'papilla_location': payload.get('papilla_location') or '',
@@ -4034,19 +4109,6 @@ def ercp_print(report_id):
         ('Biopsy', report['biopsy']),
         ('Complications', report['complications']),
     ]
-
-    # Universal ERCP "Other" specifications are stored as a small JSON map
-    # keyed to the originating field/container. Keep the structured value
-    # intact and surface only non-empty specifications in the printable report.
-    try:
-        other_specs = json.loads(report['other_specifications'] or '{}')
-    except (TypeError, ValueError):
-        other_specs = {}
-    if isinstance(other_specs, dict):
-        for key, value in other_specs.items():
-            value = str(value or '').strip()
-            if value:
-                procedure_fields.append((f'Other — {key}', value))
 
     procedure_fields = [
         (label, val)

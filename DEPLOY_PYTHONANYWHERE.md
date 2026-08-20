@@ -65,14 +65,21 @@ PythonAnywhere HTTPS).
 Click the green **Reload** button on the Web tab. Your app is now live at
 `https://YOURUSERNAME.pythonanywhere.com`.
 
-## 7. First login
-A default admin account is created automatically **only when no admin exists**:
-- **Username:** `admin`
-- **Password:** a one-time random password printed in the server/error log on first boot
+## 7. First activation and owner setup
+On a new installation, opening the site redirects to the Activation page and
+shows a unique Device Code. Send that code to the software owner. The owner
+uses the separate private License Manager to create a permanent Activation Key.
 
-You will be forced to change that password on first login. The old default
-`admin123` is no longer used for new installs; existing installs that still
-use `admin123` are also forced to change it at login.
+Paste the key into the Activation page. The next page asks for the institution
+name and creates the first Administrator account with a password chosen by the
+customer. No default admin password is created or printed in the server log.
+
+The key is bound to the installation and domain. If the site is moved to a new
+domain, obtain a new Activation Key from the software owner.
+
+For a controlled staged upgrade only, licensing can be temporarily bypassed
+with `GASTRO_DISABLE_LICENSING=1`. Do not use that variable on a customer
+installation.
 
 ## 8. Data persistence
 The SQLite file `gastro_booking.db` is created automatically next to `app.py`

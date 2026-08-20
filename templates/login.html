@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Log in · Gastro & Hepatology{% endblock %}
+{% block title %}Log in · {{ branding.site_name|default('Gastro Booking') }}{% endblock %}
 {% block content %}
 <div class="login-stage{% if promo_images %} login-stage--promos{% endif %}">
   {% if promo_images %}
@@ -21,13 +21,19 @@
   {% endif %}
 
   <div class="auth-card login-auth-card">
+    {% if branding.show_hospital_logo|default(true) or branding.show_department_logo|default(true) %}
     <div class="auth-logos">
-      <img src="{{ url_for('static', filename='logos/jpmc_logo1.png') }}" alt="JPGMC">
-      <img src="{{ url_for('static', filename='logos/jpmc_gastro_logo.png') }}" alt="Dept. of Gastroenterology">
+      {% if branding.show_hospital_logo|default(true) %}
+      <img src="{{ url_for('gi_branding_asset', kind='hospital') if branding.hospital_logo_filename else url_for('static', filename='logos/jpmc_logo1.png') }}" alt="Institution logo">
+      {% endif %}
+      {% if branding.show_department_logo|default(true) %}
+      <img src="{{ url_for('gi_branding_asset', kind='department') if branding.logo_filename else url_for('static', filename='logos/jpmc_gastro_logo.png') }}" alt="Department logo">
+      {% endif %}
     </div>
-    <h1>Gastroenterology • Advanced Endoscopy</h1>
-    <p class="auth-sub">Research Center · Ward 25 · JPMC</p>
-    <p class="auth-sub auth-sub--tagline">The Source of Truth and Care</p>
+    {% endif %}
+    <h1>{{ branding.site_name|default('Gastro Booking') }}</h1>
+    {% if branding.dept_subtitle %}<p class="auth-sub">{{ branding.dept_subtitle }}</p>{% endif %}
+    {% if branding.slogan %}<p class="auth-sub auth-sub--tagline">{{ branding.slogan }}</p>{% endif %}
 
     <form method="POST" class="auth-form">
       <input type="hidden" name="next" value="{{ next }}">

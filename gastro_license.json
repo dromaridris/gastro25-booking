@@ -1,0 +1,14 @@
+{
+  "activation_code": "eyJjdXN0b21lciI6ImxhcHRvcHkiLCJkZXZpY2VfY29kZSI6IkdCLTA2QkUtMEY4OC02RTYzLUYwNjAtRjQzMi00NzRFIiwiZWRpdGlvbiI6ImNvbW1lcmNpYWwiLCJleHBpcmVzX2F0IjpudWxsLCJpc3N1ZWRfYXQiOiIyMDI2LTA4LTIwVDEyOjM4OjM2LjY3ODY3OSswMDowMCIsImxpY2Vuc2VfaWQiOiJHQkwtNzQxNDQ3QjE1MjQ1IiwicGVycGV0dWFsIjp0cnVlLCJwcm9kdWN0IjoiR0FTVFJPLUJPT0tJTkcifQ.80F3i9Lg9Mdbq6VbiApTWyR-yWVlQVZWpJlRWuzA2vTBz2-Al-k52cIbonlgbegSjkrIkGGrwx1VPjYbREj6Aw",
+  "activated_at": "2026-08-20T12:38:45.476202+00:00",
+  "license": {
+    "customer": "laptopy",
+    "device_code": "GB-06BE-0F88-6E63-F060-F432-474E",
+    "edition": "commercial",
+    "expires_at": null,
+    "issued_at": "2026-08-20T12:38:36.678679+00:00",
+    "license_id": "GBL-741447B15245",
+    "perpetual": true,
+    "product": "GASTRO-BOOKING"
+  }
+}
