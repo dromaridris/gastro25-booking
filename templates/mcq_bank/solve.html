@@ -3,7 +3,8 @@
 {% block content %}
 <a class="back-link" href="{{ url_for('mcqbank_dashboard') }}">← Back to study picker</a>
 <h1 style="margin-top:4px;">
-  {% if chapter %}{{ book.name if book else '' }} · Ch {{ chapter.number }} — {{ chapter.title }}
+  {% if question_code %}Question {{ question_code }}
+  {% elif chapter %}{{ book.name if book else '' }} · Ch {{ chapter.number }} — {{ chapter.title }}
   {% elif book %}{{ book.name }}
   {% else %}Mixed practice{% endif %}
   {% if wrong_only == '1' %}<span class="muted">(wrong answers only)</span>{% endif %}
@@ -45,8 +46,11 @@ const SCOPE = {
   topic: {{ topic|tojson }},
   wrong_only: "{{ wrong_only }}",
   random: "{{ random }}",
+  code: {{ question_code|tojson }},
 };
-let currentItemId=null, currentScopeKey=null, currentCycle=null, answered=false;
+let history = [];
+let historyIndex = -1;
+let loadingQuestion = false;
 
 function esc(s) {
   return String(s == null ? '' : s)
@@ -60,6 +64,7 @@ function qs(p) {
   if (p.topic) u.set('topic', p.topic);
   if (p.wrong_only === '1') u.set('wrong_only', '1');
   if (p.random === '1') u.set('random', '1');
+  if (p.code) u.set('code', p.code);
   return u.toString();
 }
 function renderDailyTarget(dt) {
@@ -78,74 +83,161 @@ function renderStats(s) {
   document.getElementById('stat-accuracy').textContent = s.accuracy_pct + '%';
   document.getElementById('progress-bar').style.width = (s.total ? Math.round(s.solved/s.total*100) : 0) + '%';
 }
-function renderQuestion(data) {
-  answered = false;
-  currentItemId = data.item_id; currentScopeKey = data.scope_key; currentCycle = data.cycle_number;
-  renderStats(data.stats);
+function renderQuestion(entry) {
+  const data = entry.data;
+  const result = entry.result;
+  renderStats(result ? result.stats : data.stats);
   const q = data.question;
   const opts = q.options.map(o => `
-    <button type="button" data-letter="${esc(o.letter)}" class="option-btn compact-card" style="display:flex;gap:10px;text-align:left;width:100%;cursor:pointer;margin-bottom:8px;border:2px solid #ddd;background:#fff;">
+    <button type="button" data-letter="${esc(o.letter)}" class="option-btn mcq-answer-option compact-card">
       <strong>${esc(o.letter)}</strong><span>${esc(o.text)}</span>
     </button>`).join('');
+  const editLink = data.edit_url
+    ? `<a class="btn btn--sm btn--outline" href="${esc(data.edit_url)}">Edit this question</a>`
+    : '';
   document.getElementById('question-area').innerHTML = `
-    <div class="compact-card">
+    <div class="compact-card mcq-question-card">
+      <div class="mcq-question-meta">
+        <span class="mcq-question-code">${esc(data.question_code)}</span>
+        ${editLink}
+      </div>
       <p style="white-space:pre-line;">${esc(q.question_text)}</p>
       <div id="options-list">${opts}</div>
       <div id="explanation-area"></div>
+      <div class="mcq-question-actions">
+        <button type="button" class="btn btn--outline" id="previous-q-btn" ${historyIndex <= 0 ? 'disabled' : ''}>← Previous</button>
+        ${result
+          ? `<button type="button" class="btn btn--primary" id="next-q-btn">Next →</button>`
+          : `<button type="button" class="btn btn--primary" id="confirm-q-btn" ${entry.selectedLetter ? '' : 'disabled'}>Confirm answer</button>`}
+      </div>
     </div>`;
+  paintOptions(entry);
+  document.getElementById('previous-q-btn').addEventListener('click', previousQuestion);
+  if (result) {
+    renderExplanation(entry);
+    document.getElementById('next-q-btn').addEventListener('click', nextQuestion);
+  } else {
+    document.querySelectorAll('.option-btn').forEach(btn => {
+      btn.addEventListener('click', () => selectOption(btn.dataset.letter));
+    });
+    document.getElementById('confirm-q-btn').addEventListener('click', confirmAnswer);
+  }
+}
+function paintOptions(entry) {
   document.querySelectorAll('.option-btn').forEach(btn => {
-    btn.addEventListener('click', () => selectOption(btn.dataset.letter));
+    const letter = btn.dataset.letter;
+    btn.classList.toggle('is-selected', !entry.result && letter === entry.selectedLetter);
+    if (!entry.result) return;
+    btn.disabled = true;
+    btn.classList.toggle('is-correct', letter === entry.result.correct_answer);
+    btn.classList.toggle('is-wrong', letter === entry.selectedLetter && letter !== entry.result.correct_answer);
+    btn.classList.toggle('is-dimmed', letter !== entry.result.correct_answer && letter !== entry.selectedLetter);
   });
 }
-function renderDone(stats) {
-  renderStats(stats);
-  document.getElementById('question-area').innerHTML = `
-    <div class="compact-card" style="text-align:center;">
-      <h2>Cycle complete!</h2>
-      <p class="muted">You answered all ${esc(stats.total)} question(s) — ${esc(stats.correct)}/${esc(stats.solved)} correct (${esc(stats.accuracy_pct)}%).</p>
-      <button type="button" class="btn btn--primary" id="new-cycle-btn">Start a new cycle</button>
-    </div>`;
-  document.getElementById('new-cycle-btn').addEventListener('click', startNewCycle);
-}
-async function loadNext() {
-  const res = await fetch('/mcq-bank/api/next?' + qs(SCOPE));
-  const data = await res.json();
-  if (data.daily_target) renderDailyTarget(data.daily_target);
-  if (data.done) { renderDone(data.stats); return; }
-  renderQuestion(data);
-}
-async function selectOption(letter) {
-  if (answered) return;
-  answered = true;
-  document.querySelectorAll('.option-btn').forEach(b => b.onclick = null);
-  const res = await fetch('/mcq-bank/api/answer', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({item_id: currentItemId, scope_key: currentScopeKey, cycle_number: currentCycle, selected_option: letter}),
-  });
-  const result = await res.json();
-  document.querySelectorAll('.option-btn').forEach(btn => {
-    const l = btn.dataset.letter;
-    if (l === result.correct_answer) btn.style.borderColor = '#16a34a', btn.style.background = '#f0fdf4';
-    else if (l === letter) btn.style.borderColor = '#dc2626', btn.style.background = '#fef2f2';
-    else btn.style.opacity = '0.5';
-  });
+function renderExplanation(entry) {
+  const result = entry.result;
   const badge = result.is_correct ? '<span class="badge">✓ Correct</span>' : '<span class="badge">✗ Incorrect</span>';
   const refs = Array.isArray(result.references) ? result.references.join(', ') : (result.references || '');
   document.getElementById('explanation-area').innerHTML = `
-    <div style="border-top:1px solid #eee;margin-top:12px;padding-top:12px;">
+    <div class="mcq-explanation">
       ${badge}
       <p style="white-space:pre-line;">${esc(result.explanation_text)}</p>
-      ${refs ? `<p class="muted" style="font-size:12px;">${esc(refs)}</p>` : ''}
-      <button type="button" class="btn btn--primary" id="next-q-btn">Next question →</button>
+      ${refs ? `<p class="muted mcq-reference-text">${esc(refs)}</p>` : ''}
     </div>`;
-  document.getElementById('next-q-btn').addEventListener('click', loadNext);
-  renderStats(result.stats);
+}
+function renderDone(stats) {
+  renderStats(stats);
+  const emptyMessage = SCOPE.code && !stats.total
+    ? `No approved question was found with code ${esc(SCOPE.code)}.`
+    : `You answered all ${esc(stats.total)} question(s) — ${esc(stats.correct)}/${esc(stats.solved)} correct (${esc(stats.accuracy_pct)}%).`;
+  document.getElementById('question-area').innerHTML = `
+    <div class="compact-card" style="text-align:center;">
+      <h2>${stats.total ? 'Cycle complete!' : 'Question not found'}</h2>
+      <p class="muted">${emptyMessage}</p>
+      <div class="btn-row" style="justify-content:center;">
+        ${history.length ? '<button type="button" class="btn btn--outline" id="last-q-btn">← Previous question</button>' : ''}
+        ${stats.total ? '<button type="button" class="btn btn--primary" id="new-cycle-btn">Start a new cycle</button>' : ''}
+      </div>
+    </div>`;
+  document.getElementById('last-q-btn')?.addEventListener('click', showLastQuestion);
+  document.getElementById('new-cycle-btn')?.addEventListener('click', startNewCycle);
+}
+async function fetchNextQuestion() {
+  if (loadingQuestion) return;
+  loadingQuestion = true;
+  try {
+    const res = await fetch('/mcq-bank/api/next?' + qs(SCOPE));
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Could not load the next question.');
+    if (data.daily_target) renderDailyTarget(data.daily_target);
+    if (data.done) { renderDone(data.stats); return; }
+    history.push({data, selectedLetter: null, result: null});
+    historyIndex = history.length - 1;
+    renderQuestion(history[historyIndex]);
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    loadingQuestion = false;
+  }
+}
+function selectOption(letter) {
+  const entry = history[historyIndex];
+  if (!entry || entry.result) return;
+  entry.selectedLetter = letter;
+  renderQuestion(entry);
+}
+async function confirmAnswer() {
+  const entry = history[historyIndex];
+  if (!entry || !entry.selectedLetter || entry.result) return;
+  const confirmBtn = document.getElementById('confirm-q-btn');
+  if (confirmBtn) confirmBtn.disabled = true;
+  const res = await fetch('/mcq-bank/api/answer', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      item_id: entry.data.item_id,
+      scope_key: entry.data.scope_key,
+      cycle_number: entry.data.cycle_number,
+      selected_option: entry.selectedLetter,
+    }),
+  });
+  const result = await res.json();
+  if (!res.ok) {
+    alert(result.error || 'Could not submit the answer.');
+    renderQuestion(entry);
+    return;
+  }
+  entry.result = result;
   if (result.daily_target) renderDailyTarget(result.daily_target);
+  renderQuestion(entry);
+}
+function previousQuestion() {
+  if (historyIndex <= 0) return;
+  historyIndex -= 1;
+  renderQuestion(history[historyIndex]);
+}
+function nextQuestion() {
+  const entry = history[historyIndex];
+  if (!entry || !entry.result) return;
+  if (historyIndex < history.length - 1) {
+    historyIndex += 1;
+    renderQuestion(history[historyIndex]);
+    return;
+  }
+  fetchNextQuestion();
+}
+function showLastQuestion() {
+  if (!history.length) return;
+  historyIndex = history.length - 1;
+  renderQuestion(history[historyIndex]);
 }
 async function startNewCycle() {
-  await fetch('/mcq-bank/api/new_cycle', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({scope_key: currentScopeKey})});
-  loadNext();
+  const scopeKey = history.length ? history[history.length - 1].data.scope_key : null;
+  if (!scopeKey) return;
+  await fetch('/mcq-bank/api/new_cycle', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({scope_key: scopeKey})});
+  history = [];
+  historyIndex = -1;
+  fetchNextQuestion();
 }
-loadNext();
+fetchNextQuestion();
 </script>
 {% endblock %}

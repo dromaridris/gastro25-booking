@@ -112,7 +112,10 @@ def register_mcq_bank_routes(app, *, get_db, db_path, login_required, roles_requ
             confidence_flag=confidence_flag, search=search,
             limit=per_page, offset=(page - 1) * per_page,
         )
-        total = content_service.admin_count_items(db, book_id=book_id, status=status)
+        total = content_service.admin_count_items(
+            db, book_id=book_id, chapter_id=chapter_id, status=status,
+            confidence_flag=confidence_flag, search=search,
+        )
 
         return render_template(
             'mcq_bank/review.html', book=book, chapters=chapters, items=items,
@@ -253,6 +256,7 @@ def register_mcq_bank_routes(app, *, get_db, db_path, login_required, roles_requ
         topic = request.args.get('topic')
         wrong_only = request.args.get('wrong_only') == '1'
         random_mode = request.args.get('random') == '1'
+        question_code = (request.args.get('code') or '').strip().upper()
 
         db = get_db()
         uid = session.get('user_id')
@@ -265,6 +269,7 @@ def register_mcq_bank_routes(app, *, get_db, db_path, login_required, roles_requ
             book_id=book_id, chapter_id=chapter_id, topic=topic or '',
             wrong_only='1' if wrong_only else '0',
             random='1' if random_mode else '0',
+            question_code=question_code,
             book=book, chapter=chapter,
             daily_target=daily_target,
         )
@@ -274,9 +279,11 @@ def register_mcq_bank_routes(app, *, get_db, db_path, login_required, roles_requ
         chapter_id = args.get('chapter_id', type=int)
         topic = args.get('topic') or None
         wrong_only = args.get('wrong_only') == '1'
+        question_code = (args.get('code') or '').strip().upper() or None
 
         base_scope_key, base_item_ids = progress_service.resolve_scope(
-            db, book_id=book_id, chapter_id=chapter_id, topic=topic
+            db, book_id=book_id, chapter_id=chapter_id, topic=topic,
+            question_code=question_code,
         )
         if wrong_only:
             scope_key = f"wrong::{base_scope_key}"
@@ -306,10 +313,17 @@ def register_mcq_bank_routes(app, *, get_db, db_path, login_required, roles_requ
                 'cycle_number': cycle, 'daily_target': daily_target,
             })
 
-        payload = content_service.student_get_item_payload(db, next_id)
+        item = content_service.student_get_item(db, next_id)
+        payload = item['payload']
+        edit_url = None
+        if session.get('role') in CAN_MANAGE_MCQ_BANK:
+            edit_url = url_for(
+                'mcqbank_review', book_id=item['book_id'], search=item['question_code'],
+            )
         return jsonify({
             'done': False, 'item_id': next_id, 'scope_key': scope_key, 'cycle_number': cycle,
             'question': student_view(payload, reveal_answer=False), 'stats': stats,
+            'question_code': item['question_code'], 'edit_url': edit_url,
             'daily_target': daily_target,
         })
 
@@ -383,6 +397,7 @@ def register_mcq_bank_routes(app, *, get_db, db_path, login_required, roles_requ
             out.append({
                 'content_item_id': r['content_item_id'],
                 'position': r['position'],
+                'question_code': r['question_code'],
                 'question': student_view(payload, reveal_answer=False),
             })
         return jsonify(out)

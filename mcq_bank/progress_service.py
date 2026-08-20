@@ -1,7 +1,12 @@
 from mcq_bank import content_service
 
 
-def resolve_scope(db, book_id=None, chapter_id=None, topic=None):
+def resolve_scope(db, book_id=None, chapter_id=None, topic=None, question_code=None):
+    if question_code:
+        normalized_code = question_code.strip().upper()
+        scope_key = f"question:{normalized_code}"
+        item_id = content_service.student_find_approved_id_by_code(db, normalized_code)
+        return scope_key, [item_id] if item_id else []
     if chapter_id:
         scope_key = f"chapter:{chapter_id}"
         clauses, params = ["chapter_id = ?"], [chapter_id]
@@ -77,9 +82,10 @@ def get_next_question(db, user_id, scope_key, cycle_number, item_ids, random_ord
 
 
 def submit_answer(db, user_id, content_item_id, scope_key, cycle_number, selected_option):
-    payload = content_service.student_get_item_payload(db, content_item_id)
-    if payload is None:
+    item = content_service.student_get_item(db, content_item_id)
+    if item is None:
         return None
+    payload = item["payload"]
     prev = db.execute(
         """SELECT status FROM mcqbank_user_progress
            WHERE user_id = ? AND content_item_id = ? AND scope_key = ? AND cycle_number = ?""",
@@ -105,6 +111,7 @@ def submit_answer(db, user_id, content_item_id, scope_key, cycle_number, selecte
     from mcq_bank.extractors.mcq.schema import student_view
     result = {
         "is_correct": is_correct,
+        "question_code": item["question_code"],
         **student_view(payload, reveal_answer=True),
     }
     if daily_target is not None:

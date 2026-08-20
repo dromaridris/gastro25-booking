@@ -618,15 +618,6 @@ input:focus, select:focus, textarea:focus{ outline: 2px solid var(--crimson); ou
 .print-toolbar{ display:flex; gap: 10px; padding: 12px; }
 .print-toolbar button{ padding: 8px 14px; border-radius: 6px; border: 1px solid var(--line); background:#fff; cursor:pointer; }
 .print-sheet{ max-width: 900px; margin: 0 auto; padding: 20px; }
-/* Formal report preview uses the exact same physical content width as print.
-   This prevents text from re-wrapping when Print with/without Header is pressed. */
-.print-report-body .print-sheet{
-  width:190mm;
-  max-width:190mm;
-  margin:0 auto;
-  padding:0;
-  box-sizing:border-box;
-}
 .print-header{ display:flex; align-items:center; justify-content: space-between; border-bottom: 3px solid var(--crimson); padding-bottom: 12px; margin-bottom: 16px; }
 .print-logo{ height: 60px; width: 60px; object-fit: contain; }
 .print-header-text{ text-align:center; }
@@ -656,18 +647,13 @@ input:focus, select:focus, textarea:focus{ outline: 2px solid var(--crimson); ou
 /* ---------------- Print media rules ---------------- */
 @media print{
   .no-print{ display: none !important; }
-  html, body{
-    margin:0 !important;
-    padding:0 !important;
-    background:#fff;
-  }
-  body{ padding-bottom:0 !important; }
+  body{ background: #fff; }
   .print-sheet{
-    width:190mm;
-    max-width:190mm;
-    margin:0 auto;
-    padding:0;
-    box-sizing:border-box;
+    padding: 0;
+    max-width: none;
+    width: 190mm;
+    margin: 0 auto;
+    box-sizing: border-box;
   }
   .print-table{ font-size: 11px; }
   a[href]:after{ content: ""; }
@@ -683,10 +669,6 @@ input:focus, select:focus, textarea:focus{ outline: 2px solid var(--crimson); ou
 
   .ercp-print-page2:not([hidden]){ page-break-before: always; }
   .ercp-print-page2[hidden]{ display:none !important; page-break-before:auto !important; }
-  [data-print-page].print-last-page{
-    page-break-after:auto !important;
-    break-after:auto !important;
-  }
   .letterhead-mode .ercp-print-header{ visibility: hidden !important; }
 
   /* Endoscopy sidebar: rail stays on page 1, never affects text column height */
@@ -811,200 +793,105 @@ input:focus, select:focus, textarea:focus{ outline: 2px solid var(--crimson); ou
 .ercp-qr-img{ width: 90px; height: 90px; }
 .ercp-qr-caption{ font-size: 9px; color: var(--muted); margin: 2px 0 0 0; }
 .ercp-print-image-grid{
-  --image-gap:2mm;
-  --image-caption-height:5mm;
   display:grid;
-  width:100%;
-  max-width:190mm;
-  /* 180 mm is the design ceiling; the A4 header/footer contract leaves
-     about 170 mm on a normal image page, so never force overlap to reach 180. */
-  height:165mm;
-  max-height:180mm;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-rows:repeat(4,minmax(0,1fr));
+  gap:5mm 6mm;
+  margin:4mm 0 0;
+  height:166mm;
   min-height:0;
-  gap:var(--image-gap);
-  margin:2mm auto 0;
-  box-sizing:border-box;
   break-inside:avoid;
   page-break-inside:avoid;
 }
-
-/* Image-only print pages: JS sets an exact per-page height from the grid top
-   to the fixed footer top. This fallback leaves a safety gap even before JS runs. */
-.ercp-print-page-frame .ercp-print-image-grid,
-.ercp-print-page2 .ercp-print-image-grid{
-  overflow:hidden;
-}
-.ercp-print-image-grid[data-image-count="1"]{ grid-template-columns:1fr; grid-template-rows:1fr; }
-.ercp-print-image-grid[data-image-count="2"]{ grid-template-columns:repeat(2,minmax(0,1fr)); grid-template-rows:1fr; }
-.ercp-print-image-grid[data-image-count="3"],
-.ercp-print-image-grid[data-image-count="4"]{ grid-template-columns:repeat(2,minmax(0,1fr)); grid-template-rows:repeat(2,minmax(0,1fr)); }
-.ercp-print-image-grid[data-image-count="5"],
-.ercp-print-image-grid[data-image-count="6"]{ grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:repeat(2,minmax(0,1fr)); }
-.ercp-print-image-grid[data-image-count="7"],
-.ercp-print-image-grid[data-image-count="8"],
-.ercp-print-image-grid[data-image-count="9"]{ grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:repeat(3,minmax(0,1fr)); }
 .ercp-print-image-cell{
-  min-width:0; min-height:0; height:100%; margin:0;
-  border:0; border-radius:0; background:transparent; box-sizing:border-box;
-  display:flex; flex-direction:column; overflow:hidden;
-  break-inside:avoid; page-break-inside:avoid;
+  min-width:0;
+  min-height:0;
+  height:100%;
+  margin:0;
+  border:1px solid #999;
+  border-radius:4px;
+  background:#fff;
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  break-inside:avoid;
+  page-break-inside:avoid;
 }
-.ercp-print-image-cell[hidden]{ display:none !important; }
 .ercp-print-image-box{
-  flex:1 1 auto; min-height:0; width:100%; display:flex;
-  align-items:center; justify-content:center; overflow:hidden;
-  box-sizing:border-box; background:transparent;
+  flex:1 1 auto;
+  min-height:0;
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  box-sizing:border-box;
+  background:#fafafa;
 }
-.ercp-print-image-box img,
+.ercp-print-image-box img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+}
 .ercp-print-image-cell > img{
-  display:block; width:100%; height:100%; max-width:100%; max-height:100%;
-  object-fit:contain; object-position:center; border:0.25mm solid #000;
-  box-sizing:border-box; background:#fff;
+  flex:1 1 auto;
+  min-height:0;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+  display:block;
 }
-.ercp-print-image-blank{ display:none !important; }
+.ercp-print-image-blank{
+  flex:1 1 auto;
+  min-height:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  color:var(--muted);
+}
 .ercp-print-image-caption{
-  display:block !important;
-  visibility:visible !important;
-  flex:0 0 var(--image-caption-height);
-  min-height:var(--image-caption-height);
-  height:var(--image-caption-height);
-  max-height:var(--image-caption-height);
+  flex:0 0 7mm;
+  min-height:7mm;
   width:100%;
   box-sizing:border-box;
   overflow:hidden;
   font-size:9px;
-  line-height:1.1;
+  line-height:1.2;
   margin:0;
-  padding:0.7mm 0.5mm 0;
+  padding:1.5mm 2mm 1mm;
+  color:var(--muted);
   text-align:center;
-  color:#111;
   background:#fff;
-  border:0;
+  border-top:1px solid #ddd;
   white-space:normal;
 }
-.ercp-print-image-caption:empty{ visibility:hidden !important; }
 .ercp-print-page-frame{
   box-sizing:border-box;
-  position:relative;
-  width:190mm;
-  min-height:297mm;
-  height:297mm;
-  padding-bottom:50mm;
-  page-break-after:always;
-  break-after:page;
-  overflow:visible;
 }
 .ercp-print-page-frame .ercp-print-header{
-  min-height:63mm;
-  height:63mm;
+  min-height:36mm;
+  height:36mm;
   box-sizing:border-box;
 }
 .ercp-print-footer{
-  height:50mm;
   min-height:50mm;
   box-sizing:border-box;
   display:flex;
   justify-content:space-between;
   align-items:flex-end;
   padding-bottom:4mm;
-  margin-top:0;
-  position:absolute;
-  left:0;
-  right:0;
-  bottom:0;
-  background:#fff;
-  z-index:2;
+  margin-top:28px;
   page-break-inside:avoid;
   break-inside:avoid;
 }
 .letterhead-mode .ercp-print-page-frame .ercp-print-header{ visibility:hidden !important; }
 .ercp-print-footer .ercp-qr-box{ margin-left:auto; text-align:center; }
 .ercp-print-footer .print-signature{ margin-top:0; }
-
-/* Universal formal procedure-report print contract: 63 mm letterhead +
-   50 mm signature/QR reserve. Dilatation uses the named fixed/secondary
-   classes; ERCP and advanced reports use .ercp-print-page-frame. */
-.print-fixed-header,
-.print-secondary-header{
-  min-height:63mm !important;
-  height:63mm !important;
-  box-sizing:border-box;
-}
-#printPage1Content,
-.ercp-print-page2{
-  position:relative;
-  box-sizing:border-box;
-  width:190mm;
-  min-height:297mm;
-  height:297mm;
-  padding-bottom:50mm;
-  overflow:visible;
-}
-.print-fixed-footer,
-.print-secondary-footer{
-  height:50mm;
-  min-height:50mm;
-  box-sizing:border-box;
-  position:absolute;
-  left:0;
-  right:0;
-  bottom:0;
-  margin:0 !important;
-  align-items:flex-end;
-  padding-bottom:4mm;
-  background:#fff;
-  z-index:2;
-  page-break-inside:avoid;
-  break-inside:avoid;
-}
-
-/* Adaptive report fit: only used when a report exceeds the footer-safe area by
-   a small amount. It preserves the 63 mm header / 50 mm footer contract while
-   reclaiming a few millimetres before a continuation page is created. */
-.print-compact-fit .ercp-print-table{ margin-bottom:9px; }
-.print-compact-fit .ercp-print-table td{ padding:4px 7px; }
-.print-compact-fit .ercp-section-th{ padding:4px 7px; }
-.print-compact-fit .ercp-print-block{ margin-bottom:9px; }
-.print-compact-fit .ercp-print-block h3{ margin-bottom:3px; padding-bottom:2px; }
-.print-compact-fit .ercp-print-block p{ line-height:1.42; margin-bottom:4px; }
-.print-compact-fit .ercp-report-number{ margin-bottom:7px; }
-.print-compact-fit .print-team-block,
-.print-compact-fit .ercp-print-team{ margin-top:7px !important; margin-bottom:7px !important; }
-
-/* Dynamically-created text continuation pages. These use exactly the same
-   physical page contract as the original report page and are inserted before
-   the dedicated image page. */
-.print-report-continuation{
-  position:relative;
-  box-sizing:border-box;
-  width:190mm;
-  min-height:297mm;
-  height:297mm;
-  padding-bottom:50mm;
-  overflow:visible;
-  page-break-before:always;
-  break-before:page;
-  page-break-after:auto;
-  break-after:auto;
-}
-.print-report-continuation .ercp-print-header,
-.print-report-continuation .print-fixed-header,
-.print-report-continuation .print-secondary-header{
-  min-height:63mm !important;
-  height:63mm !important;
-  box-sizing:border-box;
-}
-.print-report-continuation .ercp-print-footer,
-.print-report-continuation .print-fixed-footer,
-.print-report-continuation .print-secondary-footer{
-  height:50mm; min-height:50mm; box-sizing:border-box;
-  position:absolute; left:0; right:0; bottom:0; margin:0 !important;
-  align-items:flex-end; padding-bottom:4mm; background:#fff; z-index:2;
-}
-.letterhead-mode .print-report-continuation .ercp-print-header,
-.letterhead-mode .print-report-continuation .print-fixed-header,
-.letterhead-mode .print-report-continuation .print-secondary-header{ visibility:hidden !important; }
-
 .ercp-image-caption-field{ display:block; margin-top:6px; font-size:11px; color:var(--muted); }
 .ercp-image-caption-field input{ width:100%; box-sizing:border-box; margin-top:3px; }
 
@@ -1284,7 +1171,7 @@ input:focus, select:focus, textarea:focus{ outline: 2px solid var(--crimson); ou
   margin: 2px 0 0;
 }
 
-
+.ercp-print-image-grid--page2{ grid-template-columns: repeat(2, 1fr); }
 .ercp-image-caption-label{ display:block; font-size:12px; margin:6px 0 4px; }
 .ercp-image-caption-label input{ width:100%; font-size:12px; padding:4px 6px; margin-top:2px; }
 
@@ -1529,7 +1416,7 @@ input:focus, select:focus, textarea:focus{ outline: 2px solid var(--crimson); ou
   .admin-table .compact-form input[type="date"]{ max-width: 100%; }
 
   /* ERCP / reports */
-
+  .ercp-print-image-grid{ grid-template-columns: repeat(2, 1fr); }
   .ercp-checkbox-grid{ grid-template-columns: 1fr; }
 
   /* Ward topbar / patient page */
@@ -1661,6 +1548,43 @@ input:focus, select:focus, textarea:focus{ outline: 2px solid var(--crimson); ou
   display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:10px;
 }
 .mcq-page .compact-card[data-item-id] .btn-row{ flex-wrap:wrap; }
+.mcq-global-tools{
+  display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px;
+}
+.mcq-global-tools p{ margin:3px 0 0; font-size:12px; }
+.mcq-code-search{ display:flex; flex-direction:column; gap:8px; margin-bottom:14px; }
+.mcq-code-search-row{ display:flex; gap:8px; }
+.mcq-code-search-row .compact-input{ flex:1 1 auto; min-width:0; }
+.mcq-question-card{ max-width:760px; margin:0 auto; }
+.mcq-question-meta{
+  display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px;
+}
+.mcq-question-code{
+  display:inline-block; font-family:var(--font-mono); font-size:11px; font-weight:800;
+  color:var(--crimson-dark); background:var(--paper); border:1px solid var(--line);
+  border-radius:999px; padding:3px 8px; white-space:nowrap;
+}
+.mcq-answer-option{
+  display:flex; gap:10px; text-align:left; width:100%; cursor:pointer;
+  margin-bottom:8px; border:2px solid var(--line); background:#fff;
+  transition:border-color .12s ease, background .12s ease, box-shadow .12s ease;
+}
+.mcq-answer-option:hover:not(:disabled){ border-color:var(--crimson); }
+.mcq-answer-option.is-selected{
+  border-color:var(--crimson); background:#fff1f2; box-shadow:0 0 0 2px rgba(166,25,46,.12);
+}
+.mcq-answer-option.is-correct{ border-color:#16a34a; background:#f0fdf4; opacity:1; }
+.mcq-answer-option.is-wrong{ border-color:#dc2626; background:#fef2f2; opacity:1; }
+.mcq-answer-option.is-dimmed{ opacity:.5; }
+.mcq-question-actions{
+  display:flex; justify-content:space-between; gap:8px; margin-top:14px; padding-top:12px;
+  border-top:1px solid var(--line);
+}
+.mcq-explanation{ border-top:1px solid var(--line); margin-top:12px; padding-top:12px; }
+.mcq-reference-text{ font-size:12px; }
+.dilatation-font-controls{ display:flex; align-items:center; gap:6px; }
+.dilatation-font-controls .btn{ min-width:42px; }
+.dilatation-font-controls .muted{ min-width:42px; text-align:center; font-size:11px; font-weight:700; }
 
 @media (max-width: 760px){
   .gi-registry-grid{ grid-template-columns: 1fr; }
@@ -1684,6 +1608,11 @@ input:focus, select:focus, textarea:focus{ outline: 2px solid var(--crimson); ou
   .mcq-form{ max-width:100%; }
   .mcq-filter-bar .compact-input{ flex:1 1 100%; width:100%; }
   .mcq-chapter-grid{ grid-template-columns:1fr; }
+  .mcq-global-tools{ flex-direction:column; align-items:stretch; }
+  .mcq-global-tools .btn{ text-align:center; }
+  .mcq-code-search-row{ flex-direction:column; }
+  .mcq-question-actions{ flex-wrap:wrap; }
+  .mcq-question-actions .btn{ flex:1 1 auto; }
   .mcq-page .admin-section{ padding:14px; }
   .mcq-page .compact-card[data-item-id] > .form-row{
     display:flex; flex-direction:column; align-items:stretch; gap:8px;

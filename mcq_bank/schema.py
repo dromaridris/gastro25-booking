@@ -10,7 +10,11 @@ from __future__ import annotations
 import sqlite3
 
 
-MCQ_BANK_SCHEMA_VERSION = 2
+MCQ_BANK_SCHEMA_VERSION = 3
+
+
+def _column_exists(db, table: str, column: str) -> bool:
+    return any(row[1] == column for row in db.execute(f"PRAGMA table_info({table})").fetchall())
 
 
 def init_mcq_bank_schema(db) -> None:
@@ -43,6 +47,7 @@ def init_mcq_bank_schema(db) -> None:
         -- never raw dict access scattered through the codebase.
         CREATE TABLE IF NOT EXISTS mcqbank_content_item (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            question_code TEXT,
             book_id INTEGER NOT NULL REFERENCES mcqbank_book(id) ON DELETE CASCADE,
             chapter_id INTEGER NOT NULL REFERENCES mcqbank_chapter(id) ON DELETE CASCADE,
             content_type TEXT NOT NULL DEFAULT 'mcq',
@@ -148,4 +153,19 @@ def init_mcq_bank_schema(db) -> None:
             updated_at TEXT DEFAULT (datetime('now'))
         );
     """)
+
+    # Schema v3: stable, searchable code for every existing and future item.
+    # The code is based on the immutable primary key, so reordering books or
+    # chapters never changes it.
+    if not _column_exists(db, 'mcqbank_content_item', 'question_code'):
+        cur.execute("ALTER TABLE mcqbank_content_item ADD COLUMN question_code TEXT")
+    cur.execute(
+        "UPDATE mcqbank_content_item "
+        "SET question_code = printf('MCQ-%06d', id) "
+        "WHERE question_code IS NULL OR trim(question_code) = ''"
+    )
+    cur.execute(
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_mcqbank_question_code "
+        "ON mcqbank_content_item(question_code)"
+    )
     db.commit()

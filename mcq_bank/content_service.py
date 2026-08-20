@@ -20,7 +20,12 @@ def save_extracted_items(db, book_id, chapter_id, content_type, extracted_items)
                 item.raw_extracted_text,
             ),
         )
-        saved_ids.append(cur.lastrowid)
+        item_id = cur.lastrowid
+        db.execute(
+            "UPDATE mcqbank_content_item SET question_code = ? WHERE id = ?",
+            (f"MCQ-{item_id:06d}", item_id),
+        )
+        saved_ids.append(item_id)
     db.commit()
     return saved_ids
 
@@ -50,7 +55,9 @@ def admin_list_items(db, book_id=None, chapter_id=None, content_type=None,
     if confidence_flag:
         clauses.append("confidence_flag = ?"); params.append(confidence_flag)
     if search:
-        clauses.append("payload_json LIKE ?"); params.append(f"%{search}%")
+        clauses.append("(question_code LIKE ? OR payload_json LIKE ?)")
+        like = f"%{search.strip()}%"
+        params.extend([like, like])
     where = ("WHERE " + " AND ".join(clauses)) if clauses else ""
     rows = db.execute(
         f"SELECT * FROM mcqbank_content_item {where} ORDER BY chapter_id, item_number LIMIT ? OFFSET ?",
@@ -59,7 +66,8 @@ def admin_list_items(db, book_id=None, chapter_id=None, content_type=None,
     return [_row_to_dict(r) for r in rows]
 
 
-def admin_count_items(db, book_id=None, chapter_id=None, status=None):
+def admin_count_items(db, book_id=None, chapter_id=None, status=None,
+                      confidence_flag=None, search=None):
     clauses, params = [], []
     if book_id:
         clauses.append("book_id = ?"); params.append(book_id)
@@ -67,6 +75,12 @@ def admin_count_items(db, book_id=None, chapter_id=None, status=None):
         clauses.append("chapter_id = ?"); params.append(chapter_id)
     if status:
         clauses.append("status = ?"); params.append(status)
+    if confidence_flag:
+        clauses.append("confidence_flag = ?"); params.append(confidence_flag)
+    if search:
+        clauses.append("(question_code LIKE ? OR payload_json LIKE ?)")
+        like = f"%{search.strip()}%"
+        params.extend([like, like])
     where = ("WHERE " + " AND ".join(clauses)) if clauses else ""
     row = db.execute(f"SELECT COUNT(*) c FROM mcqbank_content_item {where}", params).fetchone()
     return row["c"]
@@ -123,6 +137,34 @@ def student_get_item_payload(db, item_id):
         "SELECT payload_json FROM mcqbank_content_item WHERE id = ? AND status = 'approved'", (item_id,)
     ).fetchone()
     return json.loads(row["payload_json"]) if row else None
+
+
+def student_get_item(db, item_id):
+    row = db.execute(
+        """SELECT id, question_code, book_id, chapter_id, payload_json
+           FROM mcqbank_content_item WHERE id = ? AND status = 'approved'""",
+        (item_id,),
+    ).fetchone()
+    if not row:
+        return None
+    return {
+        "id": row["id"],
+        "question_code": row["question_code"],
+        "book_id": row["book_id"],
+        "chapter_id": row["chapter_id"],
+        "payload": json.loads(row["payload_json"]),
+    }
+
+
+def student_find_approved_id_by_code(db, question_code):
+    code = (question_code or '').strip().upper()
+    if not code:
+        return None
+    row = db.execute(
+        "SELECT id FROM mcqbank_content_item WHERE question_code = ? AND status = 'approved'",
+        (code,),
+    ).fetchone()
+    return row["id"] if row else None
 
 
 def random_approved_item_ids(db, count, book_id=None, chapter_id=None):

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Dilatation Report · {{ appt.patient_name }}{% endblock %}
 {% block content %}
-<div class="ercp-page" data-report-id="{{ report.id }}" data-locked="{{ is_locked|lower }}" data-indication="{{ report.indication }}">
+<div class="ercp-page dilatation-editor-page" data-report-id="{{ report.id }}" data-locked="{{ is_locked|lower }}" data-indication="{{ report.indication }}">
   <div class="ercp-header no-print">
     <div>
       <h1>Endoscopic Dilatation Report — {{ appt.patient_name }}</h1>
@@ -11,6 +11,11 @@
       <span class="ercp-status-badge ercp-status-{{ report.status }}">{{ 'Finalized' if is_locked else 'Draft' }}</span>
       <a class="btn btn--outline" href="{{ url_for('patient_dilatation_overview', appointment_id=appt.id) }}">📁 Patient Dilatation Overview</a>
       <button type="button" class="btn btn--outline" id="scheduleRepeatDilatationBtn" data-appt-id="{{ appt.id }}">🔁 Schedule Repeat Dilatation</button>
+      <div class="dilatation-font-controls" aria-label="Report font size">
+        <button type="button" class="btn btn--outline" id="dilatationFontDecrease" title="Decrease font size">A−</button>
+        <span id="dilatationFontValue" class="muted">100%</span>
+        <button type="button" class="btn btn--outline" id="dilatationFontIncrease" title="Increase font size">A+</button>
+      </div>
       {% set report_print_url = url_for('dilatation_print', report_id=report.id) %}
       {% set procedure_day_url = url_for('calendar_view', date=appt.appointment_date, procedure=appt.procedure_type) %}
       {% include "_report_editor_actions.html" %}

@@ -94,7 +94,7 @@ def list_my_assigned_quizzes(db, user_id, status=None):
 
 def get_quiz_items(db, quiz_id):
     return db.execute(
-        """SELECT qi.position, ci.id AS content_item_id, ci.payload_json
+        """SELECT qi.position, ci.id AS content_item_id, ci.question_code, ci.payload_json
            FROM mcqbank_quiz_item qi
            JOIN mcqbank_content_item ci ON ci.id = qi.content_item_id
            WHERE qi.quiz_id = ? ORDER BY qi.position""",

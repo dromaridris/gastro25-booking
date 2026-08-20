@@ -9,6 +9,25 @@
   {% endif %}
 </div>
 
+{% if book_summaries %}
+<div class="compact-card mcq-global-tools">
+  <div>
+    <strong>All books</strong>
+    <p class="muted">Mix approved questions from every uploaded book.</p>
+  </div>
+  <a class="btn btn--primary" href="{{ url_for('mcqbank_solve', random='1') }}">Start random questions from all books</a>
+</div>
+
+<form class="compact-card mcq-code-search" method="get" action="{{ url_for('mcqbank_solve') }}">
+  <label for="mcqQuestionCode"><strong>Find a question by code</strong></label>
+  <div class="mcq-code-search-row">
+    <input id="mcqQuestionCode" name="code" class="compact-input" required
+           placeholder="e.g. MCQ-000123" autocomplete="off">
+    <button class="btn btn--outline" type="submit">Open question</button>
+  </div>
+</form>
+{% endif %}
+
 {% if daily_target.enabled %}
 <div class="mcq-daily-target mcq-daily-target--active" id="mcq-daily-target">
   <div class="mcq-daily-target-main">

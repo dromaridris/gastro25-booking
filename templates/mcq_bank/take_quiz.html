@@ -7,7 +7,9 @@
 
 <script>
 const quizId = {{ quiz.id }};
-let items = [], idx = 0, answers = [];
+let items = [], idx = 0;
+const selectedById = {};
+const answersById = {};
 
 function esc(s) {
   return String(s == null ? '' : s)
@@ -25,24 +27,60 @@ async function load() {
   renderCurrent();
 }
 function renderCurrent() {
-  document.getElementById('quiz-progress').textContent = `Question ${idx+1} of ${items.length}`;
-  if (idx >= items.length) { submitAll(); return; }
-  const q = items[idx].question;
+  const item = items[idx];
+  const q = item.question;
+  const itemId = item.content_item_id;
+  const selected = selectedById[itemId] || '';
+  const confirmed = !!answersById[itemId];
+  document.getElementById('quiz-progress').textContent = `Question ${idx + 1} of ${items.length}`;
   const opts = q.options.map(o => `
-    <button type="button" data-letter="${esc(o.letter)}" class="quiz-opt compact-card" style="display:flex;gap:10px;text-align:left;width:100%;cursor:pointer;margin-bottom:8px;">
+    <button type="button" data-letter="${esc(o.letter)}"
+            class="quiz-opt mcq-answer-option compact-card ${selected === o.letter ? 'is-selected' : ''}"
+            ${confirmed ? 'disabled' : ''}>
       <strong>${esc(o.letter)}</strong><span>${esc(o.text)}</span>
     </button>`).join('');
-  document.getElementById('quiz-area').innerHTML = `<div class="compact-card"><p>${esc(q.question_text)}</p><div id="quiz-opts">${opts}</div></div>`;
-  document.querySelectorAll('.quiz-opt').forEach(btn => {
-    btn.addEventListener('click', () => answer(btn.dataset.letter));
-  });
+  const forwardButton = idx === items.length - 1
+    ? `<button type="button" class="btn btn--primary" id="quiz-submit-btn" ${confirmed ? '' : 'disabled'}>Submit quiz</button>`
+    : `<button type="button" class="btn btn--primary" id="quiz-next-btn" ${confirmed ? '' : 'disabled'}>Next →</button>`;
+  document.getElementById('quiz-area').innerHTML = `
+    <div class="compact-card mcq-question-card">
+      <span class="mcq-question-code">${esc(item.question_code)}</span>
+      <p>${esc(q.question_text)}</p>
+      <div id="quiz-opts">${opts}</div>
+      <div class="mcq-question-actions">
+        <button type="button" class="btn btn--outline" id="quiz-prev-btn" ${idx === 0 ? 'disabled' : ''}>← Previous</button>
+        ${confirmed
+          ? forwardButton
+          : `<button type="button" class="btn btn--primary" id="quiz-confirm-btn" ${selected ? '' : 'disabled'}>Confirm answer</button>`}
+      </div>
+    </div>`;
+  if (!confirmed) {
+    document.querySelectorAll('.quiz-opt').forEach(btn => {
+      btn.addEventListener('click', () => selectQuizOption(btn.dataset.letter));
+    });
+    document.getElementById('quiz-confirm-btn').addEventListener('click', confirmQuizAnswer);
+  }
+  document.getElementById('quiz-prev-btn').addEventListener('click', () => { idx -= 1; renderCurrent(); });
+  document.getElementById('quiz-next-btn')?.addEventListener('click', () => { idx += 1; renderCurrent(); });
+  document.getElementById('quiz-submit-btn')?.addEventListener('click', submitAll);
 }
-function answer(letter) {
-  answers.push({content_item_id: items[idx].content_item_id, selected_option: letter});
-  idx += 1;
+function selectQuizOption(letter) {
+  selectedById[items[idx].content_item_id] = letter;
+  renderCurrent();
+}
+function confirmQuizAnswer() {
+  const itemId = items[idx].content_item_id;
+  const selected = selectedById[itemId];
+  if (!selected) return;
+  answersById[itemId] = {content_item_id: itemId, selected_option: selected};
   renderCurrent();
 }
 async function submitAll() {
+  const answers = Object.values(answersById);
+  if (answers.length !== items.length) {
+    alert('Please confirm an answer for every question before submitting.');
+    return;
+  }
   const res = await fetch(`/mcq-bank/api/quiz/${quizId}/submit`, {
     method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({answers}),
   });

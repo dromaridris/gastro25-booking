@@ -23,6 +23,32 @@ function initDilatationReport() {
   const reportId = page.dataset.reportId;
   const locked = page.dataset.locked === 'true';
 
+  function setupFontControls() {
+    const decreaseBtn = document.getElementById('dilatationFontDecrease');
+    const increaseBtn = document.getElementById('dilatationFontIncrease');
+    const valueEl = document.getElementById('dilatationFontValue');
+    if (!decreaseBtn || !increaseBtn || !valueEl) return;
+
+    let scale = 1;
+    try {
+      const saved = Number(window.localStorage.getItem('dilatationReportFontScale'));
+      if (Number.isFinite(saved) && saved >= 0.8 && saved <= 1.3) scale = saved;
+    } catch (_) { /* local storage may be unavailable; controls still work */ }
+
+    function applyScale() {
+      scale = Math.min(1.3, Math.max(0.8, Math.round(scale * 10) / 10));
+      page.style.zoom = String(scale);
+      valueEl.textContent = `${Math.round(scale * 100)}%`;
+      decreaseBtn.disabled = scale <= 0.8;
+      increaseBtn.disabled = scale >= 1.3;
+      try { window.localStorage.setItem('dilatationReportFontScale', String(scale)); } catch (_) { /* no-op */ }
+    }
+
+    decreaseBtn.addEventListener('click', () => { scale -= 0.1; applyScale(); });
+    increaseBtn.addEventListener('click', () => { scale += 0.1; applyScale(); });
+    applyScale();
+  }
+
   function checkedValues(containerId) {
     return Array.from(document.querySelectorAll(`#${containerId} input[type="checkbox"]:checked`)).map(el => el.value);
   }
@@ -206,6 +232,7 @@ function initDilatationReport() {
   }
 
   setupAchalasia();
+  setupFontControls();
 
   if (!locked) {
     document.querySelectorAll('.dilatation-image-input').forEach(input => {

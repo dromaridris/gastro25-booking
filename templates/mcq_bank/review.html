@@ -27,7 +27,7 @@
       <option value="{{ c }}" {% if confidence_flag == c %}selected{% endif %}>{{ c }}</option>
       {% endfor %}
     </select>
-    <input name="search" value="{{ search }}" class="compact-input" placeholder="search question text...">
+    <input name="search" value="{{ search }}" class="compact-input" placeholder="question code or text...">
     <button class="btn btn--sm">Go</button>
   </form>
 
@@ -39,7 +39,7 @@
     <div class="form-row" style="justify-content:space-between;align-items:flex-start;">
       <div>
         <strong style="font-size:14px;">Ch {{ ch.number if ch else '?' }} · Q{{ item.item_number }}</strong>
-        <span class="muted" style="font-size:12px;margin-left:6px;">ID {{ item.id }}</span>
+        <span class="mcq-question-code">{{ item.question_code }}</span>
         {% if ch %}<div class="muted" style="font-size:12px;">{{ ch.title }}</div>{% endif %}
         <div style="margin-top:4px;">
           <span class="badge {% if item.status != 'pending_review' %}badge--muted{% endif %}">{{ item.status }}</span>
@@ -57,7 +57,7 @@
         {% if item.status == 'approved' %}
         <button class="btn btn--sm btn--outline" onclick="mcqSetStatus({{ item.id }}, 'pending_review')">Unapprove</button>
         {% endif %}
-        <button class="btn btn--sm btn--outline" onclick="mcqToggleEdit({{ item.id }})">Edit</button>
+        <button class="btn btn--sm btn--outline" onclick="mcqToggleEdit({{ item.id }})">Edit question</button>
       </div>
     </div>
 
