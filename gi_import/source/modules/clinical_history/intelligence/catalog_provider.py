@@ -221,7 +221,6 @@ _provider: CatalogProvider | None = None
 
 
 def get_catalog_provider(use_knowledge_library: bool | None = None) -> CatalogProvider:
-    global _provider
     if _provider is not None:
         return _provider
     if use_knowledge_library is False:
