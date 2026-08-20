@@ -123,9 +123,12 @@
         <span>Page 2 of 2</span>
       </p>
 
-      <div class="print-recommendation-image-slot" data-recommendation-image-slot></div>
+      <!-- Sections moved here by JS if page 1 would otherwise overflow —
+           always a complete, unsplit section, never a partial paragraph. -->
+      <div id="page2OverflowSlot"></div>
 
-      <div class="ercp-print-image-grid">
+      <span id="ercpImageGridAnchor"></span>
+      <div class="ercp-print-image-grid" id="ercpImageGrid">
         {% for img in images|sort(attribute='slot') %}
           <figure class="ercp-print-image-cell">
             <div class="ercp-print-image-box"><img src="{{ url_for('ercp_view_image', report_id=report.id, slot=img.slot) }}" alt="ERCP image {{ img.slot }}"></div>
@@ -140,24 +143,132 @@
       </div>
     </div>
 
+    <!-- Page 3 is used only when Recommendation + images cannot fit together on page 2. -->
+    <div class="ercp-print-page2 ercp-print-page-frame" id="ercpPage3" data-print-page="3" hidden>
+      {{ print_header('ERCP Images', 'Report No: ' ~ report_number ~ ' — ' ~ appt.patient_name) }}
+
+      <p class="ercp-report-number">
+        <span>Report No: {{ report_number }}</span>
+        <span>Page 3 of 3</span>
+      </p>
+
+      <div id="page3ImagesSlot"></div>
+
+      <div class="ercp-print-footer">
+        {{ signature_block(endoscopist) }}
+        {% include "_print_qr_block.html" %}
+      </div>
+    </div>
+
   </div>
 
   <script>
-    function fitErcpPrintPages() {
-      var page2 = document.getElementById('ercpPage2');
-      if (!page2) return;
-      var hasImages = !!page2.querySelector('.ercp-print-image-grid img');
-      page2.hidden = !hasImages;
-      page2.querySelectorAll('.ercp-report-number span').forEach(function (el, idx) {
-        if (idx === 1) el.textContent = hasImages ? 'Page 2 of 2' : '';
-      });
-      var page1Count = document.querySelector('#ercpPage1Content .ercp-report-number span:last-child');
-      if (page1Count) page1Count.textContent = hasImages ? 'Page 1 of 2' : 'Page 1 of 1';
-      if (window.prepareAdaptiveImageGrids) window.prepareAdaptiveImageGrids();
+    // ------------------------------------------------------------------
+    // ERCP priority pagination
+    // Procedure Note + Impression always remain on page 1.
+    // Recommendation is the only clinical section allowed to move.
+    // ------------------------------------------------------------------
+    var MM_TO_PX = 96 / 25.4;
+    var PAGE_HEIGHT_MM = 297;
+    var SAFETY_MM = 2;
+
+    function restoreRecommendationToPage1() {
+      var block = document.getElementById('recommendationsBlock');
+      var anchor = document.getElementById('recommendationsBlockAnchor');
+      if (block && anchor && anchor.parentNode) {
+        anchor.parentNode.insertBefore(block, anchor.nextSibling);
+      }
     }
-    window.onBeforePrintFit = fitErcpPrintPages;
-    window.addEventListener('load', fitErcpPrintPages);
-    window.addEventListener('beforeprint', fitErcpPrintPages);
+
+    function restoreImagesToPage2() {
+      var grid = document.getElementById('ercpImageGrid');
+      var anchor = document.getElementById('ercpImageGridAnchor');
+      if (grid && anchor && anchor.parentNode) {
+        anchor.parentNode.insertBefore(grid, anchor.nextSibling);
+      }
+    }
+
+    function footerOuterHeightPx(page) {
+      if (!page) return 0;
+      var footer = page.querySelector('.ercp-print-footer');
+      if (!footer) return 0;
+      var style = window.getComputedStyle(footer);
+      var marginTop = parseFloat(style.marginTop || '0') || 0;
+      var marginBottom = parseFloat(style.marginBottom || '0') || 0;
+      return footer.getBoundingClientRect().height + marginTop + marginBottom;
+    }
+
+    function contentFitsPage(page, lastContent) {
+      if (!page || !lastContent) return true;
+      var pageRect = page.getBoundingClientRect();
+      var contentRect = lastContent.getBoundingClientRect();
+      var safeBottom = pageRect.top
+        + (PAGE_HEIGHT_MM * MM_TO_PX)
+        - footerOuterHeightPx(page)
+        - (SAFETY_MM * MM_TO_PX);
+      return contentRect.bottom <= safeBottom;
+    }
+
+    function updateErcpPageNumbers() {
+      var pages = [
+        document.getElementById('ercpPage1Content'),
+        document.getElementById('ercpPage2'),
+        document.getElementById('ercpPage3')
+      ].filter(function (page) { return page && !page.hidden; });
+      var total = pages.length || 1;
+      pages.forEach(function (page, index) {
+        var spans = page.querySelectorAll('.ercp-report-number span');
+        if (spans.length > 1) {
+          spans[spans.length - 1].textContent = 'Page ' + (index + 1) + ' of ' + total;
+        }
+      });
+    }
+
+    function fitErcpReportPages() {
+      var page1 = document.getElementById('ercpPage1Content');
+      var page2 = document.getElementById('ercpPage2');
+      var page3 = document.getElementById('ercpPage3');
+      var overflowSlot = document.getElementById('page2OverflowSlot');
+      var page3ImagesSlot = document.getElementById('page3ImagesSlot');
+      var recommendation = document.getElementById('recommendationsBlock');
+      var imageGrid = document.getElementById('ercpImageGrid');
+      if (!page1 || !page2 || !page3 || !overflowSlot || !page3ImagesSlot) return;
+
+      // Always restore the natural layout before measuring. This is essential:
+      // if the report becomes shorter, Recommendation can return to page 1.
+      restoreRecommendationToPage1();
+      restoreImagesToPage2();
+      overflowSlot.innerHTML = '';
+      page3ImagesSlot.innerHTML = '';
+      page3.hidden = true;
+
+      var hasImages = !!(imageGrid && imageGrid.querySelector('img'));
+
+      if (recommendation && !contentFitsPage(page1, recommendation)) {
+        overflowSlot.appendChild(recommendation);
+      }
+
+      var recommendationOnPage2 = !!(recommendation && recommendation.parentNode === overflowSlot);
+      page2.hidden = !(hasImages || recommendationOnPage2);
+
+      // Page 2 may contain Recommendation + images. If their combined rendered
+      // height would enter the reserved footer area, keep Recommendation on page 2
+      // and move the complete image grid to page 3.
+      if (hasImages && recommendationOnPage2 && imageGrid && !contentFitsPage(page2, imageGrid)) {
+        page3ImagesSlot.appendChild(imageGrid);
+        page3.hidden = false;
+      }
+
+      updateErcpPageNumbers();
+    }
+
+    window.addEventListener('load', fitErcpReportPages);
+    window.addEventListener('beforeprint', fitErcpReportPages);
+    window.addEventListener('resize', function () {
+      window.clearTimeout(window.__ercpPrintResizeTimer);
+      window.__ercpPrintResizeTimer = window.setTimeout(fitErcpReportPages, 120);
+    });
+    window.onBeforePrintFit = fitErcpReportPages;
   </script>
   <script src="{{ url_for('static', filename='js/print_report.js') }}"></script>
 </body>

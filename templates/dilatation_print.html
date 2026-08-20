@@ -105,8 +105,7 @@
         <span data-page-num>Page 2 of 2</span>
       </p>
 
-      <div class="print-recommendation-image-slot" data-recommendation-image-slot></div>
-
+      <div id="page2OverflowSlot"></div>
       {% include "_print_image_grid.html" %}
 
       <div class="ercp-signature-row print-secondary-footer">
@@ -124,11 +123,14 @@
       window.printReportFit({
         page1Id: 'printPage1Content',
         page2Id: 'printPage2',
-        moveOrder: [],
+        overflowSlotId: 'page2OverflowSlot',
+        moveOrder: ['recommendationsBlock', 'impressionBlock', 'procedureNoteBlock'],
         syncPage2: function () {
           var page2 = document.getElementById('printPage2');
+          var overflowSlot = document.getElementById('page2OverflowSlot');
           var hasImages = !!page2.querySelector('.ercp-print-image-grid img');
-          page2.hidden = !hasImages;
+          var hasOverflow = !!(overflowSlot && overflowSlot.children.length);
+          page2.hidden = !(hasImages || hasOverflow);
           window.syncPrintPageNumbers();
         }
       });
