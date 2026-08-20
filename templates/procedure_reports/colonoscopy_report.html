@@ -11,8 +11,10 @@
     <p class="muted">{{ appt.patient_name }} · {{ appt.appointment_date }} · Report #{{ report.id }}</p>
   </div>
   <div style="display:flex;gap:8px;flex-wrap:wrap;">
-    <a class="btn btn--outline btn--sm" href="{{ url_for('dashboard') }}">← Dashboard</a>
-    <a class="btn btn--outline btn--sm" href="{{ url_for('procedure_report_print', procedure_key=procedure_key, report_id=report.id) }}" target="_blank">Print</a>
+    {% set report_print_url = url_for('procedure_report_print', procedure_key=procedure_key, report_id=report.id) %}
+    {% set procedure_day_url = url_for('calendar_view', date=appt.appointment_date, procedure=appt.procedure_type) %}
+    {% set report_action_size_class = 'btn--sm' %}
+    {% include "_report_editor_actions.html" %}
   </div>
 </section>
 
@@ -51,19 +53,35 @@
   {% else %}
   <span class="muted">Report finalized — read only</span>
   {% endif %}
+  {% set report_print_url = url_for('procedure_report_print', procedure_key=procedure_key, report_id=report.id) %}
+  {% set procedure_day_url = url_for('calendar_view', date=appt.appointment_date, procedure=appt.procedure_type) %}
+  {% set report_action_size_class = '' %}
+  {% include "_report_editor_actions.html" %}
 </div>
 
+{% include "_leave_confirm_modal.html" %}
+<script src="{{ url_for('static', filename='js/report_editor_actions.js') }}"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
 <script>
 (function(){
   const form = document.getElementById('pr-form');
-  if (form.dataset.locked) return;
-  document.getElementById('btn-save').addEventListener('click', async () => {
+  const locked = !!form.dataset.locked;
+  async function saveDraft() {
     const data = Object.fromEntries(new FormData(form));
     const res = await fetch('{{ url_for("procedure_report_save", procedure_key=procedure_key, report_id=report.id) }}', {
       method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)
     });
-    alert(res.ok ? 'Saved.' : 'Save failed.');
-  });
+    if (!res.ok) { alert('Save failed.'); return false; }
+    if (window.markReportSaved) window.markReportSaved();
+    return true;
+  }
+  if (!locked) {
+    document.getElementById('btn-save').addEventListener('click', async () => {
+      if (await saveDraft()) alert('Saved.');
+    });
+    initUnsavedChangesGuard('#pr-form', saveDraft);
+  }
+  initReportEditorActions({ locked, saveBeforePrint: saveDraft });
 })();
 </script>
 {% endblock %}

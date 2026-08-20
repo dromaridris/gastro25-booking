@@ -169,38 +169,6 @@ function initDilatationReport() {
   const saveBtn = document.getElementById('saveDilatationReportBtn');
   if (saveBtn) saveBtn.addEventListener('click', () => saveReport(false));
 
-  // Print must reflect the current editor state. Save the draft first so
-  // Recommendation length/placement and image captions are read from the
-  // latest database values by the print route.
-  const printReportLink = document.getElementById('dilatationPrintReportLink');
-  if (printReportLink && !locked) {
-    printReportLink.addEventListener('click', async (event) => {
-      event.preventDefault();
-      if (printReportLink.dataset.printBusy === '1') return;
-
-      const printUrl = printReportLink.href;
-      printReportLink.dataset.printBusy = '1';
-      printReportLink.setAttribute('aria-busy', 'true');
-
-      const printWindow = window.open('', '_blank');
-      try {
-        const saved = await saveReport(true);
-        if (!saved) {
-          if (printWindow) printWindow.close();
-          return;
-        }
-        if (printWindow) {
-          printWindow.location.href = printUrl;
-        } else {
-          window.location.href = printUrl;
-        }
-      } finally {
-        delete printReportLink.dataset.printBusy;
-        printReportLink.removeAttribute('aria-busy');
-      }
-    });
-  }
-
   const generateBtn = document.getElementById('generateDilatationNoteBtn');
   if (generateBtn) {
     generateBtn.addEventListener('click', async () => {
@@ -260,6 +228,7 @@ function initDilatationReport() {
     setupFailureReasonToggle();
     initUnsavedChangesGuard('#dilatationFieldset', saveReport);
   }
+  initReportEditorActions({ locked, saveBeforePrint: saveReport });
 }
 
 async function dilatationDeleteImage(slot) {

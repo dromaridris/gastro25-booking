@@ -74,7 +74,7 @@ function initAdvancedReport() {
     }
   }
 
-  async function saveDraft() {
+  async function saveDraft(silent) {
     const res = await fetch(`${urlPrefix}/${reportId}/save`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -82,12 +82,23 @@ function initAdvancedReport() {
     });
     const data = await parseJsonResponse(res);
     if (!res.ok) throw new Error(data.error || 'Save failed');
-    showNotice('Draft saved.');
+    if (window.markReportSaved) window.markReportSaved();
+    if (!silent) showNotice('Draft saved.');
+    return true;
+  }
+
+  async function saveDraftForAction(silent) {
+    try {
+      return await saveDraft(silent);
+    } catch (err) {
+      alert(err.message);
+      return false;
+    }
   }
 
   const saveBtn = document.getElementById('advSaveDraftBtn');
   if (saveBtn && !locked) {
-    saveBtn.addEventListener('click', () => saveDraft().catch(err => alert(err.message)));
+    saveBtn.addEventListener('click', () => saveDraftForAction(false));
   }
 
   const genBtn = document.getElementById('advGenerateNoteBtn');
@@ -118,7 +129,7 @@ function initAdvancedReport() {
       e.preventDefault();
       if (!confirm('Finalize this report? It will become read-only.')) return;
       try {
-        await saveDraft();
+        await saveDraft(true);
         finalizeReady = true;
         finalizeForm.submit();
       } catch (err) {
@@ -149,6 +160,9 @@ function initAdvancedReport() {
       location.reload();
     });
   });
+
+  if (!locked) initUnsavedChangesGuard('#advFieldset', saveDraftForAction);
+  initReportEditorActions({ locked, saveBeforePrint: saveDraftForAction });
 }
 
 document.addEventListener('DOMContentLoaded', initAdvancedReport);

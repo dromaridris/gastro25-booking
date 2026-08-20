@@ -1,0 +1,6 @@
+{% set _action_size = report_action_size_class|default('') %}
+<button type="button"
+        class="btn btn--outline {{ _action_size }} js-report-print"
+        data-print-url="{{ report_print_url }}">🖨 Print Report</button>
+<a class="btn btn--outline {{ _action_size }} js-report-back"
+   href="{{ procedure_day_url }}">← Back to Procedure Day</a>

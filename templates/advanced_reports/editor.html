@@ -16,7 +16,10 @@
       {% if patient_overview_url %}
       <a class="btn btn--outline btn--sm" href="{{ patient_overview_url }}">📁 Patient Overview</a>
       {% endif %}
-      <a class="btn btn--outline btn--sm" href="{{ url_for(procedure_key ~ '_print', report_id=report.id) }}" target="_blank">🖨 Print</a>
+      {% set report_print_url = url_for(procedure_key ~ '_print', report_id=report.id) %}
+      {% set procedure_day_url = url_for('calendar_view', date=appt.appointment_date, procedure=appt.procedure_type) %}
+      {% set report_action_size_class = 'btn--sm' %}
+      {% include "_report_editor_actions.html" %}
     </div>
   </div>
 
@@ -163,14 +166,18 @@
     </section>
   </fieldset>
 
-  {% if not is_locked %}
   <div class="ercp-footer-actions no-print">
+    {% if not is_locked %}
     <button type="button" class="btn btn--outline" id="advSaveDraftBtn">Save Draft</button>
     <form method="POST" action="{{ url_for(procedure_key ~ '_finalize', report_id=report.id) }}" style="display:inline;" id="advFinalizeForm">
       <button type="submit" class="btn btn--primary">Finalize Report</button>
     </form>
+    {% endif %}
+    {% set report_print_url = url_for(procedure_key ~ '_print', report_id=report.id) %}
+    {% set procedure_day_url = url_for('calendar_view', date=appt.appointment_date, procedure=appt.procedure_type) %}
+    {% set report_action_size_class = '' %}
+    {% include "_report_editor_actions.html" %}
   </div>
-  {% endif %}
 
   {% if procedure_key in ('upper_gi_v2', 'colonoscopy_v2') %}
   <section class="admin-section no-print">
@@ -181,12 +188,12 @@
   {% include "_structured_followup_include.html" %}
   {% endif %}
 </div>
+{% include "_leave_confirm_modal.html" %}
 {% endblock %}
 
 {% block scripts %}
-{% if procedure_key in ('upper_gi_v2', 'colonoscopy_v2') %}
+<script src="{{ url_for('static', filename='js/report_editor_actions.js') }}"></script>
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-{% endif %}
 <script src="{{ url_for('static', filename='js/advanced_reports.js') }}"></script>
 {% if procedure_key == 'upper_gi_v2' %}
 <script>

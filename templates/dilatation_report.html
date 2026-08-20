@@ -11,7 +11,9 @@
       <span class="ercp-status-badge ercp-status-{{ report.status }}">{{ 'Finalized' if is_locked else 'Draft' }}</span>
       <a class="btn btn--outline" href="{{ url_for('patient_dilatation_overview', appointment_id=appt.id) }}">📁 Patient Dilatation Overview</a>
       <button type="button" class="btn btn--outline" id="scheduleRepeatDilatationBtn" data-appt-id="{{ appt.id }}">🔁 Schedule Repeat Dilatation</button>
-      <a class="btn btn--outline" id="dilatationPrintReportLink" href="{{ url_for('dilatation_print', report_id=report.id) }}" target="_blank">🖨 Print Report</a>
+      {% set report_print_url = url_for('dilatation_print', report_id=report.id) %}
+      {% set procedure_day_url = url_for('calendar_view', date=appt.appointment_date, procedure=appt.procedure_type) %}
+      {% include "_report_editor_actions.html" %}
     </div>
   </div>
 
@@ -510,6 +512,9 @@
     <button type="button" class="btn btn--outline" id="saveDilatationReportBtn">Save Draft</button>
     <button type="button" class="btn btn--primary" id="finalizeDilatationReportBtn">Finalize Report</button>
     {% endif %}
+    {% set report_print_url = url_for('dilatation_print', report_id=report.id) %}
+    {% set procedure_day_url = url_for('calendar_view', date=appt.appointment_date, procedure=appt.procedure_type) %}
+    {% include "_report_editor_actions.html" %}
   </div>
 </div>
 
@@ -520,6 +525,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="{{ url_for('static', filename='js/report_editor_actions.js') }}"></script>
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 <script src="{{ url_for('static', filename='js/dilatation.js') }}"></script>
 <script>

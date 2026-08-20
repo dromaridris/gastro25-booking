@@ -643,6 +643,7 @@ function initUnsavedChangesGuard(fieldsetSelector, saveFn) {
   fieldset.addEventListener('change', () => { isDirty = true; });
 
   window.markReportSaved = function () { isDirty = false; };
+  window.hasUnsavedReportChanges = function () { return isDirty; };
 
   window.addEventListener('beforeunload', (e) => {
     if (!isDirty) return;
@@ -874,9 +875,16 @@ function renderDashboardData(data) {
 let calYear, calMonth, currentOpenDate = null;
 
 function initCalendar() {
-  const now = new Date();
-  calYear = now.getFullYear();
-  calMonth = now.getMonth() + 1;
+  const calendarParams = new URLSearchParams(window.location.search);
+  const requestedDate = calendarParams.get('date');
+  const requestedProcedure = calendarParams.get('procedure');
+  const requestedDateIsValid = /^\d{4}-\d{2}-\d{2}$/.test(requestedDate || '')
+    && !Number.isNaN(new Date(`${requestedDate}T00:00:00`).getTime());
+  const initialDate = requestedDateIsValid
+    ? new Date(`${requestedDate}T00:00:00`)
+    : new Date();
+  calYear = initialDate.getFullYear();
+  calMonth = initialDate.getMonth() + 1;
 
   document.getElementById('prevMonthBtn').addEventListener('click', () => shiftMonth(-1));
   document.getElementById('nextMonthBtn').addEventListener('click', () => shiftMonth(1));
@@ -890,10 +898,11 @@ function initCalendar() {
     await renderCalendar();
   }
 
-  loadMe().then(() => {
+  loadMe().then(async () => {
     initBookingModal(refresh);
     initRescheduleModal(refresh);
-    renderCalendar();
+    await renderCalendar();
+    if (requestedDateIsValid) await openDayModal(requestedDate, requestedProcedure);
   });
 }
 
@@ -950,7 +959,7 @@ async function renderCalendar() {
   }
 }
 
-async function openDayModal(dateStr) {
+async function openDayModal(dateStr, expandedProcedureType) {
   currentOpenDate = dateStr;
   const data = await api(`/api/day/${dateStr}`);
   const modal = document.getElementById('dayModal');
@@ -966,17 +975,24 @@ async function openDayModal(dateStr) {
     else byType.other.push(a);
   });
 
-  const column = (label, colorClass, items) => `
+  const standardProcedureTypes = new Set(['upper_gi', 'colonoscopy', 'peg_tube', 'ercp']);
+  const expandedColumn = standardProcedureTypes.has(expandedProcedureType)
+    ? expandedProcedureType
+    : (expandedProcedureType ? 'other' : null);
+  const column = (typeKey, label, colorClass, items) => {
+    const isExpanded = expandedColumn === typeKey;
+    return `
     <div class="dash-col">
-      <h2 class="col-title ${colorClass} is-collapsed" onclick="toggleColumn(this)">
+      <h2 class="col-title ${colorClass} ${isExpanded ? '' : 'is-collapsed'}" onclick="toggleColumn(this)">
         <span class="col-title-text">${label}</span>
         <span class="col-count">(${items.length})</span>
         <span class="col-arrow">▾</span>
       </h2>
-      <div class="appt-list collapsed">
+      <div class="appt-list ${isExpanded ? '' : 'collapsed'}">
         ${items.length ? items.map(apptCardHTML).join('') : '<div class="appt-empty">No cases.</div>'}
       </div>
     </div>`;
+  };
 
   const printButtons = data.is_ercp_day
     ? `<button class="btn btn--sm btn--outline" onclick="window.open('/print/${dateStr}?only=other','_blank')">🖨 Endoscopy List</button>
@@ -1000,11 +1016,11 @@ async function openDayModal(dateStr) {
       </div>
     </div>
     <div class="day-modal-grid">
-      ${column('Upper GI Endoscopy', 'col-title--green', byType.upper_gi)}
-      ${column('Colonoscopy', 'col-title--blue', byType.colonoscopy)}
-      ${column('PEG Tube Insertion', 'col-title--teal', byType.peg_tube)}
-      ${column('ERCP', 'col-title--purple', byType.ercp)}
-      ${column('Special Cases', 'col-title--amber', byType.other)}
+      ${column('upper_gi', 'Upper GI Endoscopy', 'col-title--green', byType.upper_gi)}
+      ${column('colonoscopy', 'Colonoscopy', 'col-title--blue', byType.colonoscopy)}
+      ${column('peg_tube', 'PEG Tube Insertion', 'col-title--teal', byType.peg_tube)}
+      ${column('ercp', 'ERCP', 'col-title--purple', byType.ercp)}
+      ${column('other', 'Special Cases', 'col-title--amber', byType.other)}
     </div>
   `;
   modal.hidden = false;
@@ -1334,41 +1350,6 @@ function initErcpReport() {
   const saveBtn = document.getElementById('saveReportBtn');
   if (saveBtn) saveBtn.addEventListener('click', () => saveReport(false));
 
-  // Print must reflect what is currently on screen. For an editable draft,
-  // persist the full payload first (including image captions), then open the
-  // print route. Finalized/locked reports are already persisted and can open
-  // directly without an unnecessary save request.
-  const printReportLink = document.getElementById('ercpPrintReportLink');
-  if (printReportLink && !locked) {
-    printReportLink.addEventListener('click', async (event) => {
-      event.preventDefault();
-      if (printReportLink.dataset.printBusy === '1') return;
-
-      const printUrl = printReportLink.href;
-      printReportLink.dataset.printBusy = '1';
-      printReportLink.setAttribute('aria-busy', 'true');
-
-      // Open a blank tab immediately so browsers do not block the popup after
-      // the asynchronous save. It is navigated only after a successful save.
-      const printWindow = window.open('', '_blank');
-      try {
-        const saved = await saveReport(true);
-        if (!saved) {
-          if (printWindow) printWindow.close();
-          return;
-        }
-        if (printWindow) {
-          printWindow.location.href = printUrl;
-        } else {
-          window.location.href = printUrl;
-        }
-      } finally {
-        delete printReportLink.dataset.printBusy;
-        printReportLink.removeAttribute('aria-busy');
-      }
-    });
-  }
-
   const generateBtn = document.getElementById('generateNoteBtn');
   if (generateBtn) {
     generateBtn.addEventListener('click', async () => {
@@ -1433,6 +1414,7 @@ function initErcpReport() {
     setupTherapeuticOutcomeFieldsToggle();
     initUnsavedChangesGuard('#ercpFieldset', saveReport);
   }
+  initReportEditorActions({ locked, saveBeforePrint: saveReport });
   updateDilatationBadge();
 }
 
