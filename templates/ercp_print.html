@@ -131,7 +131,8 @@
       <div class="ercp-print-image-grid" id="ercpImageGrid">
         {% for img in images|sort(attribute='slot') %}
           <figure class="ercp-print-image-cell">
-            <div class="ercp-print-image-box"><img src="{{ url_for('ercp_view_image', report_id=report.id, slot=img.slot) }}" alt="ERCP image {{ img.slot }}"></div>
+            {% set image_url = public_image_urls.get(img.slot) if public_view|default(false) else url_for('ercp_view_image', report_id=report.id, slot=img.slot) %}
+            <div class="ercp-print-image-box"><img src="{{ image_url }}" alt="ERCP image {{ img.slot }}"></div>
             <figcaption class="ercp-print-image-caption">{{ img.caption|default('', true) }}</figcaption>
           </figure>
         {% endfor %}

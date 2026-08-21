@@ -27,7 +27,7 @@ from functools import wraps
 
 from flask import (
     Flask, render_template, request, redirect, url_for,
-    session, jsonify, flash, g
+    session, jsonify, flash, g, abort, make_response
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -42,6 +42,7 @@ import image_service
 import qr_service
 import print_service
 import license_service
+import patient_report_service
 # Gastro25 Core Services (phase 3) — generic registry (listing/export) and
 # procedure-session-numbering helpers, shared across procedure modules.
 # See registry_service.py / session_service.py.
@@ -1301,6 +1302,80 @@ def roles_required(*roles):
             return view(*args, **kwargs)
         return wrapped
     return decorator
+
+
+# ----------------------------------------------------------------------
+# Signed public access to finalized patient reports
+# ----------------------------------------------------------------------
+PATIENT_REPORT_CONFIG = {
+    'ercp': {
+        'report_table': 'ercp_report',
+        'image_table': 'ercp_report_image',
+        'image_directory': ERCP_IMAGES_DIR,
+        'internal_endpoint': 'ercp_report_view',
+        'template': 'ercp_print.html',
+    },
+    'dilatation': {
+        'report_table': 'dilatation_report',
+        'image_table': 'dilatation_report_image',
+        'image_directory': DILATATION_IMAGES_DIR,
+        'internal_endpoint': 'dilatation_report_view',
+        'template': 'dilatation_print.html',
+    },
+}
+
+
+def _issue_patient_report_token(report_kind, report):
+    return patient_report_service.issue_token(
+        app.config['SECRET_KEY'],
+        report_kind,
+        int(report['id']),
+        report['finalized_at'],
+    )
+
+
+def _load_public_patient_report(token):
+    """Return (kind, config, report) or abort with the same 404 for every
+    invalid/revoked link.  No report-existence or lifecycle detail is leaked.
+    """
+    try:
+        payload = patient_report_service.read_token(
+            app.config['SECRET_KEY'],
+            token,
+        )
+    except ValueError:
+        abort(404)
+
+    kind = payload['kind']
+    config = PATIENT_REPORT_CONFIG[kind]
+    report = get_db().execute(
+        f"SELECT * FROM {config['report_table']} WHERE id = ?",
+        (payload['report_id'],),
+    ).fetchone()
+
+    if not report or not report_service.is_finalized(report):
+        abort(404)
+
+    current_revision = str(report['finalized_at'] or '')
+    if not current_revision or not secrets.compare_digest(
+        current_revision,
+        payload['finalized_at'],
+    ):
+        abort(404)
+
+    return kind, config, report
+
+
+def _patient_report_response(template_name, context):
+    response = make_response(render_template(template_name, **context))
+    response.headers['Cache-Control'] = 'private, no-store, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    response.headers['X-Robots-Tag'] = 'noindex, nofollow, noarchive'
+    response.headers['Referrer-Policy'] = 'no-referrer'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['Content-Security-Policy'] = "frame-ancestors 'none'"
+    return response
 
 
 from gi_platform.constants import has_full_access
@@ -4032,9 +4107,7 @@ def ercp_delete_image(report_id, slot):
     return jsonify({'success': True})
 
 
-@app.route('/ercp/int:<report_id>/print')
-@roles_required(*CAN_ACCESS_ERCP_REPORTS)
-def ercp_print(report_id):
+def _build_ercp_print_context(report_id, public_token=None):
     dbconn = get_db()
 
     report = dbconn.execute(
@@ -4043,8 +4116,7 @@ def ercp_print(report_id):
     ).fetchone()
 
     if not report:
-        flash('Report not found.', 'error')
-        return redirect(url_for('dashboard'))
+        return None
 
     appt = dbconn.execute(
         'SELECT * FROM appointment WHERE id = ?',
@@ -4065,19 +4137,34 @@ def ercp_print(report_id):
         report_id
     )
 
-    # QR opens the ERCP report through the login page first.
-    qr_target = url_for(
+    staff_target = url_for(
         'ercp_report_view',
         appointment_id=report['appointment_id'],
         _external=False
     )
-
-    qr_url = url_for(
+    staff_login_url = url_for(
         'login',
-        next=qr_target,
+        next=staff_target,
         qr=1,
-        _external=True
     )
+
+    if report_service.is_finalized(report):
+        patient_token = public_token or _issue_patient_report_token('ercp', report)
+        qr_url = url_for(
+            'public_patient_report',
+            token=patient_token,
+            _external=True,
+        )
+        codes_caption = 'Scan to view finalized patient report'
+    else:
+        patient_token = None
+        qr_url = url_for(
+            'login',
+            next=staff_target,
+            qr=1,
+            _external=True,
+        )
+        codes_caption = 'Staff login required — draft report'
 
     qr_data_uri = qr_service.generate_data_uri(qr_url)
 
@@ -4120,18 +4207,41 @@ def ercp_print(report_id):
         if val and str(val).strip()
     ]
 
-    return render_template(
-        'ercp_print.html',
-        report=report,
-        appt=appt,
-        endoscopist=endoscopist,
-        images=images,
-        procedure_fields=procedure_fields,
-        qr_data_uri=qr_data_uri,
-        assistants_lines=assistants_lines,
-        report_number=report_number,
-        codes_caption='Scan for Patient ERCP Overview',
-    )
+    public_image_urls = {}
+    if public_token:
+        public_image_urls = {
+            img['slot']: url_for(
+                'public_patient_report_image',
+                token=public_token,
+                slot=img['slot'],
+            )
+            for img in images
+        }
+
+    return {
+        'report': report,
+        'appt': appt,
+        'endoscopist': endoscopist,
+        'images': images,
+        'procedure_fields': procedure_fields,
+        'qr_data_uri': qr_data_uri,
+        'assistants_lines': assistants_lines,
+        'report_number': report_number,
+        'codes_caption': codes_caption,
+        'public_view': bool(public_token),
+        'public_image_urls': public_image_urls,
+        'staff_login_url': staff_login_url,
+    }
+
+
+@app.route('/ercp/int:<report_id>/print')
+@roles_required(*CAN_ACCESS_ERCP_REPORTS)
+def ercp_print(report_id):
+    context = _build_ercp_print_context(report_id)
+    if context is None:
+        flash('Report not found.', 'error')
+        return redirect(url_for('dashboard'))
+    return render_template('ercp_print.html', **context)
 
 
 # ----------------------------------------------------------------------
@@ -5662,9 +5772,7 @@ def dilatation_delete_image(report_id, slot):
     return jsonify({'success': True})
 
 
-@app.route('/dilatation/<int:report_id>/print')
-@roles_required(*CAN_ACCESS_DILATATION_REPORTS)
-def dilatation_print(report_id):
+def _build_dilatation_print_context(report_id, public_token=None):
     dbconn = get_db()
 
     report = dbconn.execute(
@@ -5673,8 +5781,7 @@ def dilatation_print(report_id):
     ).fetchone()
 
     if not report:
-        flash('Report not found.', 'error')
-        return redirect(url_for('dashboard'))
+        return None
 
     appt = dbconn.execute(
         'SELECT * FROM appointment WHERE id = ?',
@@ -5698,10 +5805,18 @@ def dilatation_print(report_id):
     image_slots_data = [
         {
             'slot': slot,
-            'url': url_for(
-                'dilatation_view_image',
-                report_id=report_id,
-                slot=slot
+            'url': (
+                url_for(
+                    'public_patient_report_image',
+                    token=public_token,
+                    slot=slot,
+                )
+                if public_token else
+                url_for(
+                    'dilatation_view_image',
+                    report_id=report_id,
+                    slot=slot,
+                )
             ) if img else None,
             'caption': (img['caption'] if img and 'caption' in img.keys() else '') if img else '',
         }
@@ -5711,20 +5826,33 @@ def dilatation_print(report_id):
         )
     ]
 
-    # QR opens the dilatation report through the login page first.
-    # The user must authenticate before accessing the report.
-    qr_target = url_for(
+    staff_target = url_for(
         'dilatation_report_view',
         appointment_id=report['appointment_id'],
         _external=False
     )
-
-    qr_url = url_for(
+    staff_login_url = url_for(
         'login',
-        next=qr_target,
+        next=staff_target,
         qr=1,
-        _external=True
     )
+
+    if report_service.is_finalized(report):
+        patient_token = public_token or _issue_patient_report_token('dilatation', report)
+        qr_url = url_for(
+            'public_patient_report',
+            token=patient_token,
+            _external=True,
+        )
+        codes_caption = 'Scan to view finalized patient report'
+    else:
+        qr_url = url_for(
+            'login',
+            next=staff_target,
+            qr=1,
+            _external=True,
+        )
+        codes_caption = 'Staff login required — draft report'
 
     qr_data_uri = qr_service.generate_data_uri(qr_url)
 
@@ -5828,19 +5956,78 @@ def dilatation_print(report_id):
         if val and str(val).strip()
     ]
 
-    return render_template(
-        'dilatation_print.html',
-        report=report,
-        appt=appt,
-        endoscopist=endoscopist,
-        image_slots_data=image_slots_data,
-        procedure_fields=procedure_fields,
-        qr_data_uri=qr_data_uri,
-        assistants_lines=assistants_lines,
-        report_number=report_number,
-        achalasia_print_fields=[(label, val) for label, val in achalasia_print_fields if val and str(val).strip()],
-        codes_caption='Scan to open dilatation report',
+    return {
+        'report': report,
+        'appt': appt,
+        'endoscopist': endoscopist,
+        'image_slots_data': image_slots_data,
+        'procedure_fields': procedure_fields,
+        'qr_data_uri': qr_data_uri,
+        'assistants_lines': assistants_lines,
+        'report_number': report_number,
+        'achalasia_print_fields': [
+            (label, val)
+            for label, val in achalasia_print_fields
+            if val and str(val).strip()
+        ],
+        'codes_caption': codes_caption,
+        'public_view': bool(public_token),
+        'staff_login_url': staff_login_url,
+    }
+
+
+@app.route('/dilatation/<int:report_id>/print')
+@roles_required(*CAN_ACCESS_DILATATION_REPORTS)
+def dilatation_print(report_id):
+    context = _build_dilatation_print_context(report_id)
+    if context is None:
+        flash('Report not found.', 'error')
+        return redirect(url_for('dashboard'))
+    return render_template('dilatation_print.html', **context)
+
+
+@app.route('/patient-report/<token>')
+def public_patient_report(token):
+    """Read-only patient view for one finalized report revision."""
+    kind, config, report = _load_public_patient_report(token)
+
+    if kind == 'ercp':
+        context = _build_ercp_print_context(report['id'], public_token=token)
+    else:
+        context = _build_dilatation_print_context(report['id'], public_token=token)
+
+    if context is None:
+        abort(404)
+    return _patient_report_response(config['template'], context)
+
+
+@app.route('/patient-report/<token>/image/<int:slot>')
+def public_patient_report_image(token, slot):
+    """Serve only images belonging to the finalized report in ``token``."""
+    kind, config, report = _load_public_patient_report(token)
+    max_slots = ERCP_IMAGE_SLOTS if kind == 'ercp' else DILATATION_IMAGE_SLOTS
+    if slot < 1 or slot > max_slots:
+        abort(404)
+
+    img = image_service.get_image_record(
+        get_db(),
+        config['image_table'],
+        'report_id',
+        report['id'],
+        slot,
     )
+    if not img:
+        abort(404)
+
+    response = image_service.serve_image(
+        config['image_directory'],
+        img['filename'],
+    )
+    response.headers['Cache-Control'] = 'private, no-store, max-age=0'
+    response.headers['X-Robots-Tag'] = 'noindex, nofollow, noarchive'
+    response.headers['Referrer-Policy'] = 'no-referrer'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    return response
 
 # ----------------------------------------------------------------------
 # Dilatation Follow-up Module — mirrors the ERCP Follow-up Module exactly
@@ -6362,4 +6549,3 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', '5001'))
     debug = os.environ.get('FLASK_DEBUG', '').strip().lower() in ('1', 'true', 'yes')
     app.run(debug=debug, port=port)
-

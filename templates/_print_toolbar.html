@@ -1,5 +1,10 @@
 <div class="print-toolbar no-print">
+  {% if public_view|default(false) %}
+  <button type="button" onclick="window.print()">🖨 Print / Save as PDF</button>
+  <a href="{{ staff_login_url }}" class="btn btn--primary">Staff Login</a>
+  {% else %}
   <button type="button" onclick="window.print()">🖨 Print (With Header)</button>
   <button type="button" onclick="printWithoutHeader()">🖨 Print (No Header — Letterhead)</button>
   <button type="button" onclick="window.close()">Close</button>
+  {% endif %}
 </div>
