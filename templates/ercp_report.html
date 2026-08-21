@@ -687,6 +687,22 @@
 {% endblock %}
 
 {% block scripts %}
+<script type="application/json" id="ercpSavedOtherValues">{{ {
+  'f_indication': report.indication or '',
+  'f_papilla_location': report.papilla_location or '',
+  'f_cannulation': report.cannulation or '',
+  'f_cannulation_rescue': report.cannulation_rescue_techniques or '',
+  'f_guidewire_size': report.guidewire_size or '',
+  'f_cholangiogram_findings': report.cholangiogram_findings or '',
+  'f_balloon_dilation_location': report.balloon_dilation_location or '',
+  'f_stent_location': report.stent_location or '',
+  'f_stent_indication': report.stent_indication or '',
+  'f_cholangioscopy_findings': report.cholangioscopy_findings or '',
+  'f_tissue_sampling_site': report.tissue_sampling_site or '',
+  'f_tissue_sampling_method': report.tissue_sampling_method or '',
+  'f_therapeutic_incomplete_reason': report.therapeutic_incomplete_reason or '',
+  'f_complications': report.complications or ''
+} | tojson }}</script>
 <script src="{{ url_for('static', filename='js/report_editor_actions.js') }}"></script>
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 <script>
@@ -704,4 +720,3 @@
   registerFollowupTimeline({{ report.id }});
 </script>
 {% endblock %}
-

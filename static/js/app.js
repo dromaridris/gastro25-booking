@@ -1133,6 +1133,113 @@ function initErcpReport() {
     }
   }
 
+  // Every ERCP field that offers "Other" gets a contextual free-text box.
+  // The custom value is stored in the same existing DB field as
+  // "Other: <text>", so no schema change is needed and the value survives
+  // save/reload/print. Commas are normalized because multi-select values use
+  // comma-space as their existing storage separator.
+  function setupUniversalOtherInputs() {
+    const fieldset = document.getElementById('ercpFieldset');
+    const savedEl = document.getElementById('ercpSavedOtherValues');
+    if (!fieldset || !savedEl) return;
+
+    let savedValues = {};
+    try { savedValues = JSON.parse(savedEl.textContent || '{}'); } catch (_) { return; }
+
+    const clean = (value) => String(value || '').replace(/,/g, ';').trim();
+    const isOther = (value) => value === 'Other' || String(value || '').startsWith('Other: ');
+    const otherFromMulti = (value) => String(value || '')
+      .split(', ')
+      .find(item => isOther(item)) || '';
+
+    function makeInput(placeholder) {
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'ercp-other-text';
+      input.placeholder = placeholder;
+      input.setAttribute('aria-label', placeholder);
+      input.hidden = true;
+      return input;
+    }
+
+    fieldset.querySelectorAll('select[id]').forEach(select => {
+      const otherOption = Array.from(select.options).find(option => option.value === 'Other');
+      if (!otherOption || !(select.id in savedValues)) return;
+
+      const input = makeInput('Please specify other');
+      select.insertAdjacentElement('afterend', input);
+      const saved = String(savedValues[select.id] || '');
+      if (isOther(saved)) {
+        otherOption.value = saved;
+        select.value = saved;
+        input.value = saved.startsWith('Other: ') ? saved.slice(7) : '';
+      }
+
+      const sync = () => {
+        const selectedOther = isOther(select.value);
+        input.hidden = !selectedOther;
+        if (!selectedOther) return;
+        const detail = clean(input.value);
+        otherOption.value = detail ? `Other: ${detail}` : 'Other';
+        select.value = otherOption.value;
+      };
+      select.addEventListener('change', sync);
+      input.addEventListener('input', sync);
+      sync();
+    });
+
+    fieldset.querySelectorAll('input[type="checkbox"][value="Other"]').forEach(checkbox => {
+      const container = checkbox.closest('[id]');
+      if (!container || !(container.id in savedValues)) return;
+
+      const input = makeInput('Please specify other');
+      const label = checkbox.closest('label');
+      (label || checkbox).insertAdjacentElement('afterend', input);
+      const saved = otherFromMulti(savedValues[container.id]);
+      if (saved) {
+        checkbox.value = saved;
+        checkbox.checked = true;
+        input.value = saved.startsWith('Other: ') ? saved.slice(7) : '';
+      }
+
+      const sync = () => {
+        input.hidden = !checkbox.checked;
+        if (!checkbox.checked) return;
+        const detail = clean(input.value);
+        checkbox.value = detail ? `Other: ${detail}` : 'Other';
+      };
+      checkbox.addEventListener('change', sync);
+      input.addEventListener('input', sync);
+      sync();
+    });
+
+    fieldset.querySelectorAll('.ercp-cholangio-toggle-opt[data-value="Other"]').forEach(option => {
+      const container = option.closest('[id]');
+      if (!container || !(container.id in savedValues)) return;
+
+      const input = makeInput('Please specify other finding');
+      option.insertAdjacentElement('afterend', input);
+      const saved = otherFromMulti(savedValues[container.id]);
+      if (saved) {
+        option.dataset.value = saved;
+        option.classList.add('is-selected');
+        option.setAttribute('aria-selected', 'true');
+        input.value = saved.startsWith('Other: ') ? saved.slice(7) : '';
+      }
+
+      const sync = () => {
+        const selected = option.classList.contains('is-selected');
+        input.hidden = !selected;
+        if (!selected) return;
+        const detail = clean(input.value);
+        option.dataset.value = detail ? `Other: ${detail}` : 'Other';
+      };
+      option.addEventListener('cholangio-toggle', sync);
+      input.addEventListener('input', sync);
+      sync();
+    });
+  }
+
   function gatherPayload() {
     const image_captions = {};
     document.querySelectorAll('.img-caption-input[data-slot]').forEach((input) => {
@@ -1475,6 +1582,7 @@ function initErcpReport() {
       });
     });
     setupClinicalClassifiers();
+    setupUniversalOtherInputs();
     setupCholangioToggleLists('f_cholangiogram_findings');
     setupStrictureDetailsToggle();
     setupNormalCholangiogramToggle();
@@ -1549,4 +1657,3 @@ document.addEventListener('click', async (e) => {
     }
   }
 });
-

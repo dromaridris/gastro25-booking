@@ -1930,3 +1930,18 @@ input:focus, select:focus, textarea:focus{ outline: 2px solid var(--crimson); ou
   body.ui-text-bold .page textarea{ font-weight:inherit !important; }
 }
 
+/* Contextual free text shown only when an ERCP "Other" option is active. */
+.ercp-other-text{
+  width:100%;
+  margin-top:6px;
+  padding:8px 10px;
+  border:1px solid var(--line);
+  border-radius:7px;
+  background:var(--paper-raised);
+  color:var(--ink);
+  font:inherit;
+}
+.ercp-other-text:focus{
+  outline:2px solid rgba(166,25,46,.22);
+  border-color:var(--crimson);
+}
