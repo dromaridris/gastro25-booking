@@ -35,6 +35,53 @@
         </label>
       </div>
 
+      <div id="achalasiaFollowupSection" hidden>
+        <div class="form-section-label">Follow-up Eckardt Score</div>
+        <div class="form-row">
+          <label>Dysphagia
+            <select id="f_followup_eckardt_dysphagia">
+              <option value="">— Select —</option>
+              <option value="0">None (0)</option>
+              <option value="1">Occasional (1)</option>
+              <option value="2">Daily (2)</option>
+              <option value="3">Each meal (3)</option>
+            </select>
+          </label>
+          <label>Regurgitation
+            <select id="f_followup_eckardt_regurgitation">
+              <option value="">— Select —</option>
+              <option value="0">None (0)</option>
+              <option value="1">Occasional (1)</option>
+              <option value="2">Daily (2)</option>
+              <option value="3">Each meal (3)</option>
+            </select>
+          </label>
+        </div>
+        <div class="form-row">
+          <label>Chest Pain
+            <select id="f_followup_eckardt_chest_pain">
+              <option value="">— Select —</option>
+              <option value="0">None (0)</option>
+              <option value="1">Occasional (1)</option>
+              <option value="2">Daily (2)</option>
+              <option value="3">Each meal (3)</option>
+            </select>
+          </label>
+          <label>Weight Loss
+            <select id="f_followup_eckardt_weight_loss">
+              <option value="">— Select —</option>
+              <option value="0">None (0)</option>
+              <option value="1">&lt;5 kg (1)</option>
+              <option value="2">5–10 kg (2)</option>
+              <option value="3">&gt;10 kg (3)</option>
+            </select>
+          </label>
+        </div>
+        <label>Eckardt Total
+          <input type="text" id="f_followup_eckardt_total" value="Not calculated" readonly>
+        </label>
+      </div>
+
       <label>Clinical Notes
         <textarea id="f_followup_clinical_notes" rows="3"></textarea>
       </label>
