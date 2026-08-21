@@ -76,10 +76,11 @@
       <h2>Procedure Information</h2>
       <div class="form-row">
         <label>Indication
-          <select id="f_indication">
+          <select id="f_indication" data-saved-value="{{ report.indication or '' }}">
             <option value="">— Select —</option>
             {% for opt in indication_options %}
-            <option value="{{ opt }}" {{ 'selected' if report.indication == opt }}>{{ opt }}</option>
+            {% set indication_selected = report.indication == opt or (opt in ['CBD injury', 'PD injury'] and (report.indication or '').startswith(opt ~ ' — ')) %}
+            <option value="{{ opt }}" {{ 'selected' if indication_selected }}>{{ opt }}</option>
             {% endfor %}
           </select>
         </label>
@@ -92,6 +93,36 @@
           </select>
         </label>
       </div>
+
+      <div class="form-row ercp-auto-classification" id="injuryClassificationFields" hidden>
+        <label id="cbdInjuryPatternField" hidden>CBD injury pattern
+          <select id="f_cbd_injury_pattern">
+            <option value="">— Select observed pattern —</option>
+            <option value="Strasberg Type A">Bile leak from cystic duct stump or minor duct → Type A</option>
+            <option value="Strasberg Type B">Occluded aberrant right sectoral duct → Type B</option>
+            <option value="Strasberg Type C">Transected, unligated aberrant right sectoral duct → Type C</option>
+            <option value="Strasberg Type D">Lateral injury to a major extrahepatic bile duct → Type D</option>
+            <option value="Strasberg Type E1">Transection/stricture &gt;2 cm below hepatic confluence → Type E1</option>
+            <option value="Strasberg Type E2">Transection/stricture &lt;2 cm below hepatic confluence → Type E2</option>
+            <option value="Strasberg Type E3">Hilar injury with confluence preserved → Type E3</option>
+            <option value="Strasberg Type E4">Hilar injury with right/left ducts separated → Type E4</option>
+            <option value="Strasberg Type E5">Main duct injury plus aberrant right sectoral duct injury → Type E5</option>
+          </select>
+        </label>
+        <label id="pdInjuryPatternField" hidden>Pancreatographic pattern
+          <select id="f_pd_injury_pattern">
+            <option value="">— Select observed pattern —</option>
+            <option value="Takishima Class 1">Normal pancreatic duct → Class 1</option>
+            <option value="Takishima Class 2a">Branch-duct injury; leak contained within pancreatic parenchyma → Class 2a</option>
+            <option value="Takishima Class 2b">Branch-duct injury; leak extends outside pancreatic parenchyma → Class 2b</option>
+            <option value="Takishima Class 3">Main pancreatic duct injury/disruption → Class 3</option>
+          </select>
+        </label>
+        <label>Automatic classification
+          <input type="text" id="injuryClassificationResult" readonly value="" placeholder="Select the observed pattern">
+        </label>
+      </div>
+
       <div class="form-row">
         <label>Endoscopic Papillary Shape (Haraldsson Classification)
           <select id="f_papilla">
@@ -102,14 +133,30 @@
           </select>
         </label>
         <label>Papillary Location <span class="label-hint">(if not standard)</span>
-          <select id="f_papilla_location">
+          <select id="f_papilla_location" data-saved-value="{{ report.papilla_location or '' }}">
             <option value="">— Standard location —</option>
             {% for opt in papilla_location_options %}
-            <option value="{{ opt }}" {{ 'selected' if report.papilla_location == opt }}>{{ opt }}</option>
+            {% set location_selected = report.papilla_location == opt or (opt == 'Periampullary diverticulum' and (report.papilla_location or '').startswith(opt ~ ' — ')) %}
+            <option value="{{ opt }}" {{ 'selected' if location_selected }}>{{ opt }}</option>
             {% endfor %}
           </select>
         </label>
       </div>
+
+      <div class="form-row ercp-auto-classification" id="diverticulumClassificationFields" hidden>
+        <label>Papilla relationship to diverticulum
+          <select id="f_diverticulum_pattern">
+            <option value="">— Select observed relationship —</option>
+            <option value="Boix Type I">Papilla located inside the diverticulum → Type I</option>
+            <option value="Boix Type II">Papilla located at the margin of the diverticulum → Type II</option>
+            <option value="Boix Type III">Papilla located near the diverticulum → Type III</option>
+          </select>
+        </label>
+        <label>Automatic classification
+          <input type="text" id="diverticulumClassificationResult" readonly value="" placeholder="Select the observed relationship">
+        </label>
+      </div>
+
       <div class="form-row">
         <label>Papillary Access
           <select id="f_papilla_access">
@@ -161,7 +208,7 @@
       <div class="ercp-cholangio-wrap" id="f_cholangiogram_findings">
         {% set selected_findings = (report.cholangiogram_findings or '').split(', ') %}
         {% for category, options in cholangiogram_categories %}
-        <div class="ercp-cholangio-category">
+        <div class="ercp-cholangio-category" data-category="{{ category }}">
           <div class="ercp-cholangio-category-title">{{ category }}</div>
 
           {% if category == 'Biliary Dilatation' %}
@@ -194,8 +241,13 @@
           {% endif %}
 
           {% if category == 'Strictures' %}
-          {% set has_stricture = (selected_findings | select('ne', 'No stricture') | list | length > 0) %}
-          <div id="strictureDetailFields" {% if not has_stricture %}hidden{% endif %}>
+          {% set stricture_state = namespace(has_actual=false) %}
+          {% for stricture_opt in options %}
+            {% if stricture_opt != 'No stricture' and stricture_opt in selected_findings %}
+              {% set stricture_state.has_actual = true %}
+            {% endif %}
+          {% endfor %}
+          <div id="strictureDetailFields" {% if not stricture_state.has_actual %}hidden{% endif %}>
           <div class="ercp-lab-grid" style="margin-top:8px;">
             <label>Stricture length (mm)<input type="number" step="0.1" min="0" id="f_cholangio_stricture_length_mm" value="{{ report.cholangio_stricture_length_mm }}"></label>
             <label>Stricture severity
@@ -652,3 +704,4 @@
   registerFollowupTimeline({{ report.id }});
 </script>
 {% endblock %}
+

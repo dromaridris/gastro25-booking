@@ -87,7 +87,7 @@ function apptCardHTML(a) {
   const manage = canManage(a);
   const locked = isTimeLocked(a);
   const canEdit = manage && !(ME && isSchedulerLikeRole(ME.role) && locked && !hasFullAccess(ME));
-  const canDelete = manage && (hasFullAccess(ME) || !locked);
+  const canDelete = manage && (hasFullAccess(ME) || (ME && ME.can_override) || !locked);
 
   const manageButtons = [];
   if (canEdit) manageButtons.push(`<button class="appt-cancel" onclick="openBookingModalForEdit(${a.id})">edit</button>`);
@@ -1061,6 +1061,78 @@ function initErcpReport() {
     });
   }
 
+  function classifiedIndicationValue() {
+    const indication = document.getElementById('f_indication');
+    if (!indication) return '';
+    if (indication.value === 'CBD injury') {
+      const classification = document.getElementById('f_cbd_injury_pattern')?.value || '';
+      return classification ? `CBD injury — ${classification}` : 'CBD injury';
+    }
+    if (indication.value === 'PD injury') {
+      const classification = document.getElementById('f_pd_injury_pattern')?.value || '';
+      return classification ? `PD injury — ${classification}` : 'PD injury';
+    }
+    return indication.value;
+  }
+
+  function classifiedPapillaLocationValue() {
+    const location = document.getElementById('f_papilla_location');
+    if (!location) return '';
+    if (location.value === 'Periampullary diverticulum') {
+      const classification = document.getElementById('f_diverticulum_pattern')?.value || '';
+      return classification ? `Periampullary diverticulum — ${classification}` : location.value;
+    }
+    return location.value;
+  }
+
+  function setupClinicalClassifiers() {
+    const indication = document.getElementById('f_indication');
+    const injuryWrap = document.getElementById('injuryClassificationFields');
+    const cbdField = document.getElementById('cbdInjuryPatternField');
+    const pdField = document.getElementById('pdInjuryPatternField');
+    const cbdSelect = document.getElementById('f_cbd_injury_pattern');
+    const pdSelect = document.getElementById('f_pd_injury_pattern');
+    const injuryResult = document.getElementById('injuryClassificationResult');
+    const papillaLocation = document.getElementById('f_papilla_location');
+    const diverticulumWrap = document.getElementById('diverticulumClassificationFields');
+    const diverticulumSelect = document.getElementById('f_diverticulum_pattern');
+    const diverticulumResult = document.getElementById('diverticulumClassificationResult');
+
+    if (indication && injuryWrap && cbdField && pdField && cbdSelect && pdSelect && injuryResult) {
+      const saved = indication.dataset.savedValue || '';
+      if (saved.startsWith('CBD injury — ')) cbdSelect.value = saved.slice('CBD injury — '.length);
+      if (saved.startsWith('PD injury — ')) pdSelect.value = saved.slice('PD injury — '.length);
+
+      const syncInjury = () => {
+        const isCbd = indication.value === 'CBD injury';
+        const isPd = indication.value === 'PD injury';
+        injuryWrap.hidden = !(isCbd || isPd);
+        cbdField.hidden = !isCbd;
+        pdField.hidden = !isPd;
+        injuryResult.value = isCbd ? cbdSelect.value : (isPd ? pdSelect.value : '');
+      };
+      indication.addEventListener('change', syncInjury);
+      cbdSelect.addEventListener('change', syncInjury);
+      pdSelect.addEventListener('change', syncInjury);
+      syncInjury();
+    }
+
+    if (papillaLocation && diverticulumWrap && diverticulumSelect && diverticulumResult) {
+      const saved = papillaLocation.dataset.savedValue || '';
+      if (saved.startsWith('Periampullary diverticulum — ')) {
+        diverticulumSelect.value = saved.slice('Periampullary diverticulum — '.length);
+      }
+      const syncDiverticulum = () => {
+        const show = papillaLocation.value === 'Periampullary diverticulum';
+        diverticulumWrap.hidden = !show;
+        diverticulumResult.value = show ? diverticulumSelect.value : '';
+      };
+      papillaLocation.addEventListener('change', syncDiverticulum);
+      diverticulumSelect.addEventListener('change', syncDiverticulum);
+      syncDiverticulum();
+    }
+  }
+
   function gatherPayload() {
     const image_captions = {};
     document.querySelectorAll('.img-caption-input[data-slot]').forEach((input) => {
@@ -1074,10 +1146,10 @@ function initErcpReport() {
       anesthesiologist: document.getElementById('f_anesthesiologist').value,
       assistants: document.getElementById('f_assistants').value,
       technician: document.getElementById('f_technician').value,
-      indication: document.getElementById('f_indication').value,
+      indication: classifiedIndicationValue(),
       duodenoscope_advancement: document.getElementById('f_duodenoscope_advancement').value,
       papilla: document.getElementById('f_papilla').value,
-      papilla_location: document.getElementById('f_papilla_location').value,
+      papilla_location: classifiedPapillaLocationValue(),
       papilla_access: document.getElementById('f_papilla_access').value,
       cannulation: document.getElementById('f_cannulation').value,
       cannulation_rescue_techniques: checkedValues('f_cannulation_rescue'),
@@ -1195,14 +1267,12 @@ function initErcpReport() {
   function setupStrictureDetailsToggle() {
     const wrap = document.getElementById('f_cholangiogram_findings');
     const details = document.getElementById('strictureDetailFields');
-    if (!wrap || !details) return;
+    const strictureCategory = wrap?.querySelector('[data-category="Strictures"]');
+    if (!wrap || !details || !strictureCategory) return;
 
     function hasActualStricture() {
-      return Array.from(wrap.querySelectorAll('.ercp-cholangio-toggle-opt.is-selected'))
-        .some(opt => {
-          const value = (opt.dataset.value || '').trim().toLowerCase();
-          return value && value !== 'no stricture';
-        });
+      return Array.from(strictureCategory.querySelectorAll('.ercp-cholangio-toggle-opt.is-selected'))
+        .some(opt => (opt.dataset.value || '').trim().toLowerCase() !== 'no stricture');
     }
 
     function sync() {
@@ -1243,6 +1313,7 @@ function initErcpReport() {
           opt.setAttribute('aria-selected', 'false');
         });
         numericFields.forEach(f => { f.value = ''; });
+        wrap.dispatchEvent(new CustomEvent('cholangio-toggle', { bubbles: true }));
         updateDilatationBadge();
       }
     });
@@ -1403,6 +1474,7 @@ function initErcpReport() {
         }
       });
     });
+    setupClinicalClassifiers();
     setupCholangioToggleLists('f_cholangiogram_findings');
     setupStrictureDetailsToggle();
     setupNormalCholangiogramToggle();
@@ -1477,3 +1549,4 @@ document.addEventListener('click', async (e) => {
     }
   }
 });
+

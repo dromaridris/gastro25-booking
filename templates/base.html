@@ -278,6 +278,12 @@
     </div>
     {% endif %}
     <div class="userbox">
+      <div class="ui-text-controls" aria-label="Screen text controls">
+        <button type="button" class="ui-text-btn" id="uiTextDecrease" title="Decrease screen text size">A−</button>
+        <span class="ui-text-value" id="uiTextValue">100%</span>
+        <button type="button" class="ui-text-btn" id="uiTextIncrease" title="Increase screen text size">A+</button>
+        <button type="button" class="ui-text-btn ui-text-bold-btn" id="uiTextBold" aria-pressed="false" title="Toggle bold screen text">B</button>
+      </div>
       <span class="userbox-name">{{ current_user.full_name }}</span>
       <span class="userbox-role">{{ user_role_label(current_user.role) }}</span>
       <a href="{{ url_for('change_password') }}" class="logout-link">Password</a>
@@ -333,6 +339,49 @@
 <script src="{{ url_for('static', filename='js/csrf.js') }}"></script>
 {% if current_user %}
 <script src="{{ url_for('static', filename='js/user_mentions.js') }}"></script>
+<script>
+(() => {
+  const decrease = document.getElementById('uiTextDecrease');
+  const increase = document.getElementById('uiTextIncrease');
+  const boldButton = document.getElementById('uiTextBold');
+  const value = document.getElementById('uiTextValue');
+  if (!decrease || !increase || !boldButton || !value) return;
+
+  const allowedScales = [0.9, 1, 1.1, 1.2];
+  let scale = 1;
+  let bold = false;
+  try {
+    const savedScale = Number(localStorage.getItem('gastroUiTextScale'));
+    if (allowedScales.includes(savedScale)) scale = savedScale;
+    bold = localStorage.getItem('gastroUiTextBold') === 'true';
+  } catch (_) { /* controls remain available without storage */ }
+
+  const apply = () => {
+    document.body.style.setProperty('--ui-content-scale', String(scale));
+    document.body.classList.toggle('ui-text-bold', bold);
+    value.textContent = `${Math.round(scale * 100)}%`;
+    decrease.disabled = scale === allowedScales[0];
+    increase.disabled = scale === allowedScales[allowedScales.length - 1];
+    boldButton.setAttribute('aria-pressed', bold ? 'true' : 'false');
+    try {
+      localStorage.setItem('gastroUiTextScale', String(scale));
+      localStorage.setItem('gastroUiTextBold', String(bold));
+    } catch (_) { /* no-op */ }
+  };
+
+  decrease.addEventListener('click', () => {
+    scale = allowedScales[Math.max(0, allowedScales.indexOf(scale) - 1)];
+    apply();
+  });
+  increase.addEventListener('click', () => {
+    scale = allowedScales[Math.min(allowedScales.length - 1, allowedScales.indexOf(scale) + 1)];
+    apply();
+  });
+  boldButton.addEventListener('click', () => { bold = !bold; apply(); });
+  apply();
+})();
+</script>
 {% endif %}
 </body>
 </html>
+

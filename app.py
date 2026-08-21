@@ -182,8 +182,9 @@ SEDATION_OPTIONS = [
     'None',
 ]
 INDICATION_OPTIONS = [
-    'Choledocholithiasis', 'Biliary stricture', 'Periampullary mass',
-    'Acute/chronic pancreatitis', 'Cholangitis', 'Post-cholecystectomy bile leak',
+    'Choledocholithiasis', 'Obstructive jaundice', 'Biliary stricture',
+    'Periampullary mass', 'Acute/chronic pancreatitis', 'Cholangitis',
+    'Post-cholecystectomy bile leak', 'CBD injury', 'PD injury',
     'Ampullary lesion', 'Other',
 ]
 DUODENOSCOPE_ADVANCEMENT_OPTIONS = ['Easy', 'Mild difficulty', 'Moderate difficulty', 'Difficult', 'Very difficult']
@@ -331,6 +332,9 @@ HARALDSSON_SENTENCE = {
 }
 PAPILLA_LOCATION_PHRASES = {
     'Periampullary diverticulum': 'within a periampullary diverticulum',
+    'Periampullary diverticulum — Boix Type I': 'inside a periampullary diverticulum (Boix Type I)',
+    'Periampullary diverticulum — Boix Type II': 'at the margin of a periampullary diverticulum (Boix Type II)',
+    'Periampullary diverticulum — Boix Type III': 'near a periampullary diverticulum (Boix Type III)',
     'Previous sphincterotomy': 'in the setting of a previous sphincterotomy',
     'Surgically altered anatomy': 'in the setting of surgically altered anatomy',
     'Periampullary mass': 'in proximity to a periampullary mass',
@@ -3614,10 +3618,10 @@ def api_delete_appointment(appt_id):
         return jsonify({'error': 'Not found.'}), 404
     if row['booked_by_username'] != user['username'] and not has_full_access(user['role']) and user['role'] not in CAN_OVERRIDE:
         return jsonify({'error': 'You do not have permission to cancel this booking.'}), 403
-    if is_time_locked(row) and not has_full_access(user['role']):
+    if is_time_locked(row) and not has_full_access(user['role']) and user['role'] not in CAN_OVERRIDE:
         return jsonify({'error': (
-            'This booking can only be deleted by an Admin once the appointment day has '
-            'arrived or 48 hours have passed since it was booked.'
+            'This booking can only be cancelled by an Admin, HOD, Consultant, or Specialist '
+            'once the appointment day has arrived or 48 hours have passed since booking.'
         )}), 403
     _delete_appointment_reports(dbconn, appt_id)
     dbconn.execute('DELETE FROM appointment WHERE id = ?', (appt_id,))
@@ -6358,3 +6362,4 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', '5001'))
     debug = os.environ.get('FLASK_DEBUG', '').strip().lower() in ('1', 'true', 'yes')
     app.run(debug=debug, port=port)
+
