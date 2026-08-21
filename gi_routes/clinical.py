@@ -317,7 +317,7 @@ def register_clinical_routes(app, *, get_db, login_required, roles_required):
         if sess['complaint_code']:
             questions = get_next_questions(db, sess['complaint_code'], session_id)
             differential = compute_differential_for_session(db, sess['complaint_code'], session_id)
-            complete = interview_complete(db, sess['complaint_code'], session_id)
+            complete = session_interview_complete(db, sess['complaint_code'], session_id)
         answers = history_service.list_answers(db, session_id)
         narrative = history_service.get_narrative(db, session_id)
         narrative_sections = {}

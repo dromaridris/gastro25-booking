@@ -200,7 +200,9 @@ a.brand-home:hover .brand-title{ color: var(--crimson); }
 @media (min-width: 761px){
   .topbar{ overflow: visible; }
   .mainnav{ overflow: visible; }
-  /* Click-only: menus open only when the trigger is clicked, not on hover */
+  /* Desktop hover/focus plus the JavaScript click fallback. */
+  .nav-dropdown:hover > .nav-dropdown-menu,
+  .nav-dropdown:focus-within > .nav-dropdown-menu,
   .nav-dropdown-menu.nav-dropdown-open{ display: flex; }
   /* Bridge the gap between trigger and panel (used while open) */
   .nav-dropdown::after{

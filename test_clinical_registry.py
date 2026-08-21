@@ -1,5 +1,9 @@
 import os
 
+# The registry test exercises authenticated application routes, not the
+# installation-activation flow. Keep licensing isolated from this test.
+os.environ['GASTRO_DISABLE_LICENSING'] = '1'
+
 from app import app
 
 with app.test_client() as c:
